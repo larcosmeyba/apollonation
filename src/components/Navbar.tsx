@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import apolloLogo from "@/assets/apollo-logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, loading } = useAuth();
 
   const navLinks = [
     { href: "#features", label: "Features" },
@@ -17,7 +20,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <img 
               src={apolloLogo} 
               alt="Apollo Nation Logo" 
@@ -26,7 +29,7 @@ const Navbar = () => {
             <span className="font-heading text-xl tracking-wider text-foreground">
               APOLLO <span className="text-apollo-gold">NATION</span>
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
@@ -43,12 +46,28 @@ const Navbar = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              Log In
-            </Button>
-            <Button variant="apollo" size="sm">
-              Get Started
-            </Button>
+            {loading ? (
+              <div className="w-20 h-9 bg-muted animate-pulse rounded" />
+            ) : user ? (
+              <Link to="/dashboard">
+                <Button variant="apollo" size="sm">
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm">
+                    Log In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button variant="apollo" size="sm">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -77,12 +96,26 @@ const Navbar = () => {
               </a>
             ))}
             <div className="pt-4 space-y-3">
-              <Button variant="ghost" className="w-full">
-                Log In
-              </Button>
-              <Button variant="apollo" className="w-full">
-                Get Started
-              </Button>
+              {user ? (
+                <Link to="/dashboard" onClick={() => setIsOpen(false)}>
+                  <Button variant="apollo" className="w-full">
+                    Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
+                    <Button variant="ghost" className="w-full">
+                      Log In
+                    </Button>
+                  </Link>
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
+                    <Button variant="apollo" className="w-full">
+                      Get Started
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
