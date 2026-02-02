@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Camera, Plus, Trash2, Upload, Sparkles } from "lucide-react";
+import { Camera, Plus, Trash2, Upload, Sparkles, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MacroEntry {
   id: string;
@@ -23,6 +24,7 @@ interface MacroEntry {
   carbs_grams: number;
   fat_grams: number;
   ai_estimated: boolean;
+  confidence?: string;
 }
 
 const DashboardMacros = () => {
@@ -55,35 +57,74 @@ const DashboardMacros = () => {
     }
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleAiAnalyze = async () => {
     if (!selectedFile) return;
 
     setIsAnalyzing(true);
 
-    // Simulate AI analysis (in production, this would call an edge function)
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      // Convert file to base64
+      const imageBase64 = await fileToBase64(selectedFile);
 
-    const newEntry: MacroEntry = {
-      id: Date.now().toString(),
-      meal_name: "AI Analyzed Meal",
-      photo_url: previewUrl || undefined,
-      calories: Math.floor(Math.random() * 400) + 200,
-      protein_grams: Math.floor(Math.random() * 30) + 15,
-      carbs_grams: Math.floor(Math.random() * 50) + 20,
-      fat_grams: Math.floor(Math.random() * 20) + 5,
-      ai_estimated: true,
-    };
+      // Call the edge function
+      const { data, error } = await supabase.functions.invoke("analyze-food", {
+        body: { imageBase64 },
+      });
 
-    setEntries((prev) => [newEntry, ...prev]);
-    setIsAnalyzing(false);
-    setSelectedFile(null);
-    setPreviewUrl(null);
-    setIsDialogOpen(false);
+      if (error) {
+        throw new Error(error.message);
+      }
 
-    toast({
-      title: "Meal analyzed!",
-      description: "AI has estimated the macros for your meal.",
-    });
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      const nutritionData = data.data;
+
+      const newEntry: MacroEntry = {
+        id: Date.now().toString(),
+        meal_name: nutritionData.meal_name || "Analyzed Meal",
+        photo_url: previewUrl || undefined,
+        calories: Math.round(nutritionData.calories) || 0,
+        protein_grams: Math.round(nutritionData.protein_grams) || 0,
+        carbs_grams: Math.round(nutritionData.carbs_grams) || 0,
+        fat_grams: Math.round(nutritionData.fat_grams) || 0,
+        ai_estimated: true,
+        confidence: nutritionData.confidence,
+      };
+
+      setEntries((prev) => [newEntry, ...prev]);
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setIsDialogOpen(false);
+
+      toast({
+        title: "Meal analyzed!",
+        description: `AI identified: ${nutritionData.meal_name} (${nutritionData.confidence} confidence)`,
+      });
+
+      if (nutritionData.notes) {
+        console.log("AI notes:", nutritionData.notes);
+      }
+    } catch (error) {
+      console.error("AI analysis error:", error);
+      toast({
+        title: "Analysis failed",
+        description: error instanceof Error ? error.message : "Could not analyze the image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleManualSubmit = () => {
