@@ -14,7 +14,257 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      macro_logs: {
+        Row: {
+          ai_estimated: boolean | null
+          calories: number | null
+          carbs_grams: number | null
+          created_at: string
+          fat_grams: number | null
+          id: string
+          log_date: string
+          meal_name: string | null
+          notes: string | null
+          photo_url: string | null
+          protein_grams: number | null
+          user_id: string
+        }
+        Insert: {
+          ai_estimated?: boolean | null
+          calories?: number | null
+          carbs_grams?: number | null
+          created_at?: string
+          fat_grams?: number | null
+          id?: string
+          log_date?: string
+          meal_name?: string | null
+          notes?: string | null
+          photo_url?: string | null
+          protein_grams?: number | null
+          user_id: string
+        }
+        Update: {
+          ai_estimated?: boolean | null
+          calories?: number | null
+          carbs_grams?: number | null
+          created_at?: string
+          fat_grams?: number | null
+          id?: string
+          log_date?: string
+          meal_name?: string | null
+          notes?: string | null
+          photo_url?: string | null
+          protein_grams?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          fitness_goals: string | null
+          id: string
+          subscription_tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          fitness_goals?: string | null
+          id?: string
+          subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          fitness_goals?: string | null
+          id?: string
+          subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          calories_per_serving: number | null
+          carbs_grams: number | null
+          category: string | null
+          cook_time_minutes: number | null
+          created_at: string
+          description: string | null
+          dietary_tags: string[] | null
+          fat_grams: number | null
+          id: string
+          ingredients: Json | null
+          instructions: string | null
+          prep_time_minutes: number | null
+          protein_grams: number | null
+          servings: number | null
+          thumbnail_url: string | null
+          title: string
+        }
+        Insert: {
+          calories_per_serving?: number | null
+          carbs_grams?: number | null
+          category?: string | null
+          cook_time_minutes?: number | null
+          created_at?: string
+          description?: string | null
+          dietary_tags?: string[] | null
+          fat_grams?: number | null
+          id?: string
+          ingredients?: Json | null
+          instructions?: string | null
+          prep_time_minutes?: number | null
+          protein_grams?: number | null
+          servings?: number | null
+          thumbnail_url?: string | null
+          title: string
+        }
+        Update: {
+          calories_per_serving?: number | null
+          carbs_grams?: number | null
+          category?: string | null
+          cook_time_minutes?: number | null
+          created_at?: string
+          description?: string | null
+          dietary_tags?: string[] | null
+          fat_grams?: number | null
+          id?: string
+          ingredients?: Json | null
+          instructions?: string | null
+          prep_time_minutes?: number | null
+          protein_grams?: number | null
+          servings?: number | null
+          thumbnail_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      user_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          recipe_id: string | null
+          user_id: string
+          workout_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipe_id?: string | null
+          user_id: string
+          workout_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipe_id?: string | null
+          user_id?: string
+          workout_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorites_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_workout_progress: {
+        Row: {
+          completed_at: string
+          duration_seconds: number | null
+          id: string
+          notes: string | null
+          user_id: string
+          workout_id: string
+        }
+        Insert: {
+          completed_at?: string
+          duration_seconds?: number | null
+          id?: string
+          notes?: string | null
+          user_id: string
+          workout_id: string
+        }
+        Update: {
+          completed_at?: string
+          duration_seconds?: number | null
+          id?: string
+          notes?: string | null
+          user_id?: string
+          workout_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_workout_progress_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workouts: {
+        Row: {
+          calories_estimate: number | null
+          category: string
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_featured: boolean | null
+          thumbnail_url: string | null
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          calories_estimate?: number | null
+          category: string
+          created_at?: string
+          description?: string | null
+          duration_minutes: number
+          id?: string
+          is_featured?: boolean | null
+          thumbnail_url?: string | null
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          calories_estimate?: number | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_featured?: boolean | null
+          thumbnail_url?: string | null
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +273,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      subscription_tier: "basic" | "pro" | "elite"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +400,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      subscription_tier: ["basic", "pro", "elite"],
+    },
   },
 } as const
