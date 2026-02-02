@@ -18,6 +18,7 @@ const DashboardProfile = () => {
     display_name: profile?.display_name || "",
     bio: profile?.bio || "",
     fitness_goals: profile?.fitness_goals || "",
+    phone: (profile as any)?.phone || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,6 +33,7 @@ const DashboardProfile = () => {
         display_name: formData.display_name,
         bio: formData.bio,
         fitness_goals: formData.fitness_goals,
+        phone: formData.phone || null,
       })
       .eq("id", profile.id);
 
@@ -106,6 +108,23 @@ const DashboardProfile = () => {
                 placeholder="Your name"
                 className="bg-muted border-border"
               />
+            </div>
+
+            <div>
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                }
+                placeholder="(555) 123-4567"
+                className="bg-muted border-border"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Required for Pro/Elite members using the mobile app
+              </p>
             </div>
 
             <div>
