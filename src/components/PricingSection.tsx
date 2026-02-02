@@ -7,7 +7,7 @@ const tiers = [
     price: "29",
     description: "Perfect for getting started with Coach Marcos",
     features: [
-      "100 HD On-Demand Workouts",
+      "Access to a growing library of On-Demand Workouts",
       "Nutrition Recipes Library",
       "Progress tracking",
       "Coach Marcos support",
