@@ -12,7 +12,11 @@ import DashboardWorkouts from "./pages/DashboardWorkouts";
 import DashboardRecipes from "./pages/DashboardRecipes";
 import DashboardMacros from "./pages/DashboardMacros";
 import DashboardProfile from "./pages/DashboardProfile";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminRoute from "@/components/AdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +30,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
             <Route
               path="/dashboard"
               element={
@@ -64,6 +70,14 @@ const App = () => (
                 <ProtectedRoute>
                   <DashboardProfile />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
               }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
