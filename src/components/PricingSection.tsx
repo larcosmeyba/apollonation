@@ -5,13 +5,13 @@ const tiers = [
   {
     name: "BASIC",
     price: "29",
-    description: "Perfect for getting started with online training",
+    description: "Perfect for getting started with Coach Marcos",
     features: [
-      "Full workout library access",
-      "Basic training programs",
+      "100 HD On-Demand Workouts",
+      "Nutrition Recipes Library",
       "Progress tracking",
-      "Community access",
-      "Email support"
+      "Coach Marcos support",
+      "Website access"
     ],
     appAccess: false,
     featured: false
@@ -23,9 +23,9 @@ const tiers = [
     features: [
       "Everything in Basic",
       "Advanced training programs",
-      "Personalized workout plans",
+      "Personalized workout plans from Marcos",
       "Nutrition guides",
-      "Live Q&A sessions",
+      "Live Q&A with Coach Marcos",
       "Priority support"
     ],
     appAccess: true,
@@ -37,12 +37,12 @@ const tiers = [
     description: "The ultimate transformation experience",
     features: [
       "Everything in Pro",
-      "1-on-1 coaching sessions",
+      "AI-Powered Macro Tracking (photo upload)",
+      "AI Nutrition Guidance (all diets supported)",
+      "1-on-1 coaching with Marcos",
       "Custom meal plans",
-      "VIP community access",
       "Early access to new content",
-      "Exclusive merchandise discounts",
-      "Personal goal tracking"
+      "VIP community access"
     ],
     appAccess: true,
     featured: false
