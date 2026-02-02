@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import apolloLogo from "@/assets/apollo-logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,9 +18,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <a href="#" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-apollo-gold to-apollo-copper flex items-center justify-center">
-              <span className="font-heading font-bold text-primary-foreground text-lg">A</span>
-            </div>
+            <img 
+              src={apolloLogo} 
+              alt="Apollo Nation Logo" 
+              className="w-12 h-12 invert"
+            />
             <span className="font-heading text-xl tracking-wider text-foreground">
               APOLLO <span className="text-apollo-gold">NATION</span>
             </span>

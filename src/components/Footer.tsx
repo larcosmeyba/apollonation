@@ -1,4 +1,5 @@
 import { Instagram, Twitter, Youtube, Mail } from "lucide-react";
+import apolloLogo from "@/assets/apollo-logo.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -38,9 +39,11 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-apollo-gold to-apollo-copper flex items-center justify-center">
-                <span className="font-heading font-bold text-primary-foreground text-lg">A</span>
-              </div>
+              <img 
+                src={apolloLogo} 
+                alt="Apollo Nation Logo" 
+                className="w-12 h-12 invert"
+              />
               <span className="font-heading text-xl tracking-wider text-foreground">
                 APOLLO <span className="text-apollo-gold">NATION</span>
               </span>

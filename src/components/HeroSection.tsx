@@ -1,6 +1,6 @@
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroBg from "@/assets/hero-bg.jpg";
+import fitnessHero from "@/assets/fitness-1.png";
 
 const HeroSection = () => {
   return (
@@ -8,10 +8,10 @@ const HeroSection = () => {
       {/* Background image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})` }}
+        style={{ backgroundImage: `url(${fitnessHero})` }}
       />
       {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/70 to-background/90" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/60" />
       
       {/* Animated background elements */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-apollo-gold/5 rounded-full blur-3xl animate-pulse-glow" />
