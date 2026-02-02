@@ -1,20 +1,20 @@
-import { Dumbbell, Video, Users, Smartphone, Calendar, Trophy } from "lucide-react";
+import { Dumbbell, Video, Users, Smartphone, Camera, Utensils } from "lucide-react";
 
 const features = [
   {
     icon: Video,
     title: "HD Workout Library",
-    description: "Access 500+ professionally filmed exercise videos with detailed form guides and modifications."
+    description: "Access 100 professionally filmed exercise videos with detailed form guides and modifications."
   },
   {
     icon: Dumbbell,
-    title: "Custom Programs",
-    description: "AI-powered training programs tailored to your goals, equipment, and fitness level."
+    title: "Coach Marcos Training",
+    description: "Training programs designed by founder Marcos Leyba, tailored to your goals and fitness level."
   },
   {
     icon: Users,
-    title: "Community Support",
-    description: "Connect with fellow warriors, share progress, and stay motivated with group challenges."
+    title: "Direct Coaching Support",
+    description: "Get personal guidance and support directly from Coach Marcos throughout your fitness journey."
   },
   {
     icon: Smartphone,
@@ -22,14 +22,14 @@ const features = [
     description: "Train anywhere with our powerful iOS and Android app. Premium tiers unlock all app features."
   },
   {
-    icon: Calendar,
-    title: "Progress Tracking",
-    description: "Log workouts, track PRs, and visualize your transformation with detailed analytics."
+    icon: Camera,
+    title: "AI Macro Tracking",
+    description: "Snap a photo of your meal and let AI estimate your macros instantly. Elite members only."
   },
   {
-    icon: Trophy,
-    title: "Achievement System",
-    description: "Earn badges, climb leaderboards, and unlock rewards as you crush your fitness goals."
+    icon: Utensils,
+    title: "AI Nutrition Guidance",
+    description: "Personalized nutrition plans supporting all diets—vegan, keto, and more. Elite tier exclusive."
   }
 ];
 

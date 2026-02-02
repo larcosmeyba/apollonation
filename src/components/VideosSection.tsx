@@ -56,7 +56,7 @@ const VideosSection = () => {
             <span className="text-gradient-gold block">WHEN YOU ARE</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Access 500+ professional workout videos anytime, anywhere. New content added weekly.
+            Access 100 professional workout videos anytime, anywhere. New content added regularly.
           </p>
         </div>
 
