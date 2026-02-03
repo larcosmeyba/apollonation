@@ -10,13 +10,13 @@ const Navbar = () => {
   const { user, loading } = useAuth();
 
   const navLinks = [
-    { href: "#features", label: "Features" },
-    { href: "#pricing", label: "Pricing" },
-    { href: "#testimonials", label: "Testimonials" },
+    { href: "#features", label: "Programs" },
+    { href: "#pricing", label: "Membership" },
+    { href: "#testimonials", label: "Community" },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/90 border-b border-border/30">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -24,20 +24,20 @@ const Navbar = () => {
             <img 
               src={apolloLogo} 
               alt="Apollo Nation Logo" 
-              className="w-12 h-12 invert"
+              className="w-10 h-10 invert opacity-90"
             />
-            <span className="font-heading text-xl tracking-wider text-foreground">
+            <span className="font-heading text-lg tracking-[0.15em] text-foreground">
               APOLLO <span className="text-apollo-gold">NATION</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-300 font-medium text-sm uppercase tracking-wide"
+                className="text-muted-foreground hover:text-foreground transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
               >
                 {link.label}
               </a>
@@ -57,13 +57,13 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm">
-                    Log In
+                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                    Sign In
                   </Button>
                 </Link>
                 <Link to="/auth">
                   <Button variant="apollo" size="sm">
-                    Get Started
+                    Join Now
                   </Button>
                 </Link>
               </>
@@ -83,19 +83,19 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-background/95 backdrop-blur-xl border-t border-border">
-          <div className="container mx-auto px-4 py-6 space-y-4">
+        <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-border/30">
+          <div className="container mx-auto px-4 py-8 space-y-4">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="block text-muted-foreground hover:text-foreground transition-colors py-2 font-medium"
+                className="block text-muted-foreground hover:text-foreground transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
                 onClick={() => setIsOpen(false)}
               >
                 {link.label}
               </a>
             ))}
-            <div className="pt-4 space-y-3">
+            <div className="pt-6 space-y-3 border-t border-border/30">
               {user ? (
                 <Link to="/dashboard" onClick={() => setIsOpen(false)}>
                   <Button variant="apollo" className="w-full">
@@ -105,13 +105,13 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full">
-                      Log In
+                    <Button variant="ghost" className="w-full text-muted-foreground">
+                      Sign In
                     </Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
                     <Button variant="apollo" className="w-full">
-                      Get Started
+                      Join Now
                     </Button>
                   </Link>
                 </>

@@ -1,48 +1,48 @@
-import { Check, Zap } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tiers = [
   {
-    name: "BASIC",
+    name: "Essential",
     price: "29",
-    description: "Perfect for getting started with Coach Marcos",
+    description: "Begin your wellness journey",
     features: [
-      "Access to a growing library of On-Demand Workouts",
-      "Nutrition Recipes Library",
+      "On-demand workout library",
+      "Nutrition recipes collection",
       "Progress tracking",
-      "Coach Marcos support",
-      "Website access"
+      "Community support",
+      "Web platform access"
     ],
     appAccess: false,
     featured: false
   },
   {
-    name: "PRO",
+    name: "Premier",
     price: "59",
-    description: "For serious athletes ready to level up",
+    description: "For dedicated practitioners",
     features: [
-      "Everything in Basic",
+      "Everything in Essential",
       "Advanced training programs",
-      "Personalized workout plans from Marcos",
-      "Nutrition guides",
-      "Live Q&A with Coach Marcos",
+      "Personalized workout plans",
+      "Nutrition guidance",
+      "Live sessions access",
       "Priority support"
     ],
     appAccess: true,
     featured: true
   },
   {
-    name: "ELITE",
+    name: "Elite",
     price: "99",
-    description: "The ultimate transformation experience",
+    description: "The complete experience",
     features: [
-      "Everything in Pro",
-      "AI-Powered Macro Tracking (photo upload)",
-      "AI Nutrition Guidance (all diets supported)",
-      "1-on-1 coaching with Marcos",
-      "Custom meal plans",
-      "Early access to new content",
-      "VIP community access"
+      "Everything in Premier",
+      "AI-powered macro tracking",
+      "Personalized nutrition plans",
+      "One-on-one coaching",
+      "Custom meal planning",
+      "Early access to content",
+      "VIP community"
     ],
     appAccess: true,
     featured: false
@@ -51,76 +51,73 @@ const tiers = [
 
 const PricingSection = () => {
   return (
-    <section id="pricing" className="py-24 relative overflow-hidden">
+    <section id="pricing" className="py-32 relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-apollo-charcoal-light/30 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-apollo-charcoal-light/20 to-background" />
       
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-apollo-gold font-medium text-sm uppercase tracking-widest mb-4 block">
-            Membership Plans
+        <div className="text-center max-w-2xl mx-auto mb-20">
+          <span className="section-label mb-6 block">
+            Membership
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl mb-6">
-            CHOOSE YOUR
-            <span className="text-gradient-gold block">PATH TO GLORY</span>
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.05em]">
+            Choose Your
+            <span className="text-gradient-gold block mt-2">Path</span>
           </h2>
-          <p className="text-muted-foreground text-lg">
-            Flexible plans designed for every stage of your fitness journey. All plans include access to our web platform.
+          <p className="text-muted-foreground text-base font-light leading-relaxed">
+            Flexible plans designed for every stage of your wellness journey.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-          {tiers.map((tier, index) => (
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
+          {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`relative rounded-2xl p-8 ${
+              className={`relative p-8 lg:p-10 border transition-all duration-500 ${
                 tier.featured
-                  ? "card-apollo-featured scale-105 md:scale-110"
-                  : "card-apollo"
+                  ? "border-apollo-gold/40 bg-card/50 scale-[1.02]"
+                  : "border-border/50 bg-card/30 hover:border-apollo-gold/20"
               }`}
             >
-              {/* Featured badge */}
+              {/* Featured indicator */}
               {tier.featured && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-apollo-gold to-apollo-copper rounded-full">
-                  <div className="flex items-center gap-1.5">
-                    <Zap size={14} className="text-primary-foreground" />
-                    <span className="text-xs font-bold text-primary-foreground uppercase tracking-wide">
-                      Most Popular
-                    </span>
-                  </div>
+                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-6 py-1 bg-apollo-gold">
+                  <span className="text-[10px] font-medium text-primary-foreground uppercase tracking-[0.2em]">
+                    Most Popular
+                  </span>
                 </div>
               )}
 
               {/* Header */}
-              <div className="text-center mb-8">
-                <h3 className="font-heading text-2xl mb-2">{tier.name}</h3>
-                <p className="text-muted-foreground text-sm mb-4">{tier.description}</p>
+              <div className="text-center mb-10 pt-4">
+                <h3 className="font-heading text-xl tracking-[0.1em] mb-3">{tier.name}</h3>
+                <p className="text-muted-foreground text-xs font-light mb-6">{tier.description}</p>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-muted-foreground text-xl">$</span>
-                  <span className={`font-heading text-5xl ${tier.featured ? 'text-apollo-gold' : ''}`}>
+                  <span className="text-muted-foreground text-lg font-light">$</span>
+                  <span className={`font-heading text-4xl tracking-wide ${tier.featured ? 'text-apollo-gold' : ''}`}>
                     {tier.price}
                   </span>
-                  <span className="text-muted-foreground">/month</span>
+                  <span className="text-muted-foreground text-sm font-light">/mo</span>
                 </div>
               </div>
 
               {/* App Access Badge */}
               {tier.appAccess && (
-                <div className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-apollo-gold/10 border border-apollo-gold/20 mb-6">
-                  <span className="text-apollo-gold text-sm font-medium">
-                    ✓ Includes APOLLO NATION App
+                <div className="flex items-center justify-center gap-2 py-3 px-4 border border-apollo-gold/20 bg-apollo-gold/5 mb-8">
+                  <span className="text-apollo-gold text-xs font-light tracking-wide">
+                    ✓ Includes Mobile App
                   </span>
                 </div>
               )}
 
               {/* Features */}
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-4 mb-10">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
-                    <Check size={18} className="text-apollo-gold flex-shrink-0 mt-0.5" />
-                    <span className="text-muted-foreground text-sm">{feature}</span>
+                    <Check size={14} className="text-apollo-gold flex-shrink-0 mt-1" strokeWidth={1.5} />
+                    <span className="text-muted-foreground text-sm font-light">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -138,9 +135,9 @@ const PricingSection = () => {
         </div>
 
         {/* Guarantee */}
-        <div className="text-center mt-12">
-          <p className="text-muted-foreground text-sm">
-            30-day money-back guarantee • Cancel anytime • Instant access
+        <div className="text-center mt-16">
+          <p className="text-muted-foreground text-xs font-light tracking-wide">
+            30-day satisfaction guarantee · Cancel anytime · Instant access
           </p>
         </div>
       </div>
