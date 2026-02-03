@@ -3,75 +3,75 @@ import { Dumbbell, Video, Users, Smartphone, Camera, Utensils } from "lucide-rea
 const features = [
   {
     icon: Video,
-    title: "HD Workout Library",
-    description: "Access 100 professionally filmed exercise videos with detailed form guides and modifications."
+    title: "Curated Programs",
+    description: "Access our library of professionally crafted workout programs with detailed guidance."
   },
   {
     icon: Dumbbell,
-    title: "Coach Marcos Training",
-    description: "Training programs designed by founder Marcos Leyba, tailored to your goals and fitness level."
+    title: "Expert Training",
+    description: "Programs designed by Coach Marcos, tailored to elevate your practice and results."
   },
   {
     icon: Users,
-    title: "Direct Coaching Support",
-    description: "Get personal guidance and support directly from Coach Marcos throughout your fitness journey."
+    title: "Personal Guidance",
+    description: "Direct coaching support to guide you through every step of your transformation."
   },
   {
     icon: Smartphone,
-    title: "Mobile App Access",
-    description: "Train anywhere with our powerful iOS and Android app. Premium tiers unlock all app features."
+    title: "Seamless Access",
+    description: "Train anywhere with our iOS and Android app. Premium tiers unlock all features."
   },
   {
     icon: Camera,
-    title: "AI Macro Tracking",
-    description: "Snap a photo of your meal and let AI estimate your macros instantly. Elite members only."
+    title: "Intelligent Tracking",
+    description: "AI-powered macro tracking from a simple photo. Exclusive to Elite members."
   },
   {
     icon: Utensils,
-    title: "AI Nutrition Guidance",
-    description: "Personalized nutrition plans supporting all diets—vegan, keto, and more. Elite tier exclusive."
+    title: "Mindful Nutrition",
+    description: "Personalized nutrition plans for all dietary preferences. Elite tier exclusive."
   }
 ];
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="py-24 relative">
-      {/* Background accent */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-apollo-gold/30 to-transparent" />
+    <section id="features" className="py-32 relative">
+      {/* Subtle divider */}
+      <div className="absolute top-0 left-0 right-0 divider-gold" />
       
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-apollo-gold font-medium text-sm uppercase tracking-widest mb-4 block">
-            What You Get
+        <div className="text-center max-w-2xl mx-auto mb-20">
+          <span className="section-label mb-6 block">
+            The Experience
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl mb-6">
-            EVERYTHING YOU NEED TO
-            <span className="text-gradient-gold block">DOMINATE</span>
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.05em]">
+            Everything You Need
+            <span className="text-gradient-gold block mt-2">To Transform</span>
           </h2>
-          <p className="text-muted-foreground text-lg">
-            A complete fitness ecosystem designed to transform you into the best version of yourself.
+          <p className="text-muted-foreground text-base font-light leading-relaxed">
+            A complete wellness ecosystem designed to elevate both body and mind.
           </p>
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group card-apollo hover:border-apollo-gold/50 transition-all duration-500"
+              className="group p-8 border border-border/50 hover:border-apollo-gold/30 transition-all duration-700 bg-card/30"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Icon */}
-              <div className="w-14 h-14 rounded-xl bg-apollo-gold/10 flex items-center justify-center mb-5 group-hover:bg-apollo-gold/20 transition-colors">
-                <feature.icon className="w-7 h-7 text-apollo-gold" />
+              <div className="w-12 h-12 flex items-center justify-center mb-6 border border-apollo-gold/20 group-hover:border-apollo-gold/40 transition-colors duration-500">
+                <feature.icon className="w-5 h-5 text-apollo-gold" strokeWidth={1.5} />
               </div>
 
               {/* Content */}
-              <h3 className="font-heading text-xl mb-3 group-hover:text-apollo-gold transition-colors">
+              <h3 className="font-heading text-lg mb-4 tracking-[0.08em] group-hover:text-apollo-gold transition-colors duration-500">
                 {feature.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground font-light leading-relaxed text-sm">
                 {feature.description}
               </p>
             </div>
