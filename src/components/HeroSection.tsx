@@ -10,8 +10,8 @@ const HeroSection = () => {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroStatue})` }}
       />
-      {/* Lighter overlay to show statue detail */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-background/50" />
+      {/* Minimal overlay to showcase statue */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-background/30" />
       
       {/* Subtle ambient glow */}
       <div className="absolute top-1/4 left-1/4 w-[700px] h-[700px] bg-primary/10 rounded-full blur-[150px] animate-pulse-glow" />
