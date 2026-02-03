@@ -27,7 +27,7 @@ const Navbar = () => {
               className="w-10 h-10 brightness-150 opacity-90"
             />
             <span className="font-heading text-lg tracking-[0.15em] text-foreground">
-              APOLLO <span className="text-apollo-gold">NATION</span>
+              APOLLO <span className="text-accent">NATION</span>
             </span>
           </Link>
 
@@ -37,7 +37,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
+                className="text-muted-foreground hover:text-accent transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
               >
                 {link.label}
               </a>

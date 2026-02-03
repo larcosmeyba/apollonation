@@ -39,11 +39,11 @@ const HeroSection = () => {
           {/* Main Heading - Cinzel font, elegant spacing */}
           <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 animate-fade-in tracking-[0.05em]" style={{ animationDelay: '0.1s' }}>
             Discover Your
-            <span className="block text-gradient-gold mt-2">Inner Strength</span>
+            <span className="block mt-2 bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">Inner Strength</span>
           </h1>
 
-          {/* Subheading - Light, refined */}
-          <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-12 animate-fade-in font-light leading-relaxed" style={{ animationDelay: '0.2s' }}>
+          {/* Subheading - Warm Greige for coziness */}
+          <p className="text-base md:text-lg text-apollo-taupe max-w-xl mx-auto mb-12 animate-fade-in font-light leading-relaxed" style={{ animationDelay: '0.2s' }}>
             Experience the art of transformation through curated training programs, 
             mindful movement, and a community dedicated to excellence.
           </p>
@@ -68,7 +68,7 @@ const HeroSection = () => {
               { value: "98%", label: "Success" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="font-heading text-2xl md:text-3xl text-apollo-gold mb-2 tracking-wide">{stat.value}</div>
+                <div className="font-heading text-2xl md:text-3xl text-primary mb-2 tracking-wide" style={{ textShadow: '0 0 30px hsl(26 38% 61% / 0.5)' }}>{stat.value}</div>
                 <div className="text-xs text-muted-foreground uppercase tracking-[0.2em] font-light">{stat.label}</div>
               </div>
             ))}
