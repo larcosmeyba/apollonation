@@ -23,9 +23,9 @@
     --popover: 0 0% 7%;
     --popover-foreground: 37 31% 86%;
 
-    /* Primary - Aged Bronze (signature accent) */
-    --primary: 32 16% 41%;
-    --primary-foreground: 45 18% 96%;
+    /* Primary - Pale Sand (signature accent) */
+    --primary: 37 31% 86%;
+    --primary-foreground: 240 7% 6%;
 
     /* Secondary - Bronzed Clay */
     --secondary: 28 28% 42%;
@@ -51,11 +51,11 @@
     --radius: 0.5rem;
 
     /* Custom Apollo tokens - Luxury Greek Theme */
-    --apollo-gold: 32 16% 41%;
-    --apollo-gold-light: 32 20% 55%;
-    --apollo-gold-dark: 32 18% 32%;
-    --apollo-bronze: 32 16% 41%;
-    --apollo-sandstone: 32 20% 55%;
+    --apollo-gold: 37 31% 86%;
+    --apollo-gold-light: 37 35% 90%;
+    --apollo-gold-dark: 37 25% 75%;
+    --apollo-bronze: 37 31% 86%;
+    --apollo-sandstone: 37 35% 90%;
     --apollo-charcoal: 240 7% 6%;
     --apollo-charcoal-light: 0 0% 8%;
     --apollo-marble: 37 31% 86%;
@@ -64,14 +64,14 @@
     --apollo-slate: 195 4% 45%;
 
     /* Gradients - Subtle, luxurious */
-    --gradient-gold: linear-gradient(135deg, hsl(32 16% 41%), hsl(32 20% 55%));
-    --gradient-bronze: linear-gradient(135deg, hsl(32 18% 32%), hsl(32 16% 41%));
+    --gradient-gold: linear-gradient(135deg, hsl(37 31% 86%), hsl(37 35% 90%));
+    --gradient-bronze: linear-gradient(135deg, hsl(37 25% 75%), hsl(37 31% 86%));
     --gradient-dark: linear-gradient(180deg, hsl(240 7% 6%), hsl(0 0% 3%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 10%), hsl(0 0% 6%));
     --gradient-hero: linear-gradient(135deg, hsl(240 7% 5%) 0%, hsl(0 0% 8%) 50%, hsl(240 7% 5%) 100%);
 
     /* Shadows - Sophisticated */
-    --shadow-gold: 0 4px 30px -5px hsl(32 16% 41% / 0.25);
+    --shadow-gold: 0 4px 30px -5px hsl(37 31% 86% / 0.25);
     --shadow-elevated: 0 20px 50px -15px hsl(0 0% 0% / 0.6);
     --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / 0.5);
 
