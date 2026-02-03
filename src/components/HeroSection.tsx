@@ -14,7 +14,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/70" />
       
       {/* Subtle ambient glow */}
-      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-apollo-gold/5 rounded-full blur-[120px] animate-pulse-glow" />
+      <div className="absolute top-1/4 left-1/4 w-[700px] h-[700px] bg-primary/10 rounded-full blur-[150px] animate-pulse-glow" />
       
       {/* Minimal grid pattern */}
       <div 
@@ -28,10 +28,10 @@ const HeroSection = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          {/* Refined badge */}
-          <div className="inline-flex items-center gap-3 px-6 py-2 border border-apollo-gold/20 bg-apollo-gold/5 mb-10 animate-fade-in">
-            <span className="w-1.5 h-1.5 rounded-full bg-apollo-gold" />
-            <span className="text-xs text-apollo-gold font-medium tracking-[0.2em] uppercase">
+          {/* Refined badge with Aegean Fog accent */}
+          <div className="inline-flex items-center gap-3 px-6 py-2 border border-accent/40 bg-accent/10 mb-10 animate-fade-in">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+            <span className="text-xs text-accent font-medium tracking-[0.2em] uppercase">
               Elevate Your Practice
             </span>
           </div>
@@ -61,7 +61,7 @@ const HeroSection = () => {
           </div>
 
           {/* Stats - Refined, understated */}
-          <div className="grid grid-cols-3 gap-12 mt-20 pt-12 border-t border-border/30 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="grid grid-cols-3 gap-12 mt-20 pt-12 border-t border-accent/30 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             {[
               { value: "50K+", label: "Members" },
               { value: "500+", label: "Programs" },
