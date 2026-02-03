@@ -15,7 +15,7 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline tracking-normal",
-        apollo: "bg-primary text-primary-foreground hover:scale-[1.02] shadow-[0_4px_30px_-5px_hsl(200_14%_62%_/_0.25)] hover:shadow-[0_6px_40px_-5px_hsl(200_14%_62%_/_0.4)]",
+        apollo: "bg-primary text-primary-foreground hover:scale-[1.02] shadow-[0_4px_30px_-5px_hsl(200_30%_72%_/_0.3)] hover:shadow-[0_6px_40px_-5px_hsl(200_30%_72%_/_0.45)]",
         "apollo-outline": "border border-apollo-gold text-apollo-gold bg-transparent hover:bg-apollo-gold hover:text-primary-foreground",
       },
       size: {
