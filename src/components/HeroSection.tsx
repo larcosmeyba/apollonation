@@ -37,13 +37,13 @@ const HeroSection = () => {
           </div>
 
           {/* Main Heading - Cinzel font, elegant spacing */}
-          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 animate-fade-in tracking-[0.05em]" style={{ animationDelay: '0.1s' }}>
+          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 animate-fade-in tracking-[0.05em] text-white" style={{ animationDelay: '0.1s', textShadow: '0 0 40px hsl(175 65% 55% / 0.3)' }}>
             Discover Your
-            <span className="block mt-2 bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">Inner Strength</span>
+            <span className="block mt-2 text-primary" style={{ textShadow: '0 0 50px hsl(175 65% 55% / 0.6)' }}>Inner Strength</span>
           </h1>
 
-          {/* Subheading - Warm Greige for coziness */}
-          <p className="text-base md:text-lg text-apollo-taupe max-w-xl mx-auto mb-12 animate-fade-in font-light leading-relaxed" style={{ animationDelay: '0.2s' }}>
+          {/* Subheading - Bright and clear */}
+          <p className="text-base md:text-lg text-white/80 max-w-xl mx-auto mb-12 animate-fade-in font-light leading-relaxed" style={{ animationDelay: '0.2s' }}>
             Experience the art of transformation through curated training programs, 
             mindful movement, and a community dedicated to excellence.
           </p>
@@ -68,8 +68,8 @@ const HeroSection = () => {
               { value: "98%", label: "Success" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="font-heading text-2xl md:text-3xl text-primary mb-2 tracking-wide" style={{ textShadow: '0 0 30px hsl(220 15% 75% / 0.4)' }}>{stat.value}</div>
-                <div className="text-xs text-muted-foreground uppercase tracking-[0.2em] font-light">{stat.label}</div>
+                <div className="font-heading text-2xl md:text-3xl text-primary mb-2 tracking-wide font-semibold" style={{ textShadow: '0 0 40px hsl(175 65% 55% / 0.6)' }}>{stat.value}</div>
+                <div className="text-xs text-white/70 uppercase tracking-[0.2em] font-light">{stat.label}</div>
               </div>
             ))}
           </div>
