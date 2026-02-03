@@ -37,9 +37,9 @@ const HeroSection = () => {
           </div>
 
           {/* Main Heading - Cinzel font, elegant spacing */}
-          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 animate-fade-in tracking-[0.05em] text-white" style={{ animationDelay: '0.1s', textShadow: '0 0 40px hsl(45 95% 58% / 0.3)' }}>
+          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 animate-fade-in tracking-[0.05em] text-white" style={{ animationDelay: '0.1s', textShadow: '0 0 40px hsl(0 75% 55% / 0.3)' }}>
             Discover Your
-            <span className="block mt-2 text-primary" style={{ textShadow: '0 0 50px hsl(45 95% 58% / 0.6)' }}>Inner Strength</span>
+            <span className="block mt-2 text-primary" style={{ textShadow: '0 0 50px hsl(0 75% 55% / 0.6)' }}>Inner Strength</span>
           </h1>
 
           {/* Subheading - Bright and clear */}
@@ -68,7 +68,7 @@ const HeroSection = () => {
               { value: "98%", label: "Success" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="font-heading text-2xl md:text-3xl text-primary mb-2 tracking-wide font-semibold" style={{ textShadow: '0 0 40px hsl(45 95% 58% / 0.6)' }}>{stat.value}</div>
+                <div className="font-heading text-2xl md:text-3xl text-primary mb-2 tracking-wide font-semibold" style={{ textShadow: '0 0 40px hsl(0 75% 55% / 0.6)' }}>{stat.value}</div>
                 <div className="text-xs text-white/70 uppercase tracking-[0.2em] font-light">{stat.label}</div>
               </div>
             ))}
