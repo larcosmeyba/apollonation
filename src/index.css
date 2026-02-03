@@ -11,85 +11,87 @@
 
 @layer base {
   :root {
-    /* Core Background - Deep Charcoal with warmth */
-    --background: 30 5% 7%;
-    --foreground: 30 18% 86%;
+    /* Core Background - Sunlit Marble White */
+    --background: 48 24% 96%;
+    --foreground: 0 0% 10%;
 
-    /* Card surfaces - Warm Temple Black */
-    --card: 30 4% 10%;
-    --card-foreground: 30 18% 86%;
+    /* Card surfaces - Soft Pearl White */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
 
     /* Popover */
-    --popover: 30 4% 9%;
-    --popover-foreground: 30 18% 86%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Primary - Glowing Steel Blue (bright luxury) */
-    --primary: 200 55% 78%;
-    --primary-foreground: 200 60% 10%;
+    /* Primary - Sun-Kissed Clay */
+    --primary: 26 32% 56%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Muted Clay */
-    --secondary: 28 12% 38%;
-    --secondary-foreground: 30 18% 86%;
+    /* Secondary - Warm Limestone */
+    --secondary: 40 20% 82%;
+    --secondary-foreground: 0 0% 10%;
 
-    /* Muted - Cool gray tones */
-    --muted: 30 4% 14%;
-    --muted-foreground: 200 35% 68%;
+    /* Muted - Cool Greige tones */
+    --muted: 40 15% 90%;
+    --muted-foreground: 37 12% 50%;
 
-    /* Accent - Bright Steel */
-    --accent: 200 50% 82%;
-    --accent-foreground: 200 60% 10%;
+    /* Accent - Aegean Mist */
+    --accent: 167 18% 80%;
+    --accent-foreground: 0 0% 10%;
 
     /* Destructive */
-    --destructive: 0 50% 45%;
-    --destructive-foreground: 30 18% 86%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    /* Borders & inputs - Warm subtle */
-    --border: 30 6% 18%;
-    --input: 30 6% 18%;
-    --ring: 200 55% 78%;
+    /* Borders & inputs */
+    --border: 40 15% 85%;
+    --input: 40 15% 88%;
+    --ring: 26 32% 56%;
 
     --radius: 0.5rem;
 
-    /* Custom Apollo tokens - Glowing Blue Theme */
-    --apollo-gold: 200 55% 78%;
-    --apollo-gold-light: 200 50% 85%;
-    --apollo-gold-dark: 200 50% 65%;
-    --apollo-bronze: 200 45% 70%;
-    --apollo-sandstone: 200 50% 85%;
-    --apollo-charcoal: 30 5% 7%;
-    --apollo-charcoal-light: 30 4% 10%;
-    --apollo-marble: 30 18% 86%;
-    --apollo-ivory: 30 20% 90%;
-    --apollo-taupe: 30 8% 55%;
-    --apollo-slate: 30 6% 45%;
+    /* Custom Apollo tokens - Sunlit Luxury Theme */
+    --apollo-gold: 26 32% 56%;
+    --apollo-gold-light: 26 28% 65%;
+    --apollo-gold-dark: 26 35% 45%;
+    --apollo-bronze: 26 32% 56%;
+    --apollo-sandstone: 40 20% 82%;
+    --apollo-charcoal: 0 0% 10%;
+    --apollo-charcoal-light: 0 0% 15%;
+    --apollo-marble: 48 24% 96%;
+    --apollo-ivory: 0 0% 100%;
+    --apollo-taupe: 37 12% 71%;
+    --apollo-slate: 37 12% 50%;
 
-    /* Gradients - Glowing blue */
-    --gradient-gold: linear-gradient(135deg, hsl(200 55% 78%), hsl(200 50% 85%));
-    --gradient-bronze: linear-gradient(135deg, hsl(200 50% 65%), hsl(200 55% 78%));
-    --gradient-dark: linear-gradient(180deg, hsl(30 5% 7%), hsl(30 4% 4%));
-    --gradient-card: linear-gradient(145deg, hsl(30 4% 12%), hsl(30 4% 8%));
-    --gradient-hero: linear-gradient(135deg, hsl(30 5% 6%) 0%, hsl(30 4% 9%) 50%, hsl(30 5% 6%) 100%);
+    /* Gradients - Warm, sunlit */
+    --gradient-gold: linear-gradient(135deg, hsl(26 32% 56%), hsl(26 28% 65%));
+    --gradient-bronze: linear-gradient(135deg, hsl(26 35% 45%), hsl(26 32% 56%));
+    --gradient-dark: linear-gradient(180deg, hsl(0 0% 10%), hsl(0 0% 5%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(48 24% 97%));
+    --gradient-hero: linear-gradient(135deg, hsl(48 24% 96%) 0%, hsl(0 0% 100%) 50%, hsl(48 24% 96%) 100%);
 
     /* Shadows - Warm, sophisticated */
-    --shadow-gold: 0 4px 40px -5px hsl(200 55% 78% / 0.5);
-    --shadow-elevated: 0 20px 50px -15px hsl(30 5% 0% / 0.5);
-    --shadow-card: 0 10px 40px -10px hsl(30 5% 0% / 0.4);
+    --shadow-gold: 0 4px 30px -5px hsl(26 32% 56% / 0.25);
+    --shadow-elevated: 0 20px 50px -15px hsl(0 0% 0% / 0.1);
+    --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / 0.08);
 
-    /* Sidebar */
-    --sidebar-background: 30 4% 9%;
-    --sidebar-foreground: 30 18% 86%;
-    --sidebar-primary: 200 55% 78%;
-    --sidebar-primary-foreground: 30 5% 7%;
-    --sidebar-accent: 30 4% 14%;
-    --sidebar-accent-foreground: 30 18% 86%;
-    --sidebar-border: 30 6% 16%;
-    --sidebar-ring: 200 55% 78%;
+    /* Sidebar - Soft Obsidian */
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 48 24% 96%;
+    --sidebar-primary: 26 32% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 48 24% 96%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 26 32% 56%;
   }
 
   .dark {
-    /* Already dark theme, same values */
-    --background: 240 7% 6%;
-    --foreground: 45 18% 96%;
+    /* Dark theme - Soft Obsidian base */
+    --background: 0 0% 10%;
+    --foreground: 48 24% 96%;
+    --card: 0 0% 12%;
+    --card-foreground: 48 24% 96%;
   }
 
   /* Light sections (marble/ivory backgrounds) */
