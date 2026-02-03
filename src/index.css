@@ -23,9 +23,9 @@
     --popover: 0 0% 15%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary - Crimson Red (blood, power, warrior) */
-    --primary: 0 75% 55%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Rich Bronze (natural, earthy, Greek armor) */
+    --primary: 30 55% 58%;
+    --primary-foreground: 0 0% 5%;
 
     /* Secondary - Charcoal Slate */
     --secondary: 0 0% 15%;
@@ -35,9 +35,9 @@
     --muted: 0 0% 18%;
     --muted-foreground: 0 0% 70%;
 
-    /* Accent - Deep blood red */
-    --accent: 355 80% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Warm copper */
+    --accent: 25 50% 52%;
+    --accent-foreground: 0 0% 5%;
 
     /* Destructive */
     --destructive: 0 65% 55%;
@@ -46,44 +46,44 @@
     /* Borders & inputs */
     --border: 0 0% 22%;
     --input: 0 0% 15%;
-    --ring: 0 75% 55%;
+    --ring: 30 55% 58%;
 
     --radius: 0.5rem;
 
-    /* Custom Apollo tokens - Crimson Warrior Theme */
-    --apollo-gold: 0 75% 55%;
-    --apollo-gold-light: 0 70% 62%;
-    --apollo-gold-dark: 0 80% 45%;
-    --apollo-bronze: 355 80% 50%;
-    --apollo-sandstone: 0 0% 85%;
+    /* Custom Apollo tokens - Bronze Natural Theme */
+    --apollo-gold: 30 55% 58%;
+    --apollo-gold-light: 32 50% 65%;
+    --apollo-gold-dark: 28 60% 48%;
+    --apollo-bronze: 25 50% 52%;
+    --apollo-sandstone: 35 25% 80%;
     --apollo-charcoal: 0 0% 9%;
     --apollo-charcoal-light: 0 0% 12%;
     --apollo-marble: 0 0% 98%;
-    --apollo-ivory: 0 0% 100%;
-    --apollo-taupe: 0 0% 75%;
+    --apollo-ivory: 40 30% 95%;
+    --apollo-taupe: 30 15% 70%;
     --apollo-slate: 0 0% 65%;
 
-    /* Gradients - Blood fire */
-    --gradient-gold: linear-gradient(135deg, hsl(0 75% 55%), hsl(355 80% 50%));
-    --gradient-bronze: linear-gradient(135deg, hsl(0 80% 45%), hsl(0 75% 55%));
+    /* Gradients - Warm bronze */
+    --gradient-gold: linear-gradient(135deg, hsl(30 55% 58%), hsl(25 50% 52%));
+    --gradient-bronze: linear-gradient(135deg, hsl(28 60% 48%), hsl(30 55% 58%));
     --gradient-dark: linear-gradient(180deg, hsl(0 0% 9%), hsl(0 0% 5%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 12%), hsl(0 0% 10%));
     --gradient-hero: linear-gradient(135deg, hsl(0 0% 9%) 0%, hsl(0 0% 12%) 50%, hsl(0 0% 9%) 100%);
 
-    /* Shadows - Crimson glow */
-    --shadow-gold: 0 4px 50px -5px hsl(0 75% 55% / 0.5);
+    /* Shadows - Warm bronze glow */
+    --shadow-gold: 0 4px 50px -5px hsl(30 55% 58% / 0.45);
     --shadow-elevated: 0 20px 50px -15px hsl(0 0% 0% / 0.6);
     --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / 0.5);
 
     /* Sidebar - Deep Ash */
     --sidebar-background: 0 0% 12%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 0 75% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 30 55% 58%;
+    --sidebar-primary-foreground: 0 0% 5%;
     --sidebar-accent: 0 0% 18%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 22%;
-    --sidebar-ring: 0 75% 55%;
+    --sidebar-ring: 30 55% 58%;
   }
 
   .dark {
