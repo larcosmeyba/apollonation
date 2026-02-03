@@ -11,79 +11,79 @@
 
 @layer base {
   :root {
-    /* Core Background - Obsidian Charcoal */
-    --background: 240 7% 6%;
-    --foreground: 37 31% 86%;
+    /* Core Background - Deep Charcoal with warmth */
+    --background: 30 5% 7%;
+    --foreground: 30 18% 86%;
 
-    /* Card surfaces - Temple Black */
-    --card: 0 0% 8%;
-    --card-foreground: 37 31% 86%;
+    /* Card surfaces - Warm Temple Black */
+    --card: 30 4% 10%;
+    --card-foreground: 30 18% 86%;
 
     /* Popover */
-    --popover: 0 0% 7%;
-    --popover-foreground: 37 31% 86%;
+    --popover: 30 4% 9%;
+    --popover-foreground: 30 18% 86%;
 
-    /* Primary - Pale Sand (signature accent) */
-    --primary: 37 31% 86%;
-    --primary-foreground: 240 7% 6%;
+    /* Primary - Warm Taupe (visible but matte) */
+    --primary: 34 18% 52%;
+    --primary-foreground: 30 5% 7%;
 
-    /* Secondary - Bronzed Clay */
-    --secondary: 28 28% 42%;
-    --secondary-foreground: 37 31% 86%;
+    /* Secondary - Muted Clay */
+    --secondary: 28 12% 38%;
+    --secondary-foreground: 30 18% 86%;
 
-    /* Muted - Slate tones */
-    --muted: 0 0% 12%;
-    --muted-foreground: 195 4% 45%;
+    /* Muted - Warm gray tones */
+    --muted: 30 4% 14%;
+    --muted-foreground: 30 8% 55%;
 
-    /* Accent - Warm Sandstone */
-    --accent: 41 28% 68%;
-    --accent-foreground: 240 7% 6%;
+    /* Accent - Soft Sandstone */
+    --accent: 32 15% 62%;
+    --accent-foreground: 30 5% 7%;
 
     /* Destructive */
-    --destructive: 0 65% 50%;
-    --destructive-foreground: 37 31% 86%;
+    --destructive: 0 50% 45%;
+    --destructive-foreground: 30 18% 86%;
 
-    /* Borders & inputs */
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 46 38% 54%;
+    /* Borders & inputs - Warm subtle */
+    --border: 30 6% 18%;
+    --input: 30 6% 18%;
+    --ring: 34 18% 52%;
 
     --radius: 0.5rem;
 
-    /* Custom Apollo tokens - Luxury Greek Theme */
-    --apollo-gold: 37 31% 86%;
-    --apollo-gold-light: 37 35% 90%;
-    --apollo-gold-dark: 37 25% 75%;
-    --apollo-bronze: 37 31% 86%;
-    --apollo-sandstone: 37 35% 90%;
-    --apollo-charcoal: 240 7% 6%;
-    --apollo-charcoal-light: 0 0% 8%;
-    --apollo-marble: 37 31% 86%;
-    --apollo-ivory: 37 35% 90%;
-    --apollo-taupe: 34 7% 58%;
-    --apollo-slate: 195 4% 45%;
+    /* Custom Apollo tokens - Warm Luxury Theme */
+    --apollo-gold: 34 18% 52%;
+    --apollo-gold-light: 32 15% 62%;
+    --apollo-gold-dark: 34 15% 42%;
+    --apollo-bronze: 28 12% 38%;
+    --apollo-sandstone: 32 15% 62%;
+    --apollo-charcoal: 30 5% 7%;
+    --apollo-charcoal-light: 30 4% 10%;
+    --apollo-marble: 30 18% 86%;
+    --apollo-ivory: 30 20% 90%;
+    --apollo-taupe: 30 8% 55%;
+    --apollo-slate: 30 6% 45%;
 
-    /* Gradients - Subtle, luxurious */
-    --gradient-gold: linear-gradient(135deg, hsl(37 31% 86%), hsl(37 35% 90%));
-    --gradient-bronze: linear-gradient(135deg, hsl(37 25% 75%), hsl(37 31% 86%));
-    --gradient-dark: linear-gradient(180deg, hsl(240 7% 6%), hsl(0 0% 3%));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 10%), hsl(0 0% 6%));
-    --gradient-hero: linear-gradient(135deg, hsl(240 7% 5%) 0%, hsl(0 0% 8%) 50%, hsl(240 7% 5%) 100%);
+    /* Gradients - Warm, subtle */
+    --gradient-gold: linear-gradient(135deg, hsl(34 18% 52%), hsl(32 15% 62%));
+    --gradient-bronze: linear-gradient(135deg, hsl(34 15% 42%), hsl(34 18% 52%));
+    --gradient-dark: linear-gradient(180deg, hsl(30 5% 7%), hsl(30 4% 4%));
+    --gradient-card: linear-gradient(145deg, hsl(30 4% 12%), hsl(30 4% 8%));
+    --gradient-hero: linear-gradient(135deg, hsl(30 5% 6%) 0%, hsl(30 4% 9%) 50%, hsl(30 5% 6%) 100%);
 
-    /* Shadows - Sophisticated */
-    --shadow-gold: 0 4px 30px -5px hsl(37 31% 86% / 0.25);
-    --shadow-elevated: 0 20px 50px -15px hsl(0 0% 0% / 0.6);
-    --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / 0.5);
+    /* Shadows - Warm, sophisticated */
+    --shadow-gold: 0 4px 30px -5px hsl(34 18% 52% / 0.2);
+    --shadow-elevated: 0 20px 50px -15px hsl(30 5% 0% / 0.5);
+    --shadow-card: 0 10px 40px -10px hsl(30 5% 0% / 0.4);
 
     /* Sidebar */
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 37 31% 86%;
-    --sidebar-primary: 46 38% 54%;
-    --sidebar-primary-foreground: 240 7% 6%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 37 31% 86%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 46 38% 54%;
+    --sidebar-background: 30 4% 9%;
+    --sidebar-foreground: 30 18% 86%;
+    --sidebar-primary: 34 18% 52%;
+    --sidebar-primary-foreground: 30 5% 7%;
+    --sidebar-accent: 30 4% 14%;
+    --sidebar-accent-foreground: 30 18% 86%;
+    --sidebar-border: 30 6% 16%;
+    --sidebar-ring: 34 18% 52%;
   }
 
   .dark {
