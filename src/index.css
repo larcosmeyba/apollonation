@@ -23,8 +23,8 @@
     --popover: 0 0% 15%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary - Electric Teal (energetic, fitness-focused) */
-    --primary: 175 65% 55%;
+    /* Primary - Solar Gold (Apollo's sun, radiant power) */
+    --primary: 45 95% 58%;
     --primary-foreground: 0 0% 5%;
 
     /* Secondary - Charcoal Slate */
@@ -35,8 +35,8 @@
     --muted: 0 0% 18%;
     --muted-foreground: 0 0% 70%;
 
-    /* Accent - Bright Cyan pop */
-    --accent: 185 70% 60%;
+    /* Accent - Warm amber glow */
+    --accent: 38 90% 55%;
     --accent-foreground: 0 0% 5%;
 
     /* Destructive */
@@ -46,15 +46,15 @@
     /* Borders & inputs */
     --border: 0 0% 22%;
     --input: 0 0% 15%;
-    --ring: 175 65% 55%;
+    --ring: 45 95% 58%;
 
     --radius: 0.5rem;
 
-    /* Custom Apollo tokens - Electric Energy Theme */
-    --apollo-gold: 175 65% 55%;
-    --apollo-gold-light: 175 60% 65%;
-    --apollo-gold-dark: 175 70% 45%;
-    --apollo-bronze: 175 65% 55%;
+    /* Custom Apollo tokens - Solar Gold Theme */
+    --apollo-gold: 45 95% 58%;
+    --apollo-gold-light: 48 90% 65%;
+    --apollo-gold-dark: 42 95% 48%;
+    --apollo-bronze: 38 90% 55%;
     --apollo-sandstone: 0 0% 85%;
     --apollo-charcoal: 0 0% 9%;
     --apollo-charcoal-light: 0 0% 12%;
@@ -63,27 +63,27 @@
     --apollo-taupe: 0 0% 75%;
     --apollo-slate: 0 0% 65%;
 
-    /* Gradients - Electric glow */
-    --gradient-gold: linear-gradient(135deg, hsl(175 65% 55%), hsl(185 70% 60%));
-    --gradient-bronze: linear-gradient(135deg, hsl(175 70% 45%), hsl(175 65% 55%));
+    /* Gradients - Solar radiance */
+    --gradient-gold: linear-gradient(135deg, hsl(45 95% 58%), hsl(38 90% 55%));
+    --gradient-bronze: linear-gradient(135deg, hsl(42 95% 48%), hsl(45 95% 58%));
     --gradient-dark: linear-gradient(180deg, hsl(0 0% 9%), hsl(0 0% 5%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 12%), hsl(0 0% 10%));
     --gradient-hero: linear-gradient(135deg, hsl(0 0% 9%) 0%, hsl(0 0% 12%) 50%, hsl(0 0% 9%) 100%);
 
-    /* Shadows - Electric teal glow */
-    --shadow-gold: 0 4px 50px -5px hsl(175 65% 55% / 0.5);
+    /* Shadows - Solar glow */
+    --shadow-gold: 0 4px 50px -5px hsl(45 95% 58% / 0.5);
     --shadow-elevated: 0 20px 50px -15px hsl(0 0% 0% / 0.6);
     --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / 0.5);
 
     /* Sidebar - Deep Ash */
     --sidebar-background: 0 0% 12%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 175 65% 55%;
+    --sidebar-primary: 45 95% 58%;
     --sidebar-primary-foreground: 0 0% 5%;
     --sidebar-accent: 0 0% 18%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 22%;
-    --sidebar-ring: 175 65% 55%;
+    --sidebar-ring: 45 95% 58%;
   }
 
   .dark {
