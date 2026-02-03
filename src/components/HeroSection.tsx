@@ -1,14 +1,14 @@
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import fitnessHero from "@/assets/fitness-1.png";
+import heroStatue from "@/assets/hero-statue.png";
 
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Background image */}
+      {/* Background image - Greek statue */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${fitnessHero})` }}
+        style={{ backgroundImage: `url(${heroStatue})` }}
       />
       {/* Elegant dark overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/70" />
