@@ -23,20 +23,20 @@
     --popover: 30 4% 9%;
     --popover-foreground: 30 18% 86%;
 
-    /* Primary - Bright Sage (organic luxury) */
-    --primary: 130 16% 65%;
+    /* Primary - Muted Steel Blue (calm luxury) */
+    --primary: 200 14% 62%;
     --primary-foreground: 30 5% 7%;
 
     /* Secondary - Muted Clay */
     --secondary: 28 12% 38%;
     --secondary-foreground: 30 18% 86%;
 
-    /* Muted - Warm gray tones */
+    /* Muted - Cool gray tones */
     --muted: 30 4% 14%;
-    --muted-foreground: 130 10% 58%;
+    --muted-foreground: 200 8% 55%;
 
-    /* Accent - Lighter Sage */
-    --accent: 130 14% 72%;
+    /* Accent - Lighter Steel */
+    --accent: 200 12% 70%;
     --accent-foreground: 30 5% 7%;
 
     /* Destructive */
@@ -46,16 +46,16 @@
     /* Borders & inputs - Warm subtle */
     --border: 30 6% 18%;
     --input: 30 6% 18%;
-    --ring: 130 16% 65%;
+    --ring: 200 14% 62%;
 
     --radius: 0.5rem;
 
-    /* Custom Apollo tokens - Organic Luxury Theme */
-    --apollo-gold: 130 16% 65%;
-    --apollo-gold-light: 130 14% 72%;
-    --apollo-gold-dark: 130 14% 55%;
-    --apollo-bronze: 130 12% 58%;
-    --apollo-sandstone: 130 14% 72%;
+    /* Custom Apollo tokens - Steel Blue Theme */
+    --apollo-gold: 200 14% 62%;
+    --apollo-gold-light: 200 12% 70%;
+    --apollo-gold-dark: 200 16% 50%;
+    --apollo-bronze: 200 10% 55%;
+    --apollo-sandstone: 200 12% 70%;
     --apollo-charcoal: 30 5% 7%;
     --apollo-charcoal-light: 30 4% 10%;
     --apollo-marble: 30 18% 86%;
@@ -63,27 +63,27 @@
     --apollo-taupe: 30 8% 55%;
     --apollo-slate: 30 6% 45%;
 
-    /* Gradients - Sage, subtle */
-    --gradient-gold: linear-gradient(135deg, hsl(130 16% 65%), hsl(130 14% 72%));
-    --gradient-bronze: linear-gradient(135deg, hsl(130 14% 55%), hsl(130 16% 65%));
+    /* Gradients - Steel blue, subtle */
+    --gradient-gold: linear-gradient(135deg, hsl(200 14% 62%), hsl(200 12% 70%));
+    --gradient-bronze: linear-gradient(135deg, hsl(200 16% 50%), hsl(200 14% 62%));
     --gradient-dark: linear-gradient(180deg, hsl(30 5% 7%), hsl(30 4% 4%));
     --gradient-card: linear-gradient(145deg, hsl(30 4% 12%), hsl(30 4% 8%));
     --gradient-hero: linear-gradient(135deg, hsl(30 5% 6%) 0%, hsl(30 4% 9%) 50%, hsl(30 5% 6%) 100%);
 
     /* Shadows - Warm, sophisticated */
-    --shadow-gold: 0 4px 30px -5px hsl(130 16% 65% / 0.25);
+    --shadow-gold: 0 4px 30px -5px hsl(200 14% 62% / 0.25);
     --shadow-elevated: 0 20px 50px -15px hsl(30 5% 0% / 0.5);
     --shadow-card: 0 10px 40px -10px hsl(30 5% 0% / 0.4);
 
     /* Sidebar */
     --sidebar-background: 30 4% 9%;
     --sidebar-foreground: 30 18% 86%;
-    --sidebar-primary: 130 16% 65%;
+    --sidebar-primary: 200 14% 62%;
     --sidebar-primary-foreground: 30 5% 7%;
     --sidebar-accent: 30 4% 14%;
     --sidebar-accent-foreground: 30 18% 86%;
     --sidebar-border: 30 6% 16%;
-    --sidebar-ring: 130 16% 65%;
+    --sidebar-ring: 200 14% 62%;
   }
 
   .dark {
