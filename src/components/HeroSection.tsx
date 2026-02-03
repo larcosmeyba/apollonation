@@ -68,7 +68,7 @@ const HeroSection = () => {
               { value: "98%", label: "Success" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="font-heading text-2xl md:text-3xl text-primary mb-2 tracking-wide" style={{ textShadow: '0 0 30px hsl(26 38% 61% / 0.5)' }}>{stat.value}</div>
+                <div className="font-heading text-2xl md:text-3xl text-primary mb-2 tracking-wide" style={{ textShadow: '0 0 30px hsl(220 15% 75% / 0.4)' }}>{stat.value}</div>
                 <div className="text-xs text-muted-foreground uppercase tracking-[0.2em] font-light">{stat.label}</div>
               </div>
             ))}
