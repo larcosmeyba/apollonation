@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, Camera, Save } from "lucide-react";
@@ -11,9 +11,10 @@ import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { supabase } from "@/integrations/supabase/client";
 
 const DashboardProfile = () => {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [phone, setPhone] = useState("");
   
   // Use signed URL for private avatar bucket
   const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
@@ -22,29 +23,52 @@ const DashboardProfile = () => {
     display_name: profile?.display_name || "",
     bio: profile?.bio || "",
     fitness_goals: profile?.fitness_goals || "",
-    phone: (profile as any)?.phone || "",
   });
+
+  // Load phone from secure_contact_info table
+  useEffect(() => {
+    const loadPhone = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("secure_contact_info")
+        .select("phone_encrypted")
+        .eq("user_id", user.id)
+        .single();
+      if (data?.phone_encrypted) {
+        setPhone(data.phone_encrypted);
+      }
+    };
+    loadPhone();
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profile) return;
+    if (!profile || !user) return;
 
     setIsLoading(true);
 
-    const { error } = await supabase
+    // Update profile (without phone)
+    const { error: profileError } = await supabase
       .from("profiles")
       .update({
         display_name: formData.display_name,
         bio: formData.bio,
         fitness_goals: formData.fitness_goals,
-        phone: formData.phone || null,
       })
       .eq("id", profile.id);
 
-    if (error) {
+    // Upsert phone to secure_contact_info
+    const { error: phoneError } = await supabase
+      .from("secure_contact_info")
+      .upsert({
+        user_id: user.id,
+        phone_encrypted: phone || null,
+      }, { onConflict: "user_id" });
+
+    if (profileError || phoneError) {
       toast({
         title: "Error updating profile",
-        description: error.message,
+        description: profileError?.message || phoneError?.message,
         variant: "destructive",
       });
     } else {
@@ -119,15 +143,13 @@ const DashboardProfile = () => {
               <Input
                 id="phone"
                 type="tel"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, phone: e.target.value }))
-                }
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 placeholder="(555) 123-4567"
                 className="bg-muted border-border"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Required for Pro/Elite members using the mobile app
+                Securely stored • Only you can view this
               </p>
             </div>
 
