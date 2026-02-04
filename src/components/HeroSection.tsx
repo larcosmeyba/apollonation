@@ -17,13 +17,13 @@ const HeroSection = () => {
         className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
         style={{ backgroundImage: `url(${heroStatue})` }}
       />
-      {/* Dramatic gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
+      {/* Dramatic gradient overlay - centered */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-background/90" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
       
-      {/* Animated ambient glow */}
-      <div className="absolute top-1/3 left-1/4 w-[800px] h-[800px] bg-primary/15 rounded-full blur-[180px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Animated ambient glow - centered */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/15 rounded-full blur-[180px] animate-pulse" />
+      <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
       
       {/* Subtle grid pattern */}
       <div 
@@ -36,7 +36,7 @@ const HeroSection = () => {
       />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-3xl">
+        <div className="max-w-3xl mx-auto text-center">
           {/* Animated badge */}
           <div 
             className={`inline-flex items-center gap-3 px-6 py-2.5 border border-primary/30 bg-primary/5 backdrop-blur-sm mb-10 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
@@ -62,7 +62,7 @@ const HeroSection = () => {
 
           {/* Subheading */}
           <p 
-            className={`text-lg md:text-xl text-muted-foreground max-w-lg mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             Elite training programs, personalized coaching, and AI-powered nutrition—
             designed for those who refuse to be ordinary.
@@ -70,7 +70,7 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div 
-            className={`flex flex-col sm:flex-row items-start gap-4 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             <Button variant="apollo" size="lg" className="group min-w-[220px] h-14 text-base">
               Start Your Journey
@@ -84,14 +84,14 @@ const HeroSection = () => {
 
           {/* Stats row */}
           <div 
-            className={`flex flex-wrap gap-8 md:gap-16 mt-16 pt-10 border-t border-primary/20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`flex flex-wrap justify-center gap-8 md:gap-16 mt-16 pt-10 border-t border-primary/20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             {[
               { value: "50K+", label: "Athletes" },
               { value: "500+", label: "Programs" },
               { value: "98%", label: "Success Rate" },
             ].map((stat, index) => (
-              <div key={stat.label} className="text-left" style={{ transitionDelay: `${600 + index * 100}ms` }}>
+              <div key={stat.label} className="text-center" style={{ transitionDelay: `${600 + index * 100}ms` }}>
                 <div 
                   className="font-heading text-3xl md:text-4xl text-primary mb-1 tracking-wide"
                   style={{ textShadow: '0 0 30px hsl(30 55% 58% / 0.4)' }}
