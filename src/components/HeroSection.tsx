@@ -39,10 +39,10 @@ const HeroSection = () => {
         <div className="max-w-3xl mx-auto text-center">
           {/* Animated badge */}
           <div 
-            className={`inline-flex items-center gap-3 px-6 py-2.5 border border-white/20 bg-white/5 backdrop-blur-sm mb-10 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`inline-flex items-center gap-3 px-6 py-2.5 border border-primary/30 bg-primary/5 backdrop-blur-sm mb-10 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           >
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span className="text-xs text-white/80 font-medium tracking-[0.25em] uppercase">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs text-primary font-medium tracking-[0.25em] uppercase">
               Transform Your Body & Mind
             </span>
           </div>
@@ -53,8 +53,8 @@ const HeroSection = () => {
           >
             <span className="block text-white">Forge Your</span>
             <span 
-              className="block text-white/90 mt-2"
-              style={{ textShadow: '0 0 80px rgba(255,255,255,0.2)' }}
+              className="block text-primary mt-2"
+              style={{ textShadow: '0 0 80px hsl(32 45% 72% / 0.4)' }}
             >
               Legend
             </span>
@@ -84,7 +84,7 @@ const HeroSection = () => {
 
           {/* Stats row */}
           <div 
-            className={`flex flex-wrap justify-center gap-8 md:gap-16 mt-16 pt-10 border-t border-white/10 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`flex flex-wrap justify-center gap-8 md:gap-16 mt-16 pt-10 border-t border-primary/20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             {[
               { value: "50K+", label: "Athletes" },
@@ -93,8 +93,8 @@ const HeroSection = () => {
             ].map((stat, index) => (
               <div key={stat.label} className="text-center" style={{ transitionDelay: `${600 + index * 100}ms` }}>
                 <div 
-                  className="font-heading text-3xl md:text-4xl text-white mb-1 tracking-wide"
-                  style={{ textShadow: '0 0 40px rgba(255,255,255,0.15)' }}
+                  className="font-heading text-3xl md:text-4xl text-primary mb-1 tracking-wide"
+                  style={{ textShadow: '0 0 40px hsl(32 45% 72% / 0.3)' }}
                 >
                   {stat.value}
                 </div>
@@ -115,7 +115,7 @@ const HeroSection = () => {
         className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-50' : 'opacity-0'}`}
       >
         <span className="text-xs text-white/40 uppercase tracking-widest">Scroll</span>
-        <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent animate-pulse" />
+        <div className="w-px h-8 bg-gradient-to-b from-primary/50 to-transparent animate-pulse" />
       </div>
     </section>
   );
