@@ -23,8 +23,8 @@
     --popover: 0 0% 12%;
     --popover-foreground: 0 0% 96%;
 
-    /* Primary - Warm Off-White (sophisticated, high fashion) */
-    --primary: 40 20% 92%;
+    /* Primary - Warm Tan/Sand (the signature accent) */
+    --primary: 32 45% 72%;
     --primary-foreground: 0 0% 6%;
 
     /* Secondary - Medium Charcoal */
@@ -35,8 +35,8 @@
     --muted: 0 0% 16%;
     --muted-foreground: 0 0% 60%;
 
-    /* Accent - Subtle warm gold (minimal, refined) */
-    --accent: 38 35% 75%;
+    /* Accent - Warm tan (signature color) */
+    --accent: 32 45% 72%;
     --accent-foreground: 0 0% 6%;
 
     /* Destructive */
@@ -46,44 +46,44 @@
     /* Borders & inputs */
     --border: 0 0% 18%;
     --input: 0 0% 12%;
-    --ring: 40 20% 92%;
+    --ring: 32 45% 72%;
 
     --radius: 0.5rem;
 
-    /* Custom Apollo tokens - Monochrome Luxury */
-    --apollo-gold: 40 20% 92%;
-    --apollo-gold-light: 40 15% 96%;
-    --apollo-gold-dark: 38 25% 85%;
-    --apollo-bronze: 38 35% 75%;
-    --apollo-sandstone: 40 10% 80%;
+    /* Custom Apollo tokens - Monochrome with Tan Accent */
+    --apollo-gold: 32 45% 72%;
+    --apollo-gold-light: 34 40% 80%;
+    --apollo-gold-dark: 30 50% 60%;
+    --apollo-bronze: 28 40% 65%;
+    --apollo-sandstone: 35 35% 78%;
     --apollo-charcoal: 0 0% 6%;
     --apollo-charcoal-light: 0 0% 10%;
     --apollo-marble: 0 0% 98%;
-    --apollo-ivory: 40 20% 95%;
-    --apollo-taupe: 30 8% 65%;
+    --apollo-ivory: 35 25% 94%;
+    --apollo-taupe: 30 20% 65%;
     --apollo-slate: 0 0% 55%;
 
-    /* Gradients - Monochrome with warmth */
-    --gradient-gold: linear-gradient(135deg, hsl(40 20% 92%), hsl(38 35% 85%));
-    --gradient-bronze: linear-gradient(135deg, hsl(38 25% 85%), hsl(40 20% 92%));
+    /* Gradients - Monochrome with tan warmth */
+    --gradient-gold: linear-gradient(135deg, hsl(32 45% 72%), hsl(28 40% 65%));
+    --gradient-bronze: linear-gradient(135deg, hsl(30 50% 60%), hsl(32 45% 72%));
     --gradient-dark: linear-gradient(180deg, hsl(0 0% 6%), hsl(0 0% 3%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 10%), hsl(0 0% 8%));
     --gradient-hero: linear-gradient(135deg, hsl(0 0% 6%) 0%, hsl(0 0% 10%) 50%, hsl(0 0% 6%) 100%);
 
-    /* Shadows - Subtle, elegant */
-    --shadow-gold: 0 4px 50px -5px hsl(40 20% 92% / 0.15);
+    /* Shadows - Subtle tan glow */
+    --shadow-gold: 0 4px 50px -5px hsl(32 45% 72% / 0.25);
     --shadow-elevated: 0 20px 50px -15px hsl(0 0% 0% / 0.7);
     --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / 0.6);
 
-    /* Sidebar - Deep Black */
+    /* Sidebar - Deep Black with tan accent */
     --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 40 20% 92%;
+    --sidebar-primary: 32 45% 72%;
     --sidebar-primary-foreground: 0 0% 6%;
     --sidebar-accent: 0 0% 14%;
     --sidebar-accent-foreground: 0 0% 96%;
     --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 40 20% 92%;
+    --sidebar-ring: 32 45% 72%;
   }
 
   .dark {
