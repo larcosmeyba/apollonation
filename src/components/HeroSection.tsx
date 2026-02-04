@@ -21,16 +21,16 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-background/90" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
       
-      {/* Animated ambient glow - centered */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/15 rounded-full blur-[180px] animate-pulse" />
-      <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Animated ambient glow - subtle white */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-white/5 rounded-full blur-[180px] animate-pulse" />
+      <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-white/3 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
       
       {/* Subtle grid pattern */}
       <div 
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.02]"
         style={{
-          backgroundImage: `linear-gradient(hsl(var(--apollo-gold) / 0.3) 1px, transparent 1px),
-                           linear-gradient(90deg, hsl(var(--apollo-gold) / 0.3) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
           backgroundSize: '60px 60px'
         }}
       />
@@ -39,10 +39,10 @@ const HeroSection = () => {
         <div className="max-w-3xl mx-auto text-center">
           {/* Animated badge */}
           <div 
-            className={`inline-flex items-center gap-3 px-6 py-2.5 border border-primary/30 bg-primary/5 backdrop-blur-sm mb-10 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`inline-flex items-center gap-3 px-6 py-2.5 border border-white/20 bg-white/5 backdrop-blur-sm mb-10 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           >
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs text-primary font-medium tracking-[0.25em] uppercase">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            <span className="text-xs text-white/80 font-medium tracking-[0.25em] uppercase">
               Transform Your Body & Mind
             </span>
           </div>
@@ -51,10 +51,10 @@ const HeroSection = () => {
           <h1 
             className={`font-heading text-5xl md:text-6xl lg:text-8xl leading-[1.05] mb-8 tracking-[0.03em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            <span className="block text-foreground">Forge Your</span>
+            <span className="block text-white">Forge Your</span>
             <span 
-              className="block text-primary mt-2"
-              style={{ textShadow: '0 0 60px hsl(30 55% 58% / 0.4)' }}
+              className="block text-white/90 mt-2"
+              style={{ textShadow: '0 0 80px rgba(255,255,255,0.2)' }}
             >
               Legend
             </span>
@@ -62,7 +62,7 @@ const HeroSection = () => {
 
           {/* Subheading */}
           <p 
-            className={`text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`text-lg md:text-xl text-white/60 max-w-xl mx-auto mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             Elite training programs, personalized coaching, and AI-powered nutrition—
             designed for those who refuse to be ordinary.
@@ -84,7 +84,7 @@ const HeroSection = () => {
 
           {/* Stats row */}
           <div 
-            className={`flex flex-wrap justify-center gap-8 md:gap-16 mt-16 pt-10 border-t border-primary/20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`flex flex-wrap justify-center gap-8 md:gap-16 mt-16 pt-10 border-t border-white/10 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             {[
               { value: "50K+", label: "Athletes" },
@@ -93,12 +93,12 @@ const HeroSection = () => {
             ].map((stat, index) => (
               <div key={stat.label} className="text-center" style={{ transitionDelay: `${600 + index * 100}ms` }}>
                 <div 
-                  className="font-heading text-3xl md:text-4xl text-primary mb-1 tracking-wide"
-                  style={{ textShadow: '0 0 30px hsl(30 55% 58% / 0.4)' }}
+                  className="font-heading text-3xl md:text-4xl text-white mb-1 tracking-wide"
+                  style={{ textShadow: '0 0 40px rgba(255,255,255,0.15)' }}
                 >
                   {stat.value}
                 </div>
-                <div className="text-sm text-muted-foreground uppercase tracking-[0.15em]">
+                <div className="text-sm text-white/50 uppercase tracking-[0.15em]">
                   {stat.label}
                 </div>
               </div>
@@ -112,10 +112,10 @@ const HeroSection = () => {
       
       {/* Scroll indicator */}
       <div 
-        className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-60' : 'opacity-0'}`}
+        className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-50' : 'opacity-0'}`}
       >
-        <span className="text-xs text-muted-foreground uppercase tracking-widest">Scroll</span>
-        <div className="w-px h-8 bg-gradient-to-b from-primary/50 to-transparent animate-pulse" />
+        <span className="text-xs text-white/40 uppercase tracking-widest">Scroll</span>
+        <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent animate-pulse" />
       </div>
     </section>
   );
