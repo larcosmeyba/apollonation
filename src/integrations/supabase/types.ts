@@ -103,7 +103,6 @@ export type Database = {
           display_name: string | null
           fitness_goals: string | null
           id: string
-          phone: string | null
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
           user_id: string
@@ -115,7 +114,6 @@ export type Database = {
           display_name?: string | null
           fitness_goals?: string | null
           id?: string
-          phone?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id: string
@@ -127,7 +125,6 @@ export type Database = {
           display_name?: string | null
           fitness_goals?: string | null
           id?: string
-          phone?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id?: string
@@ -188,6 +185,30 @@ export type Database = {
           servings?: number | null
           thumbnail_url?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      secure_contact_info: {
+        Row: {
+          created_at: string
+          id: string
+          phone_encrypted: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          phone_encrypted?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          phone_encrypted?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

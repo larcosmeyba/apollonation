@@ -14,7 +14,6 @@ interface Profile {
   id: string;
   user_id: string;
   display_name: string | null;
-  phone: string | null;
   subscription_tier: "basic" | "pro" | "elite";
   created_at: string;
 }
@@ -116,7 +115,6 @@ const AdminUsers = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Phone</TableHead>
               <TableHead>Tier</TableHead>
               <TableHead>Joined</TableHead>
               <TableHead className="w-32">Actions</TableHead>
@@ -125,13 +123,13 @@ const AdminUsers = () => {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={4} className="text-center py-8">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : profiles?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                   No users yet.
                 </TableCell>
               </TableRow>
@@ -139,7 +137,6 @@ const AdminUsers = () => {
               profiles?.map((profile) => (
                 <TableRow key={profile.id}>
                   <TableCell className="font-medium">{profile.display_name || "—"}</TableCell>
-                  <TableCell>{profile.phone || "—"}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs uppercase ${getTierBadgeColor(profile.subscription_tier)}`}>
                       {profile.subscription_tier}
@@ -248,27 +245,13 @@ const AdminUsers = () => {
                   </Button>
                 </div>
               </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Phone</Label>
-                <div className="flex items-center gap-2">
-                  <Input 
-                    readOnly 
-                    value={selectedUserForApp?.phone || "Not set"} 
-                    className="text-sm"
-                  />
-                  <Button 
-                    size="icon" 
-                    variant="ghost"
-                    onClick={() => copyToClipboard(selectedUserForApp?.phone || "", "phone")}
-                  >
-                    {copiedField === "phone" ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                  </Button>
-                </div>
-              </div>
             </div>
             <p className="text-sm text-muted-foreground">
               💡 The user will use the same email/password they created on the website to log into the Apollo Nation mobile app. 
               You may need to manually verify their credentials in the app.
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              🔒 Phone numbers are stored securely and only visible to the user themselves.
             </p>
           </div>
         </DialogContent>
