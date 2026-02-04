@@ -1,5 +1,6 @@
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import heroStatue from "@/assets/hero-statue.png";
 import { useEffect, useState } from "react";
 
@@ -72,14 +73,18 @@ const HeroSection = () => {
           <div 
             className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            <Button variant="apollo" size="lg" className="group min-w-[220px] h-14 text-base">
-              Start Your Journey
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
-            </Button>
-            <Button variant="apollo-outline" size="lg" className="group min-w-[180px] h-14 text-base">
-              <Play size={16} className="mr-2" />
-              Watch Story
-            </Button>
+            <Link to="/auth">
+              <Button variant="apollo" size="lg" className="group min-w-[220px] h-14 text-base">
+                Start Your Journey
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+              </Button>
+            </Link>
+            <a href="#testimonials">
+              <Button variant="apollo-outline" size="lg" className="group min-w-[180px] h-14 text-base">
+                <Play size={16} className="mr-2" />
+                Watch Story
+              </Button>
+            </a>
           </div>
 
           {/* Stats row */}

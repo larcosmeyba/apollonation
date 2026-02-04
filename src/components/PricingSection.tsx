@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const tiers = [
   {
@@ -123,13 +124,15 @@ const PricingSection = () => {
               </ul>
 
               {/* CTA */}
-              <Button
-                variant={tier.featured ? "apollo" : "apollo-outline"}
-                size="lg"
-                className="w-full"
-              >
-                Get Started
-              </Button>
+              <Link to="/auth" className="w-full">
+                <Button
+                  variant={tier.featured ? "apollo" : "apollo-outline"}
+                  size="lg"
+                  className="w-full"
+                >
+                  Get Started
+                </Button>
+              </Link>
             </div>
           ))}
         </div>

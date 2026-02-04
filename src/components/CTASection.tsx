@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
@@ -26,10 +27,12 @@ const CTASection = () => {
 
           {/* CTA */}
           <div className="flex flex-col items-center gap-6">
-            <Button variant="apollo" size="lg" className="group min-w-[220px] h-14 text-base">
-              Start Free Trial
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
-            </Button>
+            <Link to="/auth">
+              <Button variant="apollo" size="lg" className="group min-w-[220px] h-14 text-base">
+                Start Free Trial
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+              </Button>
+            </Link>
             <p className="text-white/40 text-xs font-light tracking-wide">
               No credit card required · 7-day free trial
             </p>
