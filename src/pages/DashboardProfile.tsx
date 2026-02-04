@@ -7,12 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { supabase } from "@/integrations/supabase/client";
 
 const DashboardProfile = () => {
   const { profile, refreshProfile } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Use signed URL for private avatar bucket
+  const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
 
   const [formData, setFormData] = useState({
     display_name: profile?.display_name || "",
@@ -72,9 +76,9 @@ const DashboardProfile = () => {
           <div className="flex items-center gap-6 mb-6">
             <div className="relative">
               <div className="w-20 h-20 rounded-full bg-apollo-gold/20 flex items-center justify-center">
-                {profile?.avatar_url ? (
+                {avatarUrl ? (
                   <img
-                    src={profile.avatar_url}
+                    src={avatarUrl}
                     alt="Avatar"
                     className="w-full h-full rounded-full object-cover"
                   />
