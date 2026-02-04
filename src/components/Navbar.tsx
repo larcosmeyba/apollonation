@@ -24,7 +24,7 @@ const Navbar = () => {
             <img 
               src={apolloLogo} 
               alt="Apollo Nation Logo" 
-              className="w-10 h-10 brightness-150 opacity-90"
+              className="w-10 h-10 invert brightness-0 invert opacity-95"
             />
             <span className="font-heading text-lg tracking-[0.15em] text-foreground">
               APOLLO <span className="text-accent">NATION</span>
