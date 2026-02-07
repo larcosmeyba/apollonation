@@ -68,6 +68,8 @@ const VideosSection = () => {
             <img
               src={videos[0].thumbnail}
               alt={videos[0].title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full min-h-[300px] md:min-h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
             />
             {/* Overlay */}
@@ -112,6 +114,8 @@ const VideosSection = () => {
               <img
                 src={video.thumbnail}
                 alt={video.title}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-48 md:h-56 object-cover transition-transform duration-500 group-hover:scale-105"
               />
               {/* Overlay */}
