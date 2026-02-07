@@ -13,28 +13,21 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Background image - Greek statue */}
-      <div 
-        className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
-        style={{ backgroundImage: `url(${heroStatue})` }}
+      {/* Background image - native img for better loading control */}
+      <img
+        src={heroStatue}
+        alt=""
+        role="presentation"
+        fetchPriority="high"
+        decoding="async"
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
       {/* Dramatic gradient overlay - centered */}
       <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-background/90" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
       
-      {/* Animated ambient glow - subtle white */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-white/5 rounded-full blur-[180px] animate-pulse" />
-      <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-white/3 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
-      
-      {/* Subtle grid pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px'
-        }}
-      />
+      {/* Ambient glow - reduced from two heavy blurs to one lighter one */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px]" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
