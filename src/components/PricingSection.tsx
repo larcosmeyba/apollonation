@@ -12,9 +12,9 @@ const tiers = [
       "Nutrition recipes collection",
       "Progress tracking",
       "Community support",
-      "Web platform access only"
+      "Web & mobile app access"
     ],
-    appAccess: false,
+    appAccess: true,
     featured: false
   },
   {
