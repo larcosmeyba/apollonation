@@ -58,7 +58,7 @@ const HeroSection = () => {
           <p 
             className={`text-lg md:text-xl text-white/60 max-w-xl mx-auto mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            Elite training programs, personalized coaching, and AI-powered nutrition—
+            Elite training programs, personalized coaching, and custom nutrition plans—
             designed for those who refuse to be ordinary.
           </p>
 
