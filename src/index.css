@@ -2,103 +2,103 @@
 @tailwind components;
 @tailwind utilities;
 
-/* APOLLO NATION - Monochrome Luxury Design System
-   Theme: High Fashion, Minimal, Pure White & Charcoal with Subtle Gold
-   Inspired by: Rick Owens, Fear of God, Acne Studios, The Row
+/* APOLLO NATION - Raw Intensity Design System
+   Theme: Dark, Moody, Steel & Ice with Deep Blacks
+   Inspired by: The raw energy of the grind, sweat, and steel
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 @layer base {
   :root {
-    /* Core Background - Deep Black */
-    --background: 0 0% 6%;
-    --foreground: 0 0% 96%;
+    /* Core Background - Abyss Black */
+    --background: 220 15% 5%;
+    --foreground: 210 15% 95%;
 
-    /* Card surfaces - Charcoal */
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 96%;
+    /* Card surfaces - Deep Charcoal with cool undertone */
+    --card: 220 12% 9%;
+    --card-foreground: 210 15% 95%;
 
-    /* Popover - Soft Black */
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 96%;
+    /* Popover - Cool Black */
+    --popover: 220 10% 11%;
+    --popover-foreground: 210 15% 95%;
 
-    /* Primary - Warm Tan/Sand (the signature accent) */
-    --primary: 32 45% 72%;
-    --primary-foreground: 0 0% 6%;
+    /* Primary - Steel Ice Blue (the new signature accent) */
+    --primary: 210 25% 65%;
+    --primary-foreground: 220 15% 5%;
 
-    /* Secondary - Medium Charcoal */
-    --secondary: 0 0% 14%;
-    --secondary-foreground: 0 0% 96%;
+    /* Secondary - Cool Charcoal */
+    --secondary: 220 10% 13%;
+    --secondary-foreground: 210 15% 95%;
 
-    /* Muted - Dark Gray */
-    --muted: 0 0% 16%;
-    --muted-foreground: 0 0% 60%;
+    /* Muted - Cool Dark Gray */
+    --muted: 220 8% 15%;
+    --muted-foreground: 210 10% 55%;
 
-    /* Accent - Warm tan (signature color) */
-    --accent: 32 45% 72%;
-    --accent-foreground: 0 0% 6%;
+    /* Accent - Steel Ice (signature color) */
+    --accent: 210 25% 65%;
+    --accent-foreground: 220 15% 5%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
     /* Borders & inputs */
-    --border: 0 0% 18%;
-    --input: 0 0% 12%;
-    --ring: 32 45% 72%;
+    --border: 220 10% 17%;
+    --input: 220 10% 11%;
+    --ring: 210 25% 65%;
 
     --radius: 0.5rem;
 
-    /* Custom Apollo tokens - Monochrome with Tan Accent */
-    --apollo-gold: 32 45% 72%;
-    --apollo-gold-light: 34 40% 80%;
-    --apollo-gold-dark: 30 50% 60%;
-    --apollo-bronze: 28 40% 65%;
-    --apollo-sandstone: 35 35% 78%;
-    --apollo-charcoal: 0 0% 6%;
-    --apollo-charcoal-light: 0 0% 10%;
-    --apollo-marble: 0 0% 98%;
-    --apollo-ivory: 35 25% 94%;
-    --apollo-taupe: 30 20% 65%;
-    --apollo-slate: 0 0% 55%;
+    /* Custom Apollo tokens - Cool Steel Palette */
+    --apollo-gold: 210 25% 65%;
+    --apollo-gold-light: 210 20% 75%;
+    --apollo-gold-dark: 215 30% 50%;
+    --apollo-bronze: 200 20% 58%;
+    --apollo-sandstone: 210 15% 78%;
+    --apollo-charcoal: 220 15% 5%;
+    --apollo-charcoal-light: 220 12% 9%;
+    --apollo-marble: 210 10% 96%;
+    --apollo-ivory: 210 10% 92%;
+    --apollo-taupe: 215 15% 55%;
+    --apollo-slate: 210 8% 50%;
 
-    /* Gradients - Monochrome with tan warmth */
-    --gradient-gold: linear-gradient(135deg, hsl(32 45% 72%), hsl(28 40% 65%));
-    --gradient-bronze: linear-gradient(135deg, hsl(30 50% 60%), hsl(32 45% 72%));
-    --gradient-dark: linear-gradient(180deg, hsl(0 0% 6%), hsl(0 0% 3%));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 10%), hsl(0 0% 8%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 6%) 0%, hsl(0 0% 10%) 50%, hsl(0 0% 6%) 100%);
+    /* Gradients - Cool steel with moody depth */
+    --gradient-gold: linear-gradient(135deg, hsl(210 25% 65%), hsl(200 20% 58%));
+    --gradient-bronze: linear-gradient(135deg, hsl(215 30% 50%), hsl(210 25% 65%));
+    --gradient-dark: linear-gradient(180deg, hsl(220 15% 5%), hsl(220 15% 3%));
+    --gradient-card: linear-gradient(145deg, hsl(220 12% 9%), hsl(220 12% 7%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 15% 5%) 0%, hsl(220 12% 9%) 50%, hsl(220 15% 5%) 100%);
 
-    /* Shadows - Subtle tan glow */
-    --shadow-gold: 0 4px 50px -5px hsl(32 45% 72% / 0.25);
-    --shadow-elevated: 0 20px 50px -15px hsl(0 0% 0% / 0.7);
-    --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / 0.6);
+    /* Shadows - Cool steel glow */
+    --shadow-gold: 0 4px 50px -5px hsl(210 25% 65% / 0.2);
+    --shadow-elevated: 0 20px 50px -15px hsl(220 20% 3% / 0.7);
+    --shadow-card: 0 10px 40px -10px hsl(220 20% 3% / 0.6);
 
-    /* Sidebar - Deep Black with tan accent */
-    --sidebar-background: 0 0% 8%;
-    --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 32 45% 72%;
-    --sidebar-primary-foreground: 0 0% 6%;
-    --sidebar-accent: 0 0% 14%;
-    --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 32 45% 72%;
+    /* Sidebar - Deep with steel accent */
+    --sidebar-background: 220 12% 7%;
+    --sidebar-foreground: 210 15% 95%;
+    --sidebar-primary: 210 25% 65%;
+    --sidebar-primary-foreground: 220 15% 5%;
+    --sidebar-accent: 220 10% 13%;
+    --sidebar-accent-foreground: 210 15% 95%;
+    --sidebar-border: 220 10% 17%;
+    --sidebar-ring: 210 25% 65%;
   }
 
   .dark {
     /* Dark theme inherits root - already dark */
   }
 
-  /* Light sections (marble/ivory backgrounds) */
+  /* Light sections */
   .light-section {
-    --background: 40 15% 97%;
-    --foreground: 0 0% 8%;
-    --card: 40 10% 94%;
-    --card-foreground: 0 0% 8%;
-    --muted: 40 10% 92%;
-    --muted-foreground: 0 0% 45%;
-    --border: 40 10% 88%;
+    --background: 210 10% 96%;
+    --foreground: 220 15% 8%;
+    --card: 210 8% 93%;
+    --card-foreground: 220 15% 8%;
+    --muted: 210 8% 90%;
+    --muted-foreground: 220 10% 45%;
+    --border: 210 8% 86%;
   }
 }
 
