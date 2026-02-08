@@ -4,6 +4,7 @@ import { Dumbbell, Utensils, Camera, TrendingUp, Play, CreditCard } from "lucide
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import MessageInboxPreview from "@/components/dashboard/MessageInboxPreview";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -180,6 +181,11 @@ const Dashboard = () => {
               )}
             </Link>
           ))}
+        </div>
+
+        {/* Message inbox preview */}
+        <div className="mb-8">
+          <MessageInboxPreview />
         </div>
 
         {/* Coach Marcos message */}

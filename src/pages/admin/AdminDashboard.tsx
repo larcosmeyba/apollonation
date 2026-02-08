@@ -1,11 +1,12 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dumbbell, Utensils, Activity, Users } from "lucide-react";
+import { Dumbbell, Utensils, Activity, Users, MessageSquare } from "lucide-react";
 import AdminWorkouts from "@/components/admin/AdminWorkouts";
 import AdminRecipes from "@/components/admin/AdminRecipes";
 import AdminExercises from "@/components/admin/AdminExercises";
 import AdminUsers from "@/components/admin/AdminUsers";
+import AdminMessages from "@/components/admin/AdminMessages";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("workouts");
@@ -41,6 +42,10 @@ const AdminDashboard = () => {
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
+            <TabsTrigger value="messages" className="gap-2">
+              <MessageSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">Messages</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="workouts">
@@ -57,6 +62,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="users">
             <AdminUsers />
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <AdminMessages />
           </TabsContent>
         </Tabs>
       </div>
