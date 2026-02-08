@@ -67,8 +67,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const checkSubscription = useCallback(async () => {
+    if (!user) return;
     setSubscriptionLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.log("No active session, skipping subscription check");
+        setSubscriptionLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) {
         console.error("Error checking subscription:", error);
@@ -77,10 +85,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSubscription(data as SubscriptionStatus);
 
       // Re-fetch profile to get synced tier
-      if (user) {
-        const profileData = await fetchProfile(user.id);
-        if (profileData) setProfile(profileData);
-      }
+      const profileData = await fetchProfile(user.id);
+      if (profileData) setProfile(profileData);
     } catch (err) {
       console.error("Subscription check failed:", err);
     } finally {
