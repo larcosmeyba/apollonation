@@ -20,7 +20,7 @@ const HeroSection = () => {
         role="presentation"
         fetchPriority="high"
         decoding="async"
-        className={`absolute inset-0 w-full h-full object-cover object-[center_30%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
+        className={`absolute inset-0 w-full h-full object-cover object-[40%_30%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
       {/* Dramatic gradient overlay - centered */}
       <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/20 to-background/50" />
