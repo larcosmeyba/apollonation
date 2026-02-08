@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -14,15 +14,23 @@ interface Profile {
   updated_at: string;
 }
 
+interface SubscriptionStatus {
+  subscribed: boolean;
+  subscription_tier: string | null;
+  subscription_end: string | null;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  subscription: SubscriptionStatus | null;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  checkSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,6 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -55,6 +64,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return data as Profile | null;
   };
 
+  const checkSubscription = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("check-subscription");
+      if (error) {
+        console.error("Error checking subscription:", error);
+        return;
+      }
+      setSubscription(data as SubscriptionStatus);
+
+      // Re-fetch profile to get synced tier
+      if (user) {
+        const profileData = await fetchProfile(user.id);
+        if (profileData) setProfile(profileData);
+      }
+    } catch (err) {
+      console.error("Subscription check failed:", err);
+    }
+  }, [user]);
+
   const refreshProfile = async () => {
     if (user) {
       const profileData = await fetchProfile(user.id);
@@ -64,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
@@ -78,6 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }, 0);
         } else {
           setProfile(null);
+          setSubscription(null);
           setLoading(false);
         }
       }
@@ -98,8 +127,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => authSubscription.unsubscribe();
   }, []);
+
+  // Check subscription status when user changes
+  useEffect(() => {
+    if (user) {
+      checkSubscription();
+
+      // Auto-refresh subscription every 60 seconds
+      const interval = setInterval(checkSubscription, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [user, checkSubscription]);
+
+  // Check for checkout success in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success" && user) {
+      // Delay to allow Stripe to process
+      setTimeout(() => {
+        checkSubscription();
+      }, 2000);
+    }
+  }, [user, checkSubscription]);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
     const { error } = await supabase.auth.signUp({
@@ -128,6 +179,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setSession(null);
     setProfile(null);
+    setSubscription(null);
   };
 
   return (
@@ -137,10 +189,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         session,
         profile,
         loading,
+        subscription,
         signUp,
         signIn,
         signOut,
         refreshProfile,
+        checkSubscription,
       }}
     >
       {children}

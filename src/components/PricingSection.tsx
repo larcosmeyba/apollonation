@@ -1,6 +1,11 @@
-import { Check } from "lucide-react";
+import { useState } from "react";
+import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { STRIPE_TIERS } from "@/config/stripe";
 
 const tiers = [
   {
@@ -15,7 +20,8 @@ const tiers = [
       "Web & mobile app access"
     ],
     appAccess: true,
-    featured: false
+    featured: false,
+    tierKey: "basic" as const,
   },
   {
     name: "Premier",
@@ -30,7 +36,8 @@ const tiers = [
       "Priority support"
     ],
     appAccess: true,
-    featured: true
+    featured: true,
+    tierKey: "pro" as const,
   },
   {
     name: "Elite",
@@ -46,11 +53,52 @@ const tiers = [
       "VIP community"
     ],
     appAccess: true,
-    featured: false
+    featured: false,
+    tierKey: "elite" as const,
   }
 ];
 
 const PricingSection = () => {
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
+
+  const handleSubscribe = async (tierKey: string) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+
+    const priceId = STRIPE_TIERS[tierKey as keyof typeof STRIPE_TIERS]?.price_id;
+    if (!priceId) return;
+
+    setLoadingTier(tierKey);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId },
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      console.error("Checkout error:", err);
+      toast({
+        title: "Checkout failed",
+        description: err.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingTier(null);
+    }
+  };
+
+  const isCurrentTier = (tierKey: string) => {
+    return profile?.subscription_tier === tierKey;
+  };
+
   return (
     <section id="pricing" className="py-32 relative overflow-hidden">
       {/* Background */}
@@ -91,6 +139,15 @@ const PricingSection = () => {
                 </div>
               )}
 
+              {/* Current plan badge */}
+              {isCurrentTier(tier.tierKey) && (
+                <div className="absolute -top-px right-4 px-4 py-1.5 bg-accent">
+                  <span className="text-[10px] font-medium text-accent-foreground uppercase tracking-[0.2em]">
+                    Your Plan
+                  </span>
+                </div>
+              )}
+
               {/* Header */}
               <div className="text-center mb-10 pt-4">
                 <h3 className="font-heading text-xl tracking-[0.1em] mb-3 text-white">{tier.name}</h3>
@@ -124,15 +181,18 @@ const PricingSection = () => {
               </ul>
 
               {/* CTA */}
-              <Link to="/auth" className="w-full">
-                <Button
-                  variant={tier.featured ? "apollo" : "apollo-outline"}
-                  size="lg"
-                  className="w-full"
-                >
-                  Get Started
-                </Button>
-              </Link>
+              <Button
+                variant={tier.featured ? "apollo" : "apollo-outline"}
+                size="lg"
+                className="w-full"
+                disabled={isCurrentTier(tier.tierKey) || loadingTier === tier.tierKey}
+                onClick={() => handleSubscribe(tier.tierKey)}
+              >
+                {loadingTier === tier.tierKey ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                {isCurrentTier(tier.tierKey) ? "Current Plan" : "Get Started"}
+              </Button>
             </div>
           ))}
         </div>
