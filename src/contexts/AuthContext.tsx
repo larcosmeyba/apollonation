@@ -66,6 +66,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return data as Profile | null;
   };
 
+  const defaultUnsub: SubscriptionStatus = { subscribed: false, subscription_tier: null, subscription_end: null };
+
   const checkSubscription = useCallback(async () => {
     if (!user) return;
     setSubscriptionLoading(true);
@@ -73,13 +75,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         console.log("No active session, skipping subscription check");
-        setSubscriptionLoading(false);
+        setSubscription(defaultUnsub);
         return;
       }
 
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) {
         console.error("Error checking subscription:", error);
+        setSubscription(defaultUnsub);
         return;
       }
       setSubscription(data as SubscriptionStatus);
@@ -89,6 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (profileData) setProfile(profileData);
     } catch (err) {
       console.error("Subscription check failed:", err);
+      setSubscription(defaultUnsub);
     } finally {
       setSubscriptionLoading(false);
     }
