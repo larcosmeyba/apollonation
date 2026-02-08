@@ -100,7 +100,7 @@ const PricingSection = () => {
   };
 
   return (
-    <section id="pricing" className="py-32 relative overflow-hidden">
+    <section id="pricing" className="py-16 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-white/[0.01] to-background" />
       

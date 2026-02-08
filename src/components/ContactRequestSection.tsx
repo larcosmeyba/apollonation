@@ -67,7 +67,7 @@ const ContactRequestSection = () => {
 
   if (submitted) {
     return (
-      <section className="py-24 bg-background">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-lg mx-auto text-center card-apollo p-12">
             <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
@@ -84,7 +84,7 @@ const ContactRequestSection = () => {
   }
 
   return (
-    <section id="contact" className="py-24 bg-background">
+    <section id="contact" className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
