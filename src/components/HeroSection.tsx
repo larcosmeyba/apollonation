@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import heroStatue from "@/assets/hero-statue.png";
+import heroCoach from "@/assets/hero-coach.png";
 import { useEffect, useState } from "react";
 
 const HeroSection = () => {
@@ -15,7 +15,7 @@ const HeroSection = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background image - native img for better loading control */}
       <img
-        src={heroStatue}
+        src={heroCoach}
         alt=""
         role="presentation"
         fetchPriority="high"
