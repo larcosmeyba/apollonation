@@ -47,7 +47,7 @@ const HeroSection = () => {
             <span className="block text-white">Forge Your</span>
             <span 
               className="block text-primary mt-2"
-              style={{ textShadow: '0 0 80px hsl(220 10% 75% / 0.4)' }}
+              style={{ textShadow: '0 0 80px hsl(215 35% 50% / 0.4)' }}
             >
               Legend
             </span>
@@ -84,7 +84,7 @@ const HeroSection = () => {
               <div key={stat.label} className="text-center" style={{ transitionDelay: `${600 + index * 100}ms` }}>
                 <div 
                   className="font-heading text-3xl md:text-4xl text-primary mb-1 tracking-wide"
-                  style={{ textShadow: '0 0 40px hsl(220 10% 75% / 0.3)' }}
+                  style={{ textShadow: '0 0 40px hsl(215 35% 50% / 0.3)' }}
                 >
                   {stat.value}
                 </div>
