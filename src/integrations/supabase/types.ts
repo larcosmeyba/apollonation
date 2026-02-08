@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_requests: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_read: boolean
+          message: string | null
+          name: string
+          phone: string | null
+          preferred_contact: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          name: string
+          phone?: string | null
+          preferred_contact?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          name?: string
+          phone?: string | null
+          preferred_contact?: string
+        }
+        Relationships: []
+      }
       exercises: {
         Row: {
           created_at: string
