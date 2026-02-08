@@ -1,13 +1,37 @@
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Dumbbell, Utensils, Camera, TrendingUp, Play } from "lucide-react";
+import { Dumbbell, Utensils, Camera, TrendingUp, Play, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
-  const { profile } = useAuth();
+  const { profile, subscription } = useAuth();
+  const { toast } = useToast();
+  const [managingPortal, setManagingPortal] = useState(false);
   const isElite = profile?.subscription_tier === "elite";
   const isPro = profile?.subscription_tier === "pro" || isElite;
+
+  const handleManageSubscription = async () => {
+    setManagingPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Could not open subscription management.",
+        variant: "destructive",
+      });
+    } finally {
+      setManagingPortal(false);
+    }
+  };
 
   const quickLinks = [
     {
@@ -50,11 +74,38 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Tier badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-apollo-gold/10 border border-apollo-gold/20 mb-8">
-          <span className="text-apollo-gold font-medium text-sm uppercase tracking-wide">
-            {profile?.subscription_tier || "Basic"} Member
-          </span>
+        {/* Tier badge + manage subscription */}
+        <div className="flex flex-wrap items-center gap-4 mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-apollo-gold/10 border border-apollo-gold/20">
+            <span className="text-apollo-gold font-medium text-sm uppercase tracking-wide">
+              {profile?.subscription_tier || "Basic"} Member
+            </span>
+          </div>
+          {subscription?.subscribed && (
+            <>
+              <span className="text-xs text-muted-foreground">
+                Renews {subscription.subscription_end
+                  ? new Date(subscription.subscription_end).toLocaleDateString()
+                  : "—"}
+              </span>
+              <Button
+                variant="apollo-outline"
+                size="sm"
+                onClick={handleManageSubscription}
+                disabled={managingPortal}
+              >
+                <CreditCard className="w-4 h-4 mr-2" />
+                {managingPortal ? "Opening..." : "Manage Subscription"}
+              </Button>
+            </>
+          )}
+          {!subscription?.subscribed && (
+            <Link to="/#pricing">
+              <Button variant="apollo" size="sm">
+                Upgrade Plan
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Quick stats */}
