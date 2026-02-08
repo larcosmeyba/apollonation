@@ -23,8 +23,8 @@ const HeroSection = () => {
         className={`absolute inset-0 w-full h-full object-cover object-[75%_30%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
       {/* Dramatic gradient overlay - centered */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/20 to-background/50" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/20" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/50" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       
       {/* Ambient glow - reduced from two heavy blurs to one lighter one */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px]" />
