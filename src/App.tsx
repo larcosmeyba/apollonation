@@ -13,6 +13,7 @@ import DashboardWorkouts from "./pages/DashboardWorkouts";
 import DashboardRecipes from "./pages/DashboardRecipes";
 import DashboardMacros from "./pages/DashboardMacros";
 import DashboardProfile from "./pages/DashboardProfile";
+import DashboardMessages from "./pages/DashboardMessages";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -71,6 +72,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/messages"
+              element={
+                <ProtectedRoute>
+                  <DashboardMessages />
                 </ProtectedRoute>
               }
             />

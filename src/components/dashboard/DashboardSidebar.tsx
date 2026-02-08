@@ -10,13 +10,16 @@ import {
   LogOut,
   Lock,
   Shield,
+  MessageSquare,
 } from "lucide-react";
+import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
 
 const DashboardSidebar = () => {
   const { profile, signOut } = useAuth();
   const { isAdmin } = useAdminStatus();
   const location = useLocation();
+  const { unreadCount } = useMessages();
 
   const isElite = profile?.subscription_tier === "elite";
 
@@ -45,6 +48,13 @@ const DashboardSidebar = () => {
       icon: Camera,
       locked: !isElite,
       tier: "Elite",
+    },
+    {
+      label: "Messages",
+      href: "/dashboard/messages",
+      icon: MessageSquare,
+      locked: false,
+      badge: unreadCount > 0 ? unreadCount : undefined,
     },
     {
       label: "Profile",
@@ -102,6 +112,11 @@ const DashboardSidebar = () => {
           >
             <item.icon className="w-5 h-5" />
             <span className="flex-1">{item.label}</span>
+            {item.badge && (
+              <span className="bg-apollo-gold text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                {item.badge}
+              </span>
+            )}
             {item.locked && (
               <div className="flex items-center gap-1 text-xs">
                 <Lock className="w-3 h-3" />

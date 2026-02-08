@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
-import { Menu, X, LayoutDashboard, Dumbbell, Utensils, Camera, User, LogOut, Lock, Shield } from "lucide-react";
+import { Menu, X, LayoutDashboard, Dumbbell, Utensils, Camera, User, LogOut, Lock, Shield, MessageSquare } from "lucide-react";
+import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -11,6 +12,7 @@ const DashboardMobileNav = () => {
   const { profile, signOut } = useAuth();
   const { isAdmin } = useAdminStatus();
   const location = useLocation();
+  const { unreadCount } = useMessages();
 
   const isElite = profile?.subscription_tier === "elite";
 
@@ -19,6 +21,7 @@ const DashboardMobileNav = () => {
     { label: "Workouts", href: "/dashboard/workouts", icon: Dumbbell, locked: false },
     { label: "Recipes", href: "/dashboard/recipes", icon: Utensils, locked: false },
     { label: "Macro Tracker", href: "/dashboard/macros", icon: Camera, locked: !isElite, tier: "Elite" },
+    { label: "Messages", href: "/dashboard/messages", icon: MessageSquare, locked: false, badge: unreadCount > 0 ? unreadCount : undefined },
     { label: "Profile", href: "/dashboard/profile", icon: User, locked: false },
   ];
 
@@ -77,6 +80,11 @@ const DashboardMobileNav = () => {
                 >
                   <item.icon className="w-5 h-5" />
                   <span className="flex-1">{item.label}</span>
+                  {(item as any).badge && (
+                    <span className="bg-apollo-gold text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                      {(item as any).badge}
+                    </span>
+                  )}
                   {item.locked && <Lock className="w-3 h-3" />}
                 </Link>
               ))}
