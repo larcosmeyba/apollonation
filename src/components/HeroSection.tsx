@@ -20,11 +20,11 @@ const HeroSection = () => {
         role="presentation"
         fetchPriority="high"
         decoding="async"
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
+        className={`absolute inset-0 w-full h-full object-cover object-[70%_20%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
       {/* Dramatic gradient overlay - centered */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-background/90" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-background/70" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
       
       {/* Ambient glow - reduced from two heavy blurs to one lighter one */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px]" />
