@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 /* APOLLO NATION - Raw Intensity Design System
-   Theme: Dark, Neon, Toxic Green with Deep Blacks
-   Inspired by: Underground gym energy, sweat under neon lights
+   Theme: Dark, Electric Silver with Deep Blacks
+   Inspired by: Chrome, steel, raw power under harsh light
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
@@ -12,78 +12,78 @@
 @layer base {
   :root {
     /* Core Background - Abyss Black */
-    --background: 150 10% 5%;
-    --foreground: 140 10% 95%;
+    --background: 0 0% 5%;
+    --foreground: 0 0% 95%;
 
-    /* Card surfaces - Deep Charcoal with green undertone */
-    --card: 150 8% 9%;
-    --card-foreground: 140 10% 95%;
+    /* Card surfaces - Deep Charcoal */
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 95%;
 
-    /* Popover - Dark Green-Black */
-    --popover: 150 6% 11%;
-    --popover-foreground: 140 10% 95%;
+    /* Popover - Dark */
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Primary - Toxic Neon Green (signature accent) */
-    --primary: 142 70% 50%;
-    --primary-foreground: 150 10% 5%;
+    /* Primary - Electric Silver */
+    --primary: 220 10% 75%;
+    --primary-foreground: 0 0% 5%;
 
-    /* Secondary - Dark Green-Charcoal */
-    --secondary: 150 8% 13%;
-    --secondary-foreground: 140 10% 95%;
+    /* Secondary - Charcoal */
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 95%;
 
-    /* Muted - Cool Dark Gray-Green */
-    --muted: 150 6% 15%;
-    --muted-foreground: 140 8% 55%;
+    /* Muted - Dark Gray */
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 55%;
 
-    /* Accent - Toxic Green (signature color) */
-    --accent: 142 70% 50%;
-    --accent-foreground: 150 10% 5%;
+    /* Accent - Silver */
+    --accent: 220 10% 75%;
+    --accent-foreground: 0 0% 5%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
     /* Borders & inputs */
-    --border: 150 6% 17%;
-    --input: 150 6% 11%;
-    --ring: 142 70% 50%;
+    --border: 0 0% 18%;
+    --input: 0 0% 11%;
+    --ring: 220 10% 75%;
 
     --radius: 0.5rem;
 
-    /* Custom Apollo tokens - Toxic Green Palette */
-    --apollo-gold: 142 70% 50%;
-    --apollo-gold-light: 142 60% 65%;
-    --apollo-gold-dark: 142 80% 38%;
-    --apollo-bronze: 150 50% 45%;
-    --apollo-sandstone: 142 40% 72%;
-    --apollo-charcoal: 150 10% 5%;
-    --apollo-charcoal-light: 150 8% 9%;
-    --apollo-marble: 140 8% 96%;
-    --apollo-ivory: 140 6% 92%;
-    --apollo-taupe: 145 15% 50%;
-    --apollo-slate: 140 6% 48%;
+    /* Custom Apollo tokens - Silver Palette */
+    --apollo-gold: 220 10% 75%;
+    --apollo-gold-light: 220 8% 85%;
+    --apollo-gold-dark: 220 12% 60%;
+    --apollo-bronze: 215 8% 65%;
+    --apollo-sandstone: 220 6% 82%;
+    --apollo-charcoal: 0 0% 5%;
+    --apollo-charcoal-light: 0 0% 9%;
+    --apollo-marble: 0 0% 96%;
+    --apollo-ivory: 0 0% 92%;
+    --apollo-taupe: 220 6% 55%;
+    --apollo-slate: 0 0% 50%;
 
-    /* Gradients - Toxic neon depth */
-    --gradient-gold: linear-gradient(135deg, hsl(142 70% 50%), hsl(150 50% 45%));
-    --gradient-bronze: linear-gradient(135deg, hsl(142 80% 38%), hsl(142 70% 50%));
-    --gradient-dark: linear-gradient(180deg, hsl(150 10% 5%), hsl(150 10% 3%));
-    --gradient-card: linear-gradient(145deg, hsl(150 8% 9%), hsl(150 8% 7%));
-    --gradient-hero: linear-gradient(135deg, hsl(150 10% 5%) 0%, hsl(150 8% 9%) 50%, hsl(150 10% 5%) 100%);
+    /* Gradients - Chrome steel */
+    --gradient-gold: linear-gradient(135deg, hsl(220 10% 75%), hsl(215 8% 65%));
+    --gradient-bronze: linear-gradient(135deg, hsl(220 12% 60%), hsl(220 10% 75%));
+    --gradient-dark: linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 3%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 9%), hsl(0 0% 7%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 5%) 0%, hsl(0 0% 9%) 50%, hsl(0 0% 5%) 100%);
 
-    /* Shadows - Neon green glow */
-    --shadow-gold: 0 4px 50px -5px hsl(142 70% 50% / 0.25);
-    --shadow-elevated: 0 20px 50px -15px hsl(150 15% 3% / 0.7);
-    --shadow-card: 0 10px 40px -10px hsl(150 15% 3% / 0.6);
+    /* Shadows - Silver glow */
+    --shadow-gold: 0 4px 50px -5px hsl(220 10% 75% / 0.2);
+    --shadow-elevated: 0 20px 50px -15px hsl(0 0% 0% / 0.7);
+    --shadow-card: 0 10px 40px -10px hsl(0 0% 0% / 0.6);
 
-    /* Sidebar - Deep with neon accent */
-    --sidebar-background: 150 8% 7%;
-    --sidebar-foreground: 140 10% 95%;
-    --sidebar-primary: 142 70% 50%;
-    --sidebar-primary-foreground: 150 10% 5%;
-    --sidebar-accent: 150 8% 13%;
-    --sidebar-accent-foreground: 140 10% 95%;
-    --sidebar-border: 150 6% 17%;
-    --sidebar-ring: 142 70% 50%;
+    /* Sidebar - Deep with silver accent */
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 220 10% 75%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 13%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 220 10% 75%;
   }
 
   .dark {
