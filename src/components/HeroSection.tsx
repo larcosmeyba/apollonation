@@ -1,4 +1,4 @@
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import heroStatue from "@/assets/hero-statue.png";
@@ -72,12 +72,6 @@ const HeroSection = () => {
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
               </Button>
             </Link>
-            <a href="#testimonials">
-              <Button variant="apollo-outline" size="lg" className="group min-w-[180px] h-14 text-base">
-                <Play size={16} className="mr-2" />
-                Watch Story
-              </Button>
-            </a>
           </div>
 
           {/* Stats row */}

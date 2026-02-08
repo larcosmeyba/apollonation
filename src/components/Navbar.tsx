@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 import apolloLogo from "@/assets/apollo-logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, loading } = useAuth();
+  const { isAdmin } = useAdminStatus();
 
   const navLinks = [
     { href: "#features", label: "Programs" },
@@ -49,11 +51,21 @@ const Navbar = () => {
             {loading ? (
               <div className="w-20 h-9 bg-muted animate-pulse rounded" />
             ) : user ? (
-              <Link to="/dashboard">
-                <Button variant="apollo" size="sm">
-                  Dashboard
-                </Button>
-              </Link>
+              <>
+                {isAdmin && (
+                  <Link to="/admin">
+                    <Button variant="ghost" size="sm" className="text-accent gap-2">
+                      <Shield className="w-4 h-4" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Link to="/dashboard">
+                  <Button variant="apollo" size="sm">
+                    Dashboard
+                  </Button>
+                </Link>
+              </>
             ) : (
               <>
                 <Link to="/auth">
@@ -97,11 +109,21 @@ const Navbar = () => {
             ))}
             <div className="pt-6 space-y-3 border-t border-border/30">
               {user ? (
-                <Link to="/dashboard" onClick={() => setIsOpen(false)}>
-                  <Button variant="apollo" className="w-full">
-                    Dashboard
-                  </Button>
-                </Link>
+                <>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setIsOpen(false)}>
+                      <Button variant="ghost" className="w-full text-accent gap-2">
+                        <Shield className="w-4 h-4" />
+                        Admin Panel
+                      </Button>
+                    </Link>
+                  )}
+                  <Link to="/dashboard" onClick={() => setIsOpen(false)}>
+                    <Button variant="apollo" className="w-full">
+                      Dashboard
+                    </Button>
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
