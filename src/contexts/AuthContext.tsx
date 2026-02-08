@@ -26,6 +26,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   subscription: SubscriptionStatus | null;
+  subscriptionLoading: boolean;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -49,6 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -65,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const checkSubscription = useCallback(async () => {
+    setSubscriptionLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) {
@@ -80,6 +83,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (err) {
       console.error("Subscription check failed:", err);
+    } finally {
+      setSubscriptionLoading(false);
     }
   }, [user]);
 
@@ -190,6 +195,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         profile,
         loading,
         subscription,
+        subscriptionLoading,
         signUp,
         signIn,
         signOut,

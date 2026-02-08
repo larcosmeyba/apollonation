@@ -7,19 +7,24 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, subscription, subscriptionLoading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (loading || subscriptionLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-apollo-gold">Loading...</div>
+        <div className="animate-pulse text-primary">Loading...</div>
       </div>
     );
   }
 
   if (!user) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  // Require active subscription to access dashboard
+  if (!subscription?.subscribed) {
+    return <Navigate to="/subscribe" replace />;
   }
 
   // Check tier access if required
