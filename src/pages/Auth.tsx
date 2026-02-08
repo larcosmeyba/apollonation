@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import apolloLogo from "@/assets/apollo-logo.png";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -34,7 +35,24 @@ const Auth = () => {
     setIsSubmitting(true);
 
     try {
-      if (isLogin) {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth`,
+        });
+        if (error) {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Check your email",
+            description: "We've sent you a password reset link.",
+          });
+          setMode("login");
+        }
+      } else if (mode === "login") {
         const { error } = await signIn(email, password);
         if (error) {
           toast({
@@ -95,16 +113,22 @@ const Auth = () => {
 
           <div className="card-apollo p-8">
             <h2 className="font-heading text-2xl mb-2 text-center">
-              {isLogin ? "SIGN IN" : "CREATE ACCOUNT"}
+              {mode === "login"
+                ? "SIGN IN"
+                : mode === "signup"
+                ? "CREATE ACCOUNT"
+                : "RESET PASSWORD"}
             </h2>
             <p className="text-muted-foreground text-center mb-8">
-              {isLogin
+              {mode === "login"
                 ? "Welcome back, warrior"
-                : "Begin your transformation today"}
+                : mode === "signup"
+                ? "Begin your transformation today"
+                : "Enter your email to receive a reset link"}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {!isLogin && (
+              {mode === "signup" && (
                 <div className="space-y-2">
                   <Label htmlFor="displayName">Display Name</Label>
                   <Input
@@ -131,19 +155,33 @@ const Auth = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="bg-muted border-border"
-                />
-              </div>
+              {mode !== "forgot" && (
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="bg-muted border-border"
+                  />
+                </div>
+              )}
+
+              {mode === "login" && (
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => setMode("forgot")}
+                    className="text-xs text-muted-foreground hover:text-apollo-gold transition-colors"
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
+              )}
 
               <Button
                 type="submit"
@@ -154,22 +192,34 @@ const Auth = () => {
               >
                 {isSubmitting
                   ? "Please wait..."
-                  : isLogin
+                  : mode === "login"
                   ? "Sign In"
-                  : "Create Account"}
+                  : mode === "signup"
+                  ? "Create Account"
+                  : "Send Reset Link"}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-muted-foreground hover:text-apollo-gold transition-colors text-sm"
-              >
-                {isLogin
-                  ? "Don't have an account? Sign up"
-                  : "Already have an account? Sign in"}
-              </button>
+            <div className="mt-6 text-center space-y-2">
+              {mode === "forgot" ? (
+                <button
+                  type="button"
+                  onClick={() => setMode("login")}
+                  className="text-muted-foreground hover:text-apollo-gold transition-colors text-sm"
+                >
+                  Back to sign in
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setMode(mode === "login" ? "signup" : "login")}
+                  className="text-muted-foreground hover:text-apollo-gold transition-colors text-sm"
+                >
+                  {mode === "login"
+                    ? "Don't have an account? Sign up"
+                    : "Already have an account? Sign in"}
+                </button>
+              )}
             </div>
           </div>
         </div>
