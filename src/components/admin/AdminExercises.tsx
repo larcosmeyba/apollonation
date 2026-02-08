@@ -22,6 +22,24 @@ interface Exercise {
   difficulty: string | null;
 }
 
+const MUSCLE_GROUPS = [
+  { value: "chest", label: "Chest" },
+  { value: "back", label: "Back" },
+  { value: "shoulders", label: "Shoulders" },
+  { value: "biceps", label: "Biceps" },
+  { value: "triceps", label: "Triceps" },
+  { value: "legs", label: "Legs" },
+  { value: "glutes", label: "Glutes" },
+  { value: "core", label: "Core" },
+  { value: "full-body", label: "Full Body" },
+];
+
+const DIFFICULTIES = [
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced", label: "Advanced" },
+];
+
 const AdminExercises = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -36,6 +54,7 @@ const AdminExercises = () => {
     equipment: "",
     difficulty: "beginner",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: exercises, isLoading } = useQuery({
     queryKey: ["admin-exercises"],
@@ -49,15 +68,34 @@ const AdminExercises = () => {
     },
   });
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.title.trim()) newErrors.title = "Exercise name is required";
+    if (formData.title.length > 100) newErrors.title = "Name must be under 100 characters";
+    if (formData.video_url && !isValidUrl(formData.video_url)) newErrors.video_url = "Enter a valid URL";
+    if (formData.thumbnail_url && !isValidUrl(formData.thumbnail_url)) newErrors.thumbnail_url = "Enter a valid URL";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       const { error } = await supabase.from("exercises").insert({
-        title: data.title,
-        description: data.description || null,
-        video_url: data.video_url || null,
-        thumbnail_url: data.thumbnail_url || null,
+        title: data.title.trim(),
+        description: data.description.trim() || null,
+        video_url: data.video_url.trim() || null,
+        thumbnail_url: data.thumbnail_url.trim() || null,
         muscle_group: data.muscle_group,
-        equipment: data.equipment || null,
+        equipment: data.equipment.trim() || null,
         difficulty: data.difficulty,
       });
       if (error) throw error;
@@ -77,12 +115,12 @@ const AdminExercises = () => {
       const { error } = await supabase
         .from("exercises")
         .update({
-          title: data.title,
-          description: data.description || null,
-          video_url: data.video_url || null,
-          thumbnail_url: data.thumbnail_url || null,
+          title: data.title.trim(),
+          description: data.description.trim() || null,
+          video_url: data.video_url.trim() || null,
+          thumbnail_url: data.thumbnail_url.trim() || null,
           muscle_group: data.muscle_group,
-          equipment: data.equipment || null,
+          equipment: data.equipment.trim() || null,
           difficulty: data.difficulty,
         })
         .eq("id", id);
@@ -124,6 +162,7 @@ const AdminExercises = () => {
     });
     setEditingExercise(null);
     setIsDialogOpen(false);
+    setErrors({});
   };
 
   const handleEdit = (exercise: Exercise) => {
@@ -137,11 +176,13 @@ const AdminExercises = () => {
       equipment: exercise.equipment || "",
       difficulty: exercise.difficulty || "beginner",
     });
+    setErrors({});
     setIsDialogOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
     if (editingExercise) {
       updateMutation.mutate({ id: editingExercise.id, data: formData });
     } else {
@@ -156,9 +197,9 @@ const AdminExercises = () => {
           <h2 className="font-heading text-xl">Exercise Library</h2>
           <p className="text-sm text-muted-foreground">5-second clips demonstrating individual exercises</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); else setIsDialogOpen(true); }}>
           <DialogTrigger asChild>
-            <Button variant="apollo" onClick={() => resetForm()}>
+            <Button variant="apollo" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
               <Plus className="w-4 h-4 mr-2" />
               Add Exercise
             </Button>
@@ -169,14 +210,17 @@ const AdminExercises = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="title">Exercise Name</Label>
+                <Label htmlFor="title">Exercise Name *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
                   placeholder="e.g., Bicep Curl"
+                  maxLength={100}
                   required
+                  className={errors.title ? "border-destructive" : ""}
                 />
+                {errors.title && <p className="text-xs text-destructive mt-1">{errors.title}</p>}
               </div>
               <div>
                 <Label htmlFor="description">Description</Label>
@@ -185,12 +229,14 @@ const AdminExercises = () => {
                   value={formData.description}
                   onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
                   rows={2}
+                  maxLength={300}
                   placeholder="Brief description of proper form..."
                 />
+                <p className="text-xs text-muted-foreground mt-1">{formData.description.length}/300</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="muscle_group">Muscle Group</Label>
+                  <Label htmlFor="muscle_group">Muscle Group *</Label>
                   <Select
                     value={formData.muscle_group}
                     onValueChange={(v) => setFormData((p) => ({ ...p, muscle_group: v }))}
@@ -199,20 +245,14 @@ const AdminExercises = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="chest">Chest</SelectItem>
-                      <SelectItem value="back">Back</SelectItem>
-                      <SelectItem value="shoulders">Shoulders</SelectItem>
-                      <SelectItem value="biceps">Biceps</SelectItem>
-                      <SelectItem value="triceps">Triceps</SelectItem>
-                      <SelectItem value="legs">Legs</SelectItem>
-                      <SelectItem value="glutes">Glutes</SelectItem>
-                      <SelectItem value="core">Core</SelectItem>
-                      <SelectItem value="full-body">Full Body</SelectItem>
+                      {MUSCLE_GROUPS.map((mg) => (
+                        <SelectItem key={mg.value} value={mg.value}>{mg.label}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="difficulty">Difficulty</Label>
+                  <Label htmlFor="difficulty">Difficulty *</Label>
                   <Select
                     value={formData.difficulty}
                     onValueChange={(v) => setFormData((p) => ({ ...p, difficulty: v }))}
@@ -221,9 +261,9 @@ const AdminExercises = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="beginner">Beginner</SelectItem>
-                      <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="advanced">Advanced</SelectItem>
+                      {DIFFICULTIES.map((d) => (
+                        <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -235,6 +275,7 @@ const AdminExercises = () => {
                   value={formData.equipment}
                   onChange={(e) => setFormData((p) => ({ ...p, equipment: e.target.value }))}
                   placeholder="e.g., Dumbbells, Barbell, None"
+                  maxLength={100}
                 />
               </div>
               <div>
@@ -244,7 +285,9 @@ const AdminExercises = () => {
                   value={formData.video_url}
                   onChange={(e) => setFormData((p) => ({ ...p, video_url: e.target.value }))}
                   placeholder="https://..."
+                  className={errors.video_url ? "border-destructive" : ""}
                 />
+                {errors.video_url && <p className="text-xs text-destructive mt-1">{errors.video_url}</p>}
               </div>
               <div>
                 <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
@@ -253,7 +296,9 @@ const AdminExercises = () => {
                   value={formData.thumbnail_url}
                   onChange={(e) => setFormData((p) => ({ ...p, thumbnail_url: e.target.value }))}
                   placeholder="https://..."
+                  className={errors.thumbnail_url ? "border-destructive" : ""}
                 />
+                {errors.thumbnail_url && <p className="text-xs text-destructive mt-1">{errors.thumbnail_url}</p>}
               </div>
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={resetForm}>
