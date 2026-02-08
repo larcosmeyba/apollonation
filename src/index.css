@@ -24,8 +24,8 @@
     --popover-foreground: 210 15% 95%;
 
     /* Primary - Deep Steel Blue (darker, moodier) */
-    --primary: 215 35% 50%;
-    --primary-foreground: 220 15% 95%;
+    --primary: 215 45% 58%;
+    --primary-foreground: 220 15% 5%;
 
     /* Secondary - Cool Charcoal */
     --secondary: 220 10% 13%;
@@ -36,8 +36,8 @@
     --muted-foreground: 210 10% 55%;
 
     /* Accent - Deep Steel Blue */
-    --accent: 215 35% 50%;
-    --accent-foreground: 220 15% 95%;
+    --accent: 215 45% 58%;
+    --accent-foreground: 220 15% 5%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
@@ -46,14 +46,14 @@
     /* Borders & inputs */
     --border: 220 10% 17%;
     --input: 220 10% 11%;
-    --ring: 215 35% 50%;
+    --ring: 215 45% 58%;
 
     --radius: 0.5rem;
 
     /* Custom Apollo tokens - Deep Steel Palette */
-    --apollo-gold: 215 35% 50%;
-    --apollo-gold-light: 215 30% 62%;
-    --apollo-gold-dark: 218 40% 40%;
+    --apollo-gold: 215 45% 58%;
+    --apollo-gold-light: 215 38% 68%;
+    --apollo-gold-dark: 218 50% 45%;
     --apollo-bronze: 210 28% 45%;
     --apollo-sandstone: 215 20% 68%;
     --apollo-charcoal: 220 15% 5%;
@@ -64,26 +64,26 @@
     --apollo-slate: 210 8% 50%;
 
     /* Gradients - Deep steel with moody depth */
-    --gradient-gold: linear-gradient(135deg, hsl(215 35% 50%), hsl(210 28% 45%));
-    --gradient-bronze: linear-gradient(135deg, hsl(218 40% 40%), hsl(215 35% 50%));
+    --gradient-gold: linear-gradient(135deg, hsl(215 45% 58%), hsl(210 28% 45%));
+    --gradient-bronze: linear-gradient(135deg, hsl(218 50% 45%), hsl(215 45% 58%));
     --gradient-dark: linear-gradient(180deg, hsl(220 15% 5%), hsl(220 15% 3%));
     --gradient-card: linear-gradient(145deg, hsl(220 12% 9%), hsl(220 12% 7%));
     --gradient-hero: linear-gradient(135deg, hsl(220 15% 5%) 0%, hsl(220 12% 9%) 50%, hsl(220 15% 5%) 100%);
 
     /* Shadows - Deep steel glow */
-    --shadow-gold: 0 4px 50px -5px hsl(215 35% 50% / 0.25);
+    --shadow-gold: 0 4px 50px -5px hsl(215 45% 58% / 0.25);
     --shadow-elevated: 0 20px 50px -15px hsl(220 20% 3% / 0.7);
     --shadow-card: 0 10px 40px -10px hsl(220 20% 3% / 0.6);
 
     /* Sidebar - Deep with steel accent */
     --sidebar-background: 220 12% 7%;
     --sidebar-foreground: 210 15% 95%;
-    --sidebar-primary: 215 35% 50%;
-    --sidebar-primary-foreground: 220 15% 95%;
+    --sidebar-primary: 215 45% 58%;
+    --sidebar-primary-foreground: 220 15% 5%;
     --sidebar-accent: 220 10% 13%;
     --sidebar-accent-foreground: 210 15% 95%;
     --sidebar-border: 220 10% 17%;
-    --sidebar-ring: 215 35% 50%;
+    --sidebar-ring: 215 45% 58%;
   }
 
   .dark {

@@ -22,8 +22,8 @@ const HeroSection = () => {
         decoding="async"
         className={`absolute inset-0 w-full h-full object-cover object-[75%_30%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
-      {/* Dramatic gradient overlay - centered */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+      {/* Bottom fade only - no overlay */}
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background to-transparent" />
       
       {/* Ambient glow - reduced from two heavy blurs to one lighter one */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px]" />
@@ -47,7 +47,7 @@ const HeroSection = () => {
             <span className="block text-white">Forge Your</span>
             <span 
               className="block text-primary mt-2"
-              style={{ textShadow: '0 0 80px hsl(215 35% 50% / 0.4)' }}
+              style={{ textShadow: '0 0 80px hsl(215 45% 58% / 0.4)' }}
             >
               Legend
             </span>
@@ -84,7 +84,7 @@ const HeroSection = () => {
               <div key={stat.label} className="text-center" style={{ transitionDelay: `${600 + index * 100}ms` }}>
                 <div 
                   className="font-heading text-3xl md:text-4xl text-primary mb-1 tracking-wide"
-                  style={{ textShadow: '0 0 40px hsl(215 35% 50% / 0.3)' }}
+                  style={{ textShadow: '0 0 40px hsl(215 45% 58% / 0.3)' }}
                 >
                   {stat.value}
                 </div>
