@@ -20,7 +20,7 @@ const HeroSection = () => {
         role="presentation"
         fetchPriority="high"
         decoding="async"
-        className={`absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
+        className={`absolute inset-0 w-full h-full object-cover object-[center_30%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
       {/* Dramatic gradient overlay - centered */}
       <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/20 to-background/50" />
@@ -79,8 +79,7 @@ const HeroSection = () => {
             className={`flex flex-wrap justify-center gap-8 md:gap-16 mt-16 pt-10 border-t border-primary/20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             {[
-              { value: "50K+", label: "Athletes" },
-              { value: "500+", label: "Programs" },
+              { value: "100+", label: "Athletes" },
               { value: "98%", label: "Success Rate" },
             ].map((stat, index) => (
               <div key={stat.label} className="text-center" style={{ transitionDelay: `${600 + index * 100}ms` }}>
