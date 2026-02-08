@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ListChecks } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
+import WorkoutExerciseLinker from "./WorkoutExerciseLinker";
 
 interface Workout {
   id: string;
@@ -24,11 +25,20 @@ interface Workout {
   is_featured: boolean | null;
 }
 
+const CATEGORIES = [
+  { value: "strength", label: "Strength" },
+  { value: "cardio", label: "Cardio" },
+  { value: "hiit", label: "HIIT" },
+  { value: "flexibility", label: "Flexibility" },
+  { value: "recovery", label: "Recovery" },
+];
+
 const AdminWorkouts = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
+  const [linkingWorkout, setLinkingWorkout] = useState<Workout | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -39,6 +49,7 @@ const AdminWorkouts = () => {
     thumbnail_url: "",
     is_featured: false,
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: workouts, isLoading } = useQuery({
     queryKey: ["admin-workouts"],
@@ -52,22 +63,44 @@ const AdminWorkouts = () => {
     },
   });
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.title.trim()) newErrors.title = "Title is required";
+    if (formData.title.length > 100) newErrors.title = "Title must be under 100 characters";
+    if (formData.duration_minutes < 1) newErrors.duration = "Duration must be at least 1 minute";
+    if (formData.duration_minutes > 120) newErrors.duration = "Duration must be under 120 minutes";
+    if (formData.video_url && !isValidUrl(formData.video_url)) newErrors.video_url = "Enter a valid URL";
+    if (formData.thumbnail_url && !isValidUrl(formData.thumbnail_url)) newErrors.thumbnail_url = "Enter a valid URL";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       const { error } = await supabase.from("workouts").insert({
-        title: data.title,
-        description: data.description || null,
+        title: data.title.trim(),
+        description: data.description.trim() || null,
         category: data.category,
         duration_minutes: data.duration_minutes,
         calories_estimate: data.calories_estimate || null,
-        video_url: data.video_url || null,
-        thumbnail_url: data.thumbnail_url || null,
+        video_url: data.video_url.trim() || null,
+        thumbnail_url: data.thumbnail_url.trim() || null,
         is_featured: data.is_featured,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-workouts"] });
       toast({ title: "Workout created successfully" });
       resetForm();
     },
@@ -81,13 +114,13 @@ const AdminWorkouts = () => {
       const { error } = await supabase
         .from("workouts")
         .update({
-          title: data.title,
-          description: data.description || null,
+          title: data.title.trim(),
+          description: data.description.trim() || null,
           category: data.category,
           duration_minutes: data.duration_minutes,
           calories_estimate: data.calories_estimate || null,
-          video_url: data.video_url || null,
-          thumbnail_url: data.thumbnail_url || null,
+          video_url: data.video_url.trim() || null,
+          thumbnail_url: data.thumbnail_url.trim() || null,
           is_featured: data.is_featured,
         })
         .eq("id", id);
@@ -95,6 +128,7 @@ const AdminWorkouts = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-workouts"] });
       toast({ title: "Workout updated successfully" });
       resetForm();
     },
@@ -110,6 +144,7 @@ const AdminWorkouts = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-workouts"] });
       toast({ title: "Workout deleted successfully" });
     },
     onError: (error) => {
@@ -130,6 +165,7 @@ const AdminWorkouts = () => {
     });
     setEditingWorkout(null);
     setIsDialogOpen(false);
+    setErrors({});
   };
 
   const handleEdit = (workout: Workout) => {
@@ -144,17 +180,31 @@ const AdminWorkouts = () => {
       thumbnail_url: workout.thumbnail_url || "",
       is_featured: workout.is_featured || false,
     });
+    setErrors({});
     setIsDialogOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
     if (editingWorkout) {
       updateMutation.mutate({ id: editingWorkout.id, data: formData });
     } else {
       createMutation.mutate(formData);
     }
   };
+
+  // If linking exercises to a workout, show the linker
+  if (linkingWorkout) {
+    return (
+      <div className="space-y-6">
+        <Button variant="outline" onClick={() => setLinkingWorkout(null)}>
+          ← Back to Workouts
+        </Button>
+        <WorkoutExerciseLinker workoutId={linkingWorkout.id} workoutTitle={linkingWorkout.title} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -163,9 +213,9 @@ const AdminWorkouts = () => {
           <h2 className="font-heading text-xl">On-Demand Workouts</h2>
           <p className="text-sm text-muted-foreground">15-minute YouTube-style workout videos</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); else setIsDialogOpen(true); }}>
           <DialogTrigger asChild>
-            <Button variant="apollo" onClick={() => resetForm()}>
+            <Button variant="apollo" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
               <Plus className="w-4 h-4 mr-2" />
               Add Workout
             </Button>
@@ -176,13 +226,16 @@ const AdminWorkouts = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title">Title *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
+                  maxLength={100}
                   required
+                  className={errors.title ? "border-destructive" : ""}
                 />
+                {errors.title && <p className="text-xs text-destructive mt-1">{errors.title}</p>}
               </div>
               <div>
                 <Label htmlFor="description">Description</Label>
@@ -191,11 +244,14 @@ const AdminWorkouts = () => {
                   value={formData.description}
                   onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
                   rows={3}
+                  maxLength={500}
+                  placeholder="Describe the workout focus and intensity..."
                 />
+                <p className="text-xs text-muted-foreground mt-1">{formData.description.length}/500</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category">Category *</Label>
                   <Select
                     value={formData.category}
                     onValueChange={(v) => setFormData((p) => ({ ...p, category: v }))}
@@ -204,23 +260,25 @@ const AdminWorkouts = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="strength">Strength</SelectItem>
-                      <SelectItem value="cardio">Cardio</SelectItem>
-                      <SelectItem value="hiit">HIIT</SelectItem>
-                      <SelectItem value="flexibility">Flexibility</SelectItem>
-                      <SelectItem value="recovery">Recovery</SelectItem>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="duration">Duration (min)</Label>
+                  <Label htmlFor="duration">Duration (min) *</Label>
                   <Input
                     id="duration"
                     type="number"
                     value={formData.duration_minutes}
                     onChange={(e) => setFormData((p) => ({ ...p, duration_minutes: parseInt(e.target.value) || 0 }))}
+                    min={1}
+                    max={120}
                     required
+                    className={errors.duration ? "border-destructive" : ""}
                   />
+                  {errors.duration && <p className="text-xs text-destructive mt-1">{errors.duration}</p>}
                 </div>
               </div>
               <div>
@@ -230,6 +288,8 @@ const AdminWorkouts = () => {
                   type="number"
                   value={formData.calories_estimate}
                   onChange={(e) => setFormData((p) => ({ ...p, calories_estimate: parseInt(e.target.value) || 0 }))}
+                  min={0}
+                  max={2000}
                 />
               </div>
               <div>
@@ -239,7 +299,9 @@ const AdminWorkouts = () => {
                   value={formData.video_url}
                   onChange={(e) => setFormData((p) => ({ ...p, video_url: e.target.value }))}
                   placeholder="https://youtube.com/watch?v=..."
+                  className={errors.video_url ? "border-destructive" : ""}
                 />
+                {errors.video_url && <p className="text-xs text-destructive mt-1">{errors.video_url}</p>}
               </div>
               <div>
                 <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
@@ -248,7 +310,9 @@ const AdminWorkouts = () => {
                   value={formData.thumbnail_url}
                   onChange={(e) => setFormData((p) => ({ ...p, thumbnail_url: e.target.value }))}
                   placeholder="https://..."
+                  className={errors.thumbnail_url ? "border-destructive" : ""}
                 />
+                {errors.thumbnail_url && <p className="text-xs text-destructive mt-1">{errors.thumbnail_url}</p>}
               </div>
               <div className="flex items-center gap-2">
                 <Switch
@@ -256,7 +320,7 @@ const AdminWorkouts = () => {
                   checked={formData.is_featured}
                   onCheckedChange={(v) => setFormData((p) => ({ ...p, is_featured: v }))}
                 />
-                <Label htmlFor="is_featured">Featured workout</Label>
+                <Label htmlFor="is_featured">Featured workout (shown on homepage)</Label>
               </div>
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={resetForm}>
@@ -279,7 +343,7 @@ const AdminWorkouts = () => {
               <TableHead>Category</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>Featured</TableHead>
-              <TableHead className="w-24">Actions</TableHead>
+              <TableHead className="w-32">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -301,9 +365,17 @@ const AdminWorkouts = () => {
                   <TableCell className="font-medium">{workout.title}</TableCell>
                   <TableCell className="capitalize">{workout.category}</TableCell>
                   <TableCell>{workout.duration_minutes} min</TableCell>
-                  <TableCell>{workout.is_featured ? "Yes" : "No"}</TableCell>
+                  <TableCell>{workout.is_featured ? "⭐ Yes" : "No"}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        title="Link exercises"
+                        onClick={() => setLinkingWorkout(workout)}
+                      >
+                        <ListChecks className="w-4 h-4 text-primary" />
+                      </Button>
                       <Button size="icon" variant="ghost" onClick={() => handleEdit(workout)}>
                         <Pencil className="w-4 h-4" />
                       </Button>
