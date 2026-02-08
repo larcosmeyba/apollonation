@@ -5,14 +5,14 @@ import { Link } from "react-router-dom";
 const tiers = [
   {
     name: "Essential",
-    price: "29",
+    price: "20",
     description: "Begin your wellness journey",
     features: [
       "On-demand workout library",
       "Nutrition recipes collection",
       "Progress tracking",
       "Community support",
-      "Web platform access"
+      "Web platform access only"
     ],
     appAccess: false,
     featured: false
