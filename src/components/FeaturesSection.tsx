@@ -35,7 +35,7 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="py-32 relative">
+    <section id="features" className="py-16 relative">
       {/* Subtle divider */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
       

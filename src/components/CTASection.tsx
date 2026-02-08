@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
-    <section className="py-32 relative overflow-hidden">
+    <section className="py-16 relative overflow-hidden">
       {/* Background with subtle gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-background to-white/[0.02]" />
       

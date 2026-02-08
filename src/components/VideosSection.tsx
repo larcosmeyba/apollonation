@@ -42,7 +42,7 @@ const videos = [
 
 const VideosSection = () => {
   return (
-    <section className="py-32 relative overflow-hidden">
+    <section className="py-16 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-white/[0.02] to-background" />
       
