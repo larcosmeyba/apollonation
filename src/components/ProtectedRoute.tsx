@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,9 +9,10 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
   const { user, profile, loading, subscription, subscriptionLoading } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdminStatus();
   const location = useLocation();
 
-  if (loading || subscriptionLoading) {
+  if (loading || subscriptionLoading || adminLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-primary">Loading...</div>
@@ -20,6 +22,11 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
 
   if (!user) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  // Admins bypass subscription and tier checks
+  if (isAdmin) {
+    return <>{children}</>;
   }
 
   // Require active subscription to access dashboard
