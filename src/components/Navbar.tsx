@@ -69,13 +69,13 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/auth?admin=true">
-                  <Button variant="ghost" size="sm" className="text-primary gap-1.5">
-                    <Shield className="w-3.5 h-3.5" />
+                  <Button variant="ghost" size="sm" className="text-muted-foreground/50 gap-1.5 text-xs">
+                    <Shield className="w-3 h-3" />
                     Admin
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                  <Button variant="apollo" size="sm">
                     Sign In
                   </Button>
                 </Link>
@@ -133,13 +133,13 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link to="/auth?admin=true" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-primary gap-2">
-                      <Shield className="w-4 h-4" />
+                    <Button variant="ghost" className="w-full text-muted-foreground/50 gap-2 text-xs">
+                      <Shield className="w-3 h-3" />
                       Admin
                     </Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-muted-foreground">
+                    <Button variant="apollo" className="w-full">
                       Sign In
                     </Button>
                   </Link>
