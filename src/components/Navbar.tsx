@@ -68,15 +68,15 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
-                    Sign In
-                  </Button>
-                </Link>
                 <Link to="/auth?admin=true">
                   <Button variant="ghost" size="sm" className="text-primary gap-1.5">
                     <Shield className="w-3.5 h-3.5" />
-                    Admin Sign In
+                    Admin
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                    Sign In
                   </Button>
                 </Link>
                 <Link to="/auth">
@@ -132,15 +132,15 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-muted-foreground">
-                      Sign In
-                    </Button>
-                  </Link>
                   <Link to="/auth?admin=true" onClick={() => setIsOpen(false)}>
                     <Button variant="ghost" className="w-full text-primary gap-2">
                       <Shield className="w-4 h-4" />
-                      Admin Sign In
+                      Admin
+                    </Button>
+                  </Link>
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
+                    <Button variant="ghost" className="w-full text-muted-foreground">
+                      Sign In
                     </Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
