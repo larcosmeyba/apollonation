@@ -14,6 +14,7 @@ import DashboardRecipes from "./pages/DashboardRecipes";
 import DashboardMacros from "./pages/DashboardMacros";
 import DashboardProfile from "./pages/DashboardProfile";
 import DashboardMessages from "./pages/DashboardMessages";
+import DashboardNutrition from "./pages/DashboardNutrition";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -80,6 +81,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardMessages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/nutrition"
+              element={
+                <ProtectedRoute>
+                  <DashboardNutrition />
                 </ProtectedRoute>
               }
             />
