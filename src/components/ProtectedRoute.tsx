@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
+import { useQuestionnaire } from "@/hooks/useQuestionnaire";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,9 +11,10 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
   const { user, profile, loading, subscription, subscriptionLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminStatus();
+  const { hasQuestionnaire, loading: questionnaireLoading } = useQuestionnaire(user?.id);
   const location = useLocation();
 
-  if (loading || subscriptionLoading || adminLoading) {
+  if (loading || subscriptionLoading || adminLoading || questionnaireLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-primary">Loading...</div>
@@ -32,6 +34,12 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
   // Require active subscription to access dashboard
   if (!subscription?.subscribed) {
     return <Navigate to="/subscribe" replace />;
+  }
+
+  // Pro/Elite users must complete questionnaire before accessing dashboard
+  const tier = profile?.subscription_tier;
+  if ((tier === "pro" || tier === "elite") && !hasQuestionnaire) {
+    return <Navigate to="/questionnaire" replace />;
   }
 
   // Check tier access if required
