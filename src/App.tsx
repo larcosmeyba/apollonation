@@ -16,6 +16,7 @@ import DashboardMacros from "./pages/DashboardMacros";
 import DashboardProfile from "./pages/DashboardProfile";
 import DashboardMessages from "./pages/DashboardMessages";
 import DashboardNutrition from "./pages/DashboardNutrition";
+import DashboardTraining from "./pages/DashboardTraining";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -91,6 +92,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardNutrition />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/training"
+              element={
+                <ProtectedRoute>
+                  <DashboardTraining />
                 </ProtectedRoute>
               }
             />

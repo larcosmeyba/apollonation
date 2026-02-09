@@ -46,6 +46,7 @@ const Questionnaire = () => {
     weekly_food_budget: "",
     grocery_store: "",
     dietary_restrictions: [] as string[],
+    waiver_accepted: false,
   });
 
   if (loading || subscriptionLoading) {
@@ -83,6 +84,9 @@ const Questionnaire = () => {
     if (step === 1) {
       return form.training_methods.length > 0;
     }
+    if (step === 2) {
+      return form.waiver_accepted;
+    }
     return true;
   };
 
@@ -106,6 +110,8 @@ const Questionnaire = () => {
         weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
         grocery_store: form.grocery_store || null,
         dietary_restrictions: form.dietary_restrictions,
+        waiver_accepted: true,
+        waiver_accepted_at: new Date().toISOString(),
       } as any);
 
       if (error) throw error;
@@ -293,7 +299,7 @@ const Questionnaire = () => {
 
           {step === 2 && (
             <div className="space-y-6">
-              <h2 className="font-heading text-lg tracking-wide mb-4">Nutrition Preferences</h2>
+              <h2 className="font-heading text-lg tracking-wide mb-4">Nutrition & Agreement</h2>
 
               <div className="space-y-2">
                 <Label>Goal for the Next 4 Weeks</Label>
@@ -344,6 +350,30 @@ const Questionnaire = () => {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Waiver of Release */}
+              <div className="border border-border/50 p-4 bg-muted/20 space-y-3">
+                <h3 className="font-heading text-sm tracking-wide text-foreground">Waiver of Release</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  By checking the box below, I acknowledge and agree that I am voluntarily participating in
+                  fitness and nutrition programs provided by Apollo Nation. I understand that physical exercise
+                  and dietary changes carry inherent risks, and I release Apollo Nation, Coach Marcos, and all
+                  associated staff from any and all liability for injury, illness, or adverse health effects that
+                  may result from following the prescribed training and nutrition programs. I confirm that I have
+                  consulted with a physician and am physically fit to participate in exercise programs. I understand
+                  that the programs are not a substitute for professional medical advice.
+                </p>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <Checkbox
+                    checked={form.waiver_accepted}
+                    onCheckedChange={(checked) => updateField("waiver_accepted", !!checked)}
+                    className="mt-0.5"
+                  />
+                  <span className="text-sm font-medium">
+                    I have read, understand, and agree to the Waiver of Release above.
+                  </span>
+                </label>
               </div>
             </div>
           )}
