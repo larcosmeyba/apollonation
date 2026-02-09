@@ -76,6 +76,8 @@ export type Database = {
           training_methods: string[]
           updated_at: string
           user_id: string
+          waiver_accepted: boolean
+          waiver_accepted_at: string | null
           weekly_food_budget: number | null
           weight_lbs: number
           workout_days_per_week: number
@@ -96,6 +98,8 @@ export type Database = {
           training_methods?: string[]
           updated_at?: string
           user_id: string
+          waiver_accepted?: boolean
+          waiver_accepted_at?: string | null
           weekly_food_budget?: number | null
           weight_lbs: number
           workout_days_per_week?: number
@@ -116,11 +120,60 @@ export type Database = {
           training_methods?: string[]
           updated_at?: string
           user_id?: string
+          waiver_accepted?: boolean
+          waiver_accepted_at?: string | null
           weekly_food_budget?: number | null
           weight_lbs?: number
           workout_days_per_week?: number
         }
         Relationships: []
+      }
+      client_training_plans: {
+        Row: {
+          created_at: string
+          cycle_number: number
+          duration_weeks: number
+          id: string
+          questionnaire_id: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          workout_days_per_week: number
+        }
+        Insert: {
+          created_at?: string
+          cycle_number?: number
+          duration_weeks?: number
+          id?: string
+          questionnaire_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          workout_days_per_week?: number
+        }
+        Update: {
+          created_at?: string
+          cycle_number?: number
+          duration_weeks?: number
+          id?: string
+          questionnaire_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          workout_days_per_week?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_training_plans_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "client_questionnaires"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_requests: {
         Row: {
@@ -486,6 +539,88 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      training_plan_days: {
+        Row: {
+          created_at: string
+          day_label: string | null
+          day_number: number
+          focus: string | null
+          id: string
+          plan_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_label?: string | null
+          day_number: number
+          focus?: string | null
+          id?: string
+          plan_id: string
+        }
+        Update: {
+          created_at?: string
+          day_label?: string | null
+          day_number?: number
+          focus?: string | null
+          id?: string
+          plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_plan_days_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "client_training_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_plan_exercises: {
+        Row: {
+          created_at: string
+          day_id: string
+          exercise_name: string
+          id: string
+          muscle_group: string | null
+          notes: string | null
+          reps: string | null
+          rest_seconds: number | null
+          sets: number | null
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          day_id: string
+          exercise_name: string
+          id?: string
+          muscle_group?: string | null
+          notes?: string | null
+          reps?: string | null
+          rest_seconds?: number | null
+          sets?: number | null
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          day_id?: string
+          exercise_name?: string
+          id?: string
+          muscle_group?: string | null
+          notes?: string | null
+          reps?: string | null
+          rest_seconds?: number | null
+          sets?: number | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_plan_exercises_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "training_plan_days"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_favorites: {
         Row: {

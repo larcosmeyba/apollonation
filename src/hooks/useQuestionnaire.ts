@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const useQuestionnaire = (userId: string | undefined) => {
   const [hasQuestionnaire, setHasQuestionnaire] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsRenewal, setNeedsRenewal] = useState(false);
 
   useEffect(() => {
     if (!userId) {
@@ -14,7 +15,7 @@ export const useQuestionnaire = (userId: string | undefined) => {
     const check = async () => {
       const { data, error } = await (supabase as any)
         .from("client_questionnaires")
-        .select("id")
+        .select("id, cycle_start_date, cycle_number")
         .eq("user_id", userId)
         .eq("is_active", true)
         .maybeSingle();
@@ -22,12 +23,35 @@ export const useQuestionnaire = (userId: string | undefined) => {
       if (error) {
         console.error("Error checking questionnaire:", error);
       }
-      setHasQuestionnaire(!!data);
+
+      if (data) {
+        // Check if 4-week cycle has expired
+        const cycleStart = new Date(data.cycle_start_date);
+        const now = new Date();
+        const weeksDiff = (now.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24 * 7);
+
+        if (weeksDiff >= 4) {
+          // Cycle expired — deactivate and require new questionnaire
+          await (supabase as any)
+            .from("client_questionnaires")
+            .update({ is_active: false })
+            .eq("id", data.id);
+
+          setHasQuestionnaire(false);
+          setNeedsRenewal(true);
+        } else {
+          setHasQuestionnaire(true);
+          setNeedsRenewal(false);
+        }
+      } else {
+        setHasQuestionnaire(false);
+      }
+
       setLoading(false);
     };
 
     check();
   }, [userId]);
 
-  return { hasQuestionnaire, loading };
+  return { hasQuestionnaire, loading, needsRenewal };
 };

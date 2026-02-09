@@ -12,6 +12,7 @@ import {
   Shield,
   MessageSquare,
   Apple,
+  ClipboardList,
 } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
@@ -41,6 +42,12 @@ const DashboardSidebar = () => {
       label: "Recipes",
       href: "/dashboard/recipes",
       icon: Utensils,
+      locked: false,
+    },
+    {
+      label: "Training Program",
+      href: "/dashboard/training",
+      icon: ClipboardList,
       locked: false,
     },
     {
