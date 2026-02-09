@@ -8,7 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Pencil, Trash2, Sparkles, FileText, Loader2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Recipe {
@@ -34,6 +36,10 @@ const AdminRecipes = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiCount, setAiCount] = useState(1);
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [pdfProcessing, setPdfProcessing] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -202,18 +208,259 @@ const AdminRecipes = () => {
     }
   };
 
+  const handleAIGenerate = async () => {
+    if (!aiPrompt.trim()) return;
+    setAiGenerating(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-recipes", {
+        body: { mode: "ai", prompt: aiPrompt, count: aiCount },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast({
+        title: `${data.count} recipe(s) created!`,
+        description: "AI-generated recipes have been added to your library.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-recipes"] });
+      setAiPrompt("");
+    } catch (err: any) {
+      toast({
+        title: "Generation failed",
+        description: err.message || "Could not generate recipes",
+        variant: "destructive",
+      });
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      toast({ title: "Please upload a PDF file", variant: "destructive" });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 10MB", variant: "destructive" });
+      return;
+    }
+
+    setPdfProcessing(true);
+
+    try {
+      // Read PDF as text using FileReader — we'll extract text client-side
+      // For PDFs, we'll read as ArrayBuffer and send the base64 to the edge function
+      // Actually, let's extract text from PDF on the client side using a simple approach
+      const text = await extractTextFromPdf(file);
+
+      if (!text || text.trim().length < 20) {
+        toast({
+          title: "Could not extract text",
+          description: "The PDF may be image-based or empty. Try a text-based PDF.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("generate-recipes", {
+        body: { mode: "pdf", pdfText: text.substring(0, 15000) }, // Limit to prevent token overflow
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast({
+        title: `${data.count} recipe(s) extracted!`,
+        description: "Recipes from your PDF have been added to the library.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-recipes"] });
+    } catch (err: any) {
+      toast({
+        title: "PDF processing failed",
+        description: err.message || "Could not process the PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setPdfProcessing(false);
+      // Reset the file input
+      e.target.value = "";
+    }
+  };
+
+  // Simple text extraction from PDF
+  const extractTextFromPdf = async (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const content = reader.result as string;
+        // Basic text extraction from PDF binary - extracts readable strings
+        // This works for text-based PDFs
+        const textParts: string[] = [];
+        
+        // Match text between parentheses in PDF streams (basic approach)
+        const matches = content.match(/\(([^)]+)\)/g);
+        if (matches) {
+          for (const match of matches) {
+            const text = match.slice(1, -1)
+              .replace(/\\\(/g, "(")
+              .replace(/\\\)/g, ")")
+              .replace(/\\\\/g, "\\");
+            if (text.length > 1 && /[a-zA-Z]/.test(text)) {
+              textParts.push(text);
+            }
+          }
+        }
+
+        // Also try to match text in BT/ET blocks
+        const streamMatches = content.match(/BT[\s\S]*?ET/g);
+        if (streamMatches) {
+          for (const block of streamMatches) {
+            const tjMatches = block.match(/\(([^)]*)\)\s*Tj/g);
+            if (tjMatches) {
+              for (const tj of tjMatches) {
+                const text = tj.replace(/\)\s*Tj$/, "").replace(/^\(/, "");
+                if (text.length > 1) textParts.push(text);
+              }
+            }
+          }
+        }
+
+        resolve(textParts.join(" "));
+      };
+      reader.readAsText(file, "latin1");
+    });
+  };
+
   return (
     <div className="space-y-6">
+      {/* AI Tools */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {/* AI Recipe Creator */}
+        <Card className="bg-card border-border border-apollo-gold/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Sparkles className="w-5 h-5 text-apollo-gold" />
+              AI Recipe Creator
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Textarea
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+              placeholder="e.g. Create a high-protein post-workout smoothie with banana and peanut butter, and a meal prep chicken breast recipe with rice and veggies"
+              rows={3}
+              className="text-sm"
+            />
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="ai-count" className="text-xs text-muted-foreground whitespace-nowrap">
+                  Recipes:
+                </Label>
+                <Select
+                  value={aiCount.toString()}
+                  onValueChange={(v) => setAiCount(parseInt(v))}
+                >
+                  <SelectTrigger className="w-16 h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                variant="apollo"
+                size="sm"
+                onClick={handleAIGenerate}
+                disabled={aiGenerating || !aiPrompt.trim()}
+                className="flex-1"
+              >
+                {aiGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* PDF Upload */}
+        <Card className="bg-card border-border">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <FileText className="w-5 h-5 text-apollo-gold" />
+              Import from PDF
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Upload a nutrition PDF and AI will extract recipes, ingredients, macros, and instructions automatically.
+            </p>
+            <div className="relative">
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handlePdfUpload}
+                disabled={pdfProcessing}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                id="pdf-upload"
+              />
+              <Button
+                variant="apollo-outline"
+                className="w-full"
+                disabled={pdfProcessing}
+                asChild
+              >
+                <label htmlFor="pdf-upload" className="cursor-pointer flex items-center justify-center">
+                  {pdfProcessing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processing PDF...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Nutrition PDF
+                    </>
+                  )}
+                </label>
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Text-based PDFs only • Max 10MB
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recipe Table Header */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="font-heading text-xl">Nutrition Recipes</h2>
-          <p className="text-sm text-muted-foreground">Healthy meal recipes with macros</p>
+          <p className="text-sm text-muted-foreground">
+            {recipes?.length || 0} recipes in library
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="apollo" onClick={() => resetForm()}>
               <Plus className="w-4 h-4 mr-2" />
-              Add Recipe
+              Add Manually
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -376,6 +623,7 @@ const AdminRecipes = () => {
         </Dialog>
       </div>
 
+      {/* Recipe Table */}
       <div className="card-apollo overflow-hidden">
         <Table>
           <TableHeader>
@@ -384,20 +632,21 @@ const AdminRecipes = () => {
               <TableHead>Category</TableHead>
               <TableHead>Calories</TableHead>
               <TableHead>Protein</TableHead>
+              <TableHead>Tags</TableHead>
               <TableHead className="w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : recipes?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  No recipes yet. Add your first recipe!
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  No recipes yet. Use AI or add one manually!
                 </TableCell>
               </TableRow>
             ) : (
@@ -407,6 +656,20 @@ const AdminRecipes = () => {
                   <TableCell className="capitalize">{recipe.category}</TableCell>
                   <TableCell>{recipe.calories_per_serving} cal</TableCell>
                   <TableCell>{recipe.protein_grams}g</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {recipe.dietary_tags?.slice(0, 2).map((tag) => (
+                        <span key={tag} className="text-xs bg-muted px-1.5 py-0.5 rounded capitalize">
+                          {tag}
+                        </span>
+                      ))}
+                      {(recipe.dietary_tags?.length || 0) > 2 && (
+                        <span className="text-xs text-muted-foreground">
+                          +{(recipe.dietary_tags?.length || 0) - 2}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       <Button size="icon" variant="ghost" onClick={() => handleEdit(recipe)}>
