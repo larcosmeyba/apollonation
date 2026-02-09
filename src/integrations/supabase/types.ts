@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_nutrition_profiles: {
+        Row: {
+          activity_level: string | null
+          age: number | null
+          created_at: string
+          dietary_preferences: string[] | null
+          food_restrictions: string[] | null
+          goals: string | null
+          height_inches: number | null
+          id: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+          weight_lbs: number | null
+        }
+        Insert: {
+          activity_level?: string | null
+          age?: number | null
+          created_at?: string
+          dietary_preferences?: string[] | null
+          food_restrictions?: string[] | null
+          goals?: string | null
+          height_inches?: number | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+          weight_lbs?: number | null
+        }
+        Update: {
+          activity_level?: string | null
+          age?: number | null
+          created_at?: string
+          dietary_preferences?: string[] | null
+          food_restrictions?: string[] | null
+          goals?: string | null
+          height_inches?: number | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+          weight_lbs?: number | null
+        }
+        Relationships: []
+      }
       contact_requests: {
         Row: {
           created_at: string
@@ -152,6 +197,113 @@ export type Database = {
           is_read?: boolean
           recipient_id?: string
           sender_id?: string
+        }
+        Relationships: []
+      }
+      nutrition_plan_meals: {
+        Row: {
+          calories: number | null
+          carbs_grams: number | null
+          created_at: string
+          day_number: number
+          description: string | null
+          fat_grams: number | null
+          id: string
+          ingredients: Json | null
+          meal_name: string
+          meal_type: string
+          plan_id: string
+          protein_grams: number | null
+          sort_order: number | null
+        }
+        Insert: {
+          calories?: number | null
+          carbs_grams?: number | null
+          created_at?: string
+          day_number: number
+          description?: string | null
+          fat_grams?: number | null
+          id?: string
+          ingredients?: Json | null
+          meal_name: string
+          meal_type: string
+          plan_id: string
+          protein_grams?: number | null
+          sort_order?: number | null
+        }
+        Update: {
+          calories?: number | null
+          carbs_grams?: number | null
+          created_at?: string
+          day_number?: number
+          description?: string | null
+          fat_grams?: number | null
+          id?: string
+          ingredients?: Json | null
+          meal_name?: string
+          meal_type?: string
+          plan_id?: string
+          protein_grams?: number | null
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nutrition_plan_meals_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "nutrition_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nutrition_plans: {
+        Row: {
+          carbs_grams: number | null
+          created_at: string
+          created_by: string
+          daily_calories: number | null
+          duration_weeks: number | null
+          fat_grams: number | null
+          id: string
+          notes: string | null
+          protein_grams: number | null
+          start_date: string | null
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          carbs_grams?: number | null
+          created_at?: string
+          created_by: string
+          daily_calories?: number | null
+          duration_weeks?: number | null
+          fat_grams?: number | null
+          id?: string
+          notes?: string | null
+          protein_grams?: number | null
+          start_date?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          carbs_grams?: number | null
+          created_at?: string
+          created_by?: string
+          daily_calories?: number | null
+          duration_weeks?: number | null
+          fat_grams?: number | null
+          id?: string
+          notes?: string | null
+          protein_grams?: number | null
+          start_date?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

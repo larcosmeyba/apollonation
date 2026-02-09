@@ -50,6 +50,13 @@ const Dashboard = () => {
       color: "from-blue-500/20 to-blue-600/20",
     },
     {
+      title: "Nutrition Plan",
+      description: "Your personalized meal plan",
+      icon: Utensils,
+      href: "/dashboard/nutrition",
+      color: "from-orange-500/20 to-orange-600/20",
+    },
+    {
       title: "Macro Tracker",
       description: isElite ? "Track your daily nutrition" : "Elite tier feature",
       icon: Camera,

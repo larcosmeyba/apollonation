@@ -11,6 +11,7 @@ import {
   Lock,
   Shield,
   MessageSquare,
+  Apple,
 } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
@@ -40,6 +41,12 @@ const DashboardSidebar = () => {
       label: "Recipes",
       href: "/dashboard/recipes",
       icon: Utensils,
+      locked: false,
+    },
+    {
+      label: "Nutrition Plan",
+      href: "/dashboard/nutrition",
+      icon: Apple,
       locked: false,
     },
     {

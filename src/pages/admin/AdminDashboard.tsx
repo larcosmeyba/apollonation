@@ -1,13 +1,14 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dumbbell, Utensils, Activity, Users, MessageSquare, Inbox } from "lucide-react";
+import { Dumbbell, Utensils, Activity, Users, MessageSquare, Inbox, Apple } from "lucide-react";
 import AdminWorkouts from "@/components/admin/AdminWorkouts";
 import AdminRecipes from "@/components/admin/AdminRecipes";
 import AdminExercises from "@/components/admin/AdminExercises";
 import AdminUsers from "@/components/admin/AdminUsers";
 import AdminMessages from "@/components/admin/AdminMessages";
 import AdminContactRequests from "@/components/admin/AdminContactRequests";
+import AdminNutrition from "@/components/admin/AdminNutrition";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("workouts");
@@ -51,6 +52,10 @@ const AdminDashboard = () => {
               <Inbox className="w-4 h-4" />
               <span className="hidden sm:inline">Contact Requests</span>
             </TabsTrigger>
+            <TabsTrigger value="nutrition" className="gap-2">
+              <Apple className="w-4 h-4" />
+              <span className="hidden sm:inline">Nutrition</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="workouts">
@@ -75,6 +80,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="contacts">
             <AdminContactRequests />
+          </TabsContent>
+
+          <TabsContent value="nutrition">
+            <AdminNutrition />
           </TabsContent>
         </Tabs>
       </div>
