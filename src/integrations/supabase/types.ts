@@ -59,6 +59,69 @@ export type Database = {
         }
         Relationships: []
       }
+      client_questionnaires: {
+        Row: {
+          activity_level: string
+          age: number
+          created_at: string
+          cycle_number: number
+          cycle_start_date: string
+          dietary_restrictions: string[] | null
+          goal_next_4_weeks: string | null
+          grocery_store: string | null
+          height_inches: number
+          id: string
+          is_active: boolean
+          sex: string
+          training_methods: string[]
+          updated_at: string
+          user_id: string
+          weekly_food_budget: number | null
+          weight_lbs: number
+          workout_days_per_week: number
+        }
+        Insert: {
+          activity_level?: string
+          age: number
+          created_at?: string
+          cycle_number?: number
+          cycle_start_date?: string
+          dietary_restrictions?: string[] | null
+          goal_next_4_weeks?: string | null
+          grocery_store?: string | null
+          height_inches: number
+          id?: string
+          is_active?: boolean
+          sex: string
+          training_methods?: string[]
+          updated_at?: string
+          user_id: string
+          weekly_food_budget?: number | null
+          weight_lbs: number
+          workout_days_per_week?: number
+        }
+        Update: {
+          activity_level?: string
+          age?: number
+          created_at?: string
+          cycle_number?: number
+          cycle_start_date?: string
+          dietary_restrictions?: string[] | null
+          goal_next_4_weeks?: string | null
+          grocery_store?: string | null
+          height_inches?: number
+          id?: string
+          is_active?: boolean
+          sex?: string
+          training_methods?: string[]
+          updated_at?: string
+          user_id?: string
+          weekly_food_budget?: number | null
+          weight_lbs?: number
+          workout_days_per_week?: number
+        }
+        Relationships: []
+      }
       contact_requests: {
         Row: {
           created_at: string
