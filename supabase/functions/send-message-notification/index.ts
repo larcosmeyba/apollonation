@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -43,7 +44,6 @@ serve(async (req) => {
       .single();
 
     if (!roleData) {
-      // Only admins trigger email notifications
       return new Response(JSON.stringify({ skipped: true, reason: "Non-admin sender" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -75,34 +75,49 @@ serve(async (req) => {
 
     const recipientName = profileData?.display_name || "there";
 
-    // Send email via Supabase Auth (using the built-in email sending)
-    // We use the Resend-compatible approach through Supabase's built-in mailer
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
-    const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    // Send branded email via Resend
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendApiKey) {
+      throw new Error("RESEND_API_KEY is not configured");
+    }
 
-    // Use Supabase's auth.admin to send a magic link styled as a notification
-    // Alternative: direct SMTP or Resend integration
-    // For now, we log and return success - the email provider needs to be configured
-    console.log(`[EMAIL NOTIFICATION] Coach Marcos sent a message to ${recipientEmail} (${recipientName})`);
+    const resend = new Resend(resendApiKey);
 
-    // Try sending via Supabase's built-in email
-    const emailRes = await fetch(`${SUPABASE_URL}/auth/v1/magiclink`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      },
-      body: JSON.stringify({
-        email: recipientEmail,
-      }),
+    const emailResponse = await resend.emails.send({
+      from: "Apollo Nation <noreply@apollonation.com>",
+      to: [recipientEmail],
+      subject: "Coach Marcos sent you a message",
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #0a0a0a; color: #e5e5e5;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="font-size: 24px; letter-spacing: 0.05em; margin: 0; color: #ffffff;">
+              APOLLO <span style="color: #3b82f6;">NATION</span>
+            </h1>
+          </div>
+          <div style="background-color: #141414; border: 1px solid #262626; padding: 32px; margin-bottom: 24px;">
+            <p style="margin: 0 0 16px; font-size: 16px; color: #e5e5e5;">Hey ${recipientName},</p>
+            <p style="margin: 0 0 24px; font-size: 16px; color: #a3a3a3;">
+              Coach Marcos just sent you a new message. Log in to your dashboard to read and reply.
+            </p>
+            <div style="text-align: center;">
+              <a href="https://apollonation.lovable.app/dashboard/messages" 
+                 style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 32px; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.05em;">
+                VIEW MESSAGE
+              </a>
+            </div>
+          </div>
+          <p style="text-align: center; font-size: 12px; color: #525252; margin: 0;">
+            © ${new Date().getFullYear()} Apollo Nation. All rights reserved.
+          </p>
+        </div>
+      `,
     });
 
-    // Note: Magic link is a workaround. For production, configure a custom email template
-    // or integrate with Resend/SendGrid for proper notification emails.
+    console.log("[EMAIL] Sent notification to", recipientEmail, emailResponse);
 
     return new Response(JSON.stringify({
       success: true,
-      message: `Notification queued for ${recipientEmail}`,
+      message: `Notification sent to ${recipientEmail}`,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
