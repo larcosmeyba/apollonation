@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Exercise {
@@ -362,7 +362,22 @@ const AdminExercises = () => {
                 })
                 .map((exercise) => (
                 <TableRow key={exercise.id}>
-                  <TableCell className="font-medium">{exercise.title}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      {exercise.title}
+                      {exercise.video_url && (
+                        <a
+                          href={exercise.video_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-apollo-gold transition-colors"
+                          title="Open video"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="capitalize">{exercise.muscle_group}</TableCell>
                   <TableCell>{exercise.equipment || "None"}</TableCell>
                   <TableCell className="capitalize">{exercise.difficulty}</TableCell>
