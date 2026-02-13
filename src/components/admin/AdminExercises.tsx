@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Exercise {
@@ -45,6 +45,7 @@ const AdminExercises = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -313,6 +314,16 @@ const AdminExercises = () => {
         </Dialog>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="Search exercises by name, muscle group, or equipment..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       <div className="card-apollo overflow-hidden">
         <Table>
           <TableHeader>
@@ -338,7 +349,18 @@ const AdminExercises = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              exercises?.map((exercise) => (
+              exercises
+                ?.filter((ex) => {
+                  if (!searchQuery.trim()) return true;
+                  const q = searchQuery.toLowerCase();
+                  return (
+                    ex.title.toLowerCase().includes(q) ||
+                    ex.muscle_group.toLowerCase().includes(q) ||
+                    (ex.equipment?.toLowerCase().includes(q) ?? false) ||
+                    (ex.difficulty?.toLowerCase().includes(q) ?? false)
+                  );
+                })
+                .map((exercise) => (
                 <TableRow key={exercise.id}>
                   <TableCell className="font-medium">{exercise.title}</TableCell>
                   <TableCell className="capitalize">{exercise.muscle_group}</TableCell>
