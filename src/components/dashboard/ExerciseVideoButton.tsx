@@ -4,19 +4,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { Play } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const getYouTubeEmbedUrl = (url: string): string | null => {
+const getYouTubeVideoId = (url: string): string | null => {
   try {
     const parsed = new URL(url);
-    let videoId: string | null = null;
     if (parsed.hostname.includes("youtube.com")) {
-      videoId = parsed.searchParams.get("v");
+      return parsed.searchParams.get("v");
     } else if (parsed.hostname === "youtu.be") {
-      videoId = parsed.pathname.slice(1);
+      return parsed.pathname.slice(1);
     }
-    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : null;
+    return null;
   } catch {
     return null;
   }
+};
+
+const getYouTubeThumbnail = (url: string): string | null => {
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null;
+};
+
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : null;
 };
 
 interface ExerciseVideoButtonProps {
@@ -41,16 +50,33 @@ const ExerciseVideoButton = ({ exerciseName }: ExerciseVideoButtonProps) => {
 
   if (!exercise?.video_url) return null;
 
+  const thumbnail = getYouTubeThumbnail(exercise.video_url);
   const embedUrl = getYouTubeEmbedUrl(exercise.video_url);
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex-shrink-0 w-7 h-7 rounded-full bg-apollo-gold/10 hover:bg-apollo-gold/20 flex items-center justify-center transition-colors"
+        className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden group border border-border/50 hover:border-apollo-gold/50 transition-colors"
         title={`Watch: ${exerciseName}`}
       >
-        <Play className="w-3 h-3 text-apollo-gold ml-0.5" fill="currentColor" />
+        {thumbnail ? (
+          <img
+            src={thumbnail}
+            alt={exerciseName}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <Play className="w-4 h-4 text-muted-foreground" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="w-6 h-6 rounded-full bg-apollo-gold flex items-center justify-center">
+            <Play className="w-3 h-3 text-primary-foreground ml-0.5" fill="currentColor" />
+          </div>
+        </div>
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
