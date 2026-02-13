@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Search, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Play } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Exercise {
@@ -40,12 +40,28 @@ const DIFFICULTIES = [
   { value: "advanced", label: "Advanced" },
 ];
 
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  try {
+    const parsed = new URL(url);
+    let videoId: string | null = null;
+    if (parsed.hostname.includes("youtube.com")) {
+      videoId = parsed.searchParams.get("v");
+    } else if (parsed.hostname === "youtu.be") {
+      videoId = parsed.pathname.slice(1);
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : null;
+  } catch {
+    return null;
+  }
+};
+
 const AdminExercises = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [videoPreview, setVideoPreview] = useState<{ title: string; url: string } | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -366,15 +382,13 @@ const AdminExercises = () => {
                     <div className="flex items-center gap-2">
                       {exercise.title}
                       {exercise.video_url && (
-                        <a
-                          href={exercise.video_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => setVideoPreview({ title: exercise.title, url: exercise.video_url! })}
                           className="text-muted-foreground hover:text-apollo-gold transition-colors"
-                          title="Open video"
+                          title="Watch video"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
+                          <Play className="w-3.5 h-3.5" />
+                        </button>
                       )}
                     </div>
                   </TableCell>
@@ -402,6 +416,31 @@ const AdminExercises = () => {
           </TableBody>
         </Table>
       </div>
+
+      {/* Video Preview Modal */}
+      <Dialog open={!!videoPreview} onOpenChange={(open) => { if (!open) setVideoPreview(null); }}>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden">
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle>{videoPreview?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video w-full">
+            {videoPreview && (() => {
+              const embedUrl = getYouTubeEmbedUrl(videoPreview.url);
+              return embedUrl ? (
+                <iframe
+                  src={embedUrl}
+                  className="w-full h-full"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                  title={videoPreview.title}
+                />
+              ) : (
+                <video src={videoPreview.url} controls autoPlay className="w-full h-full" />
+              );
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
