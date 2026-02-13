@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dumbbell, ChevronLeft, ChevronRight, RefreshCw, Loader2 } from "lucide-react";
+import ExerciseVideoButton from "@/components/dashboard/ExerciseVideoButton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 
@@ -185,6 +186,7 @@ const DashboardTraining = () => {
                       ?.sort((a: any, b: any) => a.sort_order - b.sort_order)
                       .map((ex: any) => (
                         <div key={ex.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                          <ExerciseVideoButton exerciseName={ex.exercise_name} />
                           <div className="flex-1">
                             <p className="font-medium text-sm">{ex.exercise_name}</p>
                             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
