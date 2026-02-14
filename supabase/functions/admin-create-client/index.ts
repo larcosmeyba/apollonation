@@ -88,16 +88,14 @@ serve(async (req) => {
       });
     }
 
-    // Update subscription tier on the auto-created profile
-    if (tier !== "basic") {
-      const { error: tierError } = await supabaseAdmin
-        .from("profiles")
-        .update({ subscription_tier: tier })
-        .eq("user_id", newUser.user.id);
+    // Update subscription tier and mark as manual subscription
+    const { error: tierError } = await supabaseAdmin
+      .from("profiles")
+      .update({ subscription_tier: tier, manual_subscription: true })
+      .eq("user_id", newUser.user.id);
 
-      if (tierError) {
-        console.error("[ADMIN-CREATE-CLIENT] Tier update error:", tierError.message);
-      }
+    if (tierError) {
+      console.error("[ADMIN-CREATE-CLIENT] Tier update error:", tierError.message);
     }
 
     console.log("[ADMIN-CREATE-CLIENT] Client created:", { userId: newUser.user.id, email, tier });

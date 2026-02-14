@@ -60,8 +60,22 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
+    // Check if user has a manual (admin-assigned) subscription
+    const { data: profileData } = await supabaseClient
+      .from("profiles")
+      .select("subscription_tier, manual_subscription")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
     if (customers.data.length === 0) {
       logStep("No Stripe customer found");
+      if (profileData?.manual_subscription) {
+        logStep("Manual subscription active", { tier: profileData.subscription_tier });
+        return new Response(
+          JSON.stringify({ subscribed: true, subscription_tier: profileData.subscription_tier, subscription_end: null }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
+      }
       return new Response(
         JSON.stringify({ subscribed: false }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
@@ -103,20 +117,28 @@ serve(async (req) => {
         }
       }
     } else {
-      logStep("No active subscription found");
+      logStep("No active Stripe subscription found");
 
-      // Reset tier to basic if no active subscription
-      await supabaseClient
-        .from("profiles")
-        .update({ subscription_tier: "basic" })
-        .eq("user_id", user.id);
-      logStep("Profile tier reset to basic");
+      // Only reset tier if NOT a manual subscription
+      if (!profileData?.manual_subscription) {
+        await supabaseClient
+          .from("profiles")
+          .update({ subscription_tier: "basic" })
+          .eq("user_id", user.id);
+        logStep("Profile tier reset to basic");
+      } else {
+        logStep("Manual subscription active, keeping current tier", { tier: profileData.subscription_tier });
+      }
     }
+
+    // If no Stripe sub but manual subscription, still return subscribed
+    const isSubscribed = hasActiveSub || (profileData?.manual_subscription === true);
+    const finalTier = subscriptionTier || (profileData?.manual_subscription ? profileData.subscription_tier : null);
 
     return new Response(
       JSON.stringify({
-        subscribed: hasActiveSub,
-        subscription_tier: subscriptionTier,
+        subscribed: isSubscribed,
+        subscription_tier: finalTier,
         subscription_end: subscriptionEnd,
         product_id: productId,
       }),
