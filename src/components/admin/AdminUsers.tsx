@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Pencil, Smartphone, Copy, Check } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Pencil, Smartphone, Copy, Check, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Profile {
@@ -24,16 +24,22 @@ const AdminUsers = () => {
   const [editingUser, setEditingUser] = useState<Profile | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAppDialogOpen, setIsAppDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedUserForApp, setSelectedUserForApp] = useState<Profile | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    subscription_tier: "basic" as "basic" | "pro" | "elite",
+  });
+  const [createFormData, setCreateFormData] = useState({
+    email: "",
+    password: "",
+    display_name: "",
     subscription_tier: "basic" as "basic" | "pro" | "elite",
   });
 
   const { data: profiles, isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      // Admin can see all profiles via has_role function in RLS
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -47,9 +53,7 @@ const AdminUsers = () => {
     mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
       const { error } = await supabase
         .from("profiles")
-        .update({
-          subscription_tier: data.subscription_tier,
-        })
+        .update({ subscription_tier: data.subscription_tier })
         .eq("id", id);
       if (error) throw error;
     },
@@ -64,11 +68,29 @@ const AdminUsers = () => {
     },
   });
 
+  const createMutation = useMutation({
+    mutationFn: async (data: typeof createFormData) => {
+      const { data: result, error } = await supabase.functions.invoke("admin-create-client", {
+        body: data,
+      });
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast({ title: "Client created successfully", description: "They can now log in with the credentials you set." });
+      setIsCreateDialogOpen(false);
+      setCreateFormData({ email: "", password: "", display_name: "", subscription_tier: "basic" });
+    },
+    onError: (error) => {
+      toast({ title: "Error creating client", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleEdit = (user: Profile) => {
     setEditingUser(user);
-    setFormData({
-      subscription_tier: user.subscription_tier,
-    });
+    setFormData({ subscription_tier: user.subscription_tier });
     setIsEditDialogOpen(true);
   };
 
@@ -82,6 +104,11 @@ const AdminUsers = () => {
     if (editingUser) {
       updateMutation.mutate({ id: editingUser.id, data: formData });
     }
+  };
+
+  const handleCreateSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createMutation.mutate(createFormData);
   };
 
   const copyToClipboard = async (text: string, field: string) => {
@@ -103,11 +130,17 @@ const AdminUsers = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="font-heading text-xl">User Management</h2>
-        <p className="text-sm text-muted-foreground">
-          Manage member subscriptions and app access. For Pro/Elite members, use their credentials to set up app access.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-heading text-xl">User Management</h2>
+          <p className="text-sm text-muted-foreground">
+            Manage member subscriptions and app access.
+          </p>
+        </div>
+        <Button variant="apollo" onClick={() => setIsCreateDialogOpen(true)}>
+          <UserPlus className="w-4 h-4 mr-2" />
+          New Client
+        </Button>
       </div>
 
       <div className="card-apollo overflow-hidden">
@@ -123,15 +156,11 @@ const AdminUsers = () => {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">
-                  Loading...
-                </TableCell>
+                <TableCell colSpan={4} className="text-center py-8">Loading...</TableCell>
               </TableRow>
             ) : profiles?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                  No users yet.
-                </TableCell>
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No users yet.</TableCell>
               </TableRow>
             ) : (
               profiles?.map((profile) => (
@@ -162,6 +191,80 @@ const AdminUsers = () => {
         </Table>
       </div>
 
+      {/* Create Client Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Client</DialogTitle>
+            <DialogDescription>
+              Set up a new client account with login credentials and membership tier.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="create-name">Display Name</Label>
+              <Input
+                id="create-name"
+                value={createFormData.display_name}
+                onChange={(e) => setCreateFormData((p) => ({ ...p, display_name: e.target.value }))}
+                placeholder="Client's full name"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="create-email">Email</Label>
+              <Input
+                id="create-email"
+                type="email"
+                value={createFormData.email}
+                onChange={(e) => setCreateFormData((p) => ({ ...p, email: e.target.value }))}
+                placeholder="client@example.com"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="create-password">Temporary Password</Label>
+              <Input
+                id="create-password"
+                type="text"
+                value={createFormData.password}
+                onChange={(e) => setCreateFormData((p) => ({ ...p, password: e.target.value }))}
+                placeholder="At least 6 characters"
+                minLength={6}
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Share this with the client so they can log in. They can change it later.
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="create-tier">Membership Tier</Label>
+              <Select
+                value={createFormData.subscription_tier}
+                onValueChange={(v) => setCreateFormData((p) => ({ ...p, subscription_tier: v as "basic" | "pro" | "elite" }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="basic">Essential - On-demand workouts + recipes</SelectItem>
+                  <SelectItem value="pro">Premier - Mobile app + coaching access</SelectItem>
+                  <SelectItem value="elite">Elite - Full access including AI features</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="apollo" disabled={createMutation.isPending}>
+                {createMutation.isPending ? "Creating..." : "Create Client"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
@@ -182,9 +285,9 @@ const AdminUsers = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="basic">Basic - On-demand workouts + recipes</SelectItem>
-                  <SelectItem value="pro">Pro - Mobile app + coaching access</SelectItem>
-                  <SelectItem value="elite">Elite - Full access including AI macro tracker</SelectItem>
+                  <SelectItem value="basic">Essential - On-demand workouts + recipes</SelectItem>
+                  <SelectItem value="pro">Premier - Mobile app + coaching access</SelectItem>
+                  <SelectItem value="elite">Elite - Full access including AI features</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -214,16 +317,8 @@ const AdminUsers = () => {
               <div>
                 <Label className="text-xs text-muted-foreground">User ID</Label>
                 <div className="flex items-center gap-2">
-                  <Input 
-                    readOnly 
-                    value={selectedUserForApp?.user_id || ""} 
-                    className="font-mono text-sm"
-                  />
-                  <Button 
-                    size="icon" 
-                    variant="ghost"
-                    onClick={() => copyToClipboard(selectedUserForApp?.user_id || "", "user_id")}
-                  >
+                  <Input readOnly value={selectedUserForApp?.user_id || ""} className="font-mono text-sm" />
+                  <Button size="icon" variant="ghost" onClick={() => copyToClipboard(selectedUserForApp?.user_id || "", "user_id")}>
                     {copiedField === "user_id" ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
@@ -231,24 +326,15 @@ const AdminUsers = () => {
               <div>
                 <Label className="text-xs text-muted-foreground">Display Name</Label>
                 <div className="flex items-center gap-2">
-                  <Input 
-                    readOnly 
-                    value={selectedUserForApp?.display_name || "Not set"} 
-                    className="text-sm"
-                  />
-                  <Button 
-                    size="icon" 
-                    variant="ghost"
-                    onClick={() => copyToClipboard(selectedUserForApp?.display_name || "", "name")}
-                  >
+                  <Input readOnly value={selectedUserForApp?.display_name || "Not set"} className="text-sm" />
+                  <Button size="icon" variant="ghost" onClick={() => copyToClipboard(selectedUserForApp?.display_name || "", "name")}>
                     {copiedField === "name" ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              💡 The user will use the same email/password they created on the website to log into the Apollo Nation mobile app. 
-              You may need to manually verify their credentials in the app.
+              💡 The user will use the same email/password they created on the website to log into the Apollo Nation mobile app.
             </p>
             <p className="text-xs text-muted-foreground/70">
               🔒 Phone numbers are stored securely and only visible to the user themselves.
