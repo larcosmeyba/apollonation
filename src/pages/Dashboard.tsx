@@ -89,12 +89,10 @@ const Dashboard = () => {
               {profile?.subscription_tier || "Basic"} Member
             </span>
           </div>
-          {subscription?.subscribed && (
+          {subscription?.subscribed && subscription.subscription_end && (
             <>
               <span className="text-xs text-muted-foreground">
-                Renews {subscription.subscription_end
-                  ? new Date(subscription.subscription_end).toLocaleDateString()
-                  : "—"}
+                Renews {new Date(subscription.subscription_end).toLocaleDateString()}
               </span>
               <Button
                 variant="apollo-outline"
@@ -106,6 +104,11 @@ const Dashboard = () => {
                 {managingPortal ? "Opening..." : "Manage Subscription"}
               </Button>
             </>
+          )}
+          {subscription?.subscribed && !subscription.subscription_end && (
+            <span className="text-xs text-muted-foreground">
+              Admin-assigned plan
+            </span>
           )}
           {!subscription?.subscribed && (
             <Link to="/#pricing">
