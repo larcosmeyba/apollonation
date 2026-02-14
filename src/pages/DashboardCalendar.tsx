@@ -223,6 +223,9 @@ const DashboardCalendar = () => {
             <Button variant="ghost" size="sm" onClick={navigateNext}>
               Next <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
+            <Button variant="outline" size="sm" className="ml-1 text-xs" onClick={() => setCurrentDate(new Date())}>
+              Today
+            </Button>
           </div>
         </div>
 
