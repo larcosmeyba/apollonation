@@ -1,37 +1,63 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import CalendarWeekView from "@/components/dashboard/CalendarWeekView";
+import CalendarMonthView from "@/components/dashboard/CalendarMonthView";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Dumbbell, Utensils, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, LayoutGrid, Dumbbell, Utensils, Check } from "lucide-react";
 import {
   format,
   startOfWeek,
+  startOfMonth,
+  endOfMonth,
   addDays,
   addWeeks,
   subWeeks,
+  addMonths,
+  subMonths,
   isSameDay,
   isToday,
 } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+type ViewMode = "week" | "month";
 
 const DashboardCalendar = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [currentWeekStart, setCurrentWeekStart] = useState(() =>
-    startOfWeek(new Date(), { weekStartsOn: 1 })
-  );
+  const [viewMode, setViewMode] = useState<ViewMode>("week");
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [draggedDay, setDraggedDay] = useState<any>(null);
+
+  const currentWeekStart = useMemo(
+    () => startOfWeek(currentDate, { weekStartsOn: 1 }),
+    [currentDate]
+  );
 
   const weekDates = useMemo(
     () => Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i)),
     [currentWeekStart]
   );
+
+  // Date range for data fetching (covers both views)
+  const fetchRange = useMemo(() => {
+    if (viewMode === "week") {
+      return {
+        start: currentWeekStart,
+        end: addDays(currentWeekStart, 6),
+      };
+    }
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    // Extend to cover partial weeks at edges
+    return {
+      start: startOfWeek(monthStart, { weekStartsOn: 1 }),
+      end: addDays(monthEnd, 7),
+    };
+  }, [viewMode, currentWeekStart, currentDate]);
 
   // Fetch active training plan + days
   const { data: planData } = useQuery({
@@ -58,42 +84,39 @@ const DashboardCalendar = () => {
     enabled: !!user,
   });
 
-  // Fetch macro logs for the week
+  // Fetch macro logs for the visible range
   const { data: macroLogs = [] } = useQuery({
-    queryKey: ["calendar-macros", user?.id, format(currentWeekStart, "yyyy-MM-dd")],
+    queryKey: ["calendar-macros", user?.id, format(fetchRange.start, "yyyy-MM-dd"), format(fetchRange.end, "yyyy-MM-dd")],
     queryFn: async () => {
       if (!user) return [];
-      const weekEnd = addDays(currentWeekStart, 6);
       const { data } = await supabase
         .from("macro_logs")
         .select("log_date, meal_name, calories")
         .eq("user_id", user.id)
-        .gte("log_date", format(currentWeekStart, "yyyy-MM-dd"))
-        .lte("log_date", format(weekEnd, "yyyy-MM-dd"));
+        .gte("log_date", format(fetchRange.start, "yyyy-MM-dd"))
+        .lte("log_date", format(fetchRange.end, "yyyy-MM-dd"));
       return data || [];
     },
     enabled: !!user,
   });
 
-  // Fetch workout progress for the week
+  // Fetch workout progress for the visible range
   const { data: completedWorkouts = [] } = useQuery({
-    queryKey: ["calendar-progress", user?.id, format(currentWeekStart, "yyyy-MM-dd")],
+    queryKey: ["calendar-progress", user?.id, format(fetchRange.start, "yyyy-MM-dd"), format(fetchRange.end, "yyyy-MM-dd")],
     queryFn: async () => {
       if (!user) return [];
-      const weekEnd = addDays(currentWeekStart, 6);
       const { data } = await supabase
         .from("user_workout_progress")
         .select("completed_at, workout_id")
         .eq("user_id", user.id)
-        .gte("completed_at", currentWeekStart.toISOString())
-        .lte("completed_at", weekEnd.toISOString());
+        .gte("completed_at", fetchRange.start.toISOString())
+        .lte("completed_at", fetchRange.end.toISOString());
       return data || [];
     },
     enabled: !!user,
   });
 
-  // Map training days to calendar dates
-  const getWorkoutForDate = (date: Date) => {
+  const getWorkoutForDate = useCallback((date: Date) => {
     if (!planData) return null;
     const { plan, days } = planData;
     const cycleStart = plan.client_questionnaires?.cycle_start_date
@@ -106,41 +129,36 @@ const DashboardCalendar = () => {
     const totalDays = plan.duration_weeks * 7;
     const dayNumber = (diffDays % totalDays) + 1;
 
-    // Check for rescheduled day first
     const rescheduled = days.find((d: any) =>
       d.scheduled_date && isSameDay(new Date(d.scheduled_date), date)
     );
     if (rescheduled) return rescheduled;
 
-    // Default mapping
     return days.find((d: any) => !d.scheduled_date && d.day_number === dayNumber) || null;
-  };
+  }, [planData]);
 
-  const getMealsForDate = (date: Date) => {
+  const getMealsForDate = useCallback((date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
     return macroLogs.filter((m: any) => m.log_date === dateStr);
-  };
+  }, [macroLogs]);
 
-  const isWorkoutCompleted = (date: Date) => {
+  const isWorkoutCompleted = useCallback((date: Date) => {
     return completedWorkouts.some((w: any) =>
       isSameDay(new Date(w.completed_at), date)
     );
-  };
+  }, [completedWorkouts]);
 
-  // Drag and drop handlers
   const handleDragStart = (day: any, sourceDate: Date) => {
     setDraggedDay({ ...day, sourceDate });
   };
 
   const handleDrop = async (targetDate: Date) => {
     if (!draggedDay) return;
-
     try {
       await (supabase as any)
         .from("training_plan_days")
         .update({ scheduled_date: format(targetDate, "yyyy-MM-dd") })
         .eq("id", draggedDay.id);
-
       queryClient.invalidateQueries({ queryKey: ["calendar-plan"] });
       toast({ title: "Workout rescheduled", description: `Moved to ${format(targetDate, "EEEE, MMM d")}` });
     } catch (err: any) {
@@ -148,6 +166,19 @@ const DashboardCalendar = () => {
     }
     setDraggedDay(null);
   };
+
+  const navigatePrev = () => {
+    setCurrentDate((d) => (viewMode === "week" ? subWeeks(d, 1) : subMonths(d, 1)));
+  };
+
+  const navigateNext = () => {
+    setCurrentDate((d) => (viewMode === "week" ? addWeeks(d, 1) : addMonths(d, 1)));
+  };
+
+  const headerLabel =
+    viewMode === "week"
+      ? `${format(currentWeekStart, "MMM d")} — ${format(addDays(currentWeekStart, 6), "MMM d, yyyy")}`
+      : format(currentDate, "MMMM yyyy");
 
   return (
     <DashboardLayout>
@@ -159,162 +190,64 @@ const DashboardCalendar = () => {
           <p className="text-muted-foreground">Track workouts, meals, and progress</p>
         </div>
 
-        {/* Week navigation */}
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" size="sm" onClick={() => setCurrentWeekStart(w => subWeeks(w, 1))}>
-            <ChevronLeft className="w-4 h-4 mr-1" /> Previous
-          </Button>
-          <h2 className="font-heading text-lg">
-            {format(currentWeekStart, "MMM d")} — {format(addDays(currentWeekStart, 6), "MMM d, yyyy")}
-          </h2>
-          <Button variant="ghost" size="sm" onClick={() => setCurrentWeekStart(w => addWeeks(w, 1))}>
-            Next <ChevronRight className="w-4 h-4 ml-1" />
-          </Button>
+        {/* Controls: view toggle + navigation */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+            <Button
+              variant={viewMode === "week" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 text-xs gap-1.5"
+              onClick={() => setViewMode("week")}
+            >
+              <CalendarDays className="w-3.5 h-3.5" />
+              Week
+            </Button>
+            <Button
+              variant={viewMode === "month" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 text-xs gap-1.5"
+              onClick={() => setViewMode("month")}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              Month
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={navigatePrev}>
+              <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+            </Button>
+            <h2 className="font-heading text-sm md:text-lg min-w-[140px] text-center">
+              {headerLabel}
+            </h2>
+            <Button variant="ghost" size="sm" onClick={navigateNext}>
+              Next <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
         </div>
 
-        {/* Calendar grid */}
-        {/* Desktop: 7-col grid */}
-        <div className="hidden md:grid grid-cols-7 gap-2">
-          {WEEKDAYS.map((day) => (
-            <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
-              {day}
-            </div>
-          ))}
-
-          {weekDates.map((date) => {
-            const workout = getWorkoutForDate(date);
-            const meals = getMealsForDate(date);
-            const completed = isWorkoutCompleted(date);
-            const today = isToday(date);
-
-            return (
-              <div
-                key={date.toISOString()}
-                className={`min-h-[140px] rounded-lg border p-2 transition-all ${
-                  today ? "border-apollo-gold/50 bg-apollo-gold/5" : "border-border bg-card"
-                } ${draggedDay ? "hover:border-apollo-gold/50 hover:bg-apollo-gold/5" : ""}`}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(date)}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className={`text-sm font-medium ${today ? "text-apollo-gold" : ""}`}>
-                    {format(date, "d")}
-                  </span>
-                  {completed && (
-                    <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
-                      <Check className="w-3 h-3 text-green-500" />
-                    </div>
-                  )}
-                </div>
-
-                {workout && (
-                  <div
-                    draggable
-                    onDragStart={() => handleDragStart(workout, date)}
-                    className="mb-1.5 p-1.5 rounded bg-apollo-gold/10 border border-apollo-gold/20 cursor-grab active:cursor-grabbing"
-                  >
-                    <div className="flex items-center gap-1">
-                      <Dumbbell className="w-3 h-3 text-apollo-gold flex-shrink-0" />
-                      <span className="text-[11px] font-medium truncate">
-                        {workout.focus || workout.day_label || `Day ${workout.day_number}`}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {workout.training_plan_exercises?.length || 0} exercises
-                    </p>
-                  </div>
-                )}
-
-                {meals.length > 0 && (
-                  <div className="p-1.5 rounded bg-primary/5 border border-primary/10">
-                    <div className="flex items-center gap-1">
-                      <Utensils className="w-3 h-3 text-primary flex-shrink-0" />
-                      <span className="text-[11px] font-medium">{meals.length} meals</span>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {meals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0)} cal
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Mobile: stacked day cards */}
-        <div className="md:hidden flex flex-col gap-2">
-          {weekDates.map((date) => {
-            const workout = getWorkoutForDate(date);
-            const meals = getMealsForDate(date);
-            const completed = isWorkoutCompleted(date);
-            const today = isToday(date);
-
-            return (
-              <div
-                key={date.toISOString()}
-                className={`rounded-lg border p-3 transition-all ${
-                  today ? "border-apollo-gold/50 bg-apollo-gold/5" : "border-border bg-card"
-                }`}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(date)}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm font-semibold ${today ? "text-apollo-gold" : ""}`}>
-                      {format(date, "EEE, MMM d")}
-                    </span>
-                    {today && (
-                      <Badge variant="outline" className="text-[10px] border-apollo-gold/40 text-apollo-gold px-1.5 py-0">
-                        Today
-                      </Badge>
-                    )}
-                  </div>
-                  {completed && (
-                    <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
-                      <Check className="w-3 h-3 text-green-500" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {workout && (
-                    <div
-                      draggable
-                      onDragStart={() => handleDragStart(workout, date)}
-                      className="flex items-center gap-2 p-2 rounded bg-apollo-gold/10 border border-apollo-gold/20 cursor-grab active:cursor-grabbing flex-1 min-w-0"
-                    >
-                      <Dumbbell className="w-4 h-4 text-apollo-gold flex-shrink-0" />
-                      <div className="min-w-0">
-                        <span className="text-xs font-medium block truncate">
-                          {workout.focus || workout.day_label || `Day ${workout.day_number}`}
-                        </span>
-                        <span className="text-[11px] text-muted-foreground">
-                          {workout.training_plan_exercises?.length || 0} exercises
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {meals.length > 0 && (
-                    <div className="flex items-center gap-2 p-2 rounded bg-primary/5 border border-primary/10 flex-1 min-w-0">
-                      <Utensils className="w-4 h-4 text-primary flex-shrink-0" />
-                      <div className="min-w-0">
-                        <span className="text-xs font-medium block">{meals.length} meals</span>
-                        <span className="text-[11px] text-muted-foreground">
-                          {meals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0)} cal
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {!workout && meals.length === 0 && (
-                    <p className="text-xs text-muted-foreground italic">Rest day</p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        {/* Calendar view */}
+        {viewMode === "week" ? (
+          <CalendarWeekView
+            weekDates={weekDates}
+            getWorkoutForDate={getWorkoutForDate}
+            getMealsForDate={getMealsForDate}
+            isWorkoutCompleted={isWorkoutCompleted}
+            onDragStart={handleDragStart}
+            onDrop={handleDrop}
+            hasDraggedDay={!!draggedDay}
+          />
+        ) : (
+          <CalendarMonthView
+            currentDate={currentDate}
+            getWorkoutForDate={getWorkoutForDate}
+            getMealsForDate={getMealsForDate}
+            isWorkoutCompleted={isWorkoutCompleted}
+            onDragStart={handleDragStart}
+            onDrop={handleDrop}
+            hasDraggedDay={!!draggedDay}
+          />
+        )}
 
         {/* Legend */}
         <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 text-xs text-muted-foreground">
