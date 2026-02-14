@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { useSwipe } from "@/hooks/useSwipe";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +32,11 @@ const DashboardCalendar = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("week");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [draggedDay, setDraggedDay] = useState<any>(null);
+
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: () => setCurrentDate((d) => (viewMode === "week" ? addWeeks(d, 1) : addMonths(d, 1))),
+    onSwipeRight: () => setCurrentDate((d) => (viewMode === "week" ? subWeeks(d, 1) : subMonths(d, 1))),
+  });
 
   const currentWeekStart = useMemo(
     () => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -230,27 +236,29 @@ const DashboardCalendar = () => {
         </div>
 
         {/* Calendar view */}
-        {viewMode === "week" ? (
-          <CalendarWeekView
-            weekDates={weekDates}
-            getWorkoutForDate={getWorkoutForDate}
-            getMealsForDate={getMealsForDate}
-            isWorkoutCompleted={isWorkoutCompleted}
-            onDragStart={handleDragStart}
-            onDrop={handleDrop}
-            hasDraggedDay={!!draggedDay}
-          />
-        ) : (
-          <CalendarMonthView
-            currentDate={currentDate}
-            getWorkoutForDate={getWorkoutForDate}
-            getMealsForDate={getMealsForDate}
-            isWorkoutCompleted={isWorkoutCompleted}
-            onDragStart={handleDragStart}
-            onDrop={handleDrop}
-            hasDraggedDay={!!draggedDay}
-          />
-        )}
+        <div {...swipeHandlers}>
+          {viewMode === "week" ? (
+            <CalendarWeekView
+              weekDates={weekDates}
+              getWorkoutForDate={getWorkoutForDate}
+              getMealsForDate={getMealsForDate}
+              isWorkoutCompleted={isWorkoutCompleted}
+              onDragStart={handleDragStart}
+              onDrop={handleDrop}
+              hasDraggedDay={!!draggedDay}
+            />
+          ) : (
+            <CalendarMonthView
+              currentDate={currentDate}
+              getWorkoutForDate={getWorkoutForDate}
+              getMealsForDate={getMealsForDate}
+              isWorkoutCompleted={isWorkoutCompleted}
+              onDragStart={handleDragStart}
+              onDrop={handleDrop}
+              hasDraggedDay={!!draggedDay}
+            />
+          )}
+        </div>
 
         {/* Legend */}
         <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 text-xs text-muted-foreground">
