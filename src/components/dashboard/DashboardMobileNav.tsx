@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
-import { Menu, X, LayoutDashboard, Dumbbell, Utensils, Camera, User, LogOut, Lock, Shield, MessageSquare, Apple } from "lucide-react";
+import { Menu, X, LayoutDashboard, Dumbbell, Utensils, Camera, User, LogOut, Lock, Shield, MessageSquare, Apple, ClipboardList, Calendar } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -20,7 +20,9 @@ const DashboardMobileNav = () => {
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, locked: false },
     { label: "Workouts", href: "/dashboard/workouts", icon: Dumbbell, locked: false },
     { label: "Recipes", href: "/dashboard/recipes", icon: Utensils, locked: false },
+    { label: "Training Program", href: "/dashboard/training", icon: ClipboardList, locked: false },
     { label: "Nutrition Plan", href: "/dashboard/nutrition", icon: Apple, locked: false },
+    { label: "Calendar", href: "/dashboard/calendar", icon: Calendar, locked: false },
     { label: "Macro Tracker", href: "/dashboard/macros", icon: Camera, locked: !isElite, tier: "Elite" },
     { label: "Messages", href: "/dashboard/messages", icon: MessageSquare, locked: false, badge: unreadCount > 0 ? unreadCount : undefined },
     { label: "Profile", href: "/dashboard/profile", icon: User, locked: false },
