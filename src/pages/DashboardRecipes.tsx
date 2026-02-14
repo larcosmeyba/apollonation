@@ -234,38 +234,35 @@ const DashboardRecipes = () => {
 
       {/* Recipe Detail Modal */}
       <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden">
-          {selectedRecipe && (
-            <>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedRecipe ? (
+            <div className="space-y-6">
+              <DialogHeader>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs text-apollo-gold uppercase tracking-wide">
+                    {selectedRecipe.category || "Recipe"}
+                  </span>
+                </div>
+                <DialogTitle className="font-heading text-2xl">
+                  {selectedRecipe.title}
+                </DialogTitle>
+                {selectedRecipe.description && (
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {selectedRecipe.description}
+                  </p>
+                )}
+              </DialogHeader>
+
               {/* Hero image */}
               {selectedRecipe.thumbnail_url && (
-                <div className="relative aspect-video w-full overflow-hidden">
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                   <img
                     src={selectedRecipe.thumbnail_url}
                     alt={selectedRecipe.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                 </div>
               )}
-
-              <ScrollArea className="max-h-[60vh]">
-                <div className="p-6 space-y-6">
-                  <DialogHeader>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs text-apollo-gold uppercase tracking-wide">
-                        {selectedRecipe.category || "Recipe"}
-                      </span>
-                    </div>
-                    <DialogTitle className="font-heading text-2xl">
-                      {selectedRecipe.title}
-                    </DialogTitle>
-                    {selectedRecipe.description && (
-                      <p className="text-muted-foreground text-sm mt-1">
-                        {selectedRecipe.description}
-                      </p>
-                    )}
-                  </DialogHeader>
 
                   {/* Quick stats */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -346,10 +343,8 @@ const DashboardRecipes = () => {
                       ))}
                     </div>
                   )}
-                </div>
-              </ScrollArea>
-            </>
-          )}
+            </div>
+          ) : null}
         </DialogContent>
       </Dialog>
     </DashboardLayout>
