@@ -97,27 +97,40 @@ const Questionnaire = () => {
     const totalInches = (parseInt(form.height_feet) || 0) * 12 + (parseInt(form.height_inches) || 0);
 
     try {
-      const { error } = await supabase.from("client_questionnaires" as any).insert({
-        user_id: user.id,
-        sex: form.sex,
-        age: parseInt(form.age),
-        height_inches: totalInches,
-        weight_lbs: parseFloat(form.weight_lbs),
-        activity_level: form.activity_level,
-        workout_days_per_week: parseInt(form.workout_days_per_week),
-        training_methods: form.training_methods,
-        goal_next_4_weeks: form.goal_next_4_weeks || null,
-        weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
-        grocery_store: form.grocery_store || null,
-        dietary_restrictions: form.dietary_restrictions,
-        waiver_accepted: true,
-        waiver_accepted_at: new Date().toISOString(),
-      } as any);
+      const { data: questionnaireData, error } = await (supabase as any)
+        .from("client_questionnaires")
+        .insert({
+          user_id: user.id,
+          sex: form.sex,
+          age: parseInt(form.age),
+          height_inches: totalInches,
+          weight_lbs: parseFloat(form.weight_lbs),
+          activity_level: form.activity_level,
+          workout_days_per_week: parseInt(form.workout_days_per_week),
+          training_methods: form.training_methods,
+          goal_next_4_weeks: form.goal_next_4_weeks || null,
+          weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
+          grocery_store: form.grocery_store || null,
+          dietary_restrictions: form.dietary_restrictions,
+          waiver_accepted: true,
+          waiver_accepted_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      toast({ title: "Questionnaire submitted!", description: "Your personalized program is being prepared." });
+      toast({ title: "Questionnaire submitted!", description: "Your personalized programs are being generated. This may take a minute." });
       navigate("/dashboard");
+
+      // Fire-and-forget: generate training + nutrition plans in background
+      supabase.functions.invoke("auto-generate-programs", {
+        body: { questionnaireId: questionnaireData.id },
+      }).then((res) => {
+        if (res.error) console.error("Auto-generate error:", res.error);
+        else console.log("Auto-generate complete:", res.data);
+      }).catch((err) => console.error("Auto-generate failed:", err));
+
     } catch (err: any) {
       console.error("Questionnaire submit error:", err);
       toast({ title: "Error", description: err.message || "Something went wrong.", variant: "destructive" });
