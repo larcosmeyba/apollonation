@@ -435,6 +435,7 @@ export type Database = {
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
           user_id: string
+          welcome_seen: boolean
         }
         Insert: {
           avatar_url?: string | null
@@ -447,6 +448,7 @@ export type Database = {
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id: string
+          welcome_seen?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -459,6 +461,7 @@ export type Database = {
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id?: string
+          welcome_seen?: boolean
         }
         Relationships: []
       }
@@ -551,6 +554,7 @@ export type Database = {
           focus: string | null
           id: string
           plan_id: string
+          scheduled_date: string | null
         }
         Insert: {
           created_at?: string
@@ -559,6 +563,7 @@ export type Database = {
           focus?: string | null
           id?: string
           plan_id: string
+          scheduled_date?: string | null
         }
         Update: {
           created_at?: string
@@ -567,6 +572,7 @@ export type Database = {
           focus?: string | null
           id?: string
           plan_id?: string
+          scheduled_date?: string | null
         }
         Relationships: [
           {
