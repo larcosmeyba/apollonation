@@ -173,15 +173,14 @@ const DashboardCalendar = () => {
         </div>
 
         {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-2">
-          {/* Day headers */}
+        {/* Desktop: 7-col grid */}
+        <div className="hidden md:grid grid-cols-7 gap-2">
           {WEEKDAYS.map((day) => (
             <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
               {day}
             </div>
           ))}
 
-          {/* Day cells */}
           {weekDates.map((date) => {
             const workout = getWorkoutForDate(date);
             const meals = getMealsForDate(date);
@@ -192,9 +191,7 @@ const DashboardCalendar = () => {
               <div
                 key={date.toISOString()}
                 className={`min-h-[140px] rounded-lg border p-2 transition-all ${
-                  today
-                    ? "border-apollo-gold/50 bg-apollo-gold/5"
-                    : "border-border bg-card"
+                  today ? "border-apollo-gold/50 bg-apollo-gold/5" : "border-border bg-card"
                 } ${draggedDay ? "hover:border-apollo-gold/50 hover:bg-apollo-gold/5" : ""}`}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => handleDrop(date)}
@@ -210,7 +207,6 @@ const DashboardCalendar = () => {
                   )}
                 </div>
 
-                {/* Workout for this day */}
                 {workout && (
                   <div
                     draggable
@@ -229,7 +225,6 @@ const DashboardCalendar = () => {
                   </div>
                 )}
 
-                {/* Meals for this day */}
                 {meals.length > 0 && (
                   <div className="p-1.5 rounded bg-primary/5 border border-primary/10">
                     <div className="flex items-center gap-1">
@@ -246,8 +241,83 @@ const DashboardCalendar = () => {
           })}
         </div>
 
+        {/* Mobile: stacked day cards */}
+        <div className="md:hidden flex flex-col gap-2">
+          {weekDates.map((date) => {
+            const workout = getWorkoutForDate(date);
+            const meals = getMealsForDate(date);
+            const completed = isWorkoutCompleted(date);
+            const today = isToday(date);
+
+            return (
+              <div
+                key={date.toISOString()}
+                className={`rounded-lg border p-3 transition-all ${
+                  today ? "border-apollo-gold/50 bg-apollo-gold/5" : "border-border bg-card"
+                }`}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => handleDrop(date)}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-sm font-semibold ${today ? "text-apollo-gold" : ""}`}>
+                      {format(date, "EEE, MMM d")}
+                    </span>
+                    {today && (
+                      <Badge variant="outline" className="text-[10px] border-apollo-gold/40 text-apollo-gold px-1.5 py-0">
+                        Today
+                      </Badge>
+                    )}
+                  </div>
+                  {completed && (
+                    <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <Check className="w-3 h-3 text-green-500" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {workout && (
+                    <div
+                      draggable
+                      onDragStart={() => handleDragStart(workout, date)}
+                      className="flex items-center gap-2 p-2 rounded bg-apollo-gold/10 border border-apollo-gold/20 cursor-grab active:cursor-grabbing flex-1 min-w-0"
+                    >
+                      <Dumbbell className="w-4 h-4 text-apollo-gold flex-shrink-0" />
+                      <div className="min-w-0">
+                        <span className="text-xs font-medium block truncate">
+                          {workout.focus || workout.day_label || `Day ${workout.day_number}`}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {workout.training_plan_exercises?.length || 0} exercises
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {meals.length > 0 && (
+                    <div className="flex items-center gap-2 p-2 rounded bg-primary/5 border border-primary/10 flex-1 min-w-0">
+                      <Utensils className="w-4 h-4 text-primary flex-shrink-0" />
+                      <div className="min-w-0">
+                        <span className="text-xs font-medium block">{meals.length} meals</span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {meals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0)} cal
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {!workout && meals.length === 0 && (
+                    <p className="text-xs text-muted-foreground italic">Rest day</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         {/* Legend */}
-        <div className="flex items-center gap-6 mt-4 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded bg-apollo-gold/20 border border-apollo-gold/30" />
             <span>Workout</span>
@@ -262,7 +332,7 @@ const DashboardCalendar = () => {
             </div>
             <span>Completed</span>
           </div>
-          <span className="text-apollo-gold/60">Drag workouts to reschedule</span>
+          <span className="hidden md:inline text-apollo-gold/60">Drag workouts to reschedule</span>
         </div>
       </div>
     </DashboardLayout>
