@@ -12,9 +12,9 @@ const Navbar = () => {
   const { isAdmin } = useAdminStatus();
 
   const navLinks = [
-    { href: "#features", label: "Programs" },
-    { href: "#pricing", label: "Membership" },
-    { href: "#testimonials", label: "Community" },
+    { href: "/#features", label: "Programs" },
+    { href: "/#pricing", label: "Membership" },
+    { href: "/#testimonials", label: "Community" },
   ];
 
   return (

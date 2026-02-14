@@ -7,8 +7,8 @@ const Footer = () => {
 
   const footerLinks = {
     experience: [
-      { label: "Programs", href: "#features" },
-      { label: "Membership", href: "#pricing" },
+      { label: "Programs", href: "/#features" },
+      { label: "Membership", href: "/#pricing" },
       { label: "Mobile App", href: "#" },
       { label: "Workout Library", href: "#" },
     ],
