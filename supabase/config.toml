@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.generate-recipes]
 verify_jwt = false
+
+[functions.admin-create-client]
+verify_jwt = false
