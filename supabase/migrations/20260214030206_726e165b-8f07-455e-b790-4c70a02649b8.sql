@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN manual_subscription boolean NOT NULL DEFAULT false;
