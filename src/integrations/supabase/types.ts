@@ -431,6 +431,7 @@ export type Database = {
           display_name: string | null
           fitness_goals: string | null
           id: string
+          manual_subscription: boolean
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
           user_id: string
@@ -442,6 +443,7 @@ export type Database = {
           display_name?: string | null
           fitness_goals?: string | null
           id?: string
+          manual_subscription?: boolean
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id: string
@@ -453,6 +455,7 @@ export type Database = {
           display_name?: string | null
           fitness_goals?: string | null
           id?: string
+          manual_subscription?: boolean
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id?: string
