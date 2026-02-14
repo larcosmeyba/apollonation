@@ -17,6 +17,7 @@ import DashboardProfile from "./pages/DashboardProfile";
 import DashboardMessages from "./pages/DashboardMessages";
 import DashboardNutrition from "./pages/DashboardNutrition";
 import DashboardTraining from "./pages/DashboardTraining";
+import DashboardCalendar from "./pages/DashboardCalendar";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -100,6 +101,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardTraining />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/calendar"
+              element={
+                <ProtectedRoute>
+                  <DashboardCalendar />
                 </ProtectedRoute>
               }
             />

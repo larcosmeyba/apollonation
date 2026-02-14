@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Apple,
   ClipboardList,
+  Calendar,
 } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
@@ -54,6 +55,12 @@ const DashboardSidebar = () => {
       label: "Nutrition Plan",
       href: "/dashboard/nutrition",
       icon: Apple,
+      locked: false,
+    },
+    {
+      label: "Calendar",
+      href: "/dashboard/calendar",
+      icon: Calendar,
       locked: false,
     },
     {

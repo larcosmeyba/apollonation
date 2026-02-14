@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Camera, Plus, Trash2, Upload, Sparkles, AlertCircle } from "lucide-react";
+import { Camera, Plus, Trash2, Upload, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,181 +14,143 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-interface MacroEntry {
-  id: string;
-  meal_name: string;
-  photo_url?: string;
-  calories: number;
-  protein_grams: number;
-  carbs_grams: number;
-  fat_grams: number;
-  ai_estimated: boolean;
-  confidence?: string;
-}
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 const DashboardMacros = () => {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
-  const [entries, setEntries] = useState<MacroEntry[]>([]);
+  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAiMode, setIsAiMode] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [selectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
 
-  // Manual entry form state
   const [manualEntry, setManualEntry] = useState({
-    meal_name: "",
-    calories: "",
-    protein: "",
-    carbs: "",
-    fat: "",
+    meal_name: "", calories: "", protein: "", carbs: "", fat: "",
   });
 
   const isElite = profile?.subscription_tier === "elite";
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  // Fetch macro logs from DB - persisted!
+  const { data: entries = [] } = useQuery({
+    queryKey: ["macro-logs", user?.id, selectedDate],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("macro_logs")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("log_date", selectedDate)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: "File too large",
-        description: "Please select an image under 5MB",
-        variant: "destructive",
-      });
+      toast({ title: "File too large", description: "Please select an image under 5MB", variant: "destructive" });
       return;
     }
-
-    // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: "Please select an image file",
-        variant: "destructive",
-      });
+      toast({ title: "Invalid file type", description: "Please select an image file", variant: "destructive" });
       return;
     }
-
     setSelectedFile(file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
+      reader.onerror = reject;
     });
+
+  const saveEntry = async (entry: {
+    meal_name: string; calories: number; protein_grams: number;
+    carbs_grams: number; fat_grams: number; ai_estimated: boolean; photo_url?: string;
+  }) => {
+    if (!user) return;
+    const { error } = await supabase.from("macro_logs").insert({
+      user_id: user.id,
+      log_date: selectedDate,
+      ...entry,
+    });
+    if (error) throw error;
+    queryClient.invalidateQueries({ queryKey: ["macro-logs"] });
   };
 
   const handleAiAnalyze = async () => {
     if (!selectedFile) return;
-
     setIsAnalyzing(true);
-
     try {
-      // Convert file to base64
       const imageBase64 = await fileToBase64(selectedFile);
-
-      // Call the edge function
-      const { data, error } = await supabase.functions.invoke("analyze-food", {
-        body: { imageBase64 },
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      const nutritionData = data.data;
-
-      const newEntry: MacroEntry = {
-        id: Date.now().toString(),
-        meal_name: nutritionData.meal_name || "Analyzed Meal",
-        photo_url: previewUrl || undefined,
-        calories: Math.round(nutritionData.calories) || 0,
-        protein_grams: Math.round(nutritionData.protein_grams) || 0,
-        carbs_grams: Math.round(nutritionData.carbs_grams) || 0,
-        fat_grams: Math.round(nutritionData.fat_grams) || 0,
+      const { data, error } = await supabase.functions.invoke("analyze-food", { body: { imageBase64 } });
+      if (error) throw new Error(error.message);
+      if (data.error) throw new Error(data.error);
+      const n = data.data;
+      await saveEntry({
+        meal_name: n.meal_name || "Analyzed Meal",
+        calories: Math.round(n.calories) || 0,
+        protein_grams: Math.round(n.protein_grams) || 0,
+        carbs_grams: Math.round(n.carbs_grams) || 0,
+        fat_grams: Math.round(n.fat_grams) || 0,
         ai_estimated: true,
-        confidence: nutritionData.confidence,
-      };
-
-      setEntries((prev) => [newEntry, ...prev]);
+      });
       setSelectedFile(null);
       setPreviewUrl(null);
       setIsDialogOpen(false);
-
-      toast({
-        title: "Meal analyzed!",
-        description: `AI identified: ${nutritionData.meal_name} (${nutritionData.confidence} confidence)`,
-      });
-
-      if (nutritionData.notes) {
-        console.log("AI notes:", nutritionData.notes);
-      }
+      toast({ title: "Meal analyzed!", description: `AI identified: ${n.meal_name} (${n.confidence} confidence)` });
     } catch (error) {
-      console.error("AI analysis error:", error);
-      toast({
-        title: "Analysis failed",
-        description: error instanceof Error ? error.message : "Could not analyze the image. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Analysis failed", description: error instanceof Error ? error.message : "Could not analyze the image.", variant: "destructive" });
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  const handleManualSubmit = () => {
+  const handleManualSubmit = async () => {
     if (!manualEntry.meal_name || !manualEntry.calories) {
-      toast({
-        title: "Missing information",
-        description: "Please enter at least meal name and calories.",
-        variant: "destructive",
-      });
+      toast({ title: "Missing information", description: "Please enter at least meal name and calories.", variant: "destructive" });
       return;
     }
-
-    const newEntry: MacroEntry = {
-      id: Date.now().toString(),
-      meal_name: manualEntry.meal_name,
-      calories: parseInt(manualEntry.calories) || 0,
-      protein_grams: parseInt(manualEntry.protein) || 0,
-      carbs_grams: parseInt(manualEntry.carbs) || 0,
-      fat_grams: parseInt(manualEntry.fat) || 0,
-      ai_estimated: false,
-    };
-
-    setEntries((prev) => [newEntry, ...prev]);
-    setManualEntry({ meal_name: "", calories: "", protein: "", carbs: "", fat: "" });
-    setIsDialogOpen(false);
-
-    toast({
-      title: "Meal logged!",
-      description: "Your meal has been added to today's log.",
-    });
+    try {
+      await saveEntry({
+        meal_name: manualEntry.meal_name,
+        calories: parseInt(manualEntry.calories) || 0,
+        protein_grams: parseInt(manualEntry.protein) || 0,
+        carbs_grams: parseInt(manualEntry.carbs) || 0,
+        fat_grams: parseInt(manualEntry.fat) || 0,
+        ai_estimated: false,
+      });
+      setManualEntry({ meal_name: "", calories: "", protein: "", carbs: "", fat: "" });
+      setIsDialogOpen(false);
+      toast({ title: "Meal logged!" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
   };
 
-  const removeEntry = (id: string) => {
-    setEntries((prev) => prev.filter((e) => e.id !== id));
+  const removeEntry = async (id: string) => {
+    await supabase.from("macro_logs").delete().eq("id", id);
+    queryClient.invalidateQueries({ queryKey: ["macro-logs"] });
   };
 
   const totals = entries.reduce(
     (acc, entry) => ({
-      calories: acc.calories + entry.calories,
-      protein: acc.protein + entry.protein_grams,
-      carbs: acc.carbs + entry.carbs_grams,
-      fat: acc.fat + entry.fat_grams,
+      calories: acc.calories + (entry.calories || 0),
+      protein: acc.protein + (entry.protein_grams || 0),
+      carbs: acc.carbs + (entry.carbs_grams || 0),
+      fat: acc.fat + (entry.fat_grams || 0),
     }),
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
@@ -206,9 +168,7 @@ const DashboardMacros = () => {
           <p className="text-muted-foreground mb-8">
             Snap a photo of your meal and let AI estimate your macros instantly. This feature is exclusive to Elite members.
           </p>
-          <Button variant="apollo" size="lg">
-            Upgrade to Elite
-          </Button>
+          <Button variant="apollo" size="lg">Upgrade to Elite</Button>
         </div>
       </DashboardLayout>
     );
@@ -217,171 +177,61 @@ const DashboardMacros = () => {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="font-heading text-3xl md:text-4xl mb-2">
               Macro <span className="text-apollo-gold">Tracker</span>
             </h1>
-            <p className="text-muted-foreground">
-              Track your daily nutrition with AI-powered photo analysis
-            </p>
+            <p className="text-muted-foreground">Track your daily nutrition — data is saved automatically</p>
           </div>
-
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="apollo" size="lg">
-                <Plus className="w-4 h-4 mr-2" />
-                Log Meal
+                <Plus className="w-4 h-4 mr-2" /> Log Meal
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md bg-background border-border">
               <DialogHeader>
-                <DialogTitle className="font-heading text-xl">
-                  Log a Meal
-                </DialogTitle>
+                <DialogTitle className="font-heading text-xl">Log a Meal</DialogTitle>
               </DialogHeader>
-
-              {/* Mode toggle */}
               <div className="flex gap-2 mb-6">
-                <Button
-                  variant={isAiMode ? "apollo" : "apollo-outline"}
-                  size="sm"
-                  onClick={() => setIsAiMode(true)}
-                  className="flex-1"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  AI Photo
+                <Button variant={isAiMode ? "apollo" : "apollo-outline"} size="sm" onClick={() => setIsAiMode(true)} className="flex-1">
+                  <Sparkles className="w-4 h-4 mr-2" /> AI Photo
                 </Button>
-                <Button
-                  variant={!isAiMode ? "apollo" : "apollo-outline"}
-                  size="sm"
-                  onClick={() => setIsAiMode(false)}
-                  className="flex-1"
-                >
+                <Button variant={!isAiMode ? "apollo" : "apollo-outline"} size="sm" onClick={() => setIsAiMode(false)} className="flex-1">
                   Manual Entry
                 </Button>
               </div>
-
               {isAiMode ? (
                 <div className="space-y-4">
                   {previewUrl ? (
                     <div className="relative aspect-video rounded-lg overflow-hidden">
-                      <img
-                        src={previewUrl}
-                        alt="Food preview"
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        onClick={() => {
-                          setSelectedFile(null);
-                          setPreviewUrl(null);
-                        }}
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center"
-                      >
+                      <img src={previewUrl} alt="Food preview" className="w-full h-full object-cover" />
+                      <button onClick={() => { setSelectedFile(null); setPreviewUrl(null); }} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
                         <Trash2 className="w-4 h-4 text-white" />
                       </button>
                     </div>
                   ) : (
                     <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-apollo-gold/50 transition-colors">
                       <Upload className="w-10 h-10 text-muted-foreground mb-3" />
-                      <span className="text-muted-foreground text-sm">
-                        Click to upload or drag a photo
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
+                      <span className="text-muted-foreground text-sm">Click to upload or drag a photo</span>
+                      <input type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
                     </label>
                   )}
-
-                  <Button
-                    variant="apollo"
-                    className="w-full"
-                    disabled={!selectedFile || isAnalyzing}
-                    onClick={handleAiAnalyze}
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Analyze with AI
-                      </>
-                    )}
+                  <Button variant="apollo" className="w-full" disabled={!selectedFile || isAnalyzing} onClick={handleAiAnalyze}>
+                    {isAnalyzing ? (<><Sparkles className="w-4 h-4 mr-2 animate-spin" />Analyzing...</>) : (<><Sparkles className="w-4 h-4 mr-2" />Analyze with AI</>)}
                   </Button>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div>
-                    <Label>Meal Name</Label>
-                    <Input
-                      placeholder="e.g., Chicken Salad"
-                      value={manualEntry.meal_name}
-                      onChange={(e) =>
-                        setManualEntry((prev) => ({ ...prev, meal_name: e.target.value }))
-                      }
-                      className="bg-muted border-border"
-                    />
-                  </div>
+                  <div><Label>Meal Name</Label><Input placeholder="e.g., Chicken Salad" value={manualEntry.meal_name} onChange={(e) => setManualEntry(p => ({ ...p, meal_name: e.target.value }))} className="bg-muted border-border" /></div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Calories</Label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        value={manualEntry.calories}
-                        onChange={(e) =>
-                          setManualEntry((prev) => ({ ...prev, calories: e.target.value }))
-                        }
-                        className="bg-muted border-border"
-                      />
-                    </div>
-                    <div>
-                      <Label>Protein (g)</Label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        value={manualEntry.protein}
-                        onChange={(e) =>
-                          setManualEntry((prev) => ({ ...prev, protein: e.target.value }))
-                        }
-                        className="bg-muted border-border"
-                      />
-                    </div>
-                    <div>
-                      <Label>Carbs (g)</Label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        value={manualEntry.carbs}
-                        onChange={(e) =>
-                          setManualEntry((prev) => ({ ...prev, carbs: e.target.value }))
-                        }
-                        className="bg-muted border-border"
-                      />
-                    </div>
-                    <div>
-                      <Label>Fat (g)</Label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        value={manualEntry.fat}
-                        onChange={(e) =>
-                          setManualEntry((prev) => ({ ...prev, fat: e.target.value }))
-                        }
-                        className="bg-muted border-border"
-                      />
-                    </div>
+                    <div><Label>Calories</Label><Input type="number" placeholder="0" value={manualEntry.calories} onChange={(e) => setManualEntry(p => ({ ...p, calories: e.target.value }))} className="bg-muted border-border" /></div>
+                    <div><Label>Protein (g)</Label><Input type="number" placeholder="0" value={manualEntry.protein} onChange={(e) => setManualEntry(p => ({ ...p, protein: e.target.value }))} className="bg-muted border-border" /></div>
+                    <div><Label>Carbs (g)</Label><Input type="number" placeholder="0" value={manualEntry.carbs} onChange={(e) => setManualEntry(p => ({ ...p, carbs: e.target.value }))} className="bg-muted border-border" /></div>
+                    <div><Label>Fat (g)</Label><Input type="number" placeholder="0" value={manualEntry.fat} onChange={(e) => setManualEntry(p => ({ ...p, fat: e.target.value }))} className="bg-muted border-border" /></div>
                   </div>
-                  <Button variant="apollo" className="w-full" onClick={handleManualSubmit}>
-                    Add Meal
-                  </Button>
+                  <Button variant="apollo" className="w-full" onClick={handleManualSubmit}>Add Meal</Button>
                 </div>
               )}
             </DialogContent>
@@ -408,36 +258,25 @@ const DashboardMacros = () => {
           </div>
         </div>
 
-        {/* Entries list */}
         <h2 className="font-heading text-xl mb-4">Today's Meals</h2>
         {entries.length === 0 ? (
           <div className="card-apollo p-8 text-center">
             <Camera className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">
-              No meals logged today. Click "Log Meal" to get started!
-            </p>
+            <p className="text-muted-foreground">No meals logged today. Click "Log Meal" to get started!</p>
           </div>
         ) : (
           <div className="space-y-3">
             {entries.map((entry) => (
-              <div
-                key={entry.id}
-                className="card-apollo p-4 flex items-center gap-4"
-              >
+              <div key={entry.id} className="card-apollo p-4 flex items-center gap-4">
                 {entry.photo_url && (
-                  <img
-                    src={entry.photo_url}
-                    alt={entry.meal_name}
-                    className="w-16 h-16 rounded-lg object-cover"
-                  />
+                  <img src={entry.photo_url} alt={entry.meal_name || ""} className="w-16 h-16 rounded-lg object-cover" />
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-medium truncate">{entry.meal_name}</h3>
                     {entry.ai_estimated && (
                       <span className="flex items-center gap-1 text-xs text-apollo-gold">
-                        <Sparkles className="w-3 h-3" />
-                        AI
+                        <Sparkles className="w-3 h-3" /> AI
                       </span>
                     )}
                   </div>
@@ -448,10 +287,7 @@ const DashboardMacros = () => {
                     <span>F: {entry.fat_grams}g</span>
                   </div>
                 </div>
-                <button
-                  onClick={() => removeEntry(entry.id)}
-                  className="p-2 text-muted-foreground hover:text-destructive transition-colors"
-                >
+                <button onClick={() => removeEntry(entry.id)} className="p-2 text-muted-foreground hover:text-destructive transition-colors">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
