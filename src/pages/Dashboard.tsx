@@ -124,11 +124,14 @@ const Dashboard = () => {
                 Renews {new Date(subscription.subscription_end).toLocaleDateString()}
               </span>
             )}
-            {subscription?.subscribed && (
+            {subscription?.subscribed && !(profile as any)?.manual_subscription && (
               <Button variant="ghost" size="sm" onClick={handleManageSubscription} disabled={managingPortal} className="text-xs h-7">
                 <CreditCard className="w-3 h-3 mr-1" />
                 {managingPortal ? "Opening..." : "Manage"}
               </Button>
+            )}
+            {subscription?.subscribed && (profile as any)?.manual_subscription && (
+              <span className="text-xs text-muted-foreground italic">Admin-assigned plan</span>
             )}
             {!subscription?.subscribed && (
               <Link to="/#pricing">
