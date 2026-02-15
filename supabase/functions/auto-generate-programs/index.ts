@@ -32,8 +32,8 @@ serve(async (req) => {
       });
     }
 
-    const userId = userData.user.id;
-    const { questionnaireId } = await req.json();
+    const callerId = userData.user.id;
+    const { questionnaireId, targetUserId } = await req.json();
 
     if (!questionnaireId) {
       return new Response(JSON.stringify({ error: "Missing questionnaireId" }), {
@@ -41,7 +41,20 @@ serve(async (req) => {
       });
     }
 
-    // Fetch the questionnaire and verify ownership
+    // If targetUserId is provided, verify caller is an admin
+    let userId = callerId;
+    if (targetUserId && targetUserId !== callerId) {
+      const { data: isAdmin } = await supabaseAdmin.rpc("has_role", { _user_id: callerId, _role: "admin" });
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: "Admin access required" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      userId = targetUserId;
+      console.log("[AUTO-GEN] Admin override: generating for user", userId);
+    }
+
+    // Fetch the questionnaire (admin can fetch for any user)
     const { data: q, error: qErr } = await supabaseAdmin
       .from("client_questionnaires")
       .select("*")
