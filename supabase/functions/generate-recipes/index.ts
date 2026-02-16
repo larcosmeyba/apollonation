@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -53,6 +54,10 @@ serve(async (req) => {
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Rate limit: 20 requests per admin per day (1440 min)
+    const allowed = await checkRateLimit(userId as string, "generate-recipes", 20, 1440);
+    if (!allowed) return rateLimitResponse(corsHeaders);
 
     const { mode, prompt, pdfText, count } = await req.json();
 

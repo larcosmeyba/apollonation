@@ -47,6 +47,20 @@ const ContactRequestSection = () => {
 
     setIsSubmitting(true);
 
+    // Client-side rate limit check using email as identifier
+    const { data: allowed, error: rlError } = await supabase.rpc("check_rate_limit", {
+      p_identifier: email.trim().toLowerCase(),
+      p_action: "contact_form",
+      p_max_requests: 3,
+      p_window_minutes: 60,
+    });
+
+    if (rlError || !allowed) {
+      setIsSubmitting(false);
+      toast({ title: "Too many requests", description: "Please wait before submitting again.", variant: "destructive" });
+      return;
+    }
+
     const { error } = await supabase.from("contact_requests").insert({
       name: name.trim(),
       email: email.trim(),
