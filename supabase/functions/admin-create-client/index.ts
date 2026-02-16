@@ -62,8 +62,16 @@ serve(async (req) => {
       });
     }
 
-    if (password.length < 6) {
-      return new Response(JSON.stringify({ error: "Password must be at least 6 characters" }), {
+    if (password.length < 12) {
+      return new Response(JSON.stringify({ error: "Password must be at least 12 characters" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // Require at least one uppercase, one lowercase, one digit
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      return new Response(JSON.stringify({ error: "Password must contain uppercase, lowercase, and a number" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
       });

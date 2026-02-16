@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,6 +33,10 @@ serve(async (req) => {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Rate limit: 30 requests per user per hour
+    const swapAllowed = await checkRateLimit(userData.user.id, "suggest-exercise-swap", 30, 60);
+    if (!swapAllowed) return rateLimitResponse(corsHeaders);
 
     const { exerciseName, muscleGroup, availableEquipment } = await req.json();
 

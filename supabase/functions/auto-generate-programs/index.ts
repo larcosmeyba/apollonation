@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,6 +35,10 @@ serve(async (req) => {
 
     const callerId = userData.user.id;
     const { questionnaireId, targetUserId } = await req.json();
+
+    // Rate limit: 10 requests per user per day
+    const rlAllowed = await checkRateLimit(callerId, "auto-generate-programs", 10, 1440);
+    if (!rlAllowed) return rateLimitResponse(corsHeaders);
 
     if (!questionnaireId) {
       return new Response(JSON.stringify({ error: "Missing questionnaireId" }), {
