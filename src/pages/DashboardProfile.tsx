@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Camera, Save } from "lucide-react";
+import { User, Camera, Save, LogOut, Target, Ruler, Weight, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,14 +9,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const DashboardProfile = () => {
-  const { profile, refreshProfile, user } = useAuth();
+  const { profile, refreshProfile, user, signOut } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [phone, setPhone] = useState("");
-  
-  // Use signed URL for private avatar bucket
+
   const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
 
   const [formData, setFormData] = useState({
@@ -25,7 +25,23 @@ const DashboardProfile = () => {
     fitness_goals: profile?.fitness_goals || "",
   });
 
-  // Load phone from secure_contact_info table
+  // Load questionnaire data for stats display
+  const { data: questionnaire } = useQuery({
+    queryKey: ["profile-questionnaire", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await (supabase as any)
+        .from("client_questionnaires")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Load phone
   useEffect(() => {
     const loadPhone = async () => {
       if (!user) return;
@@ -34,9 +50,7 @@ const DashboardProfile = () => {
         .select("phone_encrypted")
         .eq("user_id", user.id)
         .single();
-      if (data?.phone_encrypted) {
-        setPhone(data.phone_encrypted);
-      }
+      if (data?.phone_encrypted) setPhone(data.phone_encrypted);
     };
     loadPhone();
   }, [user]);
@@ -44,10 +58,8 @@ const DashboardProfile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile || !user) return;
-
     setIsLoading(true);
 
-    // Update profile (without phone)
     const { error: profileError } = await supabase
       .from("profiles")
       .update({
@@ -57,160 +69,142 @@ const DashboardProfile = () => {
       })
       .eq("id", profile.id);
 
-    // Upsert phone to secure_contact_info
     const { error: phoneError } = await supabase
       .from("secure_contact_info")
-      .upsert({
-        user_id: user.id,
-        phone_encrypted: phone || null,
-      }, { onConflict: "user_id" });
+      .upsert({ user_id: user.id, phone_encrypted: phone || null }, { onConflict: "user_id" });
 
     if (profileError || phoneError) {
-      toast({
-        title: "Error updating profile",
-        description: profileError?.message || phoneError?.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: profileError?.message || phoneError?.message, variant: "destructive" });
     } else {
       await refreshProfile();
-      toast({
-        title: "Profile updated",
-        description: "Your changes have been saved.",
-      });
+      toast({ title: "Profile updated" });
     }
-
     setIsLoading(false);
+  };
+
+  const formatHeight = (inches: number) => {
+    const ft = Math.floor(inches / 12);
+    const rem = inches % 12;
+    return `${ft}'${rem}"`;
   };
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-heading text-3xl md:text-4xl mb-2">
-            My <span className="text-apollo-gold">Profile</span>
-          </h1>
-          <p className="text-muted-foreground">
-            Manage your account settings and preferences
-          </p>
-        </div>
-
-        {/* Profile card */}
-        <div className="card-apollo p-6 mb-8">
-          <div className="flex items-center gap-6 mb-6">
+      <div className="max-w-2xl mx-auto space-y-5">
+        {/* Profile Header */}
+        <div className="card-apollo p-5">
+          <div className="flex items-center gap-4 mb-4">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-apollo-gold/20 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
                 {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Avatar"
-                    className="w-full h-full rounded-full object-cover"
-                  />
+                  <img src={avatarUrl} alt="Avatar" className="w-full h-full rounded-full object-cover" />
                 ) : (
-                  <User className="w-10 h-10 text-apollo-gold" />
+                  <User className="w-8 h-8 text-primary" />
                 )}
               </div>
-              <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-apollo-gold flex items-center justify-center">
-                <Camera className="w-4 h-4 text-primary-foreground" />
+              <button className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                <Camera className="w-3 h-3 text-primary-foreground" />
               </button>
             </div>
             <div>
-              <h2 className="font-heading text-xl">
-                {profile?.display_name || "Member"}
-              </h2>
-              <p className="text-apollo-gold uppercase text-sm tracking-wide">
+              <h1 className="font-heading text-xl">{profile?.display_name || "Member"}</h1>
+              <p className="text-primary uppercase text-xs tracking-wider">
                 {profile?.subscription_tier || "Basic"} Member
               </p>
             </div>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Stats from Questionnaire */}
+        {questionnaire && (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="card-apollo p-4 flex items-center gap-3">
+              <Weight className="w-5 h-5 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-lg font-heading">{questionnaire.weight_lbs} lbs</p>
+                <p className="text-[11px] text-muted-foreground">Weight</p>
+              </div>
+            </div>
+            <div className="card-apollo p-4 flex items-center gap-3">
+              <Ruler className="w-5 h-5 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-lg font-heading">{formatHeight(questionnaire.height_inches)}</p>
+                <p className="text-[11px] text-muted-foreground">Height</p>
+              </div>
+            </div>
+            <div className="card-apollo p-4 flex items-center gap-3">
+              <Activity className="w-5 h-5 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-sm font-heading capitalize">{questionnaire.activity_level}</p>
+                <p className="text-[11px] text-muted-foreground">Activity Level</p>
+              </div>
+            </div>
+            <div className="card-apollo p-4 flex items-center gap-3">
+              <Target className="w-5 h-5 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-sm font-heading">{questionnaire.workout_days_per_week}x/week</p>
+                <p className="text-[11px] text-muted-foreground">Training</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 4-Week Goal */}
+        {questionnaire?.goal_next_4_weeks && (
+          <div className="card-apollo p-5">
+            <h2 className="font-heading text-base mb-2">Current 4-Week Goal</h2>
+            <p className="text-sm text-muted-foreground">{questionnaire.goal_next_4_weeks}</p>
+          </div>
+        )}
+
+        {/* Edit Profile Form */}
+        <div className="card-apollo p-5">
+          <h2 className="font-heading text-base mb-4">Personal Information</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="display_name">Display Name</Label>
-              <Input
-                id="display_name"
-                value={formData.display_name}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, display_name: e.target.value }))
-                }
-                placeholder="Your name"
-                className="bg-muted border-border"
-              />
+              <Input id="display_name" value={formData.display_name} onChange={(e) => setFormData((p) => ({ ...p, display_name: e.target.value }))} placeholder="Your name" className="bg-muted border-border" />
             </div>
-
             <div>
               <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="(555) 123-4567"
-                className="bg-muted border-border"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Securely stored • Only you can view this
-              </p>
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 123-4567" className="bg-muted border-border" />
+              <p className="text-xs text-muted-foreground mt-1">Securely stored • Only you can view</p>
             </div>
-
             <div>
               <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                value={formData.bio}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, bio: e.target.value }))
-                }
-                placeholder="Tell us about yourself..."
-                rows={3}
-                className="bg-muted border-border resize-none"
-              />
+              <Textarea id="bio" value={formData.bio} onChange={(e) => setFormData((p) => ({ ...p, bio: e.target.value }))} placeholder="Tell us about yourself..." rows={3} className="bg-muted border-border resize-none" />
             </div>
-
             <div>
               <Label htmlFor="fitness_goals">Fitness Goals</Label>
-              <Textarea
-                id="fitness_goals"
-                value={formData.fitness_goals}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, fitness_goals: e.target.value }))
-                }
-                placeholder="What are you working towards?"
-                rows={3}
-                className="bg-muted border-border resize-none"
-              />
+              <Textarea id="fitness_goals" value={formData.fitness_goals} onChange={(e) => setFormData((p) => ({ ...p, fitness_goals: e.target.value }))} placeholder="What are you working towards?" rows={3} className="bg-muted border-border resize-none" />
             </div>
-
-            <Button type="submit" variant="apollo" disabled={isLoading}>
+            <Button type="submit" variant="apollo" disabled={isLoading} className="w-full">
               <Save className="w-4 h-4 mr-2" />
               {isLoading ? "Saving..." : "Save Changes"}
             </Button>
           </form>
         </div>
 
-        {/* Subscription info */}
-        <div className="card-apollo p-6">
-          <h3 className="font-heading text-lg mb-4">Subscription</h3>
-          <div className="flex items-center justify-between p-4 rounded-lg bg-apollo-gold/10 border border-apollo-gold/20">
+        {/* Subscription */}
+        <div className="card-apollo p-5">
+          <h3 className="font-heading text-base mb-3">Subscription</h3>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
             <div>
-              <p className="font-medium">
-                {profile?.subscription_tier?.toUpperCase() || "BASIC"} Plan
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {profile?.subscription_tier === "elite"
-                  ? "Full access to all features"
-                  : profile?.subscription_tier === "pro"
-                  ? "Mobile app + coaching access"
-                  : "On-demand workouts + recipes"}
+              <p className="font-medium text-sm">{profile?.subscription_tier?.toUpperCase() || "BASIC"} Plan</p>
+              <p className="text-xs text-muted-foreground">
+                {profile?.subscription_tier === "elite" ? "Full access" : profile?.subscription_tier === "pro" ? "Coaching access" : "On-demand workouts"}
               </p>
             </div>
             {profile?.subscription_tier !== "elite" && (
-              <Button variant="apollo" size="sm">
-                Upgrade
-              </Button>
+              <Button variant="apollo" size="sm">Upgrade</Button>
             )}
           </div>
         </div>
+
+        {/* Sign Out */}
+        <Button variant="ghost" className="w-full text-muted-foreground" onClick={signOut}>
+          <LogOut className="w-4 h-4 mr-2" /> Sign Out
+        </Button>
       </div>
     </DashboardLayout>
   );

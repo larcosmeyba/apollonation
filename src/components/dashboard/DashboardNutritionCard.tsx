@@ -263,27 +263,27 @@ const DashboardNutritionCard = () => {
         </div>
       </div>
 
-      {/* Log Meal Button */}
-      {isElite ? (
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="apollo-outline" className="w-full" size="sm">
-              <Plus className="w-4 h-4 mr-2" /> Log meal
+      {/* Log Meal Button - available to all tiers */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <Button variant="apollo-outline" className="w-full" size="sm">
+            <Plus className="w-4 h-4 mr-2" /> Log meal
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md bg-background border-border">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">Log a Meal</DialogTitle>
+          </DialogHeader>
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant={!isAiMode ? "apollo" : "apollo-outline"}
+              size="sm"
+              onClick={() => setIsAiMode(false)}
+              className="flex-1"
+            >
+              Manual
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md bg-background border-border">
-            <DialogHeader>
-              <DialogTitle className="font-heading text-xl">Log a Meal</DialogTitle>
-            </DialogHeader>
-            <div className="flex gap-2 mb-4">
-              <Button
-                variant={!isAiMode ? "apollo" : "apollo-outline"}
-                size="sm"
-                onClick={() => setIsAiMode(false)}
-                className="flex-1"
-              >
-                Manual
-              </Button>
+            {isElite && (
               <Button
                 variant={isAiMode ? "apollo" : "apollo-outline"}
                 size="sm"
@@ -292,52 +292,48 @@ const DashboardNutritionCard = () => {
               >
                 <Sparkles className="w-4 h-4 mr-1" /> AI Photo
               </Button>
-            </div>
-            {isAiMode ? (
-              <div className="space-y-4">
-                {previewUrl ? (
-                  <div className="relative aspect-video rounded-lg overflow-hidden">
-                    <img src={previewUrl} alt="Food" className="w-full h-full object-cover" />
-                    <button
-                      onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
-                      className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center"
-                    >
-                      <Trash2 className="w-4 h-4 text-white" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 transition-colors">
-                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                    <span className="text-muted-foreground text-sm">Upload food photo</span>
-                    <input type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
-                  </label>
-                )}
-                <Button variant="apollo" className="w-full" disabled={!selectedFile || isAnalyzing} onClick={handleAiAnalyze}>
-                  {isAnalyzing ? "Analyzing..." : "Analyze with AI"}
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div>
-                  <Label>Meal Name</Label>
-                  <Input placeholder="e.g., Chicken Salad" value={manualEntry.meal_name} onChange={(e) => setManualEntry((p) => ({ ...p, meal_name: e.target.value }))} className="bg-muted border-border" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><Label>Calories</Label><Input type="number" placeholder="0" value={manualEntry.calories} onChange={(e) => setManualEntry((p) => ({ ...p, calories: e.target.value }))} className="bg-muted border-border" /></div>
-                  <div><Label>Protein (g)</Label><Input type="number" placeholder="0" value={manualEntry.protein} onChange={(e) => setManualEntry((p) => ({ ...p, protein: e.target.value }))} className="bg-muted border-border" /></div>
-                  <div><Label>Carbs (g)</Label><Input type="number" placeholder="0" value={manualEntry.carbs} onChange={(e) => setManualEntry((p) => ({ ...p, carbs: e.target.value }))} className="bg-muted border-border" /></div>
-                  <div><Label>Fat (g)</Label><Input type="number" placeholder="0" value={manualEntry.fat} onChange={(e) => setManualEntry((p) => ({ ...p, fat: e.target.value }))} className="bg-muted border-border" /></div>
-                </div>
-                <Button variant="apollo" className="w-full" onClick={handleManualSubmit}>Add Meal</Button>
-              </div>
             )}
-          </DialogContent>
-        </Dialog>
-      ) : (
-        <p className="text-xs text-muted-foreground text-center">
-          Upgrade to Elite to log meals
-        </p>
-      )}
+          </div>
+          {isAiMode && isElite ? (
+            <div className="space-y-4">
+              {previewUrl ? (
+                <div className="relative aspect-video rounded-lg overflow-hidden">
+                  <img src={previewUrl} alt="Food" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-background/50 flex items-center justify-center"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 transition-colors">
+                  <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                  <span className="text-muted-foreground text-sm">Upload food photo</span>
+                  <input type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
+                </label>
+              )}
+              <Button variant="apollo" className="w-full" disabled={!selectedFile || isAnalyzing} onClick={handleAiAnalyze}>
+                {isAnalyzing ? "Analyzing..." : "Analyze with AI"}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <Label>Meal Name</Label>
+                <Input placeholder="e.g., Chicken Salad" value={manualEntry.meal_name} onChange={(e) => setManualEntry((p) => ({ ...p, meal_name: e.target.value }))} className="bg-muted border-border" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>Calories</Label><Input type="number" placeholder="0" value={manualEntry.calories} onChange={(e) => setManualEntry((p) => ({ ...p, calories: e.target.value }))} className="bg-muted border-border" /></div>
+                <div><Label>Protein (g)</Label><Input type="number" placeholder="0" value={manualEntry.protein} onChange={(e) => setManualEntry((p) => ({ ...p, protein: e.target.value }))} className="bg-muted border-border" /></div>
+                <div><Label>Carbs (g)</Label><Input type="number" placeholder="0" value={manualEntry.carbs} onChange={(e) => setManualEntry((p) => ({ ...p, carbs: e.target.value }))} className="bg-muted border-border" /></div>
+                <div><Label>Fat (g)</Label><Input type="number" placeholder="0" value={manualEntry.fat} onChange={(e) => setManualEntry((p) => ({ ...p, fat: e.target.value }))} className="bg-muted border-border" /></div>
+              </div>
+              <Button variant="apollo" className="w-full" onClick={handleManualSubmit}>Add Meal</Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Today's logged meals */}
       {entries.length > 0 && (
