@@ -96,54 +96,72 @@ const ExerciseTile = ({
   });
 
   const isStorage = exercise?.video_url?.startsWith("storage:");
-  const embedUrl = exercise?.video_url && !isStorage
-    ? `https://www.youtube-nocookie.com/embed/${getYouTubeVideoId(exercise.video_url)}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
+  const videoId = exercise?.video_url && !isStorage ? getYouTubeVideoId(exercise.video_url) : null;
+  const thumbnail = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : exercise?.thumbnail_url;
+  const embedUrl = videoId
+    ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
     : null;
 
   return (
     <>
       <div className={`card-apollo overflow-hidden transition-all ${isCompleted ? "border-green-500/40 bg-green-500/5 opacity-75" : ""}`}>
-        {/* Header row with checkbox + name */}
-        <div className="flex items-center gap-3 p-3 pb-1">
+        {/* Top row: checkbox + name + video thumbnail */}
+        <div className="flex items-start gap-2 p-3 pb-1">
           <Checkbox
             id={`complete-${exerciseId}`}
             checked={isCompleted}
             onCheckedChange={(checked) => onToggleComplete(exerciseId, !!checked)}
-            className="flex-shrink-0"
+            className="flex-shrink-0 mt-0.5"
           />
           <div className="flex-1 min-w-0">
-            <p className={`font-heading text-sm leading-tight truncate ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
+            <p className={`font-heading text-[13px] leading-tight ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
               {exerciseName}
             </p>
-            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-x-1.5 mt-0.5 text-[10px] text-muted-foreground">
               <span>{totalSets}×{reps}</span>
-              {restSeconds ? <span>· {restSeconds}s rest</span> : null}
+              {restSeconds ? <span>· {restSeconds}s</span> : null}
               {muscleGroup && <span>· <span className="capitalize">{muscleGroup}</span></span>}
             </div>
           </div>
-          <div className="flex items-center gap-0.5 flex-shrink-0">
-            {exercise?.video_url && (
-              <Button variant="ghost" size="sm" onClick={() => setVideoOpen(true)} className="h-7 w-7 p-0" title="Watch demo">
-                <Play className="w-3.5 h-3.5 text-primary" />
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" onClick={onSwap} title="Swap" className="h-7 w-7 p-0">
+
+          {/* Video thumbnail corner */}
+          {exercise?.video_url ? (
+            <button
+              onClick={() => setVideoOpen(true)}
+              className="relative flex-shrink-0 w-14 h-14 rounded-md overflow-hidden border border-border/50 hover:border-primary/50 transition-colors group"
+              title={`Watch: ${exerciseName}`}
+            >
+              {thumbnail ? (
+                <img src={thumbnail} alt="" className="w-full h-full object-cover" loading="lazy" />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <Dumbbell className="w-4 h-4 text-muted-foreground/40" />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full bg-primary/90 flex items-center justify-center">
+                  <Play className="w-3 h-3 text-primary-foreground ml-0.5" fill="currentColor" />
+                </div>
+              </div>
+            </button>
+          ) : (
+            <Button variant="ghost" size="sm" onClick={onSwap} title="Swap" className="h-7 w-7 p-0 flex-shrink-0">
               <RefreshCw className="w-3 h-3" />
             </Button>
-          </div>
+          )}
         </div>
 
         {/* Coach notes */}
         {notes && (
           <div className="px-3 pb-1">
-            <p className="text-[11px] text-muted-foreground italic line-clamp-1">{notes}</p>
+            <p className="text-[10px] text-muted-foreground italic line-clamp-1">{notes}</p>
           </div>
         )}
 
         {/* Set logging - ALWAYS VISIBLE */}
         <div className="px-3 pb-2 pt-1">
           <div className="space-y-1">
-            <div className="grid grid-cols-[28px_1fr_1fr] gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="grid grid-cols-[24px_1fr_1fr] gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
               <span></span>
               <span>lbs</span>
               <span>Reps</span>
@@ -152,13 +170,13 @@ const ExerciseTile = ({
               const log = setLogs.find(l => l.set_number === setNum);
               const prevLog = previousSetLogs.find(l => l.set_number === setNum);
               return (
-                <div key={setNum} className="grid grid-cols-[28px_1fr_1fr] gap-1.5 items-center">
-                  <span className="text-[11px] font-heading text-muted-foreground text-center">{setNum}</span>
+                <div key={setNum} className="grid grid-cols-[24px_1fr_1fr] gap-1 items-center">
+                  <span className="text-[10px] font-heading text-muted-foreground text-center">{setNum}</span>
                   <Input
                     type="number"
                     inputMode="decimal"
                     placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
-                    className="h-8 text-xs text-center px-1"
+                    className="h-7 text-xs text-center px-1"
                     value={log?.weight ?? ""}
                     onChange={(e) => onSetLogChange(exerciseId, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
                   />
@@ -166,7 +184,7 @@ const ExerciseTile = ({
                     type="number"
                     inputMode="numeric"
                     placeholder={prevLog?.reps_completed ? String(prevLog.reps_completed) : (reps || "—")}
-                    className="h-8 text-xs text-center px-1"
+                    className="h-7 text-xs text-center px-1"
                     value={log?.reps_completed ?? ""}
                     onChange={(e) => onSetLogChange(exerciseId, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null)}
                   />
@@ -174,29 +192,34 @@ const ExerciseTile = ({
               );
             })}
             {previousSetLogs.length > 0 && (
-              <p className="text-[10px] text-muted-foreground/60 text-right pt-0.5">
+              <p className="text-[9px] text-muted-foreground/60 text-right pt-0.5">
                 Placeholders = last session
               </p>
             )}
           </div>
         </div>
 
-        {/* Notes toggle + complete row */}
-        <div className="px-3 pb-3 flex items-center gap-3">
+        {/* Bottom row: notes + swap */}
+        <div className="px-3 pb-2 flex items-center justify-between">
           <button
             onClick={() => setNoteExpanded(!noteExpanded)}
-            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
           >
             <StickyNote className="w-3 h-3" />
             {exerciseNote?.note ? "Note ✎" : "Add note"}
           </button>
+          {exercise?.video_url && (
+            <Button variant="ghost" size="sm" onClick={onSwap} title="Swap" className="h-6 w-6 p-0">
+              <RefreshCw className="w-3 h-3" />
+            </Button>
+          )}
         </div>
 
         {noteExpanded && (
           <div className="px-3 pb-3">
             <Textarea
               placeholder="Personal notes..."
-              className="text-xs min-h-[50px] resize-none"
+              className="text-xs min-h-[40px] resize-none"
               value={exerciseNote?.note || ""}
               onChange={(e) => onNoteChange(exerciseId, e.target.value)}
               maxLength={500}
@@ -208,9 +231,9 @@ const ExerciseTile = ({
       {/* Video Dialog */}
       <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
         <DialogContent className="max-w-2xl p-0 overflow-hidden bg-black border-border/30">
-          <DialogHeader className="p-4 pb-2 bg-background">
-            <DialogTitle className="font-heading text-base tracking-wide">{exercise?.title || exerciseName}</DialogTitle>
-            {exercise?.description && <p className="text-xs text-muted-foreground mt-1">{exercise.description}</p>}
+          <DialogHeader className="p-3 pb-2 bg-background">
+            <DialogTitle className="font-heading text-sm tracking-wide">{exercise?.title || exerciseName}</DialogTitle>
+            {exercise?.description && <p className="text-[11px] text-muted-foreground mt-0.5">{exercise.description}</p>}
           </DialogHeader>
           <div className="aspect-video w-full bg-black">
             {isStorage && videoOpen ? (
@@ -629,7 +652,7 @@ const DashboardTraining = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-5xl mx-auto w-full overflow-hidden">
         {/* ── Header ─────────────────────────────────── */}
         <div className="mb-6">
           <h1 className="font-heading text-2xl md:text-3xl mb-1">
