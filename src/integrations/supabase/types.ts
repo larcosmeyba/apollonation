@@ -72,6 +72,7 @@ export type Database = {
           height_inches: number
           id: string
           is_active: boolean
+          preferred_training_days: string[] | null
           sex: string
           training_methods: string[]
           updated_at: string
@@ -81,6 +82,7 @@ export type Database = {
           weekly_food_budget: number | null
           weight_lbs: number
           workout_days_per_week: number
+          workout_duration_minutes: number | null
         }
         Insert: {
           activity_level?: string
@@ -94,6 +96,7 @@ export type Database = {
           height_inches: number
           id?: string
           is_active?: boolean
+          preferred_training_days?: string[] | null
           sex: string
           training_methods?: string[]
           updated_at?: string
@@ -103,6 +106,7 @@ export type Database = {
           weekly_food_budget?: number | null
           weight_lbs: number
           workout_days_per_week?: number
+          workout_duration_minutes?: number | null
         }
         Update: {
           activity_level?: string
@@ -116,6 +120,7 @@ export type Database = {
           height_inches?: number
           id?: string
           is_active?: boolean
+          preferred_training_days?: string[] | null
           sex?: string
           training_methods?: string[]
           updated_at?: string
@@ -125,6 +130,7 @@ export type Database = {
           weekly_food_budget?: number | null
           weight_lbs?: number
           workout_days_per_week?: number
+          workout_duration_minutes?: number | null
         }
         Relationships: []
       }

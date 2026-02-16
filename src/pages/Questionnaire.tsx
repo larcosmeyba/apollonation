@@ -19,6 +19,16 @@ const TRAINING_METHODS = [
   { id: "full_gym", label: "Full Gym Access" },
 ];
 
+const DAYS_OF_WEEK = [
+  { id: "monday", label: "Mon" },
+  { id: "tuesday", label: "Tue" },
+  { id: "wednesday", label: "Wed" },
+  { id: "thursday", label: "Thu" },
+  { id: "friday", label: "Fri" },
+  { id: "saturday", label: "Sat" },
+  { id: "sunday", label: "Sun" },
+];
+
 const DIETARY_OPTIONS = [
   "Vegan", "Vegetarian", "Gluten-Free", "Dairy-Free",
   "Keto", "Paleo", "Halal", "Kosher", "No Restrictions",
@@ -42,6 +52,8 @@ const Questionnaire = () => {
     activity_level: "moderate",
     workout_days_per_week: "3",
     training_methods: [] as string[],
+    preferred_training_days: [] as string[],
+    workout_duration_minutes: "60",
     goal_next_4_weeks: "",
     weekly_food_budget: "",
     grocery_store: "",
@@ -67,7 +79,7 @@ const Questionnaire = () => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleArrayField = (field: "training_methods" | "dietary_restrictions", value: string) => {
+  const toggleArrayField = (field: "training_methods" | "dietary_restrictions" | "preferred_training_days", value: string) => {
     setForm((prev) => {
       const arr = prev[field];
       return {
@@ -82,7 +94,7 @@ const Questionnaire = () => {
       return form.sex && form.age && form.height_feet && form.weight_lbs;
     }
     if (step === 1) {
-      return form.training_methods.length > 0;
+      return form.training_methods.length > 0 && form.preferred_training_days.length > 0 && form.workout_duration_minutes;
     }
     if (step === 2) {
       return form.waiver_accepted;
@@ -108,6 +120,8 @@ const Questionnaire = () => {
           activity_level: form.activity_level,
           workout_days_per_week: parseInt(form.workout_days_per_week),
           training_methods: form.training_methods,
+          preferred_training_days: form.preferred_training_days,
+          workout_duration_minutes: parseInt(form.workout_duration_minutes),
           goal_next_4_weeks: form.goal_next_4_weeks || null,
           weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
           grocery_store: form.grocery_store || null,
@@ -306,6 +320,41 @@ const Questionnaire = () => {
                     </label>
                   ))}
                 </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Which days do you plan on training?</Label>
+                <div className="flex flex-wrap gap-2">
+                  {DAYS_OF_WEEK.map((day) => (
+                    <button
+                      key={day.id}
+                      type="button"
+                      onClick={() => toggleArrayField("preferred_training_days", day.id)}
+                      className={`px-4 py-2 text-sm border transition-colors ${
+                        form.preferred_training_days.includes(day.id)
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border/30 text-muted-foreground hover:border-border/60"
+                      }`}
+                    >
+                      {day.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>How long can you work out? (minutes)</Label>
+                <Select value={form.workout_duration_minutes} onValueChange={(v) => updateField("workout_duration_minutes", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30">30 minutes</SelectItem>
+                    <SelectItem value="45">45 minutes</SelectItem>
+                    <SelectItem value="60">60 minutes</SelectItem>
+                    <SelectItem value="75">75 minutes</SelectItem>
+                    <SelectItem value="90">90 minutes</SelectItem>
+                    <SelectItem value="120">2 hours</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
