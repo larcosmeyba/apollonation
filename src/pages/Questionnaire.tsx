@@ -58,6 +58,7 @@ const Questionnaire = () => {
     weekly_food_budget: "",
     grocery_store: "",
     dietary_restrictions: [] as string[],
+    disliked_foods: "",
     waiver_accepted: false,
   });
 
@@ -126,6 +127,7 @@ const Questionnaire = () => {
           weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
           grocery_store: form.grocery_store || null,
           dietary_restrictions: form.dietary_restrictions,
+          disliked_foods: form.disliked_foods ? form.disliked_foods.split(",").map(f => f.trim()).filter(Boolean) : [],
           waiver_accepted: true,
           waiver_accepted_at: new Date().toISOString(),
         })
@@ -414,6 +416,18 @@ const Questionnaire = () => {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label>Foods You Dislike or Want to Avoid</Label>
+                <Textarea
+                  placeholder="e.g., mushrooms, olives, seafood, cilantro..."
+                  value={form.disliked_foods}
+                  onChange={(e) => updateField("disliked_foods", e.target.value)}
+                  className="min-h-[60px]"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Separate items with commas. These will be excluded from your meal plan.
+                </p>
+              </div>
               {/* Waiver of Release */}
               <div className="border border-border/50 p-4 bg-muted/20 space-y-3">
                 <h3 className="font-heading text-sm tracking-wide text-foreground">Waiver of Release</h3>

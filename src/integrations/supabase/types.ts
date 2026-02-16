@@ -67,6 +67,7 @@ export type Database = {
           cycle_number: number
           cycle_start_date: string
           dietary_restrictions: string[] | null
+          disliked_foods: string[] | null
           goal_next_4_weeks: string | null
           grocery_store: string | null
           height_inches: number
@@ -91,6 +92,7 @@ export type Database = {
           cycle_number?: number
           cycle_start_date?: string
           dietary_restrictions?: string[] | null
+          disliked_foods?: string[] | null
           goal_next_4_weeks?: string | null
           grocery_store?: string | null
           height_inches: number
@@ -115,6 +117,7 @@ export type Database = {
           cycle_number?: number
           cycle_start_date?: string
           dietary_restrictions?: string[] | null
+          disliked_foods?: string[] | null
           goal_next_4_weeks?: string | null
           grocery_store?: string | null
           height_inches?: number

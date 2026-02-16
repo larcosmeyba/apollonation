@@ -98,7 +98,7 @@ serve(async (req) => {
       ? `Dietary preferences: ${profile.dietary_preferences.join(", ")}.`
       : "";
     const restrictions = profile.food_restrictions?.length > 0
-      ? `Food restrictions/dislikes (MUST avoid these): ${profile.food_restrictions.join(", ")}.`
+      ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${profile.food_restrictions.join(", ")}. Do NOT include these ingredients in ANY meal.`
       : "";
 
     const prompt = `Generate a complete 7-day meal plan (one week that will be repeated for 4 weeks) for a client with these specifications:
