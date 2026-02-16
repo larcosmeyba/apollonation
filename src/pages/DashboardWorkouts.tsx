@@ -6,11 +6,11 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 const getYouTubeEmbedUrl = (url: string): string => {
   if (url.includes("/embed/")) return url;
   const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+  if (shortMatch) return `https://www.youtube-nocookie.com/embed/${shortMatch[1]}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1`;
   const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
-  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+  if (watchMatch) return `https://www.youtube-nocookie.com/embed/${watchMatch[1]}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1`;
   const shortsMatch = url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
-  if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+  if (shortsMatch) return `https://www.youtube-nocookie.com/embed/${shortsMatch[1]}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1`;
   return url;
 };
 import { Play, Clock, Flame, Filter, Heart, Dumbbell } from "lucide-react";

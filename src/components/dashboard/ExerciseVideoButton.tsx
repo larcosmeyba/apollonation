@@ -25,7 +25,7 @@ const getYouTubeThumbnail = (url: string): string | null => {
 
 const getYouTubeEmbedUrl = (url: string): string | null => {
   const videoId = getYouTubeVideoId(url);
-  return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : null;
+  return videoId ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&disablekb=0&fs=1` : null;
 };
 
 interface ExerciseVideoButtonProps {
@@ -80,25 +80,24 @@ const ExerciseVideoButton = ({ exerciseName }: ExerciseVideoButtonProps) => {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden">
-          <DialogHeader className="p-4 pb-2">
-            <DialogTitle className="text-base">{exercise.title}</DialogTitle>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-black border-border/30">
+          <DialogHeader className="p-4 pb-2 bg-background">
+            <DialogTitle className="font-heading text-base tracking-wide">{exercise.title}</DialogTitle>
             {exercise.description && (
               <p className="text-xs text-muted-foreground mt-1">{exercise.description}</p>
             )}
           </DialogHeader>
-          <div className="aspect-video w-full">
-            {embedUrl ? (
+          <div className="aspect-video w-full bg-black">
+            {embedUrl && open ? (
               <iframe
                 src={embedUrl}
                 className="w-full h-full"
-                allow="autoplay; encrypted-media"
+                allow="autoplay; encrypted-media; fullscreen"
                 allowFullScreen
                 title={exercise.title}
+                style={{ border: 0 }}
               />
-            ) : (
-              <video src={exercise.video_url} controls autoPlay className="w-full h-full" />
-            )}
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>
