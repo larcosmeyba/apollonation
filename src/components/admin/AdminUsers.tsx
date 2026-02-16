@@ -87,24 +87,25 @@ const AdminUsers = () => {
   });
 
   const statusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ 
-          account_status: status,
-          status_changed_at: new Date().toISOString(),
-        })
-        .eq("id", id);
+    mutationFn: async ({ userId, status }: { userId: string; status: string }) => {
+      const { data, error } = await supabase.functions.invoke("manage-client-status", {
+        body: { client_user_id: userId, new_status: status },
+      });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
     },
-    onSuccess: (_, { status }) => {
+    onSuccess: (data, { status }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       const labels: Record<string, string> = {
-        active: "Account reactivated",
-        frozen: "Account frozen",
-        archived: "Account archived",
+        active: "Account reactivated — billing resumed",
+        frozen: "Account frozen — billing paused",
+        archived: "Account archived — membership cancelled",
       };
-      toast({ title: labels[status] || "Status updated" });
+      const stripeInfo = data?.stripe_action === "no_stripe_customer"
+        ? " (no Stripe billing found)"
+        : "";
+      toast({ title: (labels[status] || "Status updated") + stripeInfo });
     },
     onError: (error) => {
       toast({ title: "Error updating status", description: error.message, variant: "destructive" });
@@ -284,7 +285,7 @@ const AdminUsers = () => {
                           size="icon"
                           variant="ghost"
                           title="Freeze account"
-                          onClick={() => statusMutation.mutate({ id: profile.id, status: "frozen" })}
+                          onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "frozen" })}
                           disabled={statusMutation.isPending}
                         >
                           <Snowflake className="w-4 h-4 text-blue-400" />
@@ -297,7 +298,7 @@ const AdminUsers = () => {
                           size="icon"
                           variant="ghost"
                           title="Archive account"
-                          onClick={() => statusMutation.mutate({ id: profile.id, status: "archived" })}
+                          onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "archived" })}
                           disabled={statusMutation.isPending}
                         >
                           <Archive className="w-4 h-4 text-muted-foreground" />
@@ -310,7 +311,7 @@ const AdminUsers = () => {
                           size="icon"
                           variant="ghost"
                           title="Reactivate account"
-                          onClick={() => statusMutation.mutate({ id: profile.id, status: "active" })}
+                          onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "active" })}
                           disabled={statusMutation.isPending}
                         >
                           <RotateCcw className="w-4 h-4 text-apollo-gold" />
