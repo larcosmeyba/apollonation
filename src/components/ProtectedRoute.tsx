@@ -14,7 +14,8 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
   const { hasQuestionnaire, loading: questionnaireLoading } = useQuestionnaire(user?.id);
   const location = useLocation();
 
-  if (loading || subscriptionLoading || adminLoading || questionnaireLoading) {
+  // Wait only for auth and profile to load (not subscription) before checking account status
+  if (loading || adminLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-primary">Loading...</div>
@@ -38,13 +39,21 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     );
   }
 
-  // Archived and cancelled accounts can still access but get redirected to subscribe if no active sub
+  // Archived and cancelled accounts can still access subscribe page to reactivate
   if (profile?.account_status === "archived" || profile?.account_status === "cancelled") {
-    // Allow access to /subscribe and /dashboard routes so they can reactivate
     if (location.pathname === "/subscribe") {
       return <>{children}</>;
     }
     return <Navigate to="/subscribe" replace />;
+  }
+
+  // Now wait for subscription and questionnaire loading for active users
+  if (subscriptionLoading || questionnaireLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-primary">Loading...</div>
+      </div>
+    );
   }
 
   // Admins bypass subscription and tier checks
