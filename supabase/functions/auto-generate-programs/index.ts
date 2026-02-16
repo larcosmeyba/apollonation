@@ -71,6 +71,25 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
+    // ──────── FETCH EXERCISE LIBRARY ────────
+    // Only use exercises the coach has uploaded (prioritize those with video URLs)
+    const { data: exerciseLibrary, error: exErr } = await supabaseAdmin
+      .from("exercises")
+      .select("title, muscle_group, equipment, difficulty")
+      .order("title");
+
+    if (exErr) {
+      console.error("[AUTO-GEN] Failed to fetch exercises:", exErr);
+      throw new Error("Failed to fetch exercise library");
+    }
+
+    // Build a formatted list of available exercises for the AI
+    const exerciseList = (exerciseLibrary || [])
+      .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
+      .join("\n");
+
+    console.log(`[AUTO-GEN] Exercise library loaded: ${exerciseLibrary?.length || 0} exercises`);
+
     const results: any = { training: null, nutrition: null, errors: [] };
 
     // ──────── GENERATE TRAINING PLAN ────────
@@ -87,9 +106,14 @@ serve(async (req) => {
 - Available equipment: ${q.training_methods?.join(", ") || "bodyweight"}
 - Goal: ${q.goal_next_4_weeks || "general fitness"}
 
+CRITICAL RULE: You MUST ONLY use exercises from the following exercise library. Do NOT invent or suggest any exercise that is not on this list. Use the EXACT exercise name as written below.
+
+AVAILABLE EXERCISES:
+${exerciseList}
+
 Create a program with exactly ${q.workout_days_per_week} training days per week. For the 4-week program, provide ONE week template that repeats.
 
-For each training day, assign a focus (e.g., "Upper Body Push", "Lower Body", "Full Body", "Pull Day") and list 5-7 exercises.
+For each training day, assign a focus (e.g., "Upper Body Push", "Lower Body", "Full Body", "Pull Day") and list 5-7 exercises selected ONLY from the list above.
 
 You MUST respond with ONLY valid JSON (no markdown, no code blocks):
 {
@@ -112,7 +136,7 @@ You MUST respond with ONLY valid JSON (no markdown, no code blocks):
   ]
 }
 
-Make exercises safe, evidence-based, and appropriate for the client's experience level. Match exercises to available equipment.`;
+Make exercises safe, evidence-based, and appropriate for the client's experience level. Match exercises to available equipment. REMEMBER: Only use exercises from the provided list above.`;
 
       const trainingResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
@@ -123,7 +147,7 @@ Make exercises safe, evidence-based, and appropriate for the client's experience
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [
-            { role: "system", content: "You are an expert strength & conditioning coach. Generate safe, evidence-based training programs. Respond with ONLY valid JSON." },
+            { role: "system", content: "You are an expert strength & conditioning coach. Generate safe, evidence-based training programs. You MUST ONLY select exercises from the provided exercise library. Never invent exercises. Use the exact exercise names as given. Respond with ONLY valid JSON." },
             { role: "user", content: trainingPrompt },
           ],
         }),
@@ -141,6 +165,18 @@ Make exercises safe, evidence-based, and appropriate for the client's experience
       if (clean.startsWith("```")) clean = clean.slice(3);
       if (clean.endsWith("```")) clean = clean.slice(0, -3);
       planData = JSON.parse(clean.trim());
+
+      // Validate that all exercises exist in the library
+      const libraryTitles = new Set((exerciseLibrary || []).map((e: any) => e.title.toLowerCase()));
+      for (const day of planData.days) {
+        day.exercises = day.exercises.filter((ex: any) => {
+          const exists = libraryTitles.has(ex.exercise_name.toLowerCase());
+          if (!exists) {
+            console.warn(`[AUTO-GEN] Removing unlisted exercise: "${ex.exercise_name}"`);
+          }
+          return exists;
+        });
+      }
 
       // Save training plan
       const { data: plan, error: planError } = await supabaseAdmin

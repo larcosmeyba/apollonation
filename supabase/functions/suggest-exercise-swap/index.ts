@@ -44,15 +44,35 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
+    // Fetch exercise library to constrain suggestions
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: exerciseLibrary } = await supabaseAdmin
+      .from("exercises")
+      .select("title, muscle_group, equipment, difficulty")
+      .order("title");
+
+    const exerciseList = (exerciseLibrary || [])
+      .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
+      .join("\n");
+
     const prompt = `Suggest 3 alternative exercises to replace "${exerciseName}" that target the same movement pattern and muscle group (${muscleGroup || "unknown"}).
 
 ${availableEquipment ? `Available equipment: ${availableEquipment.join(", ")}` : ""}
+
+CRITICAL RULE: You MUST ONLY suggest exercises from the following exercise library. Do NOT invent or suggest any exercise that is not on this list. Use the EXACT exercise name as written below.
+
+AVAILABLE EXERCISES:
+${exerciseList}
 
 Requirements:
 - Same primary muscle group
 - Similar movement pattern (e.g., push for push, pull for pull, hinge for hinge)
 - Safe and evidence-based alternatives
-- Include difficulty level
+- Select ONLY from the list above
 
 Respond with ONLY valid JSON:
 {
@@ -76,7 +96,7 @@ Respond with ONLY valid JSON:
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-lite",
         messages: [
-          { role: "system", content: "You are an expert exercise physiologist. Suggest safe alternative exercises. Respond with ONLY valid JSON." },
+          { role: "system", content: "You are an expert exercise physiologist. Suggest safe alternative exercises. You MUST ONLY select exercises from the provided exercise library. Never invent exercises. Respond with ONLY valid JSON." },
           { role: "user", content: prompt },
         ],
       }),
@@ -97,6 +117,14 @@ Respond with ONLY valid JSON:
       data = JSON.parse(clean.trim());
     } catch {
       throw new Error("Failed to parse alternatives");
+    }
+
+    // Validate that suggested exercises exist in the library
+    const libraryTitles = new Set((exerciseLibrary || []).map((e: any) => e.title.toLowerCase()));
+    if (data.alternatives) {
+      data.alternatives = data.alternatives.filter((alt: any) =>
+        libraryTitles.has(alt.exercise_name.toLowerCase())
+      );
     }
 
     return new Response(JSON.stringify(data), {
