@@ -63,7 +63,17 @@ const Subscribe = () => {
 
   const isInactiveAccount = profile?.account_status === "archived" || profile?.account_status === "cancelled";
 
-  if (loading || (!isInactiveAccount && subscriptionLoading)) {
+  // Only show loading for auth init; skip subscription loading for inactive accounts or when profile hasn't loaded yet
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-primary">Loading...</div>
+      </div>
+    );
+  }
+
+  // For active accounts, wait for subscription check to complete
+  if (!isInactiveAccount && subscriptionLoading && profile) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-primary">Loading...</div>

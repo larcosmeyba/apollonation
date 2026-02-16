@@ -71,8 +71,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkSubscription = useCallback(async () => {
     if (!user) return;
+    // Wait for profile to load before deciding
+    if (!profile) return;
     // Skip subscription check for archived/cancelled accounts
-    if (profile?.account_status === "archived" || profile?.account_status === "cancelled") {
+    if (profile.account_status === "archived" || profile.account_status === "cancelled") {
       setSubscription(defaultUnsub);
       setSubscriptionLoading(false);
       return;
@@ -103,7 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setSubscriptionLoading(false);
     }
-  }, [user, profile?.account_status]);
+  }, [user, profile]);
 
   const refreshProfile = async () => {
     if (user) {
@@ -153,16 +155,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => authSubscription.unsubscribe();
   }, []);
 
-  // Check subscription status when user changes
+  // Check subscription status when user or profile changes
   useEffect(() => {
-    if (user) {
+    if (user && profile) {
       checkSubscription();
 
       // Auto-refresh subscription every 60 seconds
       const interval = setInterval(checkSubscription, 60000);
       return () => clearInterval(interval);
     }
-  }, [user, checkSubscription]);
+  }, [user, profile, checkSubscription]);
 
   // Check for checkout success in URL
   useEffect(() => {
