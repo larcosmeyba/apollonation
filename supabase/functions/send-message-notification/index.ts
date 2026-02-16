@@ -84,7 +84,7 @@ serve(async (req) => {
     const resend = new Resend(resendApiKey);
 
     const emailResponse = await resend.emails.send({
-      from: "Apollo Nation <noreply@apollonation.com>",
+      from: "Apollo Nation <onboarding@resend.dev>",
       to: [recipientEmail],
       subject: "Coach Marcos sent you a message",
       html: `
