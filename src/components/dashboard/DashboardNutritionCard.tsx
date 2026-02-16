@@ -86,6 +86,12 @@ const DashboardNutritionCard = () => {
     }),
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
+  const remaining = {
+    calories: Math.max(0, targets.calories - totals.calories),
+    protein: Math.max(0, targets.protein - totals.protein),
+    carbs: Math.max(0, targets.carbs - totals.carbs),
+    fat: Math.max(0, targets.fat - totals.fat),
+  };
 
   const dailyPercent = Math.min(
     Math.round((totals.calories / targets.calories) * 100),
@@ -202,37 +208,36 @@ const DashboardNutritionCard = () => {
         <h2 className="font-heading text-lg">Nutrition</h2>
       </div>
 
-      <div className="flex items-center gap-6 mb-4">
-        {/* Calorie count */}
+      <div className="flex items-center gap-6 mb-2">
+        {/* Remaining calories - primary focus */}
         <div className="flex-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Remaining</p>
           <p className="text-3xl font-heading">
-            {totals.calories}
-            <span className="text-sm text-muted-foreground font-normal ml-1">
-              / {targets.calories.toLocaleString()} Cal
-            </span>
+            {remaining.calories}
+            <span className="text-sm text-muted-foreground font-normal ml-1">Cal left</span>
           </p>
 
-          {/* Macro bars */}
+          {/* Macro bars showing remaining */}
           <div className="space-y-2 mt-3">
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-blue-400 w-3">P</span>
               <MacroBar current={totals.protein} target={targets.protein} color="bg-blue-400" />
-              <span className="text-xs text-muted-foreground w-16 text-right">
-                {totals.protein}/{targets.protein}
+              <span className="text-xs text-muted-foreground w-20 text-right">
+                {remaining.protein}g left
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-amber-400 w-3">C</span>
               <MacroBar current={totals.carbs} target={targets.carbs} color="bg-amber-400" />
-              <span className="text-xs text-muted-foreground w-16 text-right">
-                {totals.carbs}/{targets.carbs}
+              <span className="text-xs text-muted-foreground w-20 text-right">
+                {remaining.carbs}g left
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-rose-400 w-3">F</span>
               <MacroBar current={totals.fat} target={targets.fat} color="bg-rose-400" />
-              <span className="text-xs text-muted-foreground w-16 text-right">
-                {totals.fat}/{targets.fat}
+              <span className="text-xs text-muted-foreground w-20 text-right">
+                {remaining.fat}g left
               </span>
             </div>
           </div>
