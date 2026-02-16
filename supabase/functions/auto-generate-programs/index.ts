@@ -260,6 +260,8 @@ Make exercises safe, evidence-based, and appropriate for the client's experience
 
       const dietaryInfo = q.dietary_restrictions?.length > 0
         ? `Dietary restrictions: ${q.dietary_restrictions.join(", ")}.` : "";
+      const dislikedInfo = q.disliked_foods?.length > 0
+        ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${q.disliked_foods.join(", ")}. Do NOT include these ingredients in ANY meal.` : "";
       const budgetInfo = q.weekly_food_budget
         ? `Weekly food budget: $${q.weekly_food_budget}. ${q.grocery_store ? `Primary grocery store: ${q.grocery_store}.` : ""}` : "";
 
@@ -269,6 +271,7 @@ Make exercises safe, evidence-based, and appropriate for the client's experience
 - Protein: ${proteinGrams}g, Carbs: ${carbsGrams}g, Fat: ${fatGrams}g
 - Goal: ${q.goal_next_4_weeks || "maintain"}
 ${dietaryInfo}
+${dislikedInfo}
 ${budgetInfo}
 
 For EACH of the 7 days, provide exactly 4 meals: breakfast, lunch, dinner, and snack.
@@ -333,7 +336,7 @@ Make meals practical, varied, and delicious.`;
         activity_level: q.activity_level,
         goals: q.goal_next_4_weeks || "maintain",
         dietary_preferences: q.dietary_restrictions || [],
-        food_restrictions: [],
+        food_restrictions: q.disliked_foods || [],
       }, { onConflict: "user_id" });
 
       const { data: plan, error: planError } = await supabaseAdmin

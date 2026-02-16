@@ -1,0 +1,1 @@
+ALTER TABLE public.client_questionnaires ADD COLUMN disliked_foods text[] DEFAULT '{}'::text[];
