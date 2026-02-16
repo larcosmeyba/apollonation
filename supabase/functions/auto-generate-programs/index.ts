@@ -96,24 +96,70 @@ serve(async (req) => {
     try {
       console.log("[AUTO-GEN] Generating training plan for", userId);
 
+      const workoutDuration = q.workout_duration_minutes || 60;
+      const clientAge = q.age || 30;
+
+      // Age-based training guidelines
+      let ageGuidelines = "";
+      if (clientAge >= 60) {
+        ageGuidelines = `
+AGE-SPECIFIC RULES (Client is ${clientAge} years old - Senior):
+- Use LOWER intensity, moderate weights, higher reps (12-15+)
+- Prioritize joint-friendly exercises (machines, cables, bodyweight)
+- AVOID heavy compound lifts with high spinal load (heavy barbell squats, heavy deadlifts)
+- Include extra balance and stability work
+- Longer rest periods (90-120 seconds minimum)
+- Focus on functional movement patterns
+- Keep total volume moderate to prevent overtraining`;
+      } else if (clientAge >= 50) {
+        ageGuidelines = `
+AGE-SPECIFIC RULES (Client is ${clientAge} years old - Mature Adult):
+- Use moderate intensity, focus on controlled movements
+- Avoid excessive plyometrics or high-impact exercises
+- Include mobility work within the exercises
+- Moderate rest periods (60-90 seconds)
+- Prioritize injury prevention over maximal loading`;
+      } else if (clientAge >= 40) {
+        ageGuidelines = `
+AGE-SPECIFIC RULES (Client is ${clientAge} years old):
+- Include adequate warm-up movements
+- Balance heavy compound lifts with joint-friendly accessory work
+- Monitor total volume to prevent overuse injuries`;
+      } else if (clientAge <= 18) {
+        ageGuidelines = `
+AGE-SPECIFIC RULES (Client is ${clientAge} years old - Youth):
+- Focus on movement quality and form over heavy weights
+- Use moderate weights with higher reps (10-15)
+- Emphasize bodyweight exercises and movement skills
+- Avoid maximal 1RM attempts
+- Keep sessions fun and engaging`;
+      }
+
       const trainingPrompt = `Generate a 4-week training program for a client with these specifications:
 
 - Sex: ${q.sex}
-- Age: ${q.age}
+- Age: ${clientAge}
 - Weight: ${q.weight_lbs} lbs
 - Activity level: ${q.activity_level}
 - Workout days per week: ${q.workout_days_per_week}
 - Available equipment: ${q.training_methods?.join(", ") || "bodyweight"}
 - Goal: ${q.goal_next_4_weeks || "general fitness"}
+- Available gym time: ${workoutDuration} minutes per session
+${ageGuidelines}
 
 CRITICAL RULE: You MUST ONLY use exercises from the following exercise library. Do NOT invent or suggest any exercise that is not on this list. Use the EXACT exercise name as written below.
 
 AVAILABLE EXERCISES:
 ${exerciseList}
 
+WORKOUT STRUCTURE RULES:
+1. WARM-UP (REQUIRED): The FIRST 1-2 exercises of EVERY training day MUST be a dynamic warm-up. This can be a 5-minute treadmill walk/light jog OR 2-3 dynamic warm-up movements (leg swings, arm circles, hip openers, etc.). Use exercises from the library if available, otherwise add "Dynamic Warm-Up" or "Treadmill Walk" as the first exercise with notes describing the warm-up.
+2. MAIN WORKOUT: The body of the workout should fit within the client's available time of ${workoutDuration} minutes (minus warm-up and cool-down time).
+3. COOL-DOWN (REQUIRED): The LAST exercise of EVERY training day MUST be a 5-minute cool-down consisting of static stretches. Add it as the final exercise with the name "Cool-Down Stretches" and include specific stretches in the notes field targeting the muscles worked that day.
+
 Create a program with exactly ${q.workout_days_per_week} training days per week. For the 4-week program, provide ONE week template that repeats.
 
-For each training day, assign a focus (e.g., "Upper Body Push", "Lower Body", "Full Body", "Pull Day") and list 5-7 exercises selected ONLY from the list above.
+For each training day, assign a focus (e.g., "Upper Body Push", "Lower Body", "Full Body", "Pull Day") and list exercises selected ONLY from the list above. Adjust the number of exercises to fit within ${workoutDuration} minutes total (including warm-up and cool-down).
 
 You MUST respond with ONLY valid JSON (no markdown, no code blocks):
 {
@@ -124,19 +170,35 @@ You MUST respond with ONLY valid JSON (no markdown, no code blocks):
       "focus": "Upper Body Push",
       "exercises": [
         {
+          "exercise_name": "Treadmill Walk",
+          "muscle_group": "warmup",
+          "sets": 1,
+          "reps": "5 min",
+          "rest_seconds": 0,
+          "notes": "Light pace to elevate heart rate, followed by arm circles and shoulder dislocates"
+        },
+        {
           "exercise_name": "Barbell Bench Press",
           "muscle_group": "chest",
           "sets": 4,
           "reps": "8-10",
           "rest_seconds": 90,
           "notes": "Focus on controlled eccentric"
+        },
+        {
+          "exercise_name": "Cool-Down Stretches",
+          "muscle_group": "cooldown",
+          "sets": 1,
+          "reps": "5 min",
+          "rest_seconds": 0,
+          "notes": "Chest doorway stretch, tricep stretch, shoulder cross-body stretch - hold each 30 seconds"
         }
       ]
     }
   ]
 }
 
-Make exercises safe, evidence-based, and appropriate for the client's experience level. Match exercises to available equipment. REMEMBER: Only use exercises from the provided list above.`;
+Make exercises safe, evidence-based, and appropriate for the client's age and experience level. Match exercises to available equipment. REMEMBER: Only use exercises from the provided list above (warm-up and cool-down entries are exceptions).`;
 
       const trainingResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
@@ -166,15 +228,19 @@ Make exercises safe, evidence-based, and appropriate for the client's experience
       if (clean.endsWith("```")) clean = clean.slice(0, -3);
       planData = JSON.parse(clean.trim());
 
-      // Validate that all exercises exist in the library
+      // Validate that all exercises exist in the library (allow warm-up/cool-down exceptions)
       const libraryTitles = new Set((exerciseLibrary || []).map((e: any) => e.title.toLowerCase()));
+      const allowedExceptions = ["dynamic warm-up", "treadmill walk", "cool-down stretches", "warmup", "cooldown"];
       for (const day of planData.days) {
         day.exercises = day.exercises.filter((ex: any) => {
-          const exists = libraryTitles.has(ex.exercise_name.toLowerCase());
-          if (!exists) {
+          const name = ex.exercise_name.toLowerCase();
+          const isException = allowedExceptions.some(ae => name.includes(ae)) || 
+                              ex.muscle_group === "warmup" || ex.muscle_group === "cooldown";
+          const exists = libraryTitles.has(name);
+          if (!exists && !isException) {
             console.warn(`[AUTO-GEN] Removing unlisted exercise: "${ex.exercise_name}"`);
           }
-          return exists;
+          return exists || isException;
         });
       }
 
