@@ -64,6 +64,7 @@ interface ExerciseTileProps {
   logDate: string;
   userId: string;
   setLogs: SetLog[];
+  previousSetLogs: SetLog[];
   exerciseNote: ExerciseNote | null;
   onSetLogChange: (exerciseId: string, setNumber: number, field: "weight" | "reps_completed", value: number | null) => void;
   onNoteChange: (exerciseId: string, note: string) => void;
@@ -73,10 +74,9 @@ interface ExerciseTileProps {
 
 const ExerciseTile = ({
   exerciseName, exerciseId, dayId, sets, reps, restSeconds, muscleGroup, notes,
-  logDate, userId, setLogs, exerciseNote, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
+  logDate, userId, setLogs, previousSetLogs, exerciseNote, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
 }: ExerciseTileProps) => {
   const [videoOpen, setVideoOpen] = useState(false);
-  const [expanded, setExpanded] = useState(false);
   const [noteExpanded, setNoteExpanded] = useState(false);
 
   const isCompleted = exerciseNote?.is_completed || false;
@@ -103,19 +103,15 @@ const ExerciseTile = ({
   return (
     <>
       <div className={`card-apollo overflow-hidden transition-all ${isCompleted ? "border-green-500/40 bg-green-500/5 opacity-75" : ""}`}>
-        {/* Compact header row */}
-        <div className="flex items-center gap-3 p-3">
+        {/* Header row with checkbox + name */}
+        <div className="flex items-center gap-3 p-3 pb-1">
           <Checkbox
             id={`complete-${exerciseId}`}
             checked={isCompleted}
             onCheckedChange={(checked) => onToggleComplete(exerciseId, !!checked)}
             className="flex-shrink-0"
           />
-
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="flex-1 min-w-0 text-left"
-          >
+          <div className="flex-1 min-w-0">
             <p className={`font-heading text-sm leading-tight truncate ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
               {exerciseName}
             </p>
@@ -124,8 +120,7 @@ const ExerciseTile = ({
               {restSeconds ? <span>· {restSeconds}s rest</span> : null}
               {muscleGroup && <span>· <span className="capitalize">{muscleGroup}</span></span>}
             </div>
-          </button>
-
+          </div>
           <div className="flex items-center gap-0.5 flex-shrink-0">
             {exercise?.video_url && (
               <Button variant="ghost" size="sm" onClick={() => setVideoOpen(true)} className="h-7 w-7 p-0" title="Watch demo">
@@ -135,74 +130,77 @@ const ExerciseTile = ({
             <Button variant="ghost" size="sm" onClick={onSwap} title="Swap" className="h-7 w-7 p-0">
               <RefreshCw className="w-3 h-3" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => setExpanded(!expanded)} className="h-7 w-7 p-0">
-              {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </Button>
           </div>
         </div>
 
-        {/* Coach notes (always visible if present) */}
-        {notes && !expanded && (
-          <div className="px-3 pb-2">
+        {/* Coach notes */}
+        {notes && (
+          <div className="px-3 pb-1">
             <p className="text-[11px] text-muted-foreground italic line-clamp-1">{notes}</p>
           </div>
         )}
 
-        {/* Expandable section: set logging + notes */}
-        {expanded && (
-          <div className="px-3 pb-3 space-y-3 border-t border-border/40 pt-3">
-            {notes && <p className="text-[11px] text-muted-foreground italic">{notes}</p>}
-
-            {/* Set logging table */}
-            <div className="space-y-1.5">
-              <div className="grid grid-cols-[28px_1fr_1fr] gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                <span></span>
-                <span>lbs</span>
-                <span>Reps</span>
-              </div>
-              {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
-                const log = setLogs.find(l => l.set_number === setNum);
-                return (
-                  <div key={setNum} className="grid grid-cols-[28px_1fr_1fr] gap-1.5 items-center">
-                    <span className="text-[11px] font-heading text-muted-foreground text-center">{setNum}</span>
-                    <Input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="—"
-                      className="h-8 text-xs text-center px-1"
-                      value={log?.weight ?? ""}
-                      onChange={(e) => onSetLogChange(exerciseId, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
-                    />
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      placeholder={reps || "—"}
-                      className="h-8 text-xs text-center px-1"
-                      value={log?.reps_completed ?? ""}
-                      onChange={(e) => onSetLogChange(exerciseId, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null)}
-                    />
-                  </div>
-                );
-              })}
+        {/* Set logging - ALWAYS VISIBLE */}
+        <div className="px-3 pb-2 pt-1">
+          <div className="space-y-1">
+            <div className="grid grid-cols-[28px_1fr_1fr] gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+              <span></span>
+              <span>lbs</span>
+              <span>Reps</span>
             </div>
-
-            {/* Personal note */}
-            <button
-              onClick={() => setNoteExpanded(!noteExpanded)}
-              className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <StickyNote className="w-3 h-3" />
-              {exerciseNote?.note ? "View note" : "Add note"}
-            </button>
-            {noteExpanded && (
-              <Textarea
-                placeholder="Personal notes..."
-                className="text-xs min-h-[50px] resize-none"
-                value={exerciseNote?.note || ""}
-                onChange={(e) => onNoteChange(exerciseId, e.target.value)}
-                maxLength={500}
-              />
+            {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
+              const log = setLogs.find(l => l.set_number === setNum);
+              const prevLog = previousSetLogs.find(l => l.set_number === setNum);
+              return (
+                <div key={setNum} className="grid grid-cols-[28px_1fr_1fr] gap-1.5 items-center">
+                  <span className="text-[11px] font-heading text-muted-foreground text-center">{setNum}</span>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
+                    className="h-8 text-xs text-center px-1"
+                    value={log?.weight ?? ""}
+                    onChange={(e) => onSetLogChange(exerciseId, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
+                  />
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder={prevLog?.reps_completed ? String(prevLog.reps_completed) : (reps || "—")}
+                    className="h-8 text-xs text-center px-1"
+                    value={log?.reps_completed ?? ""}
+                    onChange={(e) => onSetLogChange(exerciseId, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null)}
+                  />
+                </div>
+              );
+            })}
+            {previousSetLogs.length > 0 && (
+              <p className="text-[10px] text-muted-foreground/60 text-right pt-0.5">
+                Placeholders = last session
+              </p>
             )}
+          </div>
+        </div>
+
+        {/* Notes toggle + complete row */}
+        <div className="px-3 pb-3 flex items-center gap-3">
+          <button
+            onClick={() => setNoteExpanded(!noteExpanded)}
+            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <StickyNote className="w-3 h-3" />
+            {exerciseNote?.note ? "Note ✎" : "Add note"}
+          </button>
+        </div>
+
+        {noteExpanded && (
+          <div className="px-3 pb-3">
+            <Textarea
+              placeholder="Personal notes..."
+              className="text-xs min-h-[50px] resize-none"
+              value={exerciseNote?.note || ""}
+              onChange={(e) => onNoteChange(exerciseId, e.target.value)}
+              maxLength={500}
+            />
           </div>
         )}
       </div>
@@ -393,6 +391,44 @@ const DashboardTraining = () => {
     },
     enabled: !!user && !!dayId,
   });
+
+  // Fetch PREVIOUS session's set logs for this exercise (last time they did this day)
+  const { data: previousSetLogsRaw } = useQuery({
+    queryKey: ["previous-set-logs", user?.id, dayId, logDateStr],
+    queryFn: async () => {
+      if (!user || !dayId) return [];
+      // Find the most recent log_date for this day that isn't today
+      const { data } = await (supabase as any)
+        .from("exercise_set_logs")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("day_id", dayId)
+        .neq("log_date", logDateStr)
+        .order("log_date", { ascending: false })
+        .limit(50);
+      return data || [];
+    },
+    enabled: !!user && !!dayId,
+    staleTime: 1000 * 60 * 30,
+  });
+
+  // Group previous logs by exercise, only keeping the most recent date
+  const previousSetLogs = useMemo(() => {
+    if (!previousSetLogsRaw || previousSetLogsRaw.length === 0) return {};
+    // Find the most recent date
+    const latestDate = previousSetLogsRaw[0]?.log_date;
+    const latestOnly = previousSetLogsRaw.filter((l: any) => l.log_date === latestDate);
+    const grouped: Record<string, SetLog[]> = {};
+    latestOnly.forEach((log: any) => {
+      if (!grouped[log.training_plan_exercise_id]) grouped[log.training_plan_exercise_id] = [];
+      grouped[log.training_plan_exercise_id].push({
+        set_number: log.set_number,
+        weight: log.weight ? Number(log.weight) : null,
+        reps_completed: log.reps_completed,
+      });
+    });
+    return grouped;
+  }, [previousSetLogsRaw]);
 
   const { data: sessionLog } = useQuery({
     queryKey: ["workout-session-log", user?.id, dayId, logDateStr],
@@ -671,6 +707,7 @@ const DashboardTraining = () => {
                     logDate={logDateStr}
                     userId={user?.id || ""}
                     setLogs={localSetLogs[ex.id] || []}
+                    previousSetLogs={previousSetLogs[ex.id] || []}
                     exerciseNote={localNotes[ex.id] || null}
                     onSetLogChange={handleSetLogChange}
                     onNoteChange={handleNoteChange}
