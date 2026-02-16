@@ -135,14 +135,26 @@ const Subscribe = () => {
       </div>
 
       <div className="container mx-auto px-4 py-16 max-w-5xl">
+        {/* Welcome Back Banner */}
+        {isInactiveAccount && (
+          <div className="mb-10 border border-primary/30 bg-primary/[0.05] p-6 text-center">
+            <h2 className="font-heading text-lg tracking-[0.1em] text-primary mb-2">Welcome Back</h2>
+            <p className="text-muted-foreground text-sm font-light max-w-md mx-auto">
+              We've missed you! Pick up where you left off by selecting a plan below to reactivate your account.
+            </p>
+          </div>
+        )}
+
         {/* Heading */}
         <div className="text-center mb-16">
           <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-4 tracking-[0.05em]">
-            Choose Your
+            {isInactiveAccount ? "Reactivate Your" : "Choose Your"}
             <span className="text-primary block mt-2">Membership</span>
           </h1>
           <p className="text-muted-foreground text-base font-light max-w-md mx-auto">
-            Select a plan to unlock your training dashboard and start your transformation.
+            {isInactiveAccount
+              ? "Choose a plan to regain access to your training dashboard and continue your journey."
+              : "Select a plan to unlock your training dashboard and start your transformation."}
           </p>
         </div>
 
