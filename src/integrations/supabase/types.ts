@@ -214,6 +214,108 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_set_logs: {
+        Row: {
+          created_at: string
+          day_id: string
+          id: string
+          log_date: string
+          reps_completed: number | null
+          set_number: number
+          training_plan_exercise_id: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          day_id: string
+          id?: string
+          log_date?: string
+          reps_completed?: number | null
+          set_number: number
+          training_plan_exercise_id: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          day_id?: string
+          id?: string
+          log_date?: string
+          reps_completed?: number | null
+          set_number?: number
+          training_plan_exercise_id?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_set_logs_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "training_plan_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_set_logs_training_plan_exercise_id_fkey"
+            columns: ["training_plan_exercise_id"]
+            isOneToOne: false
+            referencedRelation: "training_plan_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercise_user_notes: {
+        Row: {
+          created_at: string
+          day_id: string
+          id: string
+          is_completed: boolean
+          log_date: string
+          note: string
+          training_plan_exercise_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_id: string
+          id?: string
+          is_completed?: boolean
+          log_date?: string
+          note?: string
+          training_plan_exercise_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_id?: string
+          id?: string
+          is_completed?: boolean
+          log_date?: string
+          note?: string
+          training_plan_exercise_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_user_notes_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "training_plan_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_user_notes_training_plan_exercise_id_fkey"
+            columns: ["training_plan_exercise_id"]
+            isOneToOne: false
+            referencedRelation: "training_plan_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercises: {
         Row: {
           created_at: string
@@ -812,6 +914,44 @@ export type Database = {
             columns: ["workout_id"]
             isOneToOne: false
             referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_session_logs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          day_id: string
+          id: string
+          log_date: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          day_id: string
+          id?: string
+          log_date?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          day_id?: string
+          id?: string
+          log_date?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_session_logs_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "training_plan_days"
             referencedColumns: ["id"]
           },
         ]

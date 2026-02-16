@@ -1,11 +1,17 @@
-import { useState, useMemo, useCallback } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dumbbell, ChevronLeft, ChevronRight, RefreshCw, Loader2, Play, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dumbbell, ChevronLeft, ChevronRight, RefreshCw, Loader2,
+  Play, Check, Trophy, Sparkles, StickyNote, ChevronDown, ChevronUp,
+} from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -33,19 +39,48 @@ const getYouTubeThumbnail = (url: string): string | null => {
   return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null;
 };
 
-// ── Exercise Tile ────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────
+interface SetLog {
+  set_number: number;
+  weight: number | null;
+  reps_completed: number | null;
+}
+
+interface ExerciseNote {
+  note: string;
+  is_completed: boolean;
+}
+
+// ── Exercise Tile with Logging ───────────────────────────────────────
 interface ExerciseTileProps {
   exerciseName: string;
+  exerciseId: string;
+  dayId: string;
   sets?: number | null;
   reps?: string | null;
   restSeconds?: number | null;
   muscleGroup?: string | null;
   notes?: string | null;
+  logDate: string;
+  userId: string;
+  setLogs: SetLog[];
+  exerciseNote: ExerciseNote | null;
+  onSetLogChange: (exerciseId: string, setNumber: number, field: "weight" | "reps_completed", value: number | null) => void;
+  onNoteChange: (exerciseId: string, note: string) => void;
+  onToggleComplete: (exerciseId: string, completed: boolean) => void;
   onSwap: () => void;
 }
 
-const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, notes, onSwap }: ExerciseTileProps) => {
+const ExerciseTile = ({
+  exerciseName, exerciseId, dayId, sets, reps, restSeconds, muscleGroup, notes,
+  logDate, userId, setLogs, exerciseNote, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
+}: ExerciseTileProps) => {
   const [videoOpen, setVideoOpen] = useState(false);
+  const [expanded, setExpanded] = useState(true);
+  const [noteExpanded, setNoteExpanded] = useState(false);
+
+  const isCompleted = exerciseNote?.is_completed || false;
+  const totalSets = sets || 3;
 
   const { data: exercise } = useQuery({
     queryKey: ["exercise-tile", exerciseName],
@@ -60,17 +95,19 @@ const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, note
     staleTime: 1000 * 60 * 30,
   });
 
-  const thumbnail = exercise?.video_url ? getYouTubeThumbnail(exercise.video_url) : exercise?.thumbnail_url;
-  const embedUrl = exercise?.video_url
+  const isStorage = exercise?.video_url?.startsWith("storage:");
+  const thumbnail = exercise?.video_url && !isStorage ? getYouTubeThumbnail(exercise.video_url) : exercise?.thumbnail_url;
+  const embedUrl = exercise?.video_url && !isStorage
     ? `https://www.youtube-nocookie.com/embed/${getYouTubeVideoId(exercise.video_url)}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
     : null;
 
   return (
     <>
-      <div className="card-apollo overflow-hidden group hover:border-apollo-gold/50 transition-all">
+      <div className={`card-apollo overflow-hidden transition-all ${isCompleted ? "border-green-500/40 bg-green-500/5" : "hover:border-apollo-gold/50"}`}>
+        {/* Video thumbnail header */}
         <button
           onClick={() => exercise?.video_url && setVideoOpen(true)}
-          className="relative w-full aspect-video bg-muted overflow-hidden"
+          className="relative w-full aspect-video bg-muted overflow-hidden group"
           disabled={!exercise?.video_url}
         >
           {thumbnail ? (
@@ -88,26 +125,99 @@ const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, note
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-2 left-3 right-3">
+          <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
             <p className="font-heading text-sm text-white text-left truncate">{exerciseName}</p>
+            {isCompleted && <Check className="w-5 h-5 text-green-400 flex-shrink-0" />}
           </div>
         </button>
 
-        <div className="p-3 space-y-2">
+        <div className="p-3 space-y-3">
+          {/* Header row */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{sets} sets × {reps}</span>
+              <span>{totalSets} sets × {reps}</span>
               {restSeconds && <span>· {restSeconds}s rest</span>}
             </div>
-            <Button variant="ghost" size="sm" onClick={onSwap} title="Swap exercise" className="h-7 w-7 p-0">
-              <RefreshCw className="w-3 h-3" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="sm" onClick={onSwap} title="Swap exercise" className="h-7 w-7 p-0">
+                <RefreshCw className="w-3 h-3" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setExpanded(!expanded)} className="h-7 w-7 p-0">
+                {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </Button>
+            </div>
           </div>
+
           {muscleGroup && <Badge variant="secondary" className="text-[10px]">{muscleGroup}</Badge>}
           {notes && <p className="text-xs text-muted-foreground italic line-clamp-2">{notes}</p>}
+
+          {/* Set logging rows */}
+          {expanded && (
+            <div className="space-y-2">
+              <div className="grid grid-cols-[auto_1fr_1fr] gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
+                <span className="w-8">Set</span>
+                <span>Weight (lbs)</span>
+                <span>Reps</span>
+              </div>
+              {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
+                const log = setLogs.find(l => l.set_number === setNum);
+                return (
+                  <div key={setNum} className="grid grid-cols-[auto_1fr_1fr] gap-2 items-center">
+                    <span className="w-8 text-xs font-heading text-muted-foreground text-center">{setNum}</span>
+                    <Input
+                      type="number"
+                      placeholder="—"
+                      className="h-8 text-xs text-center"
+                      value={log?.weight ?? ""}
+                      onChange={(e) => onSetLogChange(exerciseId, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
+                    />
+                    <Input
+                      type="number"
+                      placeholder={reps || "—"}
+                      className="h-8 text-xs text-center"
+                      value={log?.reps_completed ?? ""}
+                      onChange={(e) => onSetLogChange(exerciseId, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null)}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Notes toggle */}
+          <button
+            onClick={() => setNoteExpanded(!noteExpanded)}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <StickyNote className="w-3 h-3" />
+            {exerciseNote?.note ? "View note" : "Add note"}
+          </button>
+
+          {noteExpanded && (
+            <Textarea
+              placeholder="Personal notes (e.g., felt easy, increase weight next time...)"
+              className="text-xs min-h-[60px] resize-none"
+              value={exerciseNote?.note || ""}
+              onChange={(e) => onNoteChange(exerciseId, e.target.value)}
+              maxLength={500}
+            />
+          )}
+
+          {/* Complete checkbox */}
+          <div className="flex items-center gap-2 pt-1 border-t border-border/50">
+            <Checkbox
+              id={`complete-${exerciseId}`}
+              checked={isCompleted}
+              onCheckedChange={(checked) => onToggleComplete(exerciseId, !!checked)}
+            />
+            <label htmlFor={`complete-${exerciseId}`} className="text-xs font-medium cursor-pointer select-none">
+              {isCompleted ? "Completed ✓" : "Mark as done"}
+            </label>
+          </div>
         </div>
       </div>
 
+      {/* Video Dialog */}
       <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
         <DialogContent className="max-w-2xl p-0 overflow-hidden bg-black border-border/30">
           <DialogHeader className="p-4 pb-2 bg-background">
@@ -115,13 +225,72 @@ const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, note
             {exercise?.description && <p className="text-xs text-muted-foreground mt-1">{exercise.description}</p>}
           </DialogHeader>
           <div className="aspect-video w-full bg-black">
-            {embedUrl && videoOpen ? (
+            {isStorage && videoOpen ? (
+              <StorageVideoPlayer storagePath={exercise!.video_url!.replace("storage:", "")} />
+            ) : embedUrl && videoOpen ? (
               <iframe src={embedUrl} className="w-full h-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen title={exerciseName} style={{ border: 0 }} />
             ) : null}
           </div>
         </DialogContent>
       </Dialog>
     </>
+  );
+};
+
+/** Storage video player with signed URL */
+const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
+  const [bucket, ...pathParts] = storagePath.split("/");
+  const filePath = pathParts.join("/");
+  const { data: signedUrl } = useQuery({
+    queryKey: ["signed-video", storagePath],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600);
+      if (error) throw error;
+      return data.signedUrl;
+    },
+    staleTime: 1000 * 60 * 30,
+  });
+  if (!signedUrl) return <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
+  return <video src={signedUrl} controls autoPlay className="w-full h-full" />;
+};
+
+// ── Celebration Modal ────────────────────────────────────────────────
+const WorkoutCompleteModal = ({ open, onClose, dayLabel }: { open: boolean; onClose: () => void; dayLabel: string }) => {
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-sm text-center border-primary/30 overflow-hidden">
+        <div className="relative py-6">
+          {/* Animated background glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 animate-pulse" />
+          
+          <div className="relative z-10 space-y-4">
+            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30 animate-[bounce_1s_ease-in-out_2]">
+              <Trophy className="w-10 h-10 text-primary-foreground" />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <h2 className="font-heading text-2xl tracking-wide">Great Job!</h2>
+                <Sparkles className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-muted-foreground text-sm">
+                You just crushed <span className="text-foreground font-medium">{dayLabel}</span>!
+              </p>
+              <p className="text-xs text-muted-foreground/70">
+                Every rep counts. Stay consistent and the results will follow.
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Button variant="apollo" onClick={onClose} className="px-8">
+                Let's Go 💪
+              </Button>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -135,6 +304,16 @@ const DashboardTraining = () => {
   const [alternatives, setAlternatives] = useState<any[]>([]);
   const [loadingSwap, setLoadingSwap] = useState(false);
   const [selectedDayDate, setSelectedDayDate] = useState<Date | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  // Local state for logging (batched saves)
+  const [localSetLogs, setLocalSetLogs] = useState<Record<string, SetLog[]>>({});
+  const [localNotes, setLocalNotes] = useState<Record<string, ExerciseNote>>({});
+
+  const today = new Date();
+  const displayDate = selectedDayDate || today;
+  const logDateStr = format(displayDate, "yyyy-MM-dd");
+  const isShowingToday = !selectedDayDate || isSameDay(selectedDayDate, today);
 
   const currentWeekStart = useMemo(
     () => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -191,12 +370,193 @@ const DashboardTraining = () => {
     return days.find((d: any) => !d.scheduled_date && d.day_number === dayNumber) || null;
   }, [planData]);
 
-  // Determine which day's exercises to show
-  const today = new Date();
-  const displayDate = selectedDayDate || today;
   const todayWorkout = getWorkoutForDate(displayDate);
-  const isShowingToday = !selectedDayDate || isSameDay(selectedDayDate, today);
+  const dayId = todayWorkout?.id;
 
+  // Fetch existing logs for this day
+  const { data: existingSetLogs } = useQuery({
+    queryKey: ["exercise-set-logs", user?.id, dayId, logDateStr],
+    queryFn: async () => {
+      if (!user || !dayId) return [];
+      const { data } = await (supabase as any)
+        .from("exercise_set_logs")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("day_id", dayId)
+        .eq("log_date", logDateStr);
+      return data || [];
+    },
+    enabled: !!user && !!dayId,
+  });
+
+  const { data: existingNotes } = useQuery({
+    queryKey: ["exercise-user-notes", user?.id, dayId, logDateStr],
+    queryFn: async () => {
+      if (!user || !dayId) return [];
+      const { data } = await (supabase as any)
+        .from("exercise_user_notes")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("day_id", dayId)
+        .eq("log_date", logDateStr);
+      return data || [];
+    },
+    enabled: !!user && !!dayId,
+  });
+
+  const { data: sessionLog } = useQuery({
+    queryKey: ["workout-session-log", user?.id, dayId, logDateStr],
+    queryFn: async () => {
+      if (!user || !dayId) return null;
+      const { data } = await (supabase as any)
+        .from("workout_session_logs")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("day_id", dayId)
+        .eq("log_date", logDateStr)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user && !!dayId,
+  });
+
+  // Initialize local state from DB
+  useEffect(() => {
+    if (existingSetLogs) {
+      const grouped: Record<string, SetLog[]> = {};
+      existingSetLogs.forEach((log: any) => {
+        if (!grouped[log.training_plan_exercise_id]) grouped[log.training_plan_exercise_id] = [];
+        grouped[log.training_plan_exercise_id].push({
+          set_number: log.set_number,
+          weight: log.weight ? Number(log.weight) : null,
+          reps_completed: log.reps_completed,
+        });
+      });
+      setLocalSetLogs(grouped);
+    }
+  }, [existingSetLogs]);
+
+  useEffect(() => {
+    if (existingNotes) {
+      const mapped: Record<string, ExerciseNote> = {};
+      existingNotes.forEach((n: any) => {
+        mapped[n.training_plan_exercise_id] = { note: n.note, is_completed: n.is_completed };
+      });
+      setLocalNotes(mapped);
+    }
+  }, [existingNotes]);
+
+  // Save mutations
+  const saveSetLogMutation = useMutation({
+    mutationFn: async ({ exerciseId, setNumber, field, value }: { exerciseId: string; setNumber: number; field: string; value: number | null }) => {
+      if (!user || !dayId) return;
+      // Upsert: delete then insert for simplicity
+      await (supabase as any)
+        .from("exercise_set_logs")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("training_plan_exercise_id", exerciseId)
+        .eq("set_number", setNumber)
+        .eq("log_date", logDateStr);
+
+      const currentLogs = localSetLogs[exerciseId] || [];
+      const existing = currentLogs.find(l => l.set_number === setNumber);
+      const newLog = { ...(existing || { set_number: setNumber, weight: null, reps_completed: null }), [field]: value };
+
+      if (newLog.weight !== null || newLog.reps_completed !== null) {
+        await (supabase as any)
+          .from("exercise_set_logs")
+          .insert({
+            user_id: user.id,
+            training_plan_exercise_id: exerciseId,
+            day_id: dayId,
+            set_number: setNumber,
+            weight: newLog.weight,
+            reps_completed: newLog.reps_completed,
+            log_date: logDateStr,
+          });
+      }
+    },
+  });
+
+  const saveNoteMutation = useMutation({
+    mutationFn: async ({ exerciseId, note, isCompleted }: { exerciseId: string; note: string; isCompleted: boolean }) => {
+      if (!user || !dayId) return;
+      await (supabase as any)
+        .from("exercise_user_notes")
+        .upsert({
+          user_id: user.id,
+          training_plan_exercise_id: exerciseId,
+          day_id: dayId,
+          log_date: logDateStr,
+          note,
+          is_completed: isCompleted,
+        }, { onConflict: "user_id,training_plan_exercise_id,log_date" });
+    },
+  });
+
+  const saveSessionMutation = useMutation({
+    mutationFn: async () => {
+      if (!user || !dayId) return;
+      await (supabase as any)
+        .from("workout_session_logs")
+        .upsert({
+          user_id: user.id,
+          day_id: dayId,
+          log_date: logDateStr,
+          completed_at: new Date().toISOString(),
+        }, { onConflict: "user_id,day_id,log_date" });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workout-session-log"] });
+    },
+  });
+
+  // Handlers
+  const handleSetLogChange = useCallback((exerciseId: string, setNumber: number, field: "weight" | "reps_completed", value: number | null) => {
+    setLocalSetLogs(prev => {
+      const current = prev[exerciseId] || [];
+      const existing = current.find(l => l.set_number === setNumber);
+      if (existing) {
+        return { ...prev, [exerciseId]: current.map(l => l.set_number === setNumber ? { ...l, [field]: value } : l) };
+      }
+      return { ...prev, [exerciseId]: [...current, { set_number: setNumber, weight: null, reps_completed: null, [field]: value }] };
+    });
+    saveSetLogMutation.mutate({ exerciseId, setNumber, field, value });
+  }, [saveSetLogMutation]);
+
+  const handleNoteChange = useCallback((exerciseId: string, note: string) => {
+    setLocalNotes(prev => {
+      const existing = prev[exerciseId] || { note: "", is_completed: false };
+      return { ...prev, [exerciseId]: { ...existing, note } };
+    });
+    const isCompleted = localNotes[exerciseId]?.is_completed || false;
+    saveNoteMutation.mutate({ exerciseId, note, isCompleted });
+  }, [localNotes, saveNoteMutation]);
+
+  const handleToggleComplete = useCallback((exerciseId: string, completed: boolean) => {
+    setLocalNotes(prev => {
+      const existing = prev[exerciseId] || { note: "", is_completed: false };
+      return { ...prev, [exerciseId]: { ...existing, is_completed: completed } };
+    });
+    const note = localNotes[exerciseId]?.note || "";
+    saveNoteMutation.mutate({ exerciseId, note, isCompleted: completed });
+
+    // Check if all exercises are now complete
+    if (completed && todayWorkout?.training_plan_exercises) {
+      const exercises = todayWorkout.training_plan_exercises;
+      const allDone = exercises.every((ex: any) => {
+        if (ex.id === exerciseId) return true; // this one is being checked
+        return localNotes[ex.id]?.is_completed || false;
+      });
+      if (allDone && !sessionLog?.completed_at) {
+        saveSessionMutation.mutate();
+        setTimeout(() => setShowCelebration(true), 300);
+      }
+    }
+  }, [localNotes, todayWorkout, saveNoteMutation, saveSessionMutation, sessionLog]);
+
+  // Swap logic
   const handleSwapExercise = async (exercise: any) => {
     setSwappingExercise(exercise);
     setLoadingSwap(true);
@@ -234,10 +594,17 @@ const DashboardTraining = () => {
     queryClient.invalidateQueries({ queryKey: ["my-training-plan-full"] });
   };
 
+  // Progress indicator
+  const totalExercises = todayWorkout?.training_plan_exercises?.length || 0;
+  const completedExercises = todayWorkout?.training_plan_exercises?.filter(
+    (ex: any) => localNotes[ex.id]?.is_completed
+  ).length || 0;
+  const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
+
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto">
-        {/* ── Today's Workout ─────────────────────────────────── */}
+        {/* ── Header ─────────────────────────────────── */}
         <div className="mb-6">
           <h1 className="font-heading text-2xl md:text-3xl mb-1">
             {isShowingToday ? "Today's" : format(displayDate, "EEEE's")}{" "}
@@ -266,7 +633,7 @@ const DashboardTraining = () => {
           </div>
         ) : todayWorkout ? (
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3">
               <h2 className="font-heading text-lg">
                 {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
               </h2>
@@ -277,18 +644,47 @@ const DashboardTraining = () => {
               )}
             </div>
 
+            {/* Progress bar */}
+            {totalExercises > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-muted-foreground">{completedExercises}/{totalExercises} exercises</span>
+                  {sessionLog?.completed_at && (
+                    <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-500 border-green-500/20">
+                      <Check className="w-3 h-3 mr-1" /> Completed
+                    </Badge>
+                  )}
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {todayWorkout.training_plan_exercises
                 ?.sort((a: any, b: any) => a.sort_order - b.sort_order)
                 .map((ex: any) => (
                   <ExerciseTile
                     key={ex.id}
+                    exerciseId={ex.id}
+                    dayId={todayWorkout.id}
                     exerciseName={ex.exercise_name}
                     sets={ex.sets}
                     reps={ex.reps}
                     restSeconds={ex.rest_seconds}
                     muscleGroup={ex.muscle_group}
                     notes={ex.notes}
+                    logDate={logDateStr}
+                    userId={user?.id || ""}
+                    setLogs={localSetLogs[ex.id] || []}
+                    exerciseNote={localNotes[ex.id] || null}
+                    onSetLogChange={handleSetLogChange}
+                    onNoteChange={handleNoteChange}
+                    onToggleComplete={handleToggleComplete}
                     onSwap={() => handleSwapExercise(ex)}
                   />
                 ))}
@@ -356,7 +752,7 @@ const DashboardTraining = () => {
             })}
           </div>
 
-          {/* Mobile: horizontal scrollable strip */}
+          {/* Mobile: scrollable strip */}
           <div className="md:hidden flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
             {weekDates.map((date) => {
               const workout = getWorkoutForDate(date);
@@ -427,6 +823,13 @@ const DashboardTraining = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* ── Celebration Modal ───────────────────────────────── */}
+        <WorkoutCompleteModal
+          open={showCelebration}
+          onClose={() => setShowCelebration(false)}
+          dayLabel={todayWorkout?.day_label || todayWorkout?.focus || `Day ${todayWorkout?.day_number || ""}`}
+        />
       </div>
     </DashboardLayout>
   );
