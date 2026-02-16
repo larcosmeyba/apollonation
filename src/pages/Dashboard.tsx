@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardNutritionCard from "@/components/dashboard/DashboardNutritionCard";
 import DashboardStepTracker from "@/components/dashboard/DashboardStepTracker";
+import CoachIntroVideo from "@/components/dashboard/CoachIntroVideo";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -127,6 +128,9 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+
+        {/* Coach Intro Video */}
+        <CoachIntroVideo />
 
         {/* Main grid: stacked on mobile, 2-col on desktop */}
         <div className="grid lg:grid-cols-5 gap-5">
