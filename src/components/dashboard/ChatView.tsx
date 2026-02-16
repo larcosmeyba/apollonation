@@ -20,7 +20,7 @@ const ChatView = ({ partnerId, onBack }: ChatViewProps) => {
   const [newMessage, setNewMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const partnerName = profiles?.[partnerId]?.display_name || "User";
+  const partnerName = profiles?.[partnerId]?.display_name || "Coach";
 
   // Mark messages as read when opening conversation
   useEffect(() => {
