@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardBottomTabs from "@/components/dashboard/DashboardBottomTabs";
 import ChatView from "@/components/dashboard/ChatView";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useMessages } from "@/hooks/useMessages";
@@ -16,13 +17,26 @@ const DashboardMessages = () => {
   // Non-admin clients go straight to coach DM
   if (!isAdmin) {
     return (
-      <DashboardLayout>
-        <div className="max-w-4xl mx-auto h-[calc(100vh-8rem)]">
-          <div className="card-apollo h-full flex overflow-hidden">
-            <ChatView partnerId={COACH_USER_ID} />
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Coach name header */}
+        <div className="flex items-center gap-3 p-4 border-b border-border bg-card/95 backdrop-blur-lg">
+          <div className="w-9 h-9 rounded-full bg-apollo-gold/20 flex items-center justify-center">
+            <span className="text-sm font-medium text-apollo-gold">M</span>
+          </div>
+          <div>
+            <p className="font-heading text-sm tracking-wide">Marcos Leyba</p>
+            <p className="text-[11px] text-muted-foreground">Coach</p>
           </div>
         </div>
-      </DashboardLayout>
+
+        {/* Chat takes remaining space */}
+        <div className="flex-1 overflow-hidden">
+          <ChatView partnerId={COACH_USER_ID} showHeader={false} />
+        </div>
+
+        {/* Bottom tabs */}
+        <DashboardBottomTabs />
+      </div>
     );
   }
 
