@@ -11,9 +11,10 @@ import { formatDistanceToNow } from "date-fns";
 interface ChatViewProps {
   partnerId: string;
   onBack?: () => void;
+  showHeader?: boolean;
 }
 
-const ChatView = ({ partnerId, onBack }: ChatViewProps) => {
+const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
   const { user } = useAuth();
   const { messages, messagesLoading, sendMessage, markAsRead } = useMessages(partnerId);
   const { data: profiles } = useProfileLookup([partnerId]);
@@ -53,21 +54,23 @@ const ChatView = ({ partnerId, onBack }: ChatViewProps) => {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-border">
-        {onBack && (
-          <button onClick={onBack} className="text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-        )}
-        <div className="w-9 h-9 rounded-full bg-apollo-gold/20 flex items-center justify-center">
-          <span className="text-sm font-medium text-apollo-gold">
-            {partnerName.charAt(0).toUpperCase()}
-          </span>
+      {showHeader && (
+        <div className="flex items-center gap-3 p-4 border-b border-border">
+          {onBack && (
+            <button onClick={onBack} className="text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          )}
+          <div className="w-9 h-9 rounded-full bg-apollo-gold/20 flex items-center justify-center">
+            <span className="text-sm font-medium text-apollo-gold">
+              {partnerName.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <p className="font-medium text-sm">{partnerName}</p>
+          </div>
         </div>
-        <div>
-          <p className="font-medium text-sm">{partnerName}</p>
-        </div>
-      </div>
+      )}
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
