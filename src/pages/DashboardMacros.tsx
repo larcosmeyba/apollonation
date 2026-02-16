@@ -145,6 +145,30 @@ const DashboardMacros = () => {
     queryClient.invalidateQueries({ queryKey: ["macro-logs"] });
   };
 
+  // Fetch nutrition plan for daily targets
+  const { data: nutritionPlan } = useQuery({
+    queryKey: ["nutrition-plan-targets", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("nutrition_plans")
+        .select("daily_calories, protein_grams, carbs_grams, fat_grams")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const targets = {
+    calories: nutritionPlan?.daily_calories || 2500,
+    protein: nutritionPlan?.protein_grams || 180,
+    carbs: nutritionPlan?.carbs_grams || 300,
+    fat: nutritionPlan?.fat_grams || 70,
+  };
+
   const totals = entries.reduce(
     (acc, entry) => ({
       calories: acc.calories + (entry.calories || 0),
@@ -154,6 +178,13 @@ const DashboardMacros = () => {
     }),
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
+
+  const remaining = {
+    calories: Math.max(0, targets.calories - totals.calories),
+    protein: Math.max(0, targets.protein - totals.protein),
+    carbs: Math.max(0, targets.carbs - totals.carbs),
+    fat: Math.max(0, targets.fat - totals.fat),
+  };
 
   if (!isElite) {
     return (
@@ -238,11 +269,50 @@ const DashboardMacros = () => {
           </Dialog>
         </div>
 
-        {/* Daily totals */}
+        {/* Remaining macros */}
+        <div className="card-apollo p-5 mb-6">
+          <h2 className="font-heading text-base mb-3 text-muted-foreground uppercase tracking-wider text-xs">Remaining Today</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className={`text-3xl font-heading ${remaining.calories === 0 ? "text-green-400" : "text-apollo-gold"}`}>{remaining.calories}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Calories</p>
+            </div>
+            <div className="text-center">
+              <p className={`text-3xl font-heading ${remaining.protein === 0 ? "text-green-400" : ""}`}>{remaining.protein}g</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Protein</p>
+            </div>
+            <div className="text-center">
+              <p className={`text-3xl font-heading ${remaining.carbs === 0 ? "text-green-400" : ""}`}>{remaining.carbs}g</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Carbs</p>
+            </div>
+            <div className="text-center">
+              <p className={`text-3xl font-heading ${remaining.fat === 0 ? "text-green-400" : ""}`}>{remaining.fat}g</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Fat</p>
+            </div>
+          </div>
+          {/* Progress bars */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+            {[
+              { label: "Cal", current: totals.calories, target: targets.calories, color: "bg-apollo-gold" },
+              { label: "Protein", current: totals.protein, target: targets.protein, color: "bg-blue-400" },
+              { label: "Carbs", current: totals.carbs, target: targets.carbs, color: "bg-amber-400" },
+              { label: "Fat", current: totals.fat, target: targets.fat, color: "bg-rose-400" },
+            ].map(({ label, current, target, color }) => (
+              <div key={label}>
+                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className={`h-full rounded-full transition-all duration-500 ${color}`} style={{ width: `${Math.min((current / target) * 100, 100)}%` }} />
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1 text-center">{current} / {target}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Consumed totals */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="card-apollo p-4 text-center">
             <p className="text-3xl font-heading text-apollo-gold">{totals.calories}</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Calories</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Consumed</p>
           </div>
           <div className="card-apollo p-4 text-center">
             <p className="text-3xl font-heading">{totals.protein}g</p>
