@@ -71,14 +71,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkSubscription = useCallback(async () => {
     if (!user) return;
-    // Wait for profile to load before deciding
-    if (!profile) return;
+
+    // Read profile directly from DB to avoid dependency on profile state
+    const currentProfile = await fetchProfile(user.id);
+    if (!currentProfile) return;
+
     // Skip subscription check for archived/cancelled accounts
-    if (profile.account_status === "archived" || profile.account_status === "cancelled") {
+    if (currentProfile.account_status === "archived" || currentProfile.account_status === "cancelled") {
       setSubscription(defaultUnsub);
       setSubscriptionLoading(false);
       return;
     }
+
     setSubscriptionLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -96,16 +100,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       setSubscription(data as SubscriptionStatus);
 
-      // Re-fetch profile to get synced tier
-      const profileData = await fetchProfile(user.id);
-      if (profileData) setProfile(profileData);
+      // Update profile with synced tier
+      setProfile(currentProfile);
     } catch (err) {
       console.error("Subscription check failed:", err);
       setSubscription(defaultUnsub);
     } finally {
       setSubscriptionLoading(false);
     }
-  }, [user, profile]);
+  }, [user]);
 
   const refreshProfile = async () => {
     if (user) {
@@ -155,7 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => authSubscription.unsubscribe();
   }, []);
 
-  // Check subscription status when user or profile changes
+  // Check subscription status when user changes
   useEffect(() => {
     if (user && profile) {
       checkSubscription();
@@ -164,7 +167,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const interval = setInterval(checkSubscription, 60000);
       return () => clearInterval(interval);
     }
-  }, [user, profile, checkSubscription]);
+  }, [user, profile?.id, checkSubscription]);
 
   // Check for checkout success in URL
   useEffect(() => {
