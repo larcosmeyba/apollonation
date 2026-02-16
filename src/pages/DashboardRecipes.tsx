@@ -126,8 +126,11 @@ const DashboardRecipes = () => {
               {filteredRecipes.map((recipe) => (
                 <div
                   key={recipe.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setSelectedRecipe(recipe)}
-                  className="card-apollo group overflow-hidden hover:border-apollo-gold/50 transition-all cursor-pointer"
+                  onKeyDown={(e) => e.key === "Enter" && setSelectedRecipe(recipe)}
+                  className="card-apollo group overflow-hidden hover:border-apollo-gold/50 transition-all cursor-pointer select-none"
                 >
                   {/* Thumbnail */}
                   <div className="relative aspect-video overflow-hidden bg-muted">
@@ -233,8 +236,8 @@ const DashboardRecipes = () => {
       </div>
 
       {/* Recipe Detail Modal */}
-      <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={!!selectedRecipe} onOpenChange={(open) => { if (!open) setSelectedRecipe(null); }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6" onPointerDownOutside={(e) => e.preventDefault()}>
           {selectedRecipe ? (
             <div className="space-y-6">
               <DialogHeader>
