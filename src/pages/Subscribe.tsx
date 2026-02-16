@@ -57,11 +57,13 @@ const tiers = [
 ];
 
 const Subscribe = () => {
-  const { user, loading, subscription, subscriptionLoading, signOut } = useAuth();
+  const { user, profile, loading, subscription, subscriptionLoading, signOut } = useAuth();
   const { toast } = useToast();
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
 
-  if (loading || subscriptionLoading) {
+  const isInactiveAccount = profile?.account_status === "archived" || profile?.account_status === "cancelled";
+
+  if (loading || (!isInactiveAccount && subscriptionLoading)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-primary">Loading...</div>
