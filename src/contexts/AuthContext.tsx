@@ -71,6 +71,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkSubscription = useCallback(async () => {
     if (!user) return;
+    // Skip subscription check for archived/cancelled accounts
+    if (profile?.account_status === "archived" || profile?.account_status === "cancelled") {
+      setSubscription(defaultUnsub);
+      setSubscriptionLoading(false);
+      return;
+    }
     setSubscriptionLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -97,7 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setSubscriptionLoading(false);
     }
-  }, [user]);
+  }, [user, profile?.account_status]);
 
   const refreshProfile = async () => {
     if (user) {
