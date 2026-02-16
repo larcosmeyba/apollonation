@@ -121,7 +121,10 @@ export const useMessages = (conversationPartnerId?: string) => {
       // Trigger email notification (fire-and-forget)
       supabase.functions.invoke("send-message-notification", {
         body: { recipientId },
-      }).catch((err) => console.warn("Notification failed:", err));
+      }).then(({ error }) => {
+        if (error) console.error("Notification error:", error);
+        else console.log("Notification sent successfully");
+      });
 
       return data;
     },

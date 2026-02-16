@@ -191,6 +191,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       },
     });
+
+    // Notify admin of new signup (fire-and-forget)
+    if (!error) {
+      supabase.functions.invoke("notify-new-signup", {
+        body: { email, displayName: displayName || "No name" },
+      }).then(({ error: notifError }) => {
+        if (notifError) console.error("Signup notification error:", notifError);
+      });
+    }
+
     return { error };
   };
 
