@@ -1,13 +1,36 @@
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import ChatView from "@/components/dashboard/ChatView";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
-import ChatView from "@/components/dashboard/ChatView";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
+const COACH_USER_ID = "b1427538-a690-4cd4-8e34-423602562f4a";
+
 const DashboardMessages = () => {
+  const { isAdmin } = useAdminStatus();
+
+  // Non-admin clients go straight to coach DM
+  if (!isAdmin) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-4xl mx-auto h-[calc(100vh-8rem)]">
+          <div className="card-apollo h-full flex overflow-hidden">
+            <ChatView partnerId={COACH_USER_ID} />
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Admin sees the full inbox
+  return <AdminInbox />;
+};
+
+const AdminInbox = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedChat, setSelectedChat] = useState<string | null>(
     searchParams.get("chat")
@@ -35,7 +58,7 @@ const DashboardMessages = () => {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto h-[calc(100vh-8rem)]">
         <div className="card-apollo h-full flex overflow-hidden">
-          {/* Conversation list - hide on mobile when chat is selected */}
+          {/* Conversation list */}
           <div
             className={`w-full md:w-80 border-r border-border flex flex-col ${
               selectedChat ? "hidden md:flex" : "flex"
