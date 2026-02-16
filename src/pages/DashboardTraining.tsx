@@ -1,15 +1,24 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo, useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dumbbell, ChevronLeft, ChevronRight, RefreshCw, Loader2, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dumbbell, ChevronLeft, ChevronRight, RefreshCw, Loader2, Play, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import {
+  format,
+  startOfWeek,
+  addDays,
+  addWeeks,
+  subWeeks,
+  isSameDay,
+  isToday,
+} from "date-fns";
 
+// ── YouTube helpers ──────────────────────────────────────────────────
 const getYouTubeVideoId = (url: string): string | null => {
   try {
     const parsed = new URL(url);
@@ -24,6 +33,7 @@ const getYouTubeThumbnail = (url: string): string | null => {
   return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null;
 };
 
+// ── Exercise Tile ────────────────────────────────────────────────────
 interface ExerciseTileProps {
   exerciseName: string;
   sets?: number | null;
@@ -58,19 +68,13 @@ const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, note
   return (
     <>
       <div className="card-apollo overflow-hidden group hover:border-apollo-gold/50 transition-all">
-        {/* Large thumbnail / video preview */}
         <button
           onClick={() => exercise?.video_url && setVideoOpen(true)}
           className="relative w-full aspect-video bg-muted overflow-hidden"
           disabled={!exercise?.video_url}
         >
           {thumbnail ? (
-            <img
-              src={thumbnail}
-              alt={exerciseName}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
+            <img src={thumbnail} alt={exerciseName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Dumbbell className="w-10 h-10 text-muted-foreground/20" />
@@ -89,7 +93,6 @@ const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, note
           </div>
         </button>
 
-        {/* Exercise details */}
         <div className="p-3 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -100,31 +103,20 @@ const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, note
               <RefreshCw className="w-3 h-3" />
             </Button>
           </div>
-          {muscleGroup && (
-            <Badge variant="secondary" className="text-[10px]">{muscleGroup}</Badge>
-          )}
+          {muscleGroup && <Badge variant="secondary" className="text-[10px]">{muscleGroup}</Badge>}
           {notes && <p className="text-xs text-muted-foreground italic line-clamp-2">{notes}</p>}
         </div>
       </div>
 
-      {/* Video modal */}
       <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
         <DialogContent className="max-w-2xl p-0 overflow-hidden">
           <DialogHeader className="p-4 pb-2">
             <DialogTitle className="text-base">{exercise?.title || exerciseName}</DialogTitle>
-            {exercise?.description && (
-              <p className="text-xs text-muted-foreground mt-1">{exercise.description}</p>
-            )}
+            {exercise?.description && <p className="text-xs text-muted-foreground mt-1">{exercise.description}</p>}
           </DialogHeader>
           <div className="aspect-video w-full">
             {embedUrl && videoOpen ? (
-              <iframe
-                src={embedUrl}
-                className="w-full h-full"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-                title={exerciseName}
-              />
+              <iframe src={embedUrl} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen title={exerciseName} />
             ) : null}
           </div>
         </DialogContent>
@@ -133,50 +125,77 @@ const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, note
   );
 };
 
+// ── Main Page ────────────────────────────────────────────────────────
 const DashboardTraining = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [currentWeek, setCurrentWeek] = useState(1);
+  const queryClient = useQueryClient();
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [swappingExercise, setSwappingExercise] = useState<any>(null);
   const [alternatives, setAlternatives] = useState<any[]>([]);
   const [loadingSwap, setLoadingSwap] = useState(false);
+  const [selectedDayDate, setSelectedDayDate] = useState<Date | null>(null);
 
-  const { data: plans } = useQuery({
-    queryKey: ["my-training-plans"],
+  const currentWeekStart = useMemo(
+    () => startOfWeek(currentDate, { weekStartsOn: 1 }),
+    [currentDate]
+  );
+  const weekDates = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i)),
+    [currentWeekStart]
+  );
+
+  // Fetch plan + days
+  const { data: planData } = useQuery({
+    queryKey: ["my-training-plan-full", user?.id],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      if (!user) return null;
+      const { data: plans } = await (supabase as any)
         .from("client_training_plans")
-        .select("*")
-        .eq("user_id", user?.id)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
+        .select("*, client_questionnaires!client_training_plans_questionnaire_id_fkey(cycle_start_date)")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .limit(1);
+      const plan = plans?.[0];
+      if (!plan) return null;
+
+      const { data: days } = await (supabase as any)
+        .from("training_plan_days")
+        .select("*, training_plan_exercises(*)")
+        .eq("plan_id", plan.id)
+        .order("day_number");
+
+      return { plan, days: days || [] };
     },
     enabled: !!user,
   });
 
-  const activePlan = plans?.find((p: any) => p.status === "active") || plans?.[0];
+  const getWorkoutForDate = useCallback((date: Date) => {
+    if (!planData) return null;
+    const { plan, days } = planData;
+    const cycleStart = plan.client_questionnaires?.cycle_start_date
+      ? new Date(plan.client_questionnaires.cycle_start_date)
+      : new Date(plan.created_at);
 
-  const { data: days } = useQuery({
-    queryKey: ["my-training-days", activePlan?.id],
-    queryFn: async () => {
-      if (!activePlan) return [];
-      const { data, error } = await (supabase as any)
-        .from("training_plan_days")
-        .select("*, training_plan_exercises(*)")
-        .eq("plan_id", activePlan.id)
-        .order("day_number");
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!activePlan,
-  });
+    const diffDays = Math.floor((date.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return null;
 
-  const weekDays = days?.filter((d: any) => {
-    const weekStart = (currentWeek - 1) * 7 + 1;
-    const weekEnd = currentWeek * 7;
-    return d.day_number >= weekStart && d.day_number <= weekEnd;
-  }) || [];
+    const totalDays = plan.duration_weeks * 7;
+    const dayNumber = (diffDays % totalDays) + 1;
+
+    const rescheduled = days.find((d: any) =>
+      d.scheduled_date && isSameDay(new Date(d.scheduled_date), date)
+    );
+    if (rescheduled) return rescheduled;
+
+    return days.find((d: any) => !d.scheduled_date && d.day_number === dayNumber) || null;
+  }, [planData]);
+
+  // Determine which day's exercises to show
+  const today = new Date();
+  const displayDate = selectedDayDate || today;
+  const todayWorkout = getWorkoutForDate(displayDate);
+  const isShowingToday = !selectedDayDate || isSameDay(selectedDayDate, today);
 
   const handleSwapExercise = async (exercise: any) => {
     setSwappingExercise(exercise);
@@ -212,117 +231,168 @@ const DashboardTraining = () => {
     }
     toast({ title: "Exercise swapped!" });
     setSwappingExercise(null);
-    window.location.reload();
+    queryClient.invalidateQueries({ queryKey: ["my-training-plan-full"] });
   };
 
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto">
-        <div className="mb-8">
-          <h1 className="font-heading text-3xl md:text-4xl mb-2">
-            My <span className="text-apollo-gold">Training Program</span>
+        {/* ── Today's Workout ─────────────────────────────────── */}
+        <div className="mb-6">
+          <h1 className="font-heading text-2xl md:text-3xl mb-1">
+            {isShowingToday ? "Today's" : format(displayDate, "EEEE's")}{" "}
+            <span className="text-primary">Workout</span>
           </h1>
-          <p className="text-muted-foreground">Your personalized workout schedule by Coach Marcos</p>
+          <p className="text-sm text-muted-foreground">
+            {format(displayDate, "EEEE, MMMM d")}
+            {!isShowingToday && (
+              <button
+                onClick={() => setSelectedDayDate(null)}
+                className="ml-2 text-primary hover:underline"
+              >
+                Back to today
+              </button>
+            )}
+          </p>
         </div>
 
-        {!activePlan ? (
-          <Card className="bg-card border-border">
-            <CardContent className="py-12 text-center">
-              <Dumbbell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-heading text-lg mb-2">No Training Program Yet</h3>
-              <p className="text-muted-foreground text-sm">
-                Your program will be generated after completing the questionnaire.
-              </p>
-            </CardContent>
-          </Card>
+        {!planData ? (
+          <div className="card-apollo p-8 text-center mb-8">
+            <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+            <h3 className="font-heading text-lg mb-2">No Training Program Yet</h3>
+            <p className="text-muted-foreground text-sm">
+              Your program will be generated after completing the questionnaire.
+            </p>
+          </div>
+        ) : todayWorkout ? (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="font-heading text-lg">
+                {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
+              </h2>
+              {todayWorkout.focus && (
+                <Badge variant="outline" className="text-primary border-primary/30">
+                  {todayWorkout.focus}
+                </Badge>
+              )}
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {todayWorkout.training_plan_exercises
+                ?.sort((a: any, b: any) => a.sort_order - b.sort_order)
+                .map((ex: any) => (
+                  <ExerciseTile
+                    key={ex.id}
+                    exerciseName={ex.exercise_name}
+                    sets={ex.sets}
+                    reps={ex.reps}
+                    restSeconds={ex.rest_seconds}
+                    muscleGroup={ex.muscle_group}
+                    notes={ex.notes}
+                    onSwap={() => handleSwapExercise(ex)}
+                  />
+                ))}
+            </div>
+          </div>
         ) : (
-          <>
-            {/* Plan info */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <Card className="bg-card border-border">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-heading text-apollo-gold">{activePlan.workout_days_per_week}</p>
-                  <p className="text-xs text-muted-foreground">Days/Week</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-card border-border">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-heading">{activePlan.duration_weeks}</p>
-                  <p className="text-xs text-muted-foreground">Weeks</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-card border-border">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-heading">Cycle {activePlan.cycle_number}</p>
-                  <p className="text-xs text-muted-foreground">Current Cycle</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-card border-border">
-                <CardContent className="p-4 text-center">
-                  <Badge variant={activePlan.status === "active" ? "default" : "secondary"}>
-                    {activePlan.status}
-                  </Badge>
-                  <p className="text-xs text-muted-foreground mt-1">Status</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Week nav */}
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <Button variant="ghost" size="sm" disabled={currentWeek <= 1} onClick={() => setCurrentWeek(w => w - 1)}>
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="font-heading text-lg">Week {currentWeek}</span>
-              <Button variant="ghost" size="sm" disabled={currentWeek >= (activePlan.duration_weeks || 4)} onClick={() => setCurrentWeek(w => w + 1)}>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Training days with tile grid */}
-            {weekDays.length > 0 ? (
-              weekDays.map((day: any) => (
-                <div key={day.id} className="mb-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-heading text-lg">{day.day_label || `Day ${day.day_number}`}</h3>
-                      {day.focus && (
-                        <Badge variant="outline" className="text-apollo-gold border-apollo-gold/30">
-                          {day.focus}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Exercise tiles grid */}
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {day.training_plan_exercises
-                      ?.sort((a: any, b: any) => a.sort_order - b.sort_order)
-                      .map((ex: any) => (
-                        <ExerciseTile
-                          key={ex.id}
-                          exerciseName={ex.exercise_name}
-                          sets={ex.sets}
-                          reps={ex.reps}
-                          restSeconds={ex.rest_seconds}
-                          muscleGroup={ex.muscle_group}
-                          notes={ex.notes}
-                          onSwap={() => handleSwapExercise(ex)}
-                        />
-                      ))}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <Card className="bg-card border-border">
-                <CardContent className="py-8 text-center text-muted-foreground text-sm">
-                  No training days scheduled for this week.
-                </CardContent>
-              </Card>
-            )}
-          </>
+          <div className="card-apollo p-8 text-center mb-8">
+            <Check className="w-10 h-10 text-green-500/50 mx-auto mb-3" />
+            <h3 className="font-heading text-lg mb-1">Rest Day</h3>
+            <p className="text-muted-foreground text-sm">No workout scheduled. Recovery is part of the plan.</p>
+          </div>
         )}
 
-        {/* Exercise swap dialog */}
+        {/* ── Weekly Calendar Strip ───────────────────────────── */}
+        <div className="card-apollo p-4">
+          <div className="flex items-center justify-between mb-4">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <h3 className="font-heading text-sm text-muted-foreground">
+              {format(currentWeekStart, "MMM d")} — {format(addDays(currentWeekStart, 6), "MMM d")}
+            </h3>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCurrentDate(d => addWeeks(d, 1))}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Desktop: horizontal strip */}
+          <div className="hidden md:grid grid-cols-7 gap-2">
+            {weekDates.map((date) => {
+              const workout = getWorkoutForDate(date);
+              const isTodayDate = isToday(date);
+              const isSelected = selectedDayDate && isSameDay(date, selectedDayDate);
+
+              return (
+                <button
+                  key={date.toISOString()}
+                  onClick={() => setSelectedDayDate(date)}
+                  className={`rounded-lg border p-3 text-center transition-all hover:border-primary/50 ${
+                    isSelected
+                      ? "border-primary bg-primary/10"
+                      : isTodayDate
+                      ? "border-primary/30 bg-primary/5"
+                      : "border-border bg-card"
+                  }`}
+                >
+                  <p className={`text-[10px] uppercase tracking-wider mb-1 ${isTodayDate ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+                    {format(date, "EEE")}
+                  </p>
+                  <p className={`text-lg font-heading ${isTodayDate ? "text-primary" : ""}`}>
+                    {format(date, "d")}
+                  </p>
+                  {workout ? (
+                    <div className="mt-2">
+                      <Dumbbell className="w-3.5 h-3.5 text-primary mx-auto" />
+                      <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                        {workout.focus || workout.day_label || `Day ${workout.day_number}`}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-muted-foreground/50 mt-2">Rest</p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Mobile: horizontal scrollable strip */}
+          <div className="md:hidden flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+            {weekDates.map((date) => {
+              const workout = getWorkoutForDate(date);
+              const isTodayDate = isToday(date);
+              const isSelected = selectedDayDate && isSameDay(date, selectedDayDate);
+
+              return (
+                <button
+                  key={date.toISOString()}
+                  onClick={() => setSelectedDayDate(date)}
+                  className={`flex-shrink-0 w-[72px] rounded-lg border p-2.5 text-center transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary/10"
+                      : isTodayDate
+                      ? "border-primary/30 bg-primary/5"
+                      : "border-border bg-card"
+                  }`}
+                >
+                  <p className={`text-[10px] uppercase tracking-wider mb-0.5 ${isTodayDate ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+                    {format(date, "EEE")}
+                  </p>
+                  <p className={`text-base font-heading ${isTodayDate ? "text-primary" : ""}`}>
+                    {format(date, "d")}
+                  </p>
+                  {workout ? (
+                    <Dumbbell className="w-3 h-3 text-primary mx-auto mt-1" />
+                  ) : (
+                    <p className="text-[9px] text-muted-foreground/40 mt-1">—</p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Exercise Swap Dialog ────────────────────────────── */}
         <Dialog open={!!swappingExercise} onOpenChange={(open) => !open && setSwappingExercise(null)}>
           <DialogContent>
             <DialogHeader>
@@ -333,7 +403,7 @@ const DashboardTraining = () => {
             </p>
             {loadingSwap ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-apollo-gold" />
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 <span className="ml-2 text-sm text-muted-foreground">Finding alternatives...</span>
               </div>
             ) : (
@@ -342,7 +412,7 @@ const DashboardTraining = () => {
                   <button
                     key={i}
                     onClick={() => confirmSwap(alt)}
-                    className="w-full text-left p-4 rounded-lg border border-border hover:border-apollo-gold/50 transition-all"
+                    className="w-full text-left p-4 rounded-lg border border-border hover:border-primary/50 transition-all"
                   >
                     <p className="font-medium text-sm">{alt.exercise_name}</p>
                     <div className="flex items-center gap-2 mt-1">
