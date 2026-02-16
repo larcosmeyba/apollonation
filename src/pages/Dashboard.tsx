@@ -93,7 +93,7 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto space-y-5">
+      <div className="max-w-5xl mx-auto space-y-5">
         {/* Date + Greeting */}
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">
@@ -128,67 +128,95 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Today's Workout Card */}
-        <div className="card-apollo p-5">
-          {isRestDay ? (
-            <div className="py-6 text-center">
-              <p className="text-xs text-primary uppercase tracking-wider mb-2">REST DAY</p>
-              <p className="font-heading text-xl">Hoo-ray it's your rest-day 🌴</p>
-              <p className="text-sm text-muted-foreground mt-2">Recovery is part of the process</p>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Dumbbell className="w-5 h-5 text-primary" />
+        {/* Main grid: stacked on mobile, 2-col on desktop */}
+        <div className="grid lg:grid-cols-5 gap-5">
+          {/* Left column - primary content */}
+          <div className="lg:col-span-3 space-y-5">
+            {/* Today's Workout Card */}
+            <div className="card-apollo p-5">
+              {isRestDay ? (
+                <div className="py-6 text-center">
+                  <p className="text-xs text-primary uppercase tracking-wider mb-2">REST DAY</p>
+                  <p className="font-heading text-xl">Hoo-ray it's your rest-day 🌴</p>
+                  <p className="text-sm text-muted-foreground mt-2">Recovery is part of the process</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Dumbbell className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-heading text-base">{todayWorkout?.day_label || `Day ${todayWorkout?.day_number}`}</p>
+                        {todayWorkout?.focus && (
+                          <p className="text-xs text-primary">{todayWorkout.focus}</p>
+                        )}
+                      </div>
+                    </div>
+                    <Link to="/dashboard/training">
+                      <Button variant="ghost" size="sm" className="text-primary text-xs">
+                        View <ChevronRight className="w-3 h-3 ml-1" />
+                      </Button>
+                    </Link>
                   </div>
-                  <div>
-                    <p className="font-heading text-base">{todayWorkout?.day_label || `Day ${todayWorkout?.day_number}`}</p>
-                    {todayWorkout?.focus && (
-                      <p className="text-xs text-primary">{todayWorkout.focus}</p>
+                  <div className="space-y-2">
+                    {todayWorkout?.exercises.slice(0, 6).map((ex: any, i: number) => (
+                      <div key={ex.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 border border-border/50">
+                        <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
+                          {i + 1}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{ex.exercise_name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {ex.sets} × {ex.reps}
+                            {ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {(todayWorkout?.exercises.length || 0) > 6 && (
+                      <p className="text-xs text-muted-foreground text-center pt-1">
+                        +{todayWorkout!.exercises.length - 6} more
+                      </p>
                     )}
                   </div>
-                </div>
-                <Link to="/dashboard/training">
-                  <Button variant="ghost" size="sm" className="text-primary text-xs">
-                    View <ChevronRight className="w-3 h-3 ml-1" />
-                  </Button>
+                </>
+              )}
+            </div>
+
+            {/* Quick Access - only visible on desktop in left column */}
+            <div className="hidden lg:block">
+              <h2 className="font-heading text-base mb-3">Quick Access</h2>
+              <div className="grid grid-cols-3 gap-3">
+                <Link to="/dashboard/nutrition" className="card-apollo p-4 text-center hover:border-primary/50 transition-all">
+                  <Utensils className="w-5 h-5 text-primary mx-auto mb-1.5" />
+                  <p className="text-xs font-medium">Meal Plan</p>
+                </Link>
+                <Link to="/dashboard/recipes" className="card-apollo p-4 text-center hover:border-primary/50 transition-all">
+                  <BookOpen className="w-5 h-5 text-primary mx-auto mb-1.5" />
+                  <p className="text-xs font-medium">Recipes</p>
+                </Link>
+                <Link to="/dashboard/calendar" className="card-apollo p-4 text-center hover:border-primary/50 transition-all">
+                  <Calendar className="w-5 h-5 text-primary mx-auto mb-1.5" />
+                  <p className="text-xs font-medium">Calendar</p>
                 </Link>
               </div>
-              <div className="space-y-2">
-                {todayWorkout?.exercises.slice(0, 5).map((ex: any, i: number) => (
-                  <div key={ex.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 border border-border/50">
-                    <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
-                      {i + 1}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{ex.exercise_name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {ex.sets} × {ex.reps}
-                        {ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {(todayWorkout?.exercises.length || 0) > 5 && (
-                  <p className="text-xs text-muted-foreground text-center pt-1">
-                    +{todayWorkout!.exercises.length - 5} more
-                  </p>
-                )}
-              </div>
-            </>
-          )}
+            </div>
+          </div>
+
+          {/* Right column - secondary content */}
+          <div className="lg:col-span-2 space-y-5">
+            {/* Step Tracker */}
+            <DashboardStepTracker />
+
+            {/* Nutrition Tracker Card */}
+            <DashboardNutritionCard />
+          </div>
         </div>
 
-        {/* Step Tracker */}
-        <DashboardStepTracker />
-
-        {/* Nutrition Tracker Card with + Log Meal */}
-        <DashboardNutritionCard />
-
-        {/* Quick Access */}
-        <div>
+        {/* Quick Access - mobile only (below cards) */}
+        <div className="lg:hidden">
           <h2 className="font-heading text-base mb-3">Quick Access</h2>
           <div className="grid grid-cols-3 gap-3">
             <Link to="/dashboard/nutrition" className="card-apollo p-3 text-center hover:border-primary/50 transition-all">
