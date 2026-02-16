@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Search, Play } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Play, Upload, Link, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Exercise {
@@ -62,6 +62,10 @@ const AdminExercises = () => {
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [videoPreview, setVideoPreview] = useState<{ title: string; url: string } | null>(null);
+  const [videoInputMode, setVideoInputMode] = useState<"url" | "upload">("upload");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -89,7 +93,7 @@ const AdminExercises = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.title.trim()) newErrors.title = "Exercise name is required";
     if (formData.title.length > 100) newErrors.title = "Name must be under 100 characters";
-    if (formData.video_url && !isValidUrl(formData.video_url)) newErrors.video_url = "Enter a valid URL";
+    if (formData.video_url && videoInputMode === "url" && !isValidUrl(formData.video_url)) newErrors.video_url = "Enter a valid URL";
     if (formData.thumbnail_url && !isValidUrl(formData.thumbnail_url)) newErrors.thumbnail_url = "Enter a valid URL";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -102,6 +106,40 @@ const AdminExercises = () => {
     } catch {
       return false;
     }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      toast({ title: "File too large", description: "Max file size is 50MB", variant: "destructive" });
+      return;
+    }
+
+    const allowedTypes = ["video/mp4", "video/quicktime", "video/webm", "video/x-msvideo"];
+    if (!allowedTypes.includes(file.type)) {
+      toast({ title: "Invalid file type", description: "Please upload MP4, MOV, WebM, or AVI files", variant: "destructive" });
+      return;
+    }
+
+    setIsUploading(true);
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+
+    const { error } = await supabase.storage
+      .from("exercise-videos")
+      .upload(fileName, file, { contentType: file.type });
+
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      setIsUploading(false);
+      return;
+    }
+
+    // Store the storage path as the video_url (prefixed to identify it as storage)
+    setFormData((p) => ({ ...p, video_url: `storage:exercise-videos/${fileName}` }));
+    setUploadedFileName(file.name);
+    setIsUploading(false);
+    toast({ title: "Video uploaded successfully" });
   };
 
   const createMutation = useMutation({
@@ -180,10 +218,15 @@ const AdminExercises = () => {
     setEditingExercise(null);
     setIsDialogOpen(false);
     setErrors({});
+    setVideoInputMode("upload");
+    setUploadedFileName(null);
   };
 
   const handleEdit = (exercise: Exercise) => {
     setEditingExercise(exercise);
+    const isStorage = exercise.video_url?.startsWith("storage:");
+    setVideoInputMode(isStorage ? "upload" : "url");
+    setUploadedFileName(isStorage ? "Previously uploaded video" : null);
     setFormData({
       title: exercise.title,
       description: exercise.description || "",
@@ -295,19 +338,107 @@ const AdminExercises = () => {
                   maxLength={100}
                 />
               </div>
+
+              {/* Video input with toggle between upload and URL */}
               <div>
-                <Label htmlFor="video_url">Video URL (5-second clip)</Label>
-                <Input
-                  id="video_url"
-                  value={formData.video_url}
-                  onChange={(e) => setFormData((p) => ({ ...p, video_url: e.target.value }))}
-                  placeholder="https://..."
-                  className={errors.video_url ? "border-destructive" : ""}
-                />
-                {errors.video_url && <p className="text-xs text-destructive mt-1">{errors.video_url}</p>}
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Exercise Video</Label>
+                  <div className="flex gap-1 bg-muted rounded-md p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => { setVideoInputMode("upload"); setFormData(p => ({ ...p, video_url: "" })); setUploadedFileName(null); }}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                        videoInputMode === "upload"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Upload className="w-3 h-3" />
+                      Upload
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setVideoInputMode("url"); setFormData(p => ({ ...p, video_url: "" })); setUploadedFileName(null); }}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                        videoInputMode === "url"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Link className="w-3 h-3" />
+                      YouTube URL
+                    </button>
+                  </div>
+                </div>
+
+                {videoInputMode === "upload" ? (
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="video/mp4,video/quicktime,video/webm,video/x-msvideo"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file);
+                      }}
+                    />
+                    {uploadedFileName ? (
+                      <div className="flex items-center gap-2 p-3 border border-border rounded-md bg-muted/30">
+                        <Play className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span className="text-sm truncate flex-1">{uploadedFileName}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setUploadedFileName(null);
+                            setFormData(p => ({ ...p, video_url: "" }));
+                          }}
+                          className="text-xs"
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full h-20 border-dashed"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                      >
+                        {isUploading ? (
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="text-sm">Uploading...</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-1">
+                            <Upload className="w-5 h-5 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">
+                              MP4, MOV, WebM — up to 50MB
+                            </span>
+                          </div>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <Input
+                      value={formData.video_url}
+                      onChange={(e) => setFormData((p) => ({ ...p, video_url: e.target.value }))}
+                      placeholder="https://youtube.com/watch?v=..."
+                      className={errors.video_url ? "border-destructive" : ""}
+                    />
+                    {errors.video_url && <p className="text-xs text-destructive mt-1">{errors.video_url}</p>}
+                  </div>
+                )}
               </div>
+
               <div>
-                <Label htmlFor="thumbnail_url">Thumbnail URL</Label>
+                <Label htmlFor="thumbnail_url">Thumbnail URL (optional)</Label>
                 <Input
                   id="thumbnail_url"
                   value={formData.thumbnail_url}
@@ -321,7 +452,7 @@ const AdminExercises = () => {
                 <Button type="button" variant="outline" onClick={resetForm}>
                   Cancel
                 </Button>
-                <Button type="submit" variant="apollo" disabled={createMutation.isPending || updateMutation.isPending}>
+                <Button type="submit" variant="apollo" disabled={createMutation.isPending || updateMutation.isPending || isUploading}>
                   {editingExercise ? "Update" : "Create"}
                 </Button>
               </div>
@@ -425,7 +556,12 @@ const AdminExercises = () => {
           </DialogHeader>
           <div className="aspect-video w-full">
             {videoPreview && (() => {
-              const embedUrl = getYouTubeEmbedUrl(videoPreview.url);
+              const url = videoPreview.url;
+              // Handle storage URLs
+              if (url.startsWith("storage:")) {
+                return <StorageVideoPlayer storagePath={url.replace("storage:", "")} />;
+              }
+              const embedUrl = getYouTubeEmbedUrl(url);
               return embedUrl ? (
                 <iframe
                   src={embedUrl}
@@ -435,7 +571,7 @@ const AdminExercises = () => {
                   title={videoPreview.title}
                 />
               ) : (
-                <video src={videoPreview.url} controls autoPlay className="w-full h-full" />
+                <video src={url} controls autoPlay className="w-full h-full" />
               );
             })()}
           </div>
@@ -443,6 +579,28 @@ const AdminExercises = () => {
       </Dialog>
     </div>
   );
+};
+
+/** Small helper to play videos from storage with a signed URL */
+const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
+  const [bucket, ...pathParts] = storagePath.split("/");
+  const filePath = pathParts.join("/");
+
+  const { data: signedUrl } = useQuery({
+    queryKey: ["signed-video", storagePath],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(filePath, 3600);
+      if (error) throw error;
+      return data.signedUrl;
+    },
+    staleTime: 1000 * 60 * 30,
+  });
+
+  if (!signedUrl) return <div className="w-full h-full flex items-center justify-center bg-black"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
+
+  return <video src={signedUrl} controls autoPlay className="w-full h-full" />;
 };
 
 export default AdminExercises;

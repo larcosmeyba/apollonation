@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Play } from "lucide-react";
+import { Play, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const getYouTubeVideoId = (url: string): string | null => {
@@ -50,8 +50,9 @@ const ExerciseVideoButton = ({ exerciseName }: ExerciseVideoButtonProps) => {
 
   if (!exercise?.video_url) return null;
 
-  const thumbnail = getYouTubeThumbnail(exercise.video_url);
-  const embedUrl = getYouTubeEmbedUrl(exercise.video_url);
+  const isStorage = exercise.video_url.startsWith("storage:");
+  const thumbnail = !isStorage ? getYouTubeThumbnail(exercise.video_url) : null;
+  const embedUrl = !isStorage ? getYouTubeEmbedUrl(exercise.video_url) : null;
 
   return (
     <>
@@ -88,7 +89,9 @@ const ExerciseVideoButton = ({ exerciseName }: ExerciseVideoButtonProps) => {
             )}
           </DialogHeader>
           <div className="aspect-video w-full bg-black">
-            {embedUrl && open ? (
+            {open && isStorage ? (
+              <StorageVideoPlayer storagePath={exercise.video_url.replace("storage:", "")} />
+            ) : embedUrl && open ? (
               <iframe
                 src={embedUrl}
                 className="w-full h-full"
@@ -103,6 +106,34 @@ const ExerciseVideoButton = ({ exerciseName }: ExerciseVideoButtonProps) => {
       </Dialog>
     </>
   );
+};
+
+/** Plays a video from private storage using a signed URL */
+const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
+  const [bucket, ...pathParts] = storagePath.split("/");
+  const filePath = pathParts.join("/");
+
+  const { data: signedUrl, isLoading } = useQuery({
+    queryKey: ["signed-video", storagePath],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(filePath, 3600);
+      if (error) throw error;
+      return data.signedUrl;
+    },
+    staleTime: 1000 * 60 * 30,
+  });
+
+  if (isLoading || !signedUrl) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return <video src={signedUrl} controls autoPlay className="w-full h-full" />;
 };
 
 export default ExerciseVideoButton;
