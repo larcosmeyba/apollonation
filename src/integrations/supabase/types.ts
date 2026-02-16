@@ -217,6 +217,39 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_activity_logs: {
+        Row: {
+          activity_name: string
+          calories_burned: number | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          log_date: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_name: string
+          calories_burned?: number | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          log_date?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_name?: string
+          calories_burned?: number | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          log_date?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       exercise_set_logs: {
         Row: {
           created_at: string
