@@ -1,9 +1,15 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 
 const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Terms of Service"
+        description="Apollo Nation's terms of service. Read the terms and conditions governing your use of our fitness platform."
+        path="/terms"
+      />
       <Navbar />
       <main className="container mx-auto px-4 py-24 max-w-4xl">
         <h1 className="font-heading text-4xl md:text-5xl mb-8">
