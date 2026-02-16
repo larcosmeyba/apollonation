@@ -46,8 +46,8 @@ serve(async (req) => {
     // Parse request body
     const { client_user_id, new_status } = await req.json();
     if (!client_user_id || !new_status) throw new Error("client_user_id and new_status required");
-    if (!["active", "frozen", "archived"].includes(new_status)) {
-      throw new Error("Invalid status. Must be active, frozen, or archived");
+    if (!["active", "frozen", "archived", "cancelled"].includes(new_status)) {
+      throw new Error("Invalid status. Must be active, frozen, archived, or cancelled");
     }
     logStep("Request parsed", { client_user_id, new_status });
 
@@ -96,13 +96,17 @@ serve(async (req) => {
         }
         stripeAction = activeSubs.data.length > 0 ? "paused" : "no_active_subs";
 
-      } else if (new_status === "archived") {
+      } else if (new_status === "cancelled") {
         // Cancel all subscriptions (active + paused)
         for (const sub of allSubs) {
           await stripe.subscriptions.cancel(sub.id);
           logStep("Subscription cancelled", { subId: sub.id });
         }
         stripeAction = allSubs.length > 0 ? "cancelled" : "no_subs";
+
+      } else if (new_status === "archived") {
+        // Archive is just a DB status change — no Stripe action
+        stripeAction = "none";
 
       } else if (new_status === "active") {
         // Resume paused subscriptions
