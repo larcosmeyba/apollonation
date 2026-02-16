@@ -62,7 +62,7 @@ const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, note
 
   const thumbnail = exercise?.video_url ? getYouTubeThumbnail(exercise.video_url) : exercise?.thumbnail_url;
   const embedUrl = exercise?.video_url
-    ? `https://www.youtube.com/embed/${getYouTubeVideoId(exercise.video_url)}?autoplay=1`
+    ? `https://www.youtube-nocookie.com/embed/${getYouTubeVideoId(exercise.video_url)}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
     : null;
 
   return (
@@ -109,14 +109,14 @@ const ExerciseTile = ({ exerciseName, sets, reps, restSeconds, muscleGroup, note
       </div>
 
       <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden">
-          <DialogHeader className="p-4 pb-2">
-            <DialogTitle className="text-base">{exercise?.title || exerciseName}</DialogTitle>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-black border-border/30">
+          <DialogHeader className="p-4 pb-2 bg-background">
+            <DialogTitle className="font-heading text-base tracking-wide">{exercise?.title || exerciseName}</DialogTitle>
             {exercise?.description && <p className="text-xs text-muted-foreground mt-1">{exercise.description}</p>}
           </DialogHeader>
-          <div className="aspect-video w-full">
+          <div className="aspect-video w-full bg-black">
             {embedUrl && videoOpen ? (
-              <iframe src={embedUrl} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen title={exerciseName} />
+              <iframe src={embedUrl} className="w-full h-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen title={exerciseName} style={{ border: 0 }} />
             ) : null}
           </div>
         </DialogContent>
