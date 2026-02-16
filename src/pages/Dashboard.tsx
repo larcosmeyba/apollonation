@@ -1,14 +1,16 @@
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Dumbbell, Utensils, Camera, CreditCard, Calendar, BookOpen, ChevronRight } from "lucide-react";
+import { Dumbbell, Utensils, CreditCard, Calendar, BookOpen, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MessageInboxPreview from "@/components/dashboard/MessageInboxPreview";
+import DashboardNutritionCard from "@/components/dashboard/DashboardNutritionCard";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 const Dashboard = () => {
   const { user, profile, subscription } = useAuth();
@@ -16,9 +18,7 @@ const Dashboard = () => {
   const [managingPortal, setManagingPortal] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const isElite = profile?.subscription_tier === "elite";
-  const isPro = profile?.subscription_tier === "pro" || isElite;
 
-  // Check if welcome message should be shown (first login only)
   useEffect(() => {
     if (profile && !(profile as any).welcome_seen) {
       setShowWelcome(true);
@@ -35,12 +35,11 @@ const Dashboard = () => {
     }
   };
 
-  // Fetch today's workout from training plan
+  // Fetch today's workout
   const { data: todayWorkout } = useQuery({
     queryKey: ["today-workout", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      // Get active training plan
       const { data: plans } = await (supabase as any)
         .from("client_training_plans")
         .select("*, client_questionnaires!client_training_plans_questionnaire_id_fkey(cycle_start_date)")
@@ -59,7 +58,6 @@ const Dashboard = () => {
       const diffDays = Math.floor((today.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24));
       const dayNumber = (diffDays % (plan.duration_weeks * 7)) + 1;
 
-      // Get today's training day
       const { data: days } = await (supabase as any)
         .from("training_plan_days")
         .select("*, training_plan_exercises(*)")
@@ -82,41 +80,30 @@ const Dashboard = () => {
     try {
       const { data, error } = await supabase.functions.invoke("customer-portal");
       if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
+      if (data?.url) window.open(data.url, "_blank");
     } catch (err: any) {
-      toast({
-        title: "Error",
-        description: err.message || "Could not open subscription management.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: err.message || "Could not open subscription management.", variant: "destructive" });
     } finally {
       setManagingPortal(false);
     }
   };
 
-  const quickLinks = [
-    { title: "Meal Plan", icon: Utensils, href: "/dashboard/nutrition", description: "Your personalized nutrition" },
-    { title: "Workout Library", icon: Dumbbell, href: "/dashboard/workouts", description: "Browse all workouts" },
-    { title: "Recipes", icon: BookOpen, href: "/dashboard/recipes", description: "Healthy meal ideas" },
-    { title: "Macro Tracker", icon: Camera, href: "/dashboard/macros", description: isElite ? "Track your nutrition" : "Elite only", locked: !isElite },
-    { title: "Calendar", icon: Calendar, href: "/dashboard/calendar", description: "Your schedule" },
-  ];
+  const todayDate = format(new Date(), "EEEE, MMM d");
+  const isRestDay = !todayWorkout;
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Welcome header + tier badge */}
+      <div className="max-w-2xl mx-auto space-y-5">
+        {/* Date + Greeting */}
         <div>
-          <h1 className="font-heading text-2xl md:text-3xl mb-1">
-            Welcome back,{" "}
-            <span className="text-apollo-gold">
-              {profile?.display_name || "Warrior"}
-            </span>
+          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">
+            TODAY, {todayDate.toUpperCase()}
+          </p>
+          <h1 className="font-heading text-2xl md:text-3xl">
+            Hello, {profile?.display_name || "Warrior"}! 👋
           </h1>
-          <div className="flex flex-wrap items-center gap-3 mt-2">
-            <Badge className="bg-apollo-gold/10 text-apollo-gold border-apollo-gold/20 hover:bg-apollo-gold/20">
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
               {profile?.subscription_tier || "Basic"} Member
             </Badge>
             {subscription?.subscribed && subscription.subscription_end && (
@@ -141,119 +128,98 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Main layout: Today's Workout (left) + Messages (right) */}
-        <div className="grid lg:grid-cols-5 gap-6">
-          {/* Today's Workout - larger left column */}
-          <div className="lg:col-span-3">
-            <div className="card-apollo p-5 h-full">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading text-lg">Today's Workout</h2>
-                <Link to="/dashboard/training">
-                  <Button variant="ghost" size="sm" className="text-apollo-gold text-xs">
-                    Full Program <ChevronRight className="w-3 h-3 ml-1" />
-                  </Button>
-                </Link>
-              </div>
-
-              {todayWorkout ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-apollo-gold/10 flex items-center justify-center">
-                      <Dumbbell className="w-5 h-5 text-apollo-gold" />
-                    </div>
-                    <div>
-                      <p className="font-heading text-base">{todayWorkout.day_label || `Day ${todayWorkout.day_number}`}</p>
-                      {todayWorkout.focus && (
-                        <p className="text-xs text-apollo-gold">{todayWorkout.focus}</p>
-                      )}
-                    </div>
+        {/* Today's Workout Card */}
+        <div className="card-apollo p-5">
+          {isRestDay ? (
+            <div className="py-6 text-center">
+              <p className="text-xs text-primary uppercase tracking-wider mb-2">REST DAY</p>
+              <p className="font-heading text-xl">Hoo-ray it's your rest-day 🌴</p>
+              <p className="text-sm text-muted-foreground mt-2">Recovery is part of the process</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Dumbbell className="w-5 h-5 text-primary" />
                   </div>
-
-                  <div className="space-y-2">
-                    {todayWorkout.exercises.slice(0, 6).map((ex: any, i: number) => (
-                      <div key={ex.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 border border-border/50">
-                        <span className="w-6 h-6 rounded-full bg-apollo-gold/20 flex items-center justify-center text-xs font-medium text-apollo-gold flex-shrink-0">
-                          {i + 1}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{ex.exercise_name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {ex.sets} sets × {ex.reps} reps
-                            {ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                    {todayWorkout.exercises.length > 6 && (
-                      <p className="text-xs text-muted-foreground text-center pt-1">
-                        +{todayWorkout.exercises.length - 6} more exercises
-                      </p>
+                  <div>
+                    <p className="font-heading text-base">{todayWorkout?.day_label || `Day ${todayWorkout?.day_number}`}</p>
+                    {todayWorkout?.focus && (
+                      <p className="text-xs text-primary">{todayWorkout.focus}</p>
                     )}
                   </div>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Dumbbell className="w-10 h-10 text-muted-foreground/30 mb-3" />
-                  <p className="text-muted-foreground text-sm">No workout scheduled for today</p>
-                  <Link to="/dashboard/training" className="mt-2">
-                    <Button variant="apollo-outline" size="sm">View Training Program</Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Messages - right column */}
-          <div className="lg:col-span-2">
-            <MessageInboxPreview />
-          </div>
-        </div>
-
-        {/* Quick Access Menu */}
-        <div>
-          <h2 className="font-heading text-lg mb-3">Quick Access</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {quickLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.locked ? "#" : link.href}
-                onClick={(e) => link.locked && e.preventDefault()}
-                className={`card-apollo p-4 text-center group transition-all ${
-                  link.locked ? "opacity-50 cursor-not-allowed" : "hover:border-apollo-gold/50"
-                }`}
-              >
-                <div className="w-10 h-10 rounded-lg bg-apollo-gold/10 flex items-center justify-center mx-auto mb-2">
-                  <link.icon className="w-5 h-5 text-apollo-gold" />
-                </div>
-                <p className="font-heading text-sm">{link.title}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{link.description}</p>
-                {link.locked && (
-                  <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded mt-1 inline-block">Elite</span>
+                <Link to="/dashboard/training">
+                  <Button variant="ghost" size="sm" className="text-primary text-xs">
+                    View <ChevronRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="space-y-2">
+                {todayWorkout?.exercises.slice(0, 5).map((ex: any, i: number) => (
+                  <div key={ex.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 border border-border/50">
+                    <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
+                      {i + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{ex.exercise_name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {ex.sets} × {ex.reps}
+                        {ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {(todayWorkout?.exercises.length || 0) > 5 && (
+                  <p className="text-xs text-muted-foreground text-center pt-1">
+                    +{todayWorkout!.exercises.length - 5} more
+                  </p>
                 )}
-              </Link>
-            ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Nutrition Tracker Card with + Log Meal */}
+        <DashboardNutritionCard />
+
+        {/* Quick Access */}
+        <div>
+          <h2 className="font-heading text-base mb-3">Quick Access</h2>
+          <div className="grid grid-cols-3 gap-3">
+            <Link to="/dashboard/nutrition" className="card-apollo p-3 text-center hover:border-primary/50 transition-all">
+              <Utensils className="w-5 h-5 text-primary mx-auto mb-1" />
+              <p className="text-xs font-medium">Meal Plan</p>
+            </Link>
+            <Link to="/dashboard/recipes" className="card-apollo p-3 text-center hover:border-primary/50 transition-all">
+              <BookOpen className="w-5 h-5 text-primary mx-auto mb-1" />
+              <p className="text-xs font-medium">Recipes</p>
+            </Link>
+            <Link to="/dashboard/calendar" className="card-apollo p-3 text-center hover:border-primary/50 transition-all">
+              <Calendar className="w-5 h-5 text-primary mx-auto mb-1" />
+              <p className="text-xs font-medium">Calendar</p>
+            </Link>
           </div>
         </div>
 
-        {/* Welcome message from Coach Marcos - shown only once */}
+        {/* Messages preview */}
+        <MessageInboxPreview />
+
+        {/* Welcome message - shown once */}
         {showWelcome && (
           <div className="card-apollo-featured p-5 relative">
-            <button
-              onClick={dismissWelcome}
-              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground text-xs"
-            >
-              ✕
-            </button>
+            <button onClick={dismissWelcome} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground text-xs">✕</button>
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-apollo-gold/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-xl">💪</span>
               </div>
               <div>
                 <h3 className="font-heading text-base mb-1">Welcome from Coach Marcos</h3>
                 <p className="text-muted-foreground text-sm">
-                  "Welcome to the APOLLO NATION family! Every workout brings you closer to your best self. I'm here to guide you every step of the way. Let's get to work!"
+                  "Welcome to the APOLLO NATION family! Every workout brings you closer to your best self."
                 </p>
-                <p className="text-apollo-gold text-xs mt-2 font-medium">— Marcos Leyba, Founder</p>
+                <p className="text-primary text-xs mt-2 font-medium">— Marcos Leyba, Founder</p>
               </div>
             </div>
           </div>
