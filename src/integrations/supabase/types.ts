@@ -425,6 +425,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string
           avatar_url: string | null
           bio: string | null
           created_at: string
@@ -432,12 +433,14 @@ export type Database = {
           fitness_goals: string | null
           id: string
           manual_subscription: boolean
+          status_changed_at: string | null
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
           user_id: string
           welcome_seen: boolean
         }
         Insert: {
+          account_status?: string
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -445,12 +448,14 @@ export type Database = {
           fitness_goals?: string | null
           id?: string
           manual_subscription?: boolean
+          status_changed_at?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id: string
           welcome_seen?: boolean
         }
         Update: {
+          account_status?: string
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -458,6 +463,7 @@ export type Database = {
           fitness_goals?: string | null
           id?: string
           manual_subscription?: boolean
+          status_changed_at?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id?: string
