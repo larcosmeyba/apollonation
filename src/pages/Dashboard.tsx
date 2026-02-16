@@ -4,8 +4,8 @@ import { Dumbbell, Utensils, CreditCard, Calendar, BookOpen, ChevronRight } from
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import MessageInboxPreview from "@/components/dashboard/MessageInboxPreview";
 import DashboardNutritionCard from "@/components/dashboard/DashboardNutritionCard";
+import DashboardStepTracker from "@/components/dashboard/DashboardStepTracker";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -181,6 +181,9 @@ const Dashboard = () => {
           )}
         </div>
 
+        {/* Step Tracker */}
+        <DashboardStepTracker />
+
         {/* Nutrition Tracker Card with + Log Meal */}
         <DashboardNutritionCard />
 
@@ -202,9 +205,6 @@ const Dashboard = () => {
             </Link>
           </div>
         </div>
-
-        {/* Messages preview */}
-        <MessageInboxPreview />
 
         {/* Welcome message - shown once */}
         {showWelcome && (
