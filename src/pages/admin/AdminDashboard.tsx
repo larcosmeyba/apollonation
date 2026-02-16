@@ -1,7 +1,5 @@
 import { useState } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dumbbell, Utensils, Activity, Users, MessageSquare, Inbox, Apple } from "lucide-react";
+import AdminLayout from "@/components/admin/AdminLayout";
 import AdminWorkouts from "@/components/admin/AdminWorkouts";
 import AdminRecipes from "@/components/admin/AdminRecipes";
 import AdminExercises from "@/components/admin/AdminExercises";
@@ -9,85 +7,43 @@ import AdminUsers from "@/components/admin/AdminUsers";
 import AdminMessages from "@/components/admin/AdminMessages";
 import AdminContactRequests from "@/components/admin/AdminContactRequests";
 import AdminNutrition from "@/components/admin/AdminNutrition";
+import AdminBroadcast from "@/components/admin/AdminBroadcast";
+import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("workouts");
+  const [activeTab, setActiveTab] = useState("messages");
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "messages":
+        return <AdminMessages />;
+      case "broadcast":
+        return <AdminBroadcast />;
+      case "workouts":
+        return <AdminWorkouts />;
+      case "exercises":
+        return <AdminExercises />;
+      case "users":
+        return <AdminUsers />;
+      case "recipes":
+        return <AdminRecipes />;
+      case "nutrition":
+        return <AdminNutrition />;
+      case "contacts":
+        return <AdminContactRequests />;
+      case "profile":
+        return <AdminCoachProfile />;
+      default:
+        return <AdminMessages />;
+    }
+  };
 
   return (
-    <DashboardLayout>
+    <AdminLayout activeTab={activeTab} onTabChange={setActiveTab}>
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-heading text-3xl md:text-4xl mb-2">
-            Admin <span className="text-apollo-gold">Dashboard</span>
-          </h1>
-          <p className="text-muted-foreground">
-            Manage workouts, recipes, exercises, and user access
-          </p>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-muted/50 p-1">
-            <TabsTrigger value="workouts" className="gap-2">
-              <Dumbbell className="w-4 h-4" />
-              <span className="hidden sm:inline">Workouts</span>
-            </TabsTrigger>
-            <TabsTrigger value="recipes" className="gap-2">
-              <Utensils className="w-4 h-4" />
-              <span className="hidden sm:inline">Recipes</span>
-            </TabsTrigger>
-            <TabsTrigger value="exercises" className="gap-2">
-              <Activity className="w-4 h-4" />
-              <span className="hidden sm:inline">Exercise Library</span>
-            </TabsTrigger>
-            <TabsTrigger value="users" className="gap-2">
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Users</span>
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="gap-2">
-              <MessageSquare className="w-4 h-4" />
-              <span className="hidden sm:inline">Messages</span>
-            </TabsTrigger>
-            <TabsTrigger value="contacts" className="gap-2">
-              <Inbox className="w-4 h-4" />
-              <span className="hidden sm:inline">Contact Requests</span>
-            </TabsTrigger>
-            <TabsTrigger value="nutrition" className="gap-2">
-              <Apple className="w-4 h-4" />
-              <span className="hidden sm:inline">Nutrition</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="workouts">
-            <AdminWorkouts />
-          </TabsContent>
-
-          <TabsContent value="recipes">
-            <AdminRecipes />
-          </TabsContent>
-
-          <TabsContent value="exercises">
-            <AdminExercises />
-          </TabsContent>
-
-          <TabsContent value="users">
-            <AdminUsers />
-          </TabsContent>
-
-          <TabsContent value="messages">
-            <AdminMessages />
-          </TabsContent>
-
-          <TabsContent value="contacts">
-            <AdminContactRequests />
-          </TabsContent>
-
-          <TabsContent value="nutrition">
-            <AdminNutrition />
-          </TabsContent>
-        </Tabs>
+        {renderContent()}
       </div>
-    </DashboardLayout>
+    </AdminLayout>
   );
 };
 
