@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   Megaphone,
+  ClipboardList,
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -28,6 +29,7 @@ interface AdminLayoutProps {
 const navItems = [
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "broadcast", label: "Broadcast", icon: Megaphone },
+  { id: "client-plans", label: "Client Plans", icon: ClipboardList },
   { id: "workouts", label: "Workouts", icon: Dumbbell },
   { id: "exercises", label: "Exercise Library", icon: Activity },
   { id: "users", label: "Clients", icon: Users },
