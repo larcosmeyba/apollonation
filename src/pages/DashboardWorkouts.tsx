@@ -2,6 +2,17 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+
+const getYouTubeEmbedUrl = (url: string): string => {
+  if (url.includes("/embed/")) return url;
+  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+  const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+  const shortsMatch = url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
+  if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+  return url;
+};
 import { Play, Clock, Flame, Filter, Heart, Dumbbell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -221,7 +232,7 @@ const DashboardWorkouts = () => {
               {selectedWorkout.video_url ? (
                 <div className="relative aspect-video w-full">
                   <iframe
-                    src={selectedWorkout.video_url.replace("watch?v=", "embed/")}
+                    src={getYouTubeEmbedUrl(selectedWorkout.video_url)}
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
