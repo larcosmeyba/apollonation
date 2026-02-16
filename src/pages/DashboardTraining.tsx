@@ -76,7 +76,7 @@ const ExerciseTile = ({
   logDate, userId, setLogs, exerciseNote, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
 }: ExerciseTileProps) => {
   const [videoOpen, setVideoOpen] = useState(false);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [noteExpanded, setNoteExpanded] = useState(false);
 
   const isCompleted = exerciseNote?.is_completed || false;
@@ -96,85 +96,88 @@ const ExerciseTile = ({
   });
 
   const isStorage = exercise?.video_url?.startsWith("storage:");
-  const thumbnail = exercise?.video_url && !isStorage ? getYouTubeThumbnail(exercise.video_url) : exercise?.thumbnail_url;
   const embedUrl = exercise?.video_url && !isStorage
     ? `https://www.youtube-nocookie.com/embed/${getYouTubeVideoId(exercise.video_url)}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
     : null;
 
   return (
     <>
-      <div className={`card-apollo overflow-hidden transition-all ${isCompleted ? "border-green-500/40 bg-green-500/5" : "hover:border-apollo-gold/50"}`}>
-        {/* Video thumbnail header */}
-        <button
-          onClick={() => exercise?.video_url && setVideoOpen(true)}
-          className="relative w-full aspect-video bg-muted overflow-hidden group"
-          disabled={!exercise?.video_url}
-        >
-          {thumbnail ? (
-            <img src={thumbnail} alt={exerciseName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Dumbbell className="w-10 h-10 text-muted-foreground/20" />
-            </div>
-          )}
-          {exercise?.video_url && (
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="w-14 h-14 rounded-full bg-apollo-gold flex items-center justify-center">
-                <Play className="w-6 h-6 text-primary-foreground ml-0.5" fill="currentColor" />
-              </div>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
-            <p className="font-heading text-sm text-white text-left truncate">{exerciseName}</p>
-            {isCompleted && <Check className="w-5 h-5 text-green-400 flex-shrink-0" />}
-          </div>
-        </button>
+      <div className={`card-apollo overflow-hidden transition-all ${isCompleted ? "border-green-500/40 bg-green-500/5 opacity-75" : ""}`}>
+        {/* Compact header row */}
+        <div className="flex items-center gap-3 p-3">
+          <Checkbox
+            id={`complete-${exerciseId}`}
+            checked={isCompleted}
+            onCheckedChange={(checked) => onToggleComplete(exerciseId, !!checked)}
+            className="flex-shrink-0"
+          />
 
-        <div className="p-3 space-y-3">
-          {/* Header row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{totalSets} sets × {reps}</span>
-              {restSeconds && <span>· {restSeconds}s rest</span>}
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="flex-1 min-w-0 text-left"
+          >
+            <p className={`font-heading text-sm leading-tight truncate ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
+              {exerciseName}
+            </p>
+            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
+              <span>{totalSets}×{reps}</span>
+              {restSeconds ? <span>· {restSeconds}s rest</span> : null}
+              {muscleGroup && <span>· <span className="capitalize">{muscleGroup}</span></span>}
             </div>
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={onSwap} title="Swap exercise" className="h-7 w-7 p-0">
-                <RefreshCw className="w-3 h-3" />
+          </button>
+
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {exercise?.video_url && (
+              <Button variant="ghost" size="sm" onClick={() => setVideoOpen(true)} className="h-7 w-7 p-0" title="Watch demo">
+                <Play className="w-3.5 h-3.5 text-primary" />
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => setExpanded(!expanded)} className="h-7 w-7 p-0">
-                {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </Button>
-            </div>
+            )}
+            <Button variant="ghost" size="sm" onClick={onSwap} title="Swap" className="h-7 w-7 p-0">
+              <RefreshCw className="w-3 h-3" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setExpanded(!expanded)} className="h-7 w-7 p-0">
+              {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </Button>
           </div>
+        </div>
 
-          {muscleGroup && <Badge variant="secondary" className="text-[10px]">{muscleGroup}</Badge>}
-          {notes && <p className="text-xs text-muted-foreground italic line-clamp-2">{notes}</p>}
+        {/* Coach notes (always visible if present) */}
+        {notes && !expanded && (
+          <div className="px-3 pb-2">
+            <p className="text-[11px] text-muted-foreground italic line-clamp-1">{notes}</p>
+          </div>
+        )}
 
-          {/* Set logging rows */}
-          {expanded && (
-            <div className="space-y-2">
-              <div className="grid grid-cols-[auto_1fr_1fr] gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-1">
-                <span className="w-8">Set</span>
-                <span>Weight (lbs)</span>
+        {/* Expandable section: set logging + notes */}
+        {expanded && (
+          <div className="px-3 pb-3 space-y-3 border-t border-border/40 pt-3">
+            {notes && <p className="text-[11px] text-muted-foreground italic">{notes}</p>}
+
+            {/* Set logging table */}
+            <div className="space-y-1.5">
+              <div className="grid grid-cols-[28px_1fr_1fr] gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                <span></span>
+                <span>lbs</span>
                 <span>Reps</span>
               </div>
               {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
                 const log = setLogs.find(l => l.set_number === setNum);
                 return (
-                  <div key={setNum} className="grid grid-cols-[auto_1fr_1fr] gap-2 items-center">
-                    <span className="w-8 text-xs font-heading text-muted-foreground text-center">{setNum}</span>
+                  <div key={setNum} className="grid grid-cols-[28px_1fr_1fr] gap-1.5 items-center">
+                    <span className="text-[11px] font-heading text-muted-foreground text-center">{setNum}</span>
                     <Input
                       type="number"
+                      inputMode="decimal"
                       placeholder="—"
-                      className="h-8 text-xs text-center"
+                      className="h-8 text-xs text-center px-1"
                       value={log?.weight ?? ""}
                       onChange={(e) => onSetLogChange(exerciseId, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
                     />
                     <Input
                       type="number"
+                      inputMode="numeric"
                       placeholder={reps || "—"}
-                      className="h-8 text-xs text-center"
+                      className="h-8 text-xs text-center px-1"
                       value={log?.reps_completed ?? ""}
                       onChange={(e) => onSetLogChange(exerciseId, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null)}
                     />
@@ -182,39 +185,26 @@ const ExerciseTile = ({
                 );
               })}
             </div>
-          )}
 
-          {/* Notes toggle */}
-          <button
-            onClick={() => setNoteExpanded(!noteExpanded)}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <StickyNote className="w-3 h-3" />
-            {exerciseNote?.note ? "View note" : "Add note"}
-          </button>
-
-          {noteExpanded && (
-            <Textarea
-              placeholder="Personal notes (e.g., felt easy, increase weight next time...)"
-              className="text-xs min-h-[60px] resize-none"
-              value={exerciseNote?.note || ""}
-              onChange={(e) => onNoteChange(exerciseId, e.target.value)}
-              maxLength={500}
-            />
-          )}
-
-          {/* Complete checkbox */}
-          <div className="flex items-center gap-2 pt-1 border-t border-border/50">
-            <Checkbox
-              id={`complete-${exerciseId}`}
-              checked={isCompleted}
-              onCheckedChange={(checked) => onToggleComplete(exerciseId, !!checked)}
-            />
-            <label htmlFor={`complete-${exerciseId}`} className="text-xs font-medium cursor-pointer select-none">
-              {isCompleted ? "Completed ✓" : "Mark as done"}
-            </label>
+            {/* Personal note */}
+            <button
+              onClick={() => setNoteExpanded(!noteExpanded)}
+              className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <StickyNote className="w-3 h-3" />
+              {exerciseNote?.note ? "View note" : "Add note"}
+            </button>
+            {noteExpanded && (
+              <Textarea
+                placeholder="Personal notes..."
+                className="text-xs min-h-[50px] resize-none"
+                value={exerciseNote?.note || ""}
+                onChange={(e) => onNoteChange(exerciseId, e.target.value)}
+                maxLength={500}
+              />
+            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Video Dialog */}
@@ -664,7 +654,7 @@ const DashboardTraining = () => {
               </div>
             )}
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
               {todayWorkout.training_plan_exercises
                 ?.sort((a: any, b: any) => a.sort_order - b.sort_order)
                 .map((ex: any) => (
