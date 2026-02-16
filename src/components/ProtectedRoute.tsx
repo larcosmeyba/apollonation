@@ -26,11 +26,10 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Block frozen, cancelled, or archived accounts
+  // Block frozen or archived accounts
   if (profile?.account_status === "frozen" || profile?.account_status === "archived") {
     const messages: Record<string, { title: string; desc: string }> = {
       frozen: { title: "Account Frozen", desc: "Your account has been temporarily frozen. Please contact Coach Marcos for assistance." },
-      cancelled: { title: "Membership Cancelled", desc: "Your membership has been cancelled. Please contact Coach Marcos to resubscribe." },
       archived: { title: "Account Inactive", desc: "Your membership is no longer active. Please contact Coach Marcos to reactivate." },
     };
     const msg = messages[profile.account_status] || messages.archived;
@@ -42,6 +41,11 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
         </div>
       </div>
     );
+  }
+
+  // Cancelled accounts go straight to subscribe page to renew
+  if (profile?.account_status === "cancelled") {
+    return <Navigate to="/subscribe" replace />;
   }
 
   // Admins bypass subscription and tier checks
