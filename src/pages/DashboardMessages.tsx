@@ -42,7 +42,10 @@ const AdminInbox = () => {
   useEffect(() => {
     const chatParam = searchParams.get("chat");
     if (chatParam) setSelectedChat(chatParam);
-  }, [searchParams]);
+    else if (!selectedChat && conversations.length > 0) {
+      setSelectedChat(conversations[0].partnerId);
+    }
+  }, [searchParams, conversations]);
 
   const handleSelectChat = (partnerId: string) => {
     setSelectedChat(partnerId);
