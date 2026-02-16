@@ -15,24 +15,21 @@ serve(async (req) => {
   }
 
   try {
-    const { record } = await req.json();
+    const body = await req.json();
+    
+    // Support both trigger format (record) and direct call format (email, displayName)
+    const email = body.email || body.record?.email;
+    const displayName = body.displayName || body.record?.display_name || "No name provided";
 
-    if (!record || !record.user_id) {
-      return new Response(JSON.stringify({ error: "No record provided" }), {
+    if (!email) {
+      return new Response(JSON.stringify({ error: "No email provided" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+    const userEmail = email;
 
-    // Get the new user's email
-    const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(record.user_id);
-    const userEmail = userData?.user?.email || "unknown";
-    const displayName = record.display_name || "No name provided";
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {
