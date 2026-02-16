@@ -46,26 +46,46 @@ serve(async (req) => {
     );
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
-    if (userError || !userData.user) {
-      return new Response(JSON.stringify({ error: "Invalid token" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const body = await req.json();
+    const { recipientId, senderId: triggerSenderId, fromTrigger } = body;
+
+    let senderId: string;
+    let senderIsAdmin = false;
+
+    if (fromTrigger) {
+      // Called from database trigger with service role key — senderId is provided
+      senderId = triggerSenderId;
+      if (!senderId) {
+        return new Response(JSON.stringify({ error: "Missing senderId" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Check if sender is admin
+      const { data: roleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", senderId)
+        .eq("role", "admin")
+        .single();
+      senderIsAdmin = !!roleData;
+    } else {
+      // Called from client-side with user JWT
+      const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+      if (userError || !userData.user) {
+        return new Response(JSON.stringify({ error: "Invalid token" }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      senderId = userData.user.id;
+      const { data: roleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", senderId)
+        .eq("role", "admin")
+        .single();
+      senderIsAdmin = !!roleData;
     }
 
-    const senderId = userData.user.id;
-
-    // Check if sender is admin
-    const { data: roleData } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", senderId)
-      .eq("role", "admin")
-      .single();
-
-    const senderIsAdmin = !!roleData;
-
-    const { recipientId } = await req.json();
     if (!recipientId) {
       return new Response(JSON.stringify({ error: "Missing recipientId" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
