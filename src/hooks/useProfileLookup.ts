@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 
 export const useProfileLookup = (userIds: string[]) => {
-  const { isAdmin } = useAdminStatus();
+  const { isAdmin, loading: adminLoading } = useAdminStatus();
 
   return useQuery({
     queryKey: ["profile-lookup", userIds, isAdmin],
@@ -45,6 +45,6 @@ export const useProfileLookup = (userIds: string[]) => {
 
       return map;
     },
-    enabled: userIds.length > 0,
+    enabled: userIds.length > 0 && !adminLoading,
   });
 };
