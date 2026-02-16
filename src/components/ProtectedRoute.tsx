@@ -27,7 +27,7 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
   }
 
   // Block frozen, cancelled, or archived accounts
-  if (profile?.account_status === "frozen" || profile?.account_status === "cancelled" || profile?.account_status === "archived") {
+  if (profile?.account_status === "frozen" || profile?.account_status === "archived") {
     const messages: Record<string, { title: string; desc: string }> = {
       frozen: { title: "Account Frozen", desc: "Your account has been temporarily frozen. Please contact Coach Marcos for assistance." },
       cancelled: { title: "Membership Cancelled", desc: "Your membership has been cancelled. Please contact Coach Marcos to resubscribe." },
