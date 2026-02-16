@@ -26,6 +26,22 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
+  // Block frozen or archived accounts
+  if (profile?.account_status === "frozen" || profile?.account_status === "archived") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="text-center max-w-md space-y-4">
+          <h1 className="font-heading text-2xl">Account {profile.account_status === "frozen" ? "Frozen" : "Inactive"}</h1>
+          <p className="text-muted-foreground">
+            {profile.account_status === "frozen"
+              ? "Your account has been temporarily frozen. Please contact Coach Marcos for assistance."
+              : "Your membership is no longer active. Please contact Coach Marcos to reactivate."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Admins bypass subscription and tier checks
   if (isAdmin) {
     return <>{children}</>;

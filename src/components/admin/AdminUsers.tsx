@@ -7,14 +7,17 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Pencil, Smartphone, Copy, Check, UserPlus } from "lucide-react";
+import { Pencil, Smartphone, Copy, Check, UserPlus, Snowflake, Archive, RotateCcw, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Profile {
   id: string;
   user_id: string;
   display_name: string | null;
   subscription_tier: "basic" | "pro" | "elite";
+  account_status: string;
+  status_changed_at: string | null;
   created_at: string;
 }
 
@@ -27,6 +30,8 @@ const AdminUsers = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedUserForApp, setSelectedUserForApp] = useState<Profile | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState("active");
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     subscription_tier: "basic" as "basic" | "pro" | "elite",
   });
@@ -49,6 +54,19 @@ const AdminUsers = () => {
     },
   });
 
+  const filteredProfiles = profiles?.filter((p) => {
+    const matchesStatus = p.account_status === statusFilter;
+    const matchesSearch = !searchQuery || 
+      (p.display_name || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
+  const statusCounts = {
+    active: profiles?.filter((p) => p.account_status === "active").length || 0,
+    frozen: profiles?.filter((p) => p.account_status === "frozen").length || 0,
+    archived: profiles?.filter((p) => p.account_status === "archived").length || 0,
+  };
+
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
       const { error } = await supabase
@@ -65,6 +83,31 @@ const AdminUsers = () => {
     },
     onError: (error) => {
       toast({ title: "Error updating user", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ 
+          account_status: status,
+          status_changed_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      const labels: Record<string, string> = {
+        active: "Account reactivated",
+        frozen: "Account frozen",
+        archived: "Account archived",
+      };
+      toast({ title: labels[status] || "Status updated" });
+    },
+    onError: (error) => {
+      toast({ title: "Error updating status", description: error.message, variant: "destructive" });
     },
   });
 
@@ -128,13 +171,24 @@ const AdminUsers = () => {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "frozen":
+        return <span className="px-2 py-0.5 rounded text-[10px] uppercase bg-blue-500/20 text-blue-400">Frozen</span>;
+      case "archived":
+        return <span className="px-2 py-0.5 rounded text-[10px] uppercase bg-muted text-muted-foreground">Archived</span>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="font-heading text-xl">User Management</h2>
+          <h2 className="font-heading text-xl">Client Management</h2>
           <p className="text-sm text-muted-foreground">
-            Manage member subscriptions and app access.
+            Manage clients, memberships, and account status
           </p>
         </div>
         <Button variant="apollo" onClick={() => setIsCreateDialogOpen(true)}>
@@ -143,14 +197,40 @@ const AdminUsers = () => {
         </Button>
       </div>
 
+      {/* Status tabs */}
+      <Tabs value={statusFilter} onValueChange={setStatusFilter}>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <TabsList className="bg-muted/50">
+            <TabsTrigger value="active" className="gap-1.5">
+              Active <span className="text-[10px] opacity-60">({statusCounts.active})</span>
+            </TabsTrigger>
+            <TabsTrigger value="frozen" className="gap-1.5">
+              <Snowflake className="w-3 h-3" /> Frozen <span className="text-[10px] opacity-60">({statusCounts.frozen})</span>
+            </TabsTrigger>
+            <TabsTrigger value="archived" className="gap-1.5">
+              <Archive className="w-3 h-3" /> Archived <span className="text-[10px] opacity-60">({statusCounts.archived})</span>
+            </TabsTrigger>
+          </TabsList>
+          <div className="relative w-full max-w-xs">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search clients..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-9"
+            />
+          </div>
+        </div>
+      </Tabs>
+
       <div className="card-apollo overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Tier</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead className="w-32">Actions</TableHead>
+              <TableHead>{statusFilter === "active" ? "Joined" : "Status Changed"}</TableHead>
+              <TableHead className="w-40">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -158,28 +238,82 @@ const AdminUsers = () => {
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8">Loading...</TableCell>
               </TableRow>
-            ) : profiles?.length === 0 ? (
+            ) : filteredProfiles?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No users yet.</TableCell>
+                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                  {statusFilter === "active" ? "No active clients." : 
+                   statusFilter === "frozen" ? "No frozen accounts." : "No archived clients."}
+                </TableCell>
               </TableRow>
             ) : (
-              profiles?.map((profile) => (
-                <TableRow key={profile.id}>
-                  <TableCell className="font-medium">{profile.display_name || "—"}</TableCell>
+              filteredProfiles?.map((profile) => (
+                <TableRow key={profile.id} className={profile.account_status !== "active" ? "opacity-70" : ""}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{profile.display_name || "—"}</span>
+                      {getStatusBadge(profile.account_status)}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs uppercase ${getTierBadgeColor(profile.subscription_tier)}`}>
                       {profile.subscription_tier}
                     </span>
                   </TableCell>
-                  <TableCell>{new Date(profile.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {statusFilter !== "active" && profile.status_changed_at
+                      ? new Date(profile.status_changed_at).toLocaleDateString()
+                      : new Date(profile.created_at).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
+                      {/* Edit tier */}
                       <Button size="icon" variant="ghost" onClick={() => handleEdit(profile)} title="Edit subscription">
                         <Pencil className="w-4 h-4" />
                       </Button>
-                      {(profile.subscription_tier === "pro" || profile.subscription_tier === "elite") && (
+
+                      {/* App access info */}
+                      {(profile.subscription_tier === "pro" || profile.subscription_tier === "elite") && profile.account_status === "active" && (
                         <Button size="icon" variant="ghost" onClick={() => handleAppAccess(profile)} title="App access info">
                           <Smartphone className="w-4 h-4 text-apollo-gold" />
+                        </Button>
+                      )}
+
+                      {/* Freeze */}
+                      {profile.account_status === "active" && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title="Freeze account"
+                          onClick={() => statusMutation.mutate({ id: profile.id, status: "frozen" })}
+                          disabled={statusMutation.isPending}
+                        >
+                          <Snowflake className="w-4 h-4 text-blue-400" />
+                        </Button>
+                      )}
+
+                      {/* Archive */}
+                      {profile.account_status !== "archived" && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title="Archive account"
+                          onClick={() => statusMutation.mutate({ id: profile.id, status: "archived" })}
+                          disabled={statusMutation.isPending}
+                        >
+                          <Archive className="w-4 h-4 text-muted-foreground" />
+                        </Button>
+                      )}
+
+                      {/* Reactivate */}
+                      {profile.account_status !== "active" && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title="Reactivate account"
+                          onClick={() => statusMutation.mutate({ id: profile.id, status: "active" })}
+                          disabled={statusMutation.isPending}
+                        >
+                          <RotateCcw className="w-4 h-4 text-apollo-gold" />
                         </Button>
                       )}
                     </div>
@@ -319,7 +453,7 @@ const AdminUsers = () => {
                 <div className="flex items-center gap-2">
                   <Input readOnly value={selectedUserForApp?.user_id || ""} className="font-mono text-sm" />
                   <Button size="icon" variant="ghost" onClick={() => copyToClipboard(selectedUserForApp?.user_id || "", "user_id")}>
-                    {copiedField === "user_id" ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    {copiedField === "user_id" ? <Check className="w-4 h-4 text-apollo-gold" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
@@ -328,16 +462,13 @@ const AdminUsers = () => {
                 <div className="flex items-center gap-2">
                   <Input readOnly value={selectedUserForApp?.display_name || "Not set"} className="text-sm" />
                   <Button size="icon" variant="ghost" onClick={() => copyToClipboard(selectedUserForApp?.display_name || "", "name")}>
-                    {copiedField === "name" ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    {copiedField === "name" ? <Check className="w-4 h-4 text-apollo-gold" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
               💡 The user will use the same email/password they created on the website to log into the Apollo Nation mobile app.
-            </p>
-            <p className="text-xs text-muted-foreground/70">
-              🔒 Phone numbers are stored securely and only visible to the user themselves.
             </p>
           </div>
         </DialogContent>

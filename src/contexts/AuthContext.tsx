@@ -10,6 +10,7 @@ interface Profile {
   bio: string | null;
   fitness_goals: string | null;
   subscription_tier: "basic" | "pro" | "elite";
+  account_status: string;
   created_at: string;
   updated_at: string;
 }
