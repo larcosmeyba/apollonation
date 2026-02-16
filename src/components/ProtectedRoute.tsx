@@ -26,25 +26,24 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Block frozen or archived accounts
-  if (profile?.account_status === "frozen" || profile?.account_status === "archived") {
-    const messages: Record<string, { title: string; desc: string }> = {
-      frozen: { title: "Account Frozen", desc: "Your account has been temporarily frozen. Please contact Coach Marcos for assistance." },
-      archived: { title: "Account Inactive", desc: "Your membership is no longer active. Please contact Coach Marcos to reactivate." },
-    };
-    const msg = messages[profile.account_status] || messages.archived;
+  // Block frozen accounts only
+  if (profile?.account_status === "frozen") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="text-center max-w-md space-y-4">
-          <h1 className="font-heading text-2xl">{msg.title}</h1>
-          <p className="text-muted-foreground">{msg.desc}</p>
+          <h1 className="font-heading text-2xl">Account Frozen</h1>
+          <p className="text-muted-foreground">Your account has been temporarily frozen. Please contact Coach Marcos for assistance.</p>
         </div>
       </div>
     );
   }
 
-  // Cancelled accounts go straight to subscribe page to renew
-  if (profile?.account_status === "cancelled") {
+  // Archived and cancelled accounts can still access but get redirected to subscribe if no active sub
+  if (profile?.account_status === "archived" || profile?.account_status === "cancelled") {
+    // Allow access to /subscribe and /dashboard routes so they can reactivate
+    if (location.pathname === "/subscribe") {
+      return <>{children}</>;
+    }
     return <Navigate to="/subscribe" replace />;
   }
 
