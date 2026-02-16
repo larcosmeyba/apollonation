@@ -26,17 +26,19 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Block frozen or archived accounts
-  if (profile?.account_status === "frozen" || profile?.account_status === "archived") {
+  // Block frozen, cancelled, or archived accounts
+  if (profile?.account_status === "frozen" || profile?.account_status === "cancelled" || profile?.account_status === "archived") {
+    const messages: Record<string, { title: string; desc: string }> = {
+      frozen: { title: "Account Frozen", desc: "Your account has been temporarily frozen. Please contact Coach Marcos for assistance." },
+      cancelled: { title: "Membership Cancelled", desc: "Your membership has been cancelled. Please contact Coach Marcos to resubscribe." },
+      archived: { title: "Account Inactive", desc: "Your membership is no longer active. Please contact Coach Marcos to reactivate." },
+    };
+    const msg = messages[profile.account_status] || messages.archived;
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="text-center max-w-md space-y-4">
-          <h1 className="font-heading text-2xl">Account {profile.account_status === "frozen" ? "Frozen" : "Inactive"}</h1>
-          <p className="text-muted-foreground">
-            {profile.account_status === "frozen"
-              ? "Your account has been temporarily frozen. Please contact Coach Marcos for assistance."
-              : "Your membership is no longer active. Please contact Coach Marcos to reactivate."}
-          </p>
+          <h1 className="font-heading text-2xl">{msg.title}</h1>
+          <p className="text-muted-foreground">{msg.desc}</p>
         </div>
       </div>
     );

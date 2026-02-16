@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Pencil, Smartphone, Copy, Check, UserPlus, Snowflake, Archive, RotateCcw, Search } from "lucide-react";
+import { Pencil, Smartphone, Copy, Check, UserPlus, Snowflake, Archive, RotateCcw, Search, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -64,6 +64,7 @@ const AdminUsers = () => {
   const statusCounts = {
     active: profiles?.filter((p) => p.account_status === "active").length || 0,
     frozen: profiles?.filter((p) => p.account_status === "frozen").length || 0,
+    cancelled: profiles?.filter((p) => p.account_status === "cancelled").length || 0,
     archived: profiles?.filter((p) => p.account_status === "archived").length || 0,
   };
 
@@ -100,7 +101,8 @@ const AdminUsers = () => {
       const labels: Record<string, string> = {
         active: "Account reactivated — billing resumed",
         frozen: "Account frozen — billing paused",
-        archived: "Account archived — membership cancelled",
+        cancelled: "Membership cancelled — billing stopped",
+        archived: "Client archived — removed from active list",
       };
       const stripeInfo = data?.stripe_action === "no_stripe_customer"
         ? " (no Stripe billing found)"
@@ -176,6 +178,8 @@ const AdminUsers = () => {
     switch (status) {
       case "frozen":
         return <span className="px-2 py-0.5 rounded text-[10px] uppercase bg-blue-500/20 text-blue-400">Frozen</span>;
+      case "cancelled":
+        return <span className="px-2 py-0.5 rounded text-[10px] uppercase bg-red-500/20 text-red-400">Cancelled</span>;
       case "archived":
         return <span className="px-2 py-0.5 rounded text-[10px] uppercase bg-muted text-muted-foreground">Archived</span>;
       default:
@@ -207,6 +211,9 @@ const AdminUsers = () => {
             </TabsTrigger>
             <TabsTrigger value="frozen" className="gap-1.5">
               <Snowflake className="w-3 h-3" /> Frozen <span className="text-[10px] opacity-60">({statusCounts.frozen})</span>
+            </TabsTrigger>
+            <TabsTrigger value="cancelled" className="gap-1.5">
+              <XCircle className="w-3 h-3" /> Cancelled <span className="text-[10px] opacity-60">({statusCounts.cancelled})</span>
             </TabsTrigger>
             <TabsTrigger value="archived" className="gap-1.5">
               <Archive className="w-3 h-3" /> Archived <span className="text-[10px] opacity-60">({statusCounts.archived})</span>
@@ -242,8 +249,9 @@ const AdminUsers = () => {
             ) : filteredProfiles?.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                  {statusFilter === "active" ? "No active clients." : 
-                   statusFilter === "frozen" ? "No frozen accounts." : "No archived clients."}
+                   {statusFilter === "active" ? "No active clients." : 
+                    statusFilter === "frozen" ? "No frozen accounts." : 
+                    statusFilter === "cancelled" ? "No cancelled memberships." : "No archived clients."}
                 </TableCell>
               </TableRow>
             ) : (
@@ -292,12 +300,25 @@ const AdminUsers = () => {
                         </Button>
                       )}
 
-                      {/* Archive */}
+                      {/* Cancel membership */}
+                      {(profile.account_status === "active" || profile.account_status === "frozen") && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title="Cancel membership (stops billing)"
+                          onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "cancelled" })}
+                          disabled={statusMutation.isPending}
+                        >
+                          <XCircle className="w-4 h-4 text-red-400" />
+                        </Button>
+                      )}
+
+                      {/* Archive (hide from list) */}
                       {profile.account_status !== "archived" && (
                         <Button
                           size="icon"
                           variant="ghost"
-                          title="Archive account"
+                          title="Archive (remove from list)"
                           onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "archived" })}
                           disabled={statusMutation.isPending}
                         >
