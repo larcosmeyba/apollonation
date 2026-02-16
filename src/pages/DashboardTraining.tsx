@@ -11,8 +11,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dumbbell, ChevronLeft, ChevronRight, RefreshCw, Loader2,
   Play, Check, Trophy, Sparkles, StickyNote, ChevronDown, ChevronUp,
+  Plus, X, Clock, Flame,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
   format,
@@ -316,6 +318,8 @@ const DashboardTraining = () => {
   const [loadingSwap, setLoadingSwap] = useState(false);
   const [selectedDayDate, setSelectedDayDate] = useState<Date | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showAddActivity, setShowAddActivity] = useState(false);
+  const [activityForm, setActivityForm] = useState({ name: "", duration: "", calories: "", notes: "" });
 
   // Local state for logging (batched saves)
   const [localSetLogs, setLocalSetLogs] = useState<Record<string, SetLog[]>>({});
@@ -467,6 +471,61 @@ const DashboardTraining = () => {
       return data;
     },
     enabled: !!user && !!dayId,
+  });
+
+  // Custom activities for this date
+  const { data: customActivities = [] } = useQuery({
+    queryKey: ["custom-activities", user?.id, logDateStr],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await (supabase as any)
+        .from("custom_activity_logs")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("log_date", logDateStr)
+        .order("created_at");
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  const addActivityMutation = useMutation({
+    mutationFn: async (activity: { name: string; duration: number | null; calories: number | null; notes: string }) => {
+      if (!user) return;
+      const { error } = await (supabase as any)
+        .from("custom_activity_logs")
+        .insert({
+          user_id: user.id,
+          log_date: logDateStr,
+          activity_name: activity.name,
+          duration_minutes: activity.duration,
+          calories_burned: activity.calories,
+          notes: activity.notes || null,
+        });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["custom-activities"] });
+      setShowAddActivity(false);
+      setActivityForm({ name: "", duration: "", calories: "", notes: "" });
+      toast({ title: "Activity added! 🎉" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const deleteActivityMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase as any)
+        .from("custom_activity_logs")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["custom-activities"] });
+    },
   });
 
   // Initialize local state from DB
@@ -747,6 +806,121 @@ const DashboardTraining = () => {
             <p className="text-muted-foreground text-sm">No workout scheduled. Recovery is part of the plan.</p>
           </div>
         )}
+
+        {/* ── Custom Activities ──────────────────────────────── */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-heading text-sm text-muted-foreground">Extra Activities</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs gap-1"
+              onClick={() => setShowAddActivity(true)}
+            >
+              <Plus className="w-3 h-3" /> Add Activity
+            </Button>
+          </div>
+
+          {customActivities.length > 0 && (
+            <div className="space-y-2">
+              {customActivities.map((activity: any) => (
+                <div key={activity.id} className="card-apollo p-3 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-heading text-[13px]">{activity.activity_name}</p>
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                      {activity.duration_minutes && (
+                        <span className="flex items-center gap-0.5">
+                          <Clock className="w-3 h-3" /> {activity.duration_minutes} min
+                        </span>
+                      )}
+                      {activity.calories_burned && (
+                        <span className="flex items-center gap-0.5">
+                          <Flame className="w-3 h-3" /> {activity.calories_burned} cal
+                        </span>
+                      )}
+                    </div>
+                    {activity.notes && (
+                      <p className="text-[10px] text-muted-foreground italic mt-0.5">{activity.notes}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => deleteActivityMutation.mutate(activity.id)}
+                    className="text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Add Activity Dialog */}
+        <Dialog open={showAddActivity} onOpenChange={setShowAddActivity}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="font-heading text-lg">Add Activity</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Activity Name *</Label>
+                <Input
+                  placeholder="e.g., Yoga Class, Pilates, Hiking..."
+                  value={activityForm.name}
+                  onChange={(e) => setActivityForm(p => ({ ...p, name: e.target.value }))}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Duration (min)</Label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="60"
+                    value={activityForm.duration}
+                    onChange={(e) => setActivityForm(p => ({ ...p, duration: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Calories Burned</Label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="300"
+                    value={activityForm.calories}
+                    onChange={(e) => setActivityForm(p => ({ ...p, calories: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Notes (optional)</Label>
+                <Textarea
+                  placeholder="How did it feel?"
+                  className="min-h-[60px] resize-none text-sm"
+                  value={activityForm.notes}
+                  onChange={(e) => setActivityForm(p => ({ ...p, notes: e.target.value }))}
+                  maxLength={500}
+                />
+              </div>
+              <Button
+                className="w-full"
+                disabled={!activityForm.name.trim() || addActivityMutation.isPending}
+                onClick={() => addActivityMutation.mutate({
+                  name: activityForm.name.trim(),
+                  duration: activityForm.duration ? parseInt(activityForm.duration) : null,
+                  calories: activityForm.calories ? parseInt(activityForm.calories) : null,
+                  notes: activityForm.notes,
+                })}
+              >
+                {addActivityMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                Add Activity
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* ── Weekly Calendar Strip ───────────────────────────── */}
         <div className="card-apollo p-4">
