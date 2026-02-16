@@ -12,7 +12,7 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <header className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20" role="banner">
       {/* Background image - native img for better loading control */}
       <img
         src={heroCoach}
@@ -107,7 +107,7 @@ const HeroSection = () => {
         <span className="text-xs text-white/40 uppercase tracking-widest">Scroll</span>
         <div className="w-px h-8 bg-gradient-to-b from-primary/50 to-transparent animate-pulse" />
       </div>
-    </section>
+    </header>
   );
 };
 
