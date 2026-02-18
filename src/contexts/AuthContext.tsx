@@ -11,6 +11,7 @@ interface Profile {
   fitness_goals: string | null;
   subscription_tier: "basic" | "pro" | "elite";
   account_status: string;
+  manual_subscription: boolean;
   created_at: string;
   updated_at: string;
 }
