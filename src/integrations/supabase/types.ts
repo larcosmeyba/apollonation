@@ -64,15 +64,18 @@ export type Database = {
           activity_level: string
           age: number
           created_at: string
+          current_workout_days: string[] | null
           cycle_number: number
           cycle_start_date: string
           dietary_restrictions: string[] | null
           disliked_foods: string[] | null
           goal_next_4_weeks: string | null
           grocery_store: string | null
+          has_other_activities: boolean | null
           height_inches: number
           id: string
           is_active: boolean
+          other_activities: Json | null
           preferred_training_days: string[] | null
           sex: string
           training_methods: string[]
@@ -89,15 +92,18 @@ export type Database = {
           activity_level?: string
           age: number
           created_at?: string
+          current_workout_days?: string[] | null
           cycle_number?: number
           cycle_start_date?: string
           dietary_restrictions?: string[] | null
           disliked_foods?: string[] | null
           goal_next_4_weeks?: string | null
           grocery_store?: string | null
+          has_other_activities?: boolean | null
           height_inches: number
           id?: string
           is_active?: boolean
+          other_activities?: Json | null
           preferred_training_days?: string[] | null
           sex: string
           training_methods?: string[]
@@ -114,15 +120,18 @@ export type Database = {
           activity_level?: string
           age?: number
           created_at?: string
+          current_workout_days?: string[] | null
           cycle_number?: number
           cycle_start_date?: string
           dietary_restrictions?: string[] | null
           disliked_foods?: string[] | null
           goal_next_4_weeks?: string | null
           grocery_store?: string | null
+          has_other_activities?: boolean | null
           height_inches?: number
           id?: string
           is_active?: boolean
+          other_activities?: Json | null
           preferred_training_days?: string[] | null
           sex?: string
           training_methods?: string[]

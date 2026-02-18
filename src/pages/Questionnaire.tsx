@@ -37,7 +37,7 @@ const DIETARY_OPTIONS = [
 const STEPS = ["Personal Info", "Training", "Nutrition"];
 
 const Questionnaire = () => {
-  const { user, loading, subscription, subscriptionLoading, profile } = useAuth();
+  const { user, loading, subscriptionLoading, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [step, setStep] = useState(0);
@@ -52,8 +52,11 @@ const Questionnaire = () => {
     activity_level: "moderate",
     workout_days_per_week: "3",
     training_methods: [] as string[],
+    current_workout_days: [] as string[],
     preferred_training_days: [] as string[],
     workout_duration_minutes: "60",
+    has_other_activities: false,
+    other_activities: [] as { day: string; activity_type: string }[],
     goal_next_4_weeks: "",
     weekly_food_budget: "",
     grocery_store: "",
@@ -80,7 +83,10 @@ const Questionnaire = () => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleArrayField = (field: "training_methods" | "dietary_restrictions" | "preferred_training_days", value: string) => {
+  const toggleArrayField = (
+    field: "training_methods" | "dietary_restrictions" | "preferred_training_days" | "current_workout_days",
+    value: string
+  ) => {
     setForm((prev) => {
       const arr = prev[field];
       return {
@@ -90,12 +96,42 @@ const Questionnaire = () => {
     });
   };
 
+  const addOtherActivity = () => {
+    setForm((prev) => ({
+      ...prev,
+      other_activities: [...prev.other_activities, { day: "", activity_type: "" }],
+    }));
+  };
+
+  const updateOtherActivity = (index: number, field: "day" | "activity_type", value: string) => {
+    setForm((prev) => {
+      const updated = [...prev.other_activities];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, other_activities: updated };
+    });
+  };
+
+  const removeOtherActivity = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      other_activities: prev.other_activities.filter((_, i) => i !== index),
+    }));
+  };
+
   const canProceed = () => {
     if (step === 0) {
       return form.sex && form.age && form.height_feet && form.weight_lbs;
     }
     if (step === 1) {
-      return form.training_methods.length > 0 && form.preferred_training_days.length > 0 && form.workout_duration_minutes;
+      const activitiesValid =
+        !form.has_other_activities ||
+        form.other_activities.every((a) => a.day && a.activity_type);
+      return (
+        form.training_methods.length > 0 &&
+        form.preferred_training_days.length > 0 &&
+        form.workout_duration_minutes &&
+        activitiesValid
+      );
     }
     if (step === 2) {
       return form.waiver_accepted;
@@ -121,13 +157,18 @@ const Questionnaire = () => {
           activity_level: form.activity_level,
           workout_days_per_week: parseInt(form.workout_days_per_week),
           training_methods: form.training_methods,
+          current_workout_days: form.current_workout_days,
           preferred_training_days: form.preferred_training_days,
           workout_duration_minutes: parseInt(form.workout_duration_minutes),
+          has_other_activities: form.has_other_activities,
+          other_activities: form.has_other_activities ? form.other_activities : [],
           goal_next_4_weeks: form.goal_next_4_weeks || null,
           weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
           grocery_store: form.grocery_store || null,
           dietary_restrictions: form.dietary_restrictions,
-          disliked_foods: form.disliked_foods ? form.disliked_foods.split(",").map(f => f.trim()).filter(Boolean) : [],
+          disliked_foods: form.disliked_foods
+            ? form.disliked_foods.split(",").map((f) => f.trim()).filter(Boolean)
+            : [],
           waiver_accepted: true,
           waiver_accepted_at: new Date().toISOString(),
         })
@@ -136,17 +177,22 @@ const Questionnaire = () => {
 
       if (error) throw error;
 
-      toast({ title: "Questionnaire submitted!", description: "Your personalized programs are being generated. This may take a minute." });
+      toast({
+        title: "Questionnaire submitted!",
+        description: "Your personalized programs are being generated. This may take a minute.",
+      });
       navigate("/dashboard");
 
       // Fire-and-forget: generate training + nutrition plans in background
-      supabase.functions.invoke("auto-generate-programs", {
-        body: { questionnaireId: questionnaireData.id },
-      }).then((res) => {
-        if (res.error) console.error("Auto-generate error:", res.error);
-        else console.log("Auto-generate complete:", res.data);
-      }).catch((err) => console.error("Auto-generate failed:", err));
-
+      supabase.functions
+        .invoke("auto-generate-programs", {
+          body: { questionnaireId: questionnaireData.id },
+        })
+        .then((res) => {
+          if (res.error) console.error("Auto-generate error:", res.error);
+          else console.log("Auto-generate complete:", res.data);
+        })
+        .catch((err) => console.error("Auto-generate failed:", err));
     } catch (err: any) {
       console.error("Questionnaire submit error:", err);
       toast({ title: "Error", description: err.message || "Something went wrong.", variant: "destructive" });
@@ -196,7 +242,9 @@ const Questionnaire = () => {
               >
                 {i + 1}
               </button>
-              <span className={`text-xs hidden sm:inline ${i === step ? "text-foreground" : "text-muted-foreground"}`}>
+              <span
+                className={`text-xs hidden sm:inline ${i === step ? "text-foreground" : "text-muted-foreground"}`}
+              >
                 {label}
               </span>
               {i < STEPS.length - 1 && <div className="w-8 h-px bg-border" />}
@@ -206,6 +254,7 @@ const Questionnaire = () => {
 
         {/* Form Steps */}
         <div className="border border-border/30 bg-card/50 p-6 md:p-10">
+          {/* Step 0: Personal Info */}
           {step === 0 && (
             <div className="space-y-6">
               <h2 className="font-heading text-lg tracking-wide mb-4">Personal & Physical Data</h2>
@@ -214,7 +263,9 @@ const Questionnaire = () => {
                 <div className="space-y-2">
                   <Label>Sex</Label>
                   <Select value={form.sex} onValueChange={(v) => updateField("sex", v)}>
-                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
@@ -273,7 +324,9 @@ const Questionnaire = () => {
               <div className="space-y-2">
                 <Label>Activity Level</Label>
                 <Select value={form.activity_level} onValueChange={(v) => updateField("activity_level", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="sedentary">Sedentary (little or no exercise)</SelectItem>
                     <SelectItem value="light">Lightly Active (1-3 days/week)</SelectItem>
@@ -286,17 +339,25 @@ const Questionnaire = () => {
             </div>
           )}
 
+          {/* Step 1: Training */}
           {step === 1 && (
             <div className="space-y-6">
               <h2 className="font-heading text-lg tracking-wide mb-4">Training Preferences</h2>
 
               <div className="space-y-2">
                 <Label>Preferred Workout Days Per Week</Label>
-                <Select value={form.workout_days_per_week} onValueChange={(v) => updateField("workout_days_per_week", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={form.workout_days_per_week}
+                  onValueChange={(v) => updateField("workout_days_per_week", v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {[2, 3, 4, 5, 6, 7].map((d) => (
-                      <SelectItem key={d} value={String(d)}>{d} days</SelectItem>
+                      <SelectItem key={d} value={String(d)}>
+                        {d} days
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -324,6 +385,31 @@ const Questionnaire = () => {
                 </div>
               </div>
 
+              {/* Current workout routine */}
+              <div className="space-y-3">
+                <Label>What is your current workout routine?</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Select all days you currently exercise.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {DAYS_OF_WEEK.map((day) => (
+                    <button
+                      key={day.id}
+                      type="button"
+                      onClick={() => toggleArrayField("current_workout_days", day.id)}
+                      className={`px-4 py-2 text-sm border transition-colors ${
+                        form.current_workout_days.includes(day.id)
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border/30 text-muted-foreground hover:border-border/60"
+                      }`}
+                    >
+                      {day.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Preferred training days */}
               <div className="space-y-3">
                 <Label>Which days do you plan on training?</Label>
                 <div className="flex flex-wrap gap-2">
@@ -346,8 +432,13 @@ const Questionnaire = () => {
 
               <div className="space-y-2">
                 <Label>How long can you work out? (minutes)</Label>
-                <Select value={form.workout_duration_minutes} onValueChange={(v) => updateField("workout_duration_minutes", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={form.workout_duration_minutes}
+                  onValueChange={(v) => updateField("workout_duration_minutes", v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="30">30 minutes</SelectItem>
                     <SelectItem value="45">45 minutes</SelectItem>
@@ -358,9 +449,89 @@ const Questionnaire = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Group classes / other activities */}
+              <div className="space-y-3">
+                <Label>
+                  Are there days where you do group classes or any other physical activity?
+                </Label>
+                <div className="flex gap-3">
+                  {["Yes", "No"].map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => {
+                        updateField("has_other_activities", opt === "Yes");
+                        if (opt === "No") updateField("other_activities", []);
+                      }}
+                      className={`px-5 py-2 text-sm border transition-colors ${
+                        (opt === "Yes" ? form.has_other_activities : !form.has_other_activities)
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border/30 text-muted-foreground hover:border-border/60"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+
+                {form.has_other_activities && (
+                  <div className="space-y-3 pt-1">
+                    <p className="text-[11px] text-muted-foreground">
+                      Add each activity so we can schedule it as part of your fitness routine.
+                    </p>
+                    {form.other_activities.map((activity, idx) => (
+                      <div key={idx} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Day</Label>
+                          <Select
+                            value={activity.day}
+                            onValueChange={(v) => updateOtherActivity(idx, "day", v)}
+                          >
+                            <SelectTrigger className="h-9 text-sm">
+                              <SelectValue placeholder="Select day" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {DAYS_OF_WEEK.map((d) => (
+                                <SelectItem key={d.id} value={d.id}>
+                                  {d.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Activity Type</Label>
+                          <Input
+                            className="h-9 text-sm"
+                            placeholder="e.g., Yoga, Spin class"
+                            value={activity.activity_type}
+                            onChange={(e) => updateOtherActivity(idx, "activity_type", e.target.value)}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeOtherActivity(idx)}
+                          className="h-9 text-muted-foreground hover:text-destructive text-xs border border-border/30 px-2"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addOtherActivity}
+                      className="text-xs text-primary border border-primary/30 px-3 py-1.5 hover:bg-primary/5 transition-colors"
+                    >
+                      + Add Activity
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
+          {/* Step 2: Nutrition & Agreement */}
           {step === 2 && (
             <div className="space-y-6">
               <h2 className="font-heading text-lg tracking-wide mb-4">Nutrition & Agreement</h2>
@@ -428,6 +599,7 @@ const Questionnaire = () => {
                   Separate items with commas. These will be excluded from your meal plan.
                 </p>
               </div>
+
               {/* Waiver of Release */}
               <div className="border border-border/50 p-4 bg-muted/20 space-y-3">
                 <h3 className="font-heading text-sm tracking-wide text-foreground">Waiver of Release</h3>
@@ -467,20 +639,12 @@ const Questionnaire = () => {
             </Button>
 
             {step < STEPS.length - 1 ? (
-              <Button
-                variant="apollo"
-                onClick={() => setStep((s) => s + 1)}
-                disabled={!canProceed()}
-              >
+              <Button variant="apollo" onClick={() => setStep((s) => s + 1)} disabled={!canProceed()}>
                 Next
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button
-                variant="apollo"
-                onClick={handleSubmit}
-                disabled={submitting}
-              >
+              <Button variant="apollo" onClick={handleSubmit} disabled={submitting}>
                 {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 Submit Questionnaire
               </Button>
