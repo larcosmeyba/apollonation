@@ -67,8 +67,9 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
   }
 
   // Pro/Elite users must complete questionnaire before accessing dashboard
+  // Admin-created accounts (manual_subscription) skip the questionnaire
   const tier = profile?.subscription_tier;
-  if ((tier === "pro" || tier === "elite") && !hasQuestionnaire) {
+  if ((tier === "pro" || tier === "elite") && !hasQuestionnaire && !profile?.manual_subscription) {
     return <Navigate to="/questionnaire" replace />;
   }
 
