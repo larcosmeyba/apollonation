@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardNutritionCard from "@/components/dashboard/DashboardNutritionCard";
 import DashboardStepTracker from "@/components/dashboard/DashboardStepTracker";
 import CoachIntroVideo from "@/components/dashboard/CoachIntroVideo";
+import DashboardTodayNutrition from "@/components/dashboard/DashboardTodayNutrition";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -188,6 +189,9 @@ const Dashboard = () => {
                 </>
               )}
             </div>
+
+            {/* Today's Meal Plan + Grocery List */}
+            <DashboardTodayNutrition />
 
             {/* Quick Access - only visible on desktop in left column */}
             <div className="hidden lg:block">
