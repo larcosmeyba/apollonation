@@ -19,7 +19,7 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    // Verify the caller is an admin
+    // Verify the caller is an admin using getClaims (compatible with signing-keys)
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -29,19 +29,29 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: callerData, error: callerError } = await supabaseAdmin.auth.getUser(token);
-    if (callerError || !callerData.user) {
+
+    // Use anon client with the user's token to verify via getClaims
+    const supabaseUser = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: claimsData, error: claimsError } = await supabaseUser.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
       });
     }
 
+    const callerId = claimsData.claims.sub;
+
     // Check admin role
     const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
-      .eq("user_id", callerData.user.id)
+      .eq("user_id", callerId)
       .eq("role", "admin")
       .maybeSingle();
 
@@ -62,16 +72,8 @@ serve(async (req) => {
       });
     }
 
-    if (password.length < 12) {
-      return new Response(JSON.stringify({ error: "Password must be at least 12 characters" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
-    }
-
-    // Require at least one uppercase, one lowercase, one digit
-    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
-      return new Response(JSON.stringify({ error: "Password must contain uppercase, lowercase, and a number" }), {
+    if (password.length < 6) {
+      return new Response(JSON.stringify({ error: "Password must be at least 6 characters" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
       });
