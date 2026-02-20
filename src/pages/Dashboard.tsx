@@ -233,24 +233,6 @@ const Dashboard = () => {
             {/* Today's Meal Plan + Grocery List */}
             <DashboardTodayNutrition />
 
-            {/* Quick Access - only visible on desktop in left column */}
-            <div className="hidden lg:block">
-              <h2 className="font-heading text-base mb-3">Quick Access</h2>
-              <div className="grid grid-cols-3 gap-3">
-                <Link to="/dashboard/nutrition" className="card-apollo p-4 text-center hover:border-primary/50 transition-all">
-                  <Utensils className="w-5 h-5 text-primary mx-auto mb-1.5" />
-                  <p className="text-xs font-medium">Meal Plan</p>
-                </Link>
-                <Link to="/dashboard/recipes" className="card-apollo p-4 text-center hover:border-primary/50 transition-all">
-                  <BookOpen className="w-5 h-5 text-primary mx-auto mb-1.5" />
-                  <p className="text-xs font-medium">Recipes</p>
-                </Link>
-                <Link to="/dashboard/calendar" className="card-apollo p-4 text-center hover:border-primary/50 transition-all">
-                  <Calendar className="w-5 h-5 text-primary mx-auto mb-1.5" />
-                  <p className="text-xs font-medium">Calendar</p>
-                </Link>
-              </div>
-            </div>
           </div>
 
           {/* Right column - secondary content */}
@@ -263,24 +245,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Access - mobile only (below cards) */}
-        <div className="lg:hidden">
-          <h2 className="font-heading text-base mb-3">Quick Access</h2>
-          <div className="grid grid-cols-3 gap-3">
-            <Link to="/dashboard/nutrition" className="card-apollo p-3 text-center hover:border-primary/50 transition-all">
-              <Utensils className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-xs font-medium">Meal Plan</p>
-            </Link>
-            <Link to="/dashboard/recipes" className="card-apollo p-3 text-center hover:border-primary/50 transition-all">
-              <BookOpen className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-xs font-medium">Recipes</p>
-            </Link>
-            <Link to="/dashboard/calendar" className="card-apollo p-3 text-center hover:border-primary/50 transition-all">
-              <Calendar className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-xs font-medium">Calendar</p>
-            </Link>
-          </div>
-        </div>
 
         {/* Welcome message - shown once */}
         {showWelcome && (
