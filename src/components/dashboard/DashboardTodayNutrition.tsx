@@ -34,16 +34,23 @@ type GroceryList = {
   savings_tips: string[];
 };
 
+// Parse a YYYY-MM-DD date string as LOCAL midnight (not UTC).
+// new Date("2026-02-01") parses as UTC 00:00, which is wrong for clients in UTC-N timezones.
+const parseLocalDate = (dateStr: string) => new Date(dateStr + "T00:00:00");
+
 const DashboardTodayNutrition = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [groceryList, setGroceryList] = useState<GroceryList | null>(null);
   const [groceryOpen, setGroceryOpen] = useState(false);
 
-  // Today's day number in the plan cycle
+  // Today in client's local time (no UTC offset issues)
   const today = new Date();
-  const todayDOW = today.getDay(); // 0=Sun...6=Sat, plan uses Mon-based
-  const planDayOfWeek = todayDOW === 0 ? 7 : todayDOW; // 1=Mon...7=Sun
+  const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  // Day-of-week fallback (Mon=1 ... Sun=7)
+  const todayDOW = today.getDay();
+  const planDayOfWeek = todayDOW === 0 ? 7 : todayDOW;
 
   // Fetch active nutrition plan
   const { data: activePlan } = useQuery({
@@ -62,14 +69,28 @@ const DashboardTodayNutrition = () => {
     enabled: !!user,
   });
 
-  // Determine today's day_number within the plan
+  // Determine today's day_number within the plan using LOCAL dates
   const todayDayNumber = (() => {
     if (!activePlan?.start_date) return planDayOfWeek;
-    const start = new Date(activePlan.start_date);
-    const diffDays = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    const start = parseLocalDate(activePlan.start_date);
+    const diffDays = Math.floor((todayLocal.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return 1;
     const totalDays = (activePlan.duration_weeks || 4) * 7;
     return (diffDays % totalDays) + 1;
   })();
+
+  // Current week number in the plan using LOCAL dates
+  const currentWeek = activePlan?.start_date
+    ? Math.max(
+        1,
+        Math.min(
+          Math.ceil(
+            (Math.floor((todayLocal.getTime() - parseLocalDate(activePlan.start_date).getTime()) / (1000 * 60 * 60 * 24)) + 1) / 7
+          ),
+          activePlan.duration_weeks || 4
+        )
+      )
+    : 1;
 
   // Fetch today's meals
   const { data: todayMeals = [] } = useQuery({
@@ -91,19 +112,6 @@ const DashboardTodayNutrition = () => {
   const sortedMeals = [...todayMeals].sort(
     (a, b) => MEAL_TYPE_ORDER.indexOf(a.meal_type) - MEAL_TYPE_ORDER.indexOf(b.meal_type)
   );
-
-  // Current week number in the plan
-  const currentWeek = activePlan?.start_date
-    ? Math.max(
-        1,
-        Math.min(
-          Math.ceil(
-            (Math.floor((today.getTime() - new Date(activePlan.start_date).getTime()) / (1000 * 60 * 60 * 24)) + 1) / 7
-          ),
-          activePlan.duration_weeks || 4
-        )
-      )
-    : 1;
 
   const groceryMutation = useMutation({
     mutationFn: async () => {

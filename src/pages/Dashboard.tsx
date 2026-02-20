@@ -52,12 +52,20 @@ const Dashboard = () => {
       const plan = plans?.[0];
       if (!plan) return null;
 
-      const cycleStart = plan.client_questionnaires?.cycle_start_date
-        ? new Date(plan.client_questionnaires.cycle_start_date)
-        : new Date(plan.created_at);
+      // Parse dates as LOCAL midnight to respect the client's timezone.
+      // Appending 'T00:00:00' (no Z) forces local-time parsing instead of UTC.
+      const cycleStartStr = plan.client_questionnaires?.cycle_start_date
+        || plan.created_at.slice(0, 10);
+      const cycleStart = new Date(cycleStartStr + "T00:00:00");
 
       const today = new Date();
-      const diffDays = Math.floor((today.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24));
+      // Compare only the date portion in local time
+      const todayLocal = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
+      const diffDays = Math.floor((todayLocal.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24));
       const dayNumber = (diffDays % (plan.duration_weeks * 7)) + 1;
 
       const { data: days } = await (supabase as any)
