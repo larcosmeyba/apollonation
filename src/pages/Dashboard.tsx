@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Dumbbell, Utensils, CreditCard, Calendar, BookOpen, ChevronRight } from "lucide-react";
+import { Dumbbell, Utensils, CreditCard, Calendar, BookOpen, ChevronRight, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -140,6 +140,38 @@ const Dashboard = () => {
 
         {/* Coach Intro Video */}
         <CoachIntroVideo />
+
+        {/* Quick Nav Tabs — 2×2 grid below coach message */}
+        <div className="grid grid-cols-2 gap-3">
+          <Link
+            to="/dashboard/training"
+            className="card-apollo p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-all text-center"
+          >
+            <Dumbbell className="w-5 h-5 text-primary" />
+            <p className="text-xs font-medium leading-tight">Today's Workout</p>
+          </Link>
+          <Link
+            to="/dashboard/nutrition"
+            className="card-apollo p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-all text-center"
+          >
+            <Utensils className="w-5 h-5 text-primary" />
+            <p className="text-xs font-medium leading-tight">Today's Meal Plan</p>
+          </Link>
+          <Link
+            to="/dashboard/macros"
+            className="card-apollo p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-all text-center"
+          >
+            <Camera className="w-5 h-5 text-primary" />
+            <p className="text-xs font-medium leading-tight">Macro Tracker</p>
+          </Link>
+          <Link
+            to="/dashboard/recipes"
+            className="card-apollo p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-all text-center"
+          >
+            <BookOpen className="w-5 h-5 text-primary" />
+            <p className="text-xs font-medium leading-tight">Recipes</p>
+          </Link>
+        </div>
 
         {/* Main grid: stacked on mobile, 2-col on desktop */}
         <div className="grid lg:grid-cols-5 gap-5">
