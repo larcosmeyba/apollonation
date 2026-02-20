@@ -12,6 +12,7 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
+  Camera,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -92,6 +93,33 @@ const DashboardTodayNutrition = () => {
       )
     : 1;
 
+  // Fetch today's logged macro entries
+  const todayDateStr = format(today, "yyyy-MM-dd");
+  const { data: macroLogs = [] } = useQuery({
+    queryKey: ["macro-logs", user?.id, todayDateStr],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("macro_logs")
+        .select("calories, protein_grams, carbs_grams, fat_grams")
+        .eq("user_id", user.id)
+        .eq("log_date", todayDateStr);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const loggedTotals = macroLogs.reduce(
+    (acc, entry) => ({
+      calories: acc.calories + (entry.calories || 0),
+      protein: acc.protein + (entry.protein_grams || 0),
+      carbs: acc.carbs + (entry.carbs_grams || 0),
+      fat: acc.fat + (entry.fat_grams || 0),
+    }),
+    { calories: 0, protein: 0, carbs: 0, fat: 0 }
+  );
+
   // Fetch today's meals
   const { data: todayMeals = [] } = useQuery({
     queryKey: ["nutrition-today-meals", activePlan?.id, todayDayNumber],
@@ -157,6 +185,38 @@ const DashboardTodayNutrition = () => {
             </Button>
           </Link>
         </div>
+
+        {/* Logged Macros Progress */}
+        {macroLogs.length > 0 && (
+          <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Camera className="w-3.5 h-3.5 text-primary" />
+              <p className="text-xs font-medium text-primary uppercase tracking-wider">Logged Today</p>
+              <Link to="/dashboard/macros" className="ml-auto text-xs text-muted-foreground hover:text-primary">
+                View all →
+              </Link>
+            </div>
+            <div className="grid grid-cols-4 gap-2 mb-2">
+              {[
+                { label: "Cal", value: loggedTotals.calories, target: activePlan.daily_calories || 0, color: "bg-primary" },
+                { label: "Prot", value: loggedTotals.protein, target: activePlan.protein_grams || 0, unit: "g", color: "bg-blue-400" },
+                { label: "Carbs", value: loggedTotals.carbs, target: activePlan.carbs_grams || 0, unit: "g", color: "bg-amber-400" },
+                { label: "Fat", value: loggedTotals.fat, target: activePlan.fat_grams || 0, unit: "g", color: "bg-rose-400" },
+              ].map(({ label, value, target, unit = "", color }) => (
+                <div key={label} className="text-center">
+                  <p className="text-sm font-heading">{value}{unit}</p>
+                  <p className="text-[10px] text-muted-foreground">{label}</p>
+                  <div className="h-1 rounded-full bg-muted overflow-hidden mt-1">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${color}`}
+                      style={{ width: `${target > 0 ? Math.min((value / target) * 100, 100) : 0}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {sortedMeals.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
