@@ -59,7 +59,7 @@ const AdminInbox = () => {
     else if (!selectedChat && conversations.length > 0) {
       setSelectedChat(conversations[0].partnerId);
     }
-  }, [searchParams, conversations]);
+  }, [searchParams, conversations, selectedChat]);
 
   const handleSelectChat = (partnerId: string) => {
     setSelectedChat(partnerId);
