@@ -103,7 +103,7 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto space-y-5">
+      <div className="max-w-5xl mx-auto space-y-3">
         {/* Date + Greeting */}
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">
@@ -142,88 +142,89 @@ const Dashboard = () => {
         <CoachIntroVideo />
 
         {/* Quick Nav Tabs — 2×2 grid below coach message */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-4 gap-2">
           <Link
             to="/dashboard/training"
-            className="card-apollo p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-all text-center"
+            className="card-apollo p-3 flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-all text-center"
           >
-            <Dumbbell className="w-5 h-5 text-primary" />
-            <p className="text-xs font-medium leading-tight">Today's Workout</p>
+            <Dumbbell className="w-4 h-4 text-primary" />
+            <p className="text-[10px] font-medium leading-tight">Workout</p>
           </Link>
           <Link
             to="/dashboard/nutrition"
-            className="card-apollo p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-all text-center"
+            className="card-apollo p-3 flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-all text-center"
           >
-            <Utensils className="w-5 h-5 text-primary" />
-            <p className="text-xs font-medium leading-tight">Today's Meal Plan</p>
+            <Utensils className="w-4 h-4 text-primary" />
+            <p className="text-[10px] font-medium leading-tight">Meals</p>
           </Link>
           <Link
             to="/dashboard/macros"
-            className="card-apollo p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-all text-center"
+            className="card-apollo p-3 flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-all text-center"
           >
-            <Camera className="w-5 h-5 text-primary" />
-            <p className="text-xs font-medium leading-tight">Macro Tracker</p>
+            <Camera className="w-4 h-4 text-primary" />
+            <p className="text-[10px] font-medium leading-tight">Macros</p>
           </Link>
           <Link
             to="/dashboard/recipes"
-            className="card-apollo p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/50 transition-all text-center"
+            className="card-apollo p-3 flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-all text-center"
           >
-            <BookOpen className="w-5 h-5 text-primary" />
-            <p className="text-xs font-medium leading-tight">Recipes</p>
+            <BookOpen className="w-4 h-4 text-primary" />
+            <p className="text-[10px] font-medium leading-tight">Recipes</p>
           </Link>
         </div>
 
         {/* Main grid: stacked on mobile, 2-col on desktop */}
-        <div className="grid lg:grid-cols-5 gap-5">
-          {/* Left column - primary content */}
-          <div className="lg:col-span-3 space-y-5">
+        <div className="grid lg:grid-cols-5 gap-3">
+          <div className="lg:col-span-3 space-y-3">
             {/* Today's Workout Card */}
-            <div className="card-apollo p-5">
+            <div className="card-apollo p-4">
               {isRestDay ? (
-                <div className="py-6 text-center">
-                  <p className="text-xs text-primary uppercase tracking-wider mb-2">REST DAY</p>
-                  <p className="font-heading text-xl">Hoo-ray it's your rest-day 🌴</p>
-                  <p className="text-sm text-muted-foreground mt-2">Recovery is part of the process</p>
+                <div className="py-3 text-center">
+                  <p className="text-xs text-primary uppercase tracking-wider mb-1">REST DAY</p>
+                  <p className="font-heading text-base">Rest day 🌴</p>
+                  <p className="text-xs text-muted-foreground mt-1">Recovery is part of the process</p>
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Dumbbell className="w-5 h-5 text-primary" />
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Dumbbell className="w-4 h-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-heading text-base">{todayWorkout?.day_label || `Day ${todayWorkout?.day_number}`}</p>
+                        <p className="font-heading text-sm">{todayWorkout?.day_label || `Day ${todayWorkout?.day_number}`}</p>
                         {todayWorkout?.focus && (
                           <p className="text-xs text-primary">{todayWorkout.focus}</p>
                         )}
                       </div>
                     </div>
                     <Link to="/dashboard/training">
-                      <Button variant="ghost" size="sm" className="text-primary text-xs">
-                        View <ChevronRight className="w-3 h-3 ml-1" />
+                      <Button variant="ghost" size="sm" className="text-primary text-xs h-7">
+                        View all <ChevronRight className="w-3 h-3 ml-1" />
                       </Button>
                     </Link>
                   </div>
-                  <div className="space-y-2">
-                    {todayWorkout?.exercises.slice(0, 6).map((ex: any, i: number) => (
-                      <div key={ex.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 border border-border/50">
-                        <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
+                  <div className="space-y-1.5">
+                    {todayWorkout?.exercises.slice(0, 4).map((ex: any, i: number) => (
+                      <div key={ex.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-muted/30 border border-border/50">
+                        <span className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary flex-shrink-0">
                           {i + 1}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{ex.exercise_name}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="font-medium text-xs truncate">{ex.exercise_name}</p>
+                          <p className="text-[10px] text-muted-foreground">
                             {ex.sets} × {ex.reps}
                             {ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
                           </p>
                         </div>
                       </div>
                     ))}
-                    {(todayWorkout?.exercises.length || 0) > 6 && (
-                      <p className="text-xs text-muted-foreground text-center pt-1">
-                        +{todayWorkout!.exercises.length - 6} more
-                      </p>
+                    {(todayWorkout?.exercises.length || 0) > 4 && (
+                      <Link to="/dashboard/training">
+                        <p className="text-xs text-primary text-center pt-0.5 hover:underline cursor-pointer">
+                          +{todayWorkout!.exercises.length - 4} more — tap to view
+                        </p>
+                      </Link>
                     )}
                   </div>
                 </>
@@ -236,7 +237,7 @@ const Dashboard = () => {
           </div>
 
           {/* Right column - secondary content */}
-          <div className="lg:col-span-2 space-y-5">
+          <div className="lg:col-span-2 space-y-3">
             {/* Step Tracker */}
             <DashboardStepTracker />
 

@@ -168,98 +168,88 @@ const DashboardTodayNutrition = () => {
   return (
     <>
       {/* TODAY'S MEAL PLAN */}
-      <div className="card-apollo p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Utensils className="w-5 h-5 text-primary" />
+      <div className="card-apollo p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Utensils className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="font-heading text-base">{todayLabel}'s Meals</p>
-              <p className="text-xs text-primary">{activePlan.daily_calories} kcal target</p>
+              <p className="font-heading text-sm">{todayLabel}'s Meals</p>
+              <p className="text-[10px] text-primary">{activePlan.daily_calories} kcal target</p>
             </div>
           </div>
           <Link to="/dashboard/nutrition">
-            <Button variant="ghost" size="sm" className="text-primary text-xs">
+            <Button variant="ghost" size="sm" className="text-primary text-xs h-7">
               Full Plan <ChevronRight className="w-3 h-3 ml-1" />
             </Button>
           </Link>
         </div>
 
-        {/* Logged Macros Progress */}
+        {/* Logged Macros Progress — compact single row */}
         {macroLogs.length > 0 && (
-          <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Camera className="w-3.5 h-3.5 text-primary" />
-              <p className="text-xs font-medium text-primary uppercase tracking-wider">Logged Today</p>
-              <Link to="/dashboard/macros" className="ml-auto text-xs text-muted-foreground hover:text-primary">
-                View all →
-              </Link>
+          <div className="mb-3 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/20 flex items-center gap-3">
+            <Camera className="w-3 h-3 text-primary flex-shrink-0" />
+            <div className="flex gap-3 flex-1 text-xs">
+              <span className="text-primary font-medium">{loggedTotals.calories} cal</span>
+              <span className="text-muted-foreground">P:{loggedTotals.protein}g</span>
+              <span className="text-muted-foreground">C:{loggedTotals.carbs}g</span>
+              <span className="text-muted-foreground">F:{loggedTotals.fat}g</span>
             </div>
-            <div className="grid grid-cols-4 gap-2 mb-2">
-              {[
-                { label: "Cal", value: loggedTotals.calories, target: activePlan.daily_calories || 0, color: "bg-primary" },
-                { label: "Prot", value: loggedTotals.protein, target: activePlan.protein_grams || 0, unit: "g", color: "bg-blue-400" },
-                { label: "Carbs", value: loggedTotals.carbs, target: activePlan.carbs_grams || 0, unit: "g", color: "bg-amber-400" },
-                { label: "Fat", value: loggedTotals.fat, target: activePlan.fat_grams || 0, unit: "g", color: "bg-rose-400" },
-              ].map(({ label, value, target, unit = "", color }) => (
-                <div key={label} className="text-center">
-                  <p className="text-sm font-heading">{value}{unit}</p>
-                  <p className="text-[10px] text-muted-foreground">{label}</p>
-                  <div className="h-1 rounded-full bg-muted overflow-hidden mt-1">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${color}`}
-                      style={{ width: `${target > 0 ? Math.min((value / target) * 100, 100) : 0}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Link to="/dashboard/macros" className="text-[10px] text-muted-foreground hover:text-primary flex-shrink-0">
+              View →
+            </Link>
           </div>
         )}
 
         {sortedMeals.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
+          <p className="text-xs text-muted-foreground text-center py-2">
             No meals scheduled for today.
           </p>
         ) : (
-          <div className="space-y-2">
-            {sortedMeals.map((meal) => (
+          <div className="space-y-1.5">
+            {sortedMeals.slice(0, 3).map((meal) => (
               <div
                 key={meal.id}
-                className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/50"
+                className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/50"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                    {MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}
-                  </p>
-                  <p className="font-medium text-sm truncate">{meal.meal_name}</p>
-                  {meal.description && (
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">{meal.description}</p>
-                  )}
-                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[9px] text-muted-foreground uppercase tracking-wide flex-shrink-0">
+                      {MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}
+                    </p>
+                    <p className="font-medium text-xs truncate">{meal.meal_name}</p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
                     <span className="font-medium">{meal.calories} cal</span>
-                    <span>P: {meal.protein_grams}g</span>
-                    <span>C: {meal.carbs_grams}g</span>
-                    <span>F: {meal.fat_grams}g</span>
+                    <span>P:{meal.protein_grams}g</span>
+                    <span>C:{meal.carbs_grams}g</span>
+                    <span>F:{meal.fat_grams}g</span>
                   </div>
                 </div>
               </div>
             ))}
+            {sortedMeals.length > 3 && (
+              <Link to="/dashboard/nutrition">
+                <p className="text-xs text-primary text-center hover:underline cursor-pointer">
+                  +{sortedMeals.length - 3} more meals — tap to view
+                </p>
+              </Link>
+            )}
           </div>
         )}
       </div>
 
       {/* GROCERY LIST */}
-      <div className="card-apollo p-5">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <ShoppingCart className="w-5 h-5 text-primary" />
+      <div className="card-apollo p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <ShoppingCart className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="font-heading text-base">Grocery List</p>
-              <p className="text-xs text-muted-foreground">Week {currentWeek} of {activePlan.duration_weeks || 4}</p>
+              <p className="font-heading text-sm">Grocery List</p>
+              <p className="text-[10px] text-muted-foreground">Week {currentWeek} of {activePlan.duration_weeks || 4}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -272,7 +262,7 @@ const DashboardTodayNutrition = () => {
               </button>
             )}
             <Link to="/dashboard/nutrition">
-              <Button variant="ghost" size="sm" className="text-primary text-xs">
+              <Button variant="ghost" size="sm" className="text-primary text-xs h-7">
                 Full View <ChevronRight className="w-3 h-3 ml-1" />
               </Button>
             </Link>
