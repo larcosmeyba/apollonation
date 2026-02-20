@@ -61,52 +61,52 @@ const DashboardStepTracker = () => {
   const pct = Math.min(100, Math.round((steps / STEP_GOAL) * 100));
 
   return (
-    <div className="card-apollo p-5">
+    <div className="card-apollo p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-heading text-lg">Steps Today</h2>
-          <p className="text-2xl font-bold text-primary">{steps.toLocaleString()}</p>
+          <h2 className="font-heading text-sm">Steps Today</h2>
+          <p className="text-xl font-bold text-primary">{steps.toLocaleString()}</p>
         </div>
-        <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Footprints className="w-8 h-8 text-primary" />
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Footprints className="w-5 h-5 text-primary" />
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="mt-3">
-        <div className="h-2 rounded-full bg-muted overflow-hidden">
+      <div className="mt-2">
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
           <div
             className="h-full rounded-full bg-primary transition-all duration-500"
             style={{ width: `${pct}%` }}
           />
         </div>
-        <p className="text-xs text-muted-foreground mt-1">{pct}% of {STEP_GOAL.toLocaleString()} goal</p>
+        <p className="text-[10px] text-muted-foreground mt-1">{pct}% of {STEP_GOAL.toLocaleString()} goal</p>
       </div>
 
       {/* Quick actions */}
-      <div className="flex items-center gap-2 mt-3">
-        <Button variant="outline" size="sm" className="text-xs" onClick={() => saveSteps(steps + 1000)} disabled={loading}>
-          +1,000
+      <div className="flex items-center gap-1.5 mt-2">
+        <Button variant="outline" size="sm" className="text-xs h-7 px-2" onClick={() => saveSteps(steps + 1000)} disabled={loading}>
+          +1k
         </Button>
-        <Button variant="outline" size="sm" className="text-xs" onClick={() => saveSteps(steps + 2500)} disabled={loading}>
-          +2,500
+        <Button variant="outline" size="sm" className="text-xs h-7 px-2" onClick={() => saveSteps(steps + 2500)} disabled={loading}>
+          +2.5k
         </Button>
-        <Button variant="outline" size="sm" className="text-xs" onClick={() => setShowInput(!showInput)} disabled={loading}>
+        <Button variant="outline" size="sm" className="text-xs h-7 px-2" onClick={() => setShowInput(!showInput)} disabled={loading}>
           <Plus className="w-3 h-3" />
         </Button>
       </div>
 
       {showInput && (
-        <div className="flex items-center gap-2 mt-3">
+        <div className="flex items-center gap-2 mt-2">
           <Input
             type="number"
             placeholder="Steps"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            className="h-8 text-sm"
+            className="h-7 text-sm"
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           />
-          <Button size="sm" className="h-8 text-xs" onClick={handleAdd} disabled={loading}>
+          <Button size="sm" className="h-7 text-xs" onClick={handleAdd} disabled={loading}>
             Add
           </Button>
         </div>

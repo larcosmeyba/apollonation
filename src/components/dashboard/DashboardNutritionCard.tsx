@@ -203,67 +203,47 @@ const DashboardNutritionCard = () => {
   );
 
   return (
-    <div className="card-apollo p-5">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-heading text-lg">Nutrition</h2>
+    <div className="card-apollo p-4">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-heading text-sm">Nutrition</h2>
       </div>
 
-      <div className="flex items-center gap-6 mb-2">
-        {/* Remaining calories - primary focus */}
+      <div className="flex items-center gap-3 mb-2">
+        {/* Remaining calories */}
         <div className="flex-1">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Remaining</p>
-          <p className="text-3xl font-heading">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Remaining</p>
+          <p className="text-xl font-heading">
             {remaining.calories}
-            <span className="text-sm text-muted-foreground font-normal ml-1">Cal left</span>
+            <span className="text-xs text-muted-foreground font-normal ml-1">Cal left</span>
           </p>
-
-          {/* Macro bars showing remaining */}
-          <div className="space-y-2 mt-3">
+          {/* Macro bars */}
+          <div className="space-y-1.5 mt-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-blue-400 w-3">P</span>
+              <span className="text-[10px] font-semibold text-blue-400 w-3">P</span>
               <MacroBar current={totals.protein} target={targets.protein} color="bg-blue-400" />
-              <span className="text-xs text-muted-foreground w-20 text-right">
-                {remaining.protein}g left
-              </span>
+              <span className="text-[10px] text-muted-foreground w-14 text-right">{remaining.protein}g left</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-amber-400 w-3">C</span>
+              <span className="text-[10px] font-semibold text-amber-400 w-3">C</span>
               <MacroBar current={totals.carbs} target={targets.carbs} color="bg-amber-400" />
-              <span className="text-xs text-muted-foreground w-20 text-right">
-                {remaining.carbs}g left
-              </span>
+              <span className="text-[10px] text-muted-foreground w-14 text-right">{remaining.carbs}g left</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-rose-400 w-3">F</span>
+              <span className="text-[10px] font-semibold text-rose-400 w-3">F</span>
               <MacroBar current={totals.fat} target={targets.fat} color="bg-rose-400" />
-              <span className="text-xs text-muted-foreground w-20 text-right">
-                {remaining.fat}g left
-              </span>
+              <span className="text-[10px] text-muted-foreground w-14 text-right">{remaining.fat}g left</span>
             </div>
           </div>
         </div>
-
         {/* Circular percentage */}
-        <div className="relative w-20 h-20 flex-shrink-0">
-          <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
-            <path
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              fill="none"
-              stroke="hsl(var(--muted))"
-              strokeWidth="3"
-            />
-            <path
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              fill="none"
-              stroke="hsl(var(--primary))"
-              strokeWidth="3"
-              strokeDasharray={`${dailyPercent}, 100`}
-              strokeLinecap="round"
-            />
+        <div className="relative w-16 h-16 flex-shrink-0">
+          <svg className="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray={`${dailyPercent}, 100`} strokeLinecap="round" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-sm font-heading">{dailyPercent}%</span>
-            <span className="text-[9px] text-muted-foreground">of daily goals</span>
+            <span className="text-xs font-heading">{dailyPercent}%</span>
+            <span className="text-[8px] text-muted-foreground">daily</span>
           </div>
         </div>
       </div>
