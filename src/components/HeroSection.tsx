@@ -12,7 +12,7 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <header className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20" role="banner">
+    <header className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 w-full" role="banner">
       {/* Background image - native img for better loading control */}
       <img
         src={heroCoach}
@@ -42,7 +42,7 @@ const HeroSection = () => {
 
           {/* Main Heading with staggered animation */}
           <h1 
-            className={`font-heading text-5xl md:text-6xl lg:text-8xl leading-[1.05] mb-8 tracking-[0.03em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`font-heading text-4xl sm:text-5xl md:text-6xl lg:text-8xl leading-[1.05] mb-8 tracking-[0.03em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             <span className="block text-white">Forge Your</span>
             <span 
@@ -75,7 +75,7 @@ const HeroSection = () => {
 
           {/* Stats row */}
           <div 
-            className={`flex flex-wrap justify-center gap-8 md:gap-16 mt-16 pt-10 border-t border-primary/20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`flex flex-wrap justify-center gap-6 md:gap-16 mt-12 pt-8 border-t border-primary/20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             {[
               { value: "100+", label: "Athletes" },

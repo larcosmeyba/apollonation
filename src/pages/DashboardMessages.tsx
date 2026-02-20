@@ -17,10 +17,10 @@ const DashboardMessages = () => {
   // Non-admin clients go straight to coach DM
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
         {/* Coach name header */}
-        <div className="flex items-center gap-3 p-4 border-b border-border bg-card/95 backdrop-blur-lg">
-          <div className="w-9 h-9 rounded-full bg-apollo-gold/20 flex items-center justify-center">
+        <div className="flex items-center gap-3 p-4 border-b border-border bg-card/95 backdrop-blur-lg flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-apollo-gold/20 flex items-center justify-center flex-shrink-0">
             <span className="text-sm font-medium text-apollo-gold">M</span>
           </div>
           <div>
@@ -29,8 +29,8 @@ const DashboardMessages = () => {
           </div>
         </div>
 
-        {/* Chat takes remaining space */}
-        <div className="flex-1 overflow-hidden">
+        {/* Chat takes remaining space above bottom tabs */}
+        <div className="flex-1 overflow-hidden min-h-0">
           <ChatView partnerId={COACH_USER_ID} showHeader={false} />
         </div>
 

@@ -28,7 +28,7 @@ const Index = () => {
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background overflow-x-hidden w-full">
       <SEOHead
         path="/"
         description="Transform your body with Coach Marcos at Apollo Nation. Elite personal training programs, HD workout videos, custom nutrition plans, and 1-on-1 coaching. Join 100+ athletes today."
