@@ -73,23 +73,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const checkSubscription = useCallback(async () => {
     if (!user) return;
 
-    // Read profile directly from DB to avoid dependency on profile state
-    const currentProfile = await fetchProfile(user.id);
-    if (!currentProfile) return;
-
-    // Skip subscription check for archived/cancelled accounts
-    if (currentProfile.account_status === "archived" || currentProfile.account_status === "cancelled") {
-      setSubscription(defaultUnsub);
-      setSubscriptionLoading(false);
-      return;
-    }
-
     setSubscriptionLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         console.log("No active session, skipping subscription check");
         setSubscription(defaultUnsub);
+        return;
+      }
+
+      // Read profile to check account status without causing re-render loop
+      const { data: currentProfile } = await supabase
+        .from("profiles")
+        .select("account_status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      // Skip subscription check for archived/cancelled accounts
+      if (currentProfile?.account_status === "archived" || currentProfile?.account_status === "cancelled") {
+        setSubscription(defaultUnsub);
+        setSubscriptionLoading(false);
         return;
       }
 
@@ -100,9 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       setSubscription(data as SubscriptionStatus);
-
-      // Update profile with synced tier
-      setProfile(currentProfile);
+      // NOTE: Do NOT call setProfile here — it would create a re-render loop
     } catch (err) {
       console.error("Subscription check failed:", err);
       setSubscription(defaultUnsub);
@@ -159,16 +160,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => authSubscription.unsubscribe();
   }, []);
 
-  // Check subscription status when user changes
+  // Check subscription status when user changes (only depends on user, not profile)
   useEffect(() => {
-    if (user && profile) {
+    if (user) {
       checkSubscription();
 
-      // Auto-refresh subscription every 60 seconds
-      const interval = setInterval(checkSubscription, 60000);
+      // Auto-refresh subscription every 5 minutes (was 60s — too frequent)
+      const interval = setInterval(checkSubscription, 300000);
       return () => clearInterval(interval);
     }
-  }, [user, profile?.id, checkSubscription]);
+  }, [user?.id, checkSubscription]);
 
   // Check for checkout success in URL
   useEffect(() => {
