@@ -73,8 +73,8 @@ const AdminInbox = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto h-[calc(100vh-8rem)]">
-        <div className="card-apollo h-full flex overflow-hidden">
+      <div className="max-w-4xl mx-auto" style={{ height: "calc(100vh - 8rem)" }}>
+        <div className="card-apollo h-full flex overflow-hidden min-h-0">
           {/* Conversation list */}
           <div
             className={`w-full md:w-80 border-r border-border flex flex-col ${
