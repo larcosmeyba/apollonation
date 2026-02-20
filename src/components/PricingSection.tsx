@@ -124,9 +124,9 @@ const PricingSection = () => {
           {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`relative p-8 lg:p-10 border transition-all duration-500 ${
+              className={`relative p-6 lg:p-10 border transition-all duration-500 ${
                 tier.featured
-                  ? "border-primary/50 bg-primary/[0.03] scale-[1.02]"
+                  ? "border-primary/50 bg-primary/[0.03] md:scale-[1.02]"
                   : "border-white/10 bg-white/[0.02] hover:border-primary/30"
               }`}
             >

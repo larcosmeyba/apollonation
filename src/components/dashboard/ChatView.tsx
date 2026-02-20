@@ -52,7 +52,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       {showHeader && (
         <div className="flex items-center gap-3 p-4 border-b border-border">
