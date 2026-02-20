@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Camera, Save, LogOut, Target, Ruler, Weight, Activity } from "lucide-react";
+import { User, Camera, Save, LogOut, Target, Ruler, Weight, Activity, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,13 +9,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const DashboardProfile = () => {
   const { profile, refreshProfile, user, signOut } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [phone, setPhone] = useState("");
+  const [dislikedInput, setDislikedInput] = useState("");
+  const [dislikedFoods, setDislikedFoods] = useState<string[]>([]);
+  const [savingDisliked, setSavingDisliked] = useState(false);
 
   const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
 
@@ -25,7 +29,6 @@ const DashboardProfile = () => {
     fitness_goals: profile?.fitness_goals || "",
   });
 
-  // Load questionnaire data for stats display
   const { data: questionnaire } = useQuery({
     queryKey: ["profile-questionnaire", user?.id],
     queryFn: async () => {
@@ -40,6 +43,12 @@ const DashboardProfile = () => {
     },
     enabled: !!user,
   });
+
+  useEffect(() => {
+    if (questionnaire?.disliked_foods) {
+      setDislikedFoods(questionnaire.disliked_foods);
+    }
+  }, [questionnaire]);
 
   // Load phone
   useEffect(() => {
