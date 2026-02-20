@@ -110,7 +110,7 @@ const PricingSection = () => {
           <span className="text-primary font-medium text-xs uppercase tracking-[0.25em] mb-6 block">
             Membership
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.05em] text-white">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-white break-words">
             Choose Your
             <span className="text-primary block mt-2">Path</span>
           </h2>
@@ -120,13 +120,13 @@ const PricingSection = () => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
           {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`relative p-6 lg:p-10 border transition-all duration-500 ${
+            className={`relative p-6 lg:p-8 border transition-all duration-500 ${
                 tier.featured
-                  ? "border-primary/50 bg-primary/[0.03] md:scale-[1.02]"
+                  ? "border-primary/50 bg-primary/[0.03]"
                   : "border-white/10 bg-white/[0.02] hover:border-primary/30"
               }`}
             >

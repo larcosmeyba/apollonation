@@ -36,7 +36,7 @@ const TestimonialsSection = () => {
           <span className="text-primary font-medium text-xs uppercase tracking-[0.25em] mb-6 block">
             Testimonials
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.05em] text-white">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-white break-words">
             Stories of
             <span className="text-primary block mt-2">Transformation</span>
           </h2>
