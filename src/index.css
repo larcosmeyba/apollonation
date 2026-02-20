@@ -105,11 +105,13 @@
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
 
   html {
     overflow-x: hidden;
     width: 100%;
+    max-width: 100vw;
   }
 
   body {
@@ -119,17 +121,26 @@
     letter-spacing: 0.01em;
     overflow-x: hidden;
     width: 100%;
+    max-width: 100vw;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Cinzel', serif;
     font-weight: 500;
     letter-spacing: 0.08em;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   /* Elegant paragraph spacing */
   p {
     line-height: 1.8;
+  }
+
+  /* Prevent any element from causing horizontal scroll */
+  #root {
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 }
 
