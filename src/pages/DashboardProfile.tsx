@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Camera, Save, LogOut, Target, Ruler, Weight, Activity, X, Plus } from "lucide-react";
+import { User, Camera, Save, LogOut, Target, Ruler, Weight, Activity, X, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,7 +50,6 @@ const DashboardProfile = () => {
     }
   }, [questionnaire]);
 
-  // Load phone
   useEffect(() => {
     const loadPhone = async () => {
       if (!user) return;
@@ -95,6 +94,37 @@ const DashboardProfile = () => {
     const ft = Math.floor(inches / 12);
     const rem = inches % 12;
     return `${ft}'${rem}"`;
+  };
+
+  const addDislikedFood = () => {
+    const trimmed = dislikedInput.trim();
+    if (!trimmed || dislikedFoods.includes(trimmed)) {
+      setDislikedInput("");
+      return;
+    }
+    setDislikedFoods((prev) => [...prev, trimmed]);
+    setDislikedInput("");
+  };
+
+  const removeDislikedFood = (food: string) => {
+    setDislikedFoods((prev) => prev.filter((f) => f !== food));
+  };
+
+  const saveDislikedFoods = async () => {
+    if (!user) return;
+    setSavingDisliked(true);
+    const { error } = await (supabase as any)
+      .from("client_questionnaires")
+      .update({ disliked_foods: dislikedFoods })
+      .eq("user_id", user.id)
+      .eq("is_active", true);
+    setSavingDisliked(false);
+    if (error) {
+      toast({ title: "Error saving preferences", description: error.message, variant: "destructive" });
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["profile-questionnaire", user.id] });
+      toast({ title: "Food preferences saved!", description: "Your meal swaps will now avoid these foods." });
+    }
   };
 
   return (
@@ -163,6 +193,72 @@ const DashboardProfile = () => {
           <div className="card-apollo p-5">
             <h2 className="font-heading text-base mb-2">Current 4-Week Goal</h2>
             <p className="text-sm text-muted-foreground">{questionnaire.goal_next_4_weeks}</p>
+          </div>
+        )}
+
+        {/* Disliked Foods Editor */}
+        {questionnaire && (
+          <div className="card-apollo p-5">
+            <div className="mb-4">
+              <h2 className="font-heading text-base">Food Preferences</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Meals you swap will never include these foods or ingredients.
+              </p>
+            </div>
+
+            {/* Food chips */}
+            {dislikedFoods.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {dislikedFoods.map((food) => (
+                  <span
+                    key={food}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary"
+                  >
+                    {food}
+                    <button
+                      onClick={() => removeDislikedFood(food)}
+                      className="hover:text-destructive transition-colors"
+                      aria-label={`Remove ${food}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {dislikedFoods.length === 0 && (
+              <p className="text-xs text-muted-foreground mb-3 italic">No disliked foods added yet.</p>
+            )}
+
+            {/* Add input */}
+            <div className="flex gap-2 mb-4">
+              <Input
+                value={dislikedInput}
+                onChange={(e) => setDislikedInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") { e.preventDefault(); addDislikedFood(); }
+                }}
+                placeholder="e.g. broccoli, shellfish, cilantro…"
+                className="bg-muted border-border"
+              />
+              <Button type="button" variant="apollo-outline" size="sm" onClick={addDislikedFood} className="shrink-0">
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <Button
+              variant="apollo"
+              className="w-full"
+              onClick={saveDislikedFoods}
+              disabled={savingDisliked}
+            >
+              {savingDisliked ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving…</>
+              ) : (
+                <><Save className="w-4 h-4 mr-2" /> Save Preferences</>
+              )}
+            </Button>
           </div>
         )}
 
