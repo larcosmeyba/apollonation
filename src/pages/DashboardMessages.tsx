@@ -12,7 +12,15 @@ import { formatDistanceToNow } from "date-fns";
 const COACH_USER_ID = "b1427538-a690-4cd4-8e34-423602562f4a";
 
 const DashboardMessages = () => {
-  const { isAdmin } = useAdminStatus();
+  const { isAdmin, loading } = useAdminStatus();
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-apollo-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   // Non-admin clients go straight to coach DM
   if (!isAdmin) {
@@ -30,7 +38,7 @@ const DashboardMessages = () => {
         </div>
 
         {/* Chat takes remaining space above bottom tabs */}
-        <div className="flex-1 overflow-hidden min-h-0">
+        <div className="flex-1 overflow-hidden min-h-0 mb-16">
           <ChatView partnerId={COACH_USER_ID} showHeader={false} />
         </div>
 
