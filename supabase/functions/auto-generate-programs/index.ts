@@ -145,10 +145,11 @@ AGE-SPECIFIC RULES (Client is ${clientAge} years old - Youth):
 - Sex: ${q.sex}
 - Age: ${clientAge}
 - Weight: ${q.weight_lbs} lbs
+- Goal Weight: ${q.goal_weight ? q.goal_weight + " lbs" : "not specified"}
 - Activity level: ${q.activity_level}
 - Workout days per week: ${q.workout_days_per_week}
 - Available equipment: ${q.training_methods?.join(", ") || "bodyweight"}
-- Goal: ${q.goal_next_4_weeks || "general fitness"}
+- Goal: ${q.goal_next_4_weeks || "general fitness"}${q.goal_weight ? `\n- Target weight: ${q.goal_weight} lbs (client currently weighs ${q.weight_lbs} lbs, so they need to ${q.goal_weight < q.weight_lbs ? "lose" : "gain"} ${Math.abs(q.weight_lbs - q.goal_weight)} lbs)` : ""}
 - Available gym time: ${workoutDuration} minutes per session
 ${ageGuidelines}
 
@@ -321,8 +322,9 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
       let tdee = bmr * (activityMultipliers[q.activity_level || "moderate"] || 1.55);
 
       const goal = (q.goal_next_4_weeks || "").toLowerCase();
-      if (goal.includes("lose") || goal.includes("cut") || goal.includes("lean")) tdee -= 500;
-      else if (goal.includes("gain") || goal.includes("bulk") || goal.includes("muscle")) tdee += 300;
+      const hasGoalWeight = q.goal_weight && q.goal_weight < q.weight_lbs;
+      if (hasGoalWeight || goal.includes("lose") || goal.includes("cut") || goal.includes("lean")) tdee -= 500;
+      else if ((!hasGoalWeight && q.goal_weight && q.goal_weight > q.weight_lbs) || goal.includes("gain") || goal.includes("bulk") || goal.includes("muscle")) tdee += 300;
 
       const dailyCalories = Math.round(tdee);
       const proteinGrams = Math.round(weightKg * 2.2);
@@ -340,7 +342,7 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
 
 - Daily calories: ${dailyCalories} kcal
 - Protein: ${proteinGrams}g, Carbs: ${carbsGrams}g, Fat: ${fatGrams}g
-- Goal: ${q.goal_next_4_weeks || "maintain"}
+- Goal: ${q.goal_next_4_weeks || "maintain"}${q.goal_weight ? `\n- Goal Weight: ${q.goal_weight} lbs (current: ${q.weight_lbs} lbs)` : ""}
 ${dietaryInfo}
 ${dislikedInfo}
 ${budgetInfo}

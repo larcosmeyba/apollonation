@@ -1,0 +1,1 @@
+ALTER TABLE public.client_questionnaires ADD COLUMN IF NOT EXISTS goal_weight numeric NULL;
