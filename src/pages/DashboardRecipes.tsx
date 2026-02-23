@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -237,7 +237,7 @@ const DashboardRecipes = () => {
 
       {/* Recipe Detail Modal */}
       <Dialog open={!!selectedRecipe} onOpenChange={(open) => { if (!open) setSelectedRecipe(null); }}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6" onPointerDownOutside={(e) => e.preventDefault()}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6">
           {selectedRecipe ? (
             <div className="space-y-6">
               <DialogHeader>
@@ -249,11 +249,9 @@ const DashboardRecipes = () => {
                 <DialogTitle className="font-heading text-2xl">
                   {selectedRecipe.title}
                 </DialogTitle>
-                {selectedRecipe.description && (
-                  <p className="text-muted-foreground text-sm mt-1">
-                    {selectedRecipe.description}
-                  </p>
-                )}
+                <DialogDescription className="text-muted-foreground text-sm mt-1">
+                  {selectedRecipe.description || "Recipe details and instructions"}
+                </DialogDescription>
               </DialogHeader>
 
               {/* Hero image */}
