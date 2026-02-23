@@ -730,22 +730,32 @@ const DashboardTraining = () => {
     <DashboardLayout>
       <div className="max-w-5xl mx-auto w-full overflow-hidden">
         {/* ── Header ─────────────────────────────────── */}
-        <div className="mb-6">
-          <h1 className="font-heading text-2xl md:text-3xl mb-1">
-            {isShowingToday ? "Today's" : format(displayDate, "EEEE's")}{" "}
-            <span className="text-primary">Workout</span>
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {format(displayDate, "EEEE, MMMM d")}
-            {!isShowingToday && (
-              <button
-                onClick={() => setSelectedDayDate(null)}
-                className="ml-2 text-primary hover:underline"
-              >
-                Back to today
-              </button>
-            )}
-          </p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="font-heading text-2xl md:text-3xl mb-1">
+              {isShowingToday ? "Today's" : format(displayDate, "EEEE's")}{" "}
+              <span className="text-primary">Workout</span>
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {format(displayDate, "EEEE, MMMM d")}
+              {!isShowingToday && (
+                <button
+                  onClick={() => setSelectedDayDate(null)}
+                  className="ml-2 text-primary hover:underline"
+                >
+                  Back to today
+                </button>
+              )}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs gap-1"
+            onClick={() => setShowAddActivity(true)}
+          >
+            <Plus className="w-3 h-3" /> Add Activity
+          </Button>
         </div>
 
         {!planData ? (
@@ -815,6 +825,35 @@ const DashboardTraining = () => {
                   />
                 ))}
             </div>
+
+            {/* Finish Workout Button */}
+            {totalExercises > 0 && !sessionLog?.completed_at && (
+              <div className="mt-4">
+                <Button
+                  variant="apollo"
+                  className="w-full gap-2"
+                  onClick={() => {
+                    saveSessionMutation.mutate();
+                    setTimeout(() => setShowCelebration(true), 300);
+                  }}
+                  disabled={saveSessionMutation.isPending}
+                >
+                  {saveSessionMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                  Finish Workout
+                </Button>
+              </div>
+            )}
+            {sessionLog?.completed_at && (
+              <div className="mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
+                <p className="text-sm font-medium text-green-500 flex items-center justify-center gap-2">
+                  <Trophy className="w-4 h-4" /> Workout Completed! 💪
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="card-apollo p-8 text-center mb-8">
@@ -828,14 +867,6 @@ const DashboardTraining = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-heading text-sm text-muted-foreground">Extra Activities</h3>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 text-xs gap-1"
-              onClick={() => setShowAddActivity(true)}
-            >
-              <Plus className="w-3 h-3" /> Add Activity
-            </Button>
           </div>
 
           {customActivities.length > 0 && (

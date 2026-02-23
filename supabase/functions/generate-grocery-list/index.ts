@@ -100,37 +100,13 @@ serve(async (req) => {
       ? `Dietary restrictions: ${questionnaire.dietary_restrictions.join(", ")}.`
       : "";
 
-    const prompt = `You are a smart grocery shopping assistant. Given the following list of ingredients from a weekly meal plan, create an optimized grocery shopping list for shopping at "${groceryStore}".
+    const prompt = `Create a consolidated grocery list from these meal ingredients. Shop at "${groceryStore}", budget: ${weeklyBudget}. ${restrictions}
 
-Weekly food budget: ${weeklyBudget}
-${restrictions}
-
-Ingredients from this week's meals:
+Ingredients:
 ${allIngredients.map((i) => `- ${i}`).join("\n")}
 
-Rules:
-1. Consolidate duplicate or similar ingredients (e.g. if chicken breast appears 3 times, combine into one entry with total amount).
-2. Group items by grocery store aisle/department (Produce, Meat & Seafood, Dairy & Eggs, Grains & Bread, Pantry Staples, Frozen, Beverages, Condiments & Spices).
-3. Include estimated price for each item based on typical prices at ${groceryStore}.
-4. Stay within the weekly budget of ${weeklyBudget}. If over budget, suggest cheaper substitutions.
-5. Include a total estimated cost at the end.
-
-Respond with ONLY valid JSON in this format:
-{
-  "store": "store name",
-  "budget": "budget amount",
-  "categories": [
-    {
-      "name": "Produce",
-      "items": [
-        { "name": "Chicken Breast", "quantity": "3 lbs", "estimated_price": 12.99, "note": "" }
-      ]
-    }
-  ],
-  "estimated_total": 85.50,
-  "budget_status": "under_budget",
-  "savings_tips": ["Tip 1", "Tip 2"]
-}`;
+Consolidate duplicates, group by aisle, estimate prices. Respond with ONLY valid JSON:
+{"store":"${groceryStore}","budget":"${weeklyBudget}","categories":[{"name":"Produce","items":[{"name":"item","quantity":"amount","estimated_price":0.00,"note":""}]}],"estimated_total":0,"budget_status":"under_budget","savings_tips":["tip"]}`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -141,12 +117,12 @@ Respond with ONLY valid JSON in this format:
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "google/gemini-2.5-flash-lite",
           messages: [
             {
               role: "system",
               content:
-                "You are an expert grocery shopping assistant and meal prep advisor. Respond with ONLY valid JSON.",
+                "You are a grocery list generator. Respond with ONLY valid JSON, no markdown.",
             },
             { role: "user", content: prompt },
           ],

@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Search, Play, Upload, Link, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Play, Upload, Link, Loader2, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Exercise {
@@ -64,8 +64,10 @@ const AdminExercises = () => {
   const [videoPreview, setVideoPreview] = useState<{ title: string; url: string } | null>(null);
   const [videoInputMode, setVideoInputMode] = useState<"url" | "upload">("upload");
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingThumb, setIsUploadingThumb] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const thumbInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -438,15 +440,72 @@ const AdminExercises = () => {
               </div>
 
               <div>
-                <Label htmlFor="thumbnail_url">Thumbnail URL (optional)</Label>
+                <Label>Thumbnail</Label>
+                <input
+                  ref={thumbInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) {
+                      toast({ title: "File too large", description: "Max 5MB", variant: "destructive" });
+                      return;
+                    }
+                    setIsUploadingThumb(true);
+                    const ext = file.name.split(".").pop();
+                    const fileName = `exercise-${crypto.randomUUID()}.${ext}`;
+                    const { error } = await supabase.storage.from("thumbnails").upload(fileName, file, { contentType: file.type });
+                    if (error) {
+                      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+                      setIsUploadingThumb(false);
+                      return;
+                    }
+                    const { data: urlData } = supabase.storage.from("thumbnails").getPublicUrl(fileName);
+                    setFormData((p) => ({ ...p, thumbnail_url: urlData.publicUrl }));
+                    setIsUploadingThumb(false);
+                    toast({ title: "Thumbnail uploaded!" });
+                  }}
+                />
+                {formData.thumbnail_url ? (
+                  <div className="mt-2 relative">
+                    <img src={formData.thumbnail_url} alt="Thumbnail" className="w-full h-32 object-cover rounded-md border border-border" />
+                    <button
+                      type="button"
+                      onClick={() => setFormData((p) => ({ ...p, thumbnail_url: "" }))}
+                      className="absolute top-1 right-1 bg-background/80 rounded-full p-1 hover:bg-destructive/20"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-20 border-dashed mt-2"
+                    onClick={() => thumbInputRef.current?.click()}
+                    disabled={isUploadingThumb}
+                  >
+                    {isUploadingThumb ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Uploading...</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1">
+                        <Image className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Upload thumbnail (JPG, PNG — max 5MB)</span>
+                      </div>
+                    )}
+                  </Button>
+                )}
                 <Input
-                  id="thumbnail_url"
+                  className="mt-2"
                   value={formData.thumbnail_url}
                   onChange={(e) => setFormData((p) => ({ ...p, thumbnail_url: e.target.value }))}
-                  placeholder="https://..."
-                  className={errors.thumbnail_url ? "border-destructive" : ""}
+                  placeholder="Or paste a URL..."
                 />
-                {errors.thumbnail_url && <p className="text-xs text-destructive mt-1">{errors.thumbnail_url}</p>}
               </div>
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={resetForm}>
