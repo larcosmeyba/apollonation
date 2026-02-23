@@ -14,12 +14,24 @@ interface ChatViewProps {
   showHeader?: boolean;
 }
 
+const DRAFT_KEY_PREFIX = "chat-draft-";
+
 const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
   const { user } = useAuth();
   const { messages, messagesLoading, sendMessage, markAsRead } = useMessages(partnerId);
   const { data: profiles } = useProfileLookup([partnerId]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState(() => {
+    try { return localStorage.getItem(DRAFT_KEY_PREFIX + partnerId) || ""; } catch { return ""; }
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Persist draft to localStorage
+  useEffect(() => {
+    try {
+      if (newMessage) localStorage.setItem(DRAFT_KEY_PREFIX + partnerId, newMessage);
+      else localStorage.removeItem(DRAFT_KEY_PREFIX + partnerId);
+    } catch {}
+  }, [newMessage, partnerId]);
 
   const partnerName = profiles?.[partnerId]?.display_name || "Coach";
 
@@ -42,6 +54,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
     if (!trimmed) return;
     sendMessage.mutate({ recipientId: partnerId, content: trimmed });
     setNewMessage("");
+    try { localStorage.removeItem(DRAFT_KEY_PREFIX + partnerId); } catch {}
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

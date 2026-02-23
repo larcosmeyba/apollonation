@@ -58,6 +58,7 @@ const Questionnaire = () => {
     has_other_activities: false,
     other_activities: [] as { day: string; activity_type: string }[],
     goal_next_4_weeks: "",
+    goal_weight: "",
     weekly_food_budget: "",
     grocery_store: "",
     dietary_restrictions: [] as string[],
@@ -163,6 +164,7 @@ const Questionnaire = () => {
           has_other_activities: form.has_other_activities,
           other_activities: form.has_other_activities ? form.other_activities : [],
           goal_next_4_weeks: form.goal_next_4_weeks || null,
+          goal_weight: form.goal_weight ? parseFloat(form.goal_weight) : null,
           weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
           grocery_store: form.grocery_store || null,
           dietary_restrictions: form.dietary_restrictions,
@@ -544,6 +546,21 @@ const Questionnaire = () => {
                   onChange={(e) => updateField("goal_next_4_weeks", e.target.value)}
                   className="min-h-[80px]"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Goal Weight (lbs)</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 160"
+                  value={form.goal_weight}
+                  onChange={(e) => updateField("goal_weight", e.target.value)}
+                  min={50}
+                  max={600}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Your target weight helps us tailor your training and nutrition plan.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

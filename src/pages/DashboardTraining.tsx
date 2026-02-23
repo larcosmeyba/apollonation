@@ -316,7 +316,24 @@ const DashboardTraining = () => {
   const [swappingExercise, setSwappingExercise] = useState<any>(null);
   const [alternatives, setAlternatives] = useState<any[]>([]);
   const [loadingSwap, setLoadingSwap] = useState(false);
-  const [selectedDayDate, setSelectedDayDate] = useState<Date | null>(null);
+  const [selectedDayDate, setSelectedDayDate] = useState<Date | null>(() => {
+    try {
+      const saved = localStorage.getItem("training-selected-day");
+      if (saved) {
+        const parsed = new Date(saved);
+        if (!isNaN(parsed.getTime())) return parsed;
+      }
+    } catch {}
+    return null;
+  });
+
+  // Persist selected workout day
+  useEffect(() => {
+    try {
+      if (selectedDayDate) localStorage.setItem("training-selected-day", selectedDayDate.toISOString());
+      else localStorage.removeItem("training-selected-day");
+    } catch {}
+  }, [selectedDayDate]);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showAddActivity, setShowAddActivity] = useState(false);
   const [activityForm, setActivityForm] = useState({ name: "", duration: "", calories: "", notes: "" });

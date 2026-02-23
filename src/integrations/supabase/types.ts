@@ -70,6 +70,7 @@ export type Database = {
           dietary_restrictions: string[] | null
           disliked_foods: string[] | null
           goal_next_4_weeks: string | null
+          goal_weight: number | null
           grocery_store: string | null
           has_other_activities: boolean | null
           height_inches: number
@@ -98,6 +99,7 @@ export type Database = {
           dietary_restrictions?: string[] | null
           disliked_foods?: string[] | null
           goal_next_4_weeks?: string | null
+          goal_weight?: number | null
           grocery_store?: string | null
           has_other_activities?: boolean | null
           height_inches: number
@@ -126,6 +128,7 @@ export type Database = {
           dietary_restrictions?: string[] | null
           disliked_foods?: string[] | null
           goal_next_4_weeks?: string | null
+          goal_weight?: number | null
           grocery_store?: string | null
           has_other_activities?: boolean | null
           height_inches?: number
