@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Camera, Save, LogOut, Target, Ruler, Weight, Activity, X, Plus, Loader2 } from "lucide-react";
+import { Save, LogOut, X, Plus, Loader2, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import ProfileAvatarUpload from "@/components/dashboard/ProfileAvatarUpload";
+import ProfileQuestionnaireView from "@/components/dashboard/ProfileQuestionnaireView";
 
 const DashboardProfile = () => {
-  const { profile, refreshProfile, user, signOut } = useAuth();
+  const { profile, refreshProfile, user, signOut, subscription } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
@@ -20,8 +22,7 @@ const DashboardProfile = () => {
   const [dislikedInput, setDislikedInput] = useState("");
   const [dislikedFoods, setDislikedFoods] = useState<string[]>([]);
   const [savingDisliked, setSavingDisliked] = useState(false);
-
-  const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
+  const [managingPortal, setManagingPortal] = useState(false);
 
   const [formData, setFormData] = useState({
     display_name: profile?.display_name || "",
@@ -90,12 +91,6 @@ const DashboardProfile = () => {
     setIsLoading(false);
   };
 
-  const formatHeight = (inches: number) => {
-    const ft = Math.floor(inches / 12);
-    const rem = inches % 12;
-    return `${ft}'${rem}"`;
-  };
-
   const addDislikedFood = () => {
     const trimmed = dislikedInput.trim();
     if (!trimmed || dislikedFoods.includes(trimmed)) {
@@ -127,24 +122,26 @@ const DashboardProfile = () => {
     }
   };
 
+  const handleManageSubscription = async () => {
+    setManagingPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) window.open(data.url, "_blank");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Could not open subscription management.", variant: "destructive" });
+    } finally {
+      setManagingPortal(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="max-w-2xl mx-auto space-y-5">
         {/* Profile Header */}
         <div className="card-apollo p-5">
           <div className="flex items-center gap-4 mb-4">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full rounded-full object-cover" />
-                ) : (
-                  <User className="w-8 h-8 text-primary" />
-                )}
-              </div>
-              <button className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                <Camera className="w-3 h-3 text-primary-foreground" />
-              </button>
-            </div>
+            <ProfileAvatarUpload />
             <div>
               <h1 className="font-heading text-xl">{profile?.display_name || "Member"}</h1>
               <p className="text-primary uppercase text-xs tracking-wider">
@@ -154,47 +151,8 @@ const DashboardProfile = () => {
           </div>
         </div>
 
-        {/* Stats from Questionnaire */}
-        {questionnaire && (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="card-apollo p-4 flex items-center gap-3">
-              <Weight className="w-5 h-5 text-primary flex-shrink-0" />
-              <div>
-                <p className="text-lg font-heading">{questionnaire.weight_lbs} lbs</p>
-                <p className="text-[11px] text-muted-foreground">Weight</p>
-              </div>
-            </div>
-            <div className="card-apollo p-4 flex items-center gap-3">
-              <Ruler className="w-5 h-5 text-primary flex-shrink-0" />
-              <div>
-                <p className="text-lg font-heading">{formatHeight(questionnaire.height_inches)}</p>
-                <p className="text-[11px] text-muted-foreground">Height</p>
-              </div>
-            </div>
-            <div className="card-apollo p-4 flex items-center gap-3">
-              <Activity className="w-5 h-5 text-primary flex-shrink-0" />
-              <div>
-                <p className="text-sm font-heading capitalize">{questionnaire.activity_level}</p>
-                <p className="text-[11px] text-muted-foreground">Activity Level</p>
-              </div>
-            </div>
-            <div className="card-apollo p-4 flex items-center gap-3">
-              <Target className="w-5 h-5 text-primary flex-shrink-0" />
-              <div>
-                <p className="text-sm font-heading">{questionnaire.workout_days_per_week}x/week</p>
-                <p className="text-[11px] text-muted-foreground">Training</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 4-Week Goal */}
-        {questionnaire?.goal_next_4_weeks && (
-          <div className="card-apollo p-5">
-            <h2 className="font-heading text-base mb-2">Current 4-Week Goal</h2>
-            <p className="text-sm text-muted-foreground">{questionnaire.goal_next_4_weeks}</p>
-          </div>
-        )}
+        {/* Questionnaire Data */}
+        {questionnaire && <ProfileQuestionnaireView questionnaire={questionnaire} />}
 
         {/* Disliked Foods Editor */}
         {questionnaire && (
@@ -206,7 +164,6 @@ const DashboardProfile = () => {
               </p>
             </div>
 
-            {/* Food chips */}
             {dislikedFoods.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-3">
                 {dislikedFoods.map((food) => (
@@ -231,7 +188,6 @@ const DashboardProfile = () => {
               <p className="text-xs text-muted-foreground mb-3 italic">No disliked foods added yet.</p>
             )}
 
-            {/* Add input */}
             <div className="flex gap-2 mb-4">
               <Input
                 value={dislikedInput}
@@ -290,7 +246,7 @@ const DashboardProfile = () => {
           </form>
         </div>
 
-        {/* Subscription */}
+        {/* Subscription Management */}
         <div className="card-apollo p-5">
           <h3 className="font-heading text-base mb-3">Subscription</h3>
           <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
@@ -299,10 +255,28 @@ const DashboardProfile = () => {
               <p className="text-xs text-muted-foreground">
                 {profile?.subscription_tier === "elite" ? "Full access" : profile?.subscription_tier === "pro" ? "Coaching access" : "On-demand workouts"}
               </p>
+              {subscription?.subscribed && subscription.subscription_end && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Renews {new Date(subscription.subscription_end).toLocaleDateString()}
+                </p>
+              )}
             </div>
-            {profile?.subscription_tier !== "elite" && (
-              <Button variant="apollo" size="sm">Upgrade</Button>
-            )}
+            <div className="flex flex-col gap-1.5">
+              {subscription?.subscribed && !(profile as any)?.manual_subscription && (
+                <Button variant="apollo-outline" size="sm" onClick={handleManageSubscription} disabled={managingPortal}>
+                  <CreditCard className="w-3 h-3 mr-1" />
+                  {managingPortal ? "Opening..." : "Manage"}
+                </Button>
+              )}
+              {subscription?.subscribed && (profile as any)?.manual_subscription && (
+                <span className="text-xs text-muted-foreground italic">Admin-assigned</span>
+              )}
+              {!subscription?.subscribed && (
+                <Link to="/#pricing">
+                  <Button variant="apollo" size="sm">Upgrade</Button>
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 
