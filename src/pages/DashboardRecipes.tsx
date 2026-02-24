@@ -77,6 +77,7 @@ const DashboardRecipes = () => {
   };
 
   return (
+    <>
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
@@ -234,121 +235,116 @@ const DashboardRecipes = () => {
           </>
         )}
       </div>
+    </DashboardLayout>
 
-      {/* Recipe Detail Modal */}
-      <Dialog open={!!selectedRecipe} onOpenChange={(open) => { if (!open) setSelectedRecipe(null); }}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6">
-          {selectedRecipe ? (
-            <div className="space-y-6">
-              <DialogHeader>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs text-apollo-gold uppercase tracking-wide">
-                    {selectedRecipe.category || "Recipe"}
-                  </span>
-                </div>
-                <DialogTitle className="font-heading text-2xl">
-                  {selectedRecipe.title}
-                </DialogTitle>
-                <DialogDescription className="text-muted-foreground text-sm mt-1">
-                  {selectedRecipe.description || "Recipe details and instructions"}
-                </DialogDescription>
-              </DialogHeader>
+    {/* Recipe Detail Modal - outside DashboardLayout to avoid overflow clipping */}
+    <Dialog open={!!selectedRecipe} onOpenChange={(open) => { if (!open) setSelectedRecipe(null); }}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+        {selectedRecipe && (
+          <div className="space-y-6">
+            <DialogHeader>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs text-apollo-gold uppercase tracking-wide">
+                  {selectedRecipe.category || "Recipe"}
+                </span>
+              </div>
+              <DialogTitle className="font-heading text-2xl">
+                {selectedRecipe.title}
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-sm mt-1">
+                {selectedRecipe.description || "Recipe details and instructions"}
+              </DialogDescription>
+            </DialogHeader>
 
-              {/* Hero image */}
-              {selectedRecipe.thumbnail_url && (
-                <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-                  <img
-                    src={selectedRecipe.thumbnail_url}
-                    alt={selectedRecipe.title}
-                    className="w-full h-full object-cover"
-                  />
+            {selectedRecipe.thumbnail_url && (
+              <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                <img
+                  src={selectedRecipe.thumbnail_url}
+                  alt={selectedRecipe.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {selectedRecipe.prep_time_minutes != null && (
+                <div className="bg-muted/50 p-3 rounded-lg text-center">
+                  <p className="text-xs text-muted-foreground">Prep</p>
+                  <p className="font-medium text-sm">{selectedRecipe.prep_time_minutes} min</p>
                 </div>
               )}
-
-                  {/* Quick stats */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {selectedRecipe.prep_time_minutes != null && (
-                      <div className="bg-muted/50 p-3 rounded-lg text-center">
-                        <p className="text-xs text-muted-foreground">Prep</p>
-                        <p className="font-medium text-sm">{selectedRecipe.prep_time_minutes} min</p>
-                      </div>
-                    )}
-                    {selectedRecipe.cook_time_minutes != null && (
-                      <div className="bg-muted/50 p-3 rounded-lg text-center">
-                        <p className="text-xs text-muted-foreground">Cook</p>
-                        <p className="font-medium text-sm">{selectedRecipe.cook_time_minutes} min</p>
-                      </div>
-                    )}
-                    {selectedRecipe.servings != null && (
-                      <div className="bg-muted/50 p-3 rounded-lg text-center">
-                        <p className="text-xs text-muted-foreground">Servings</p>
-                        <p className="font-medium text-sm">{selectedRecipe.servings}</p>
-                      </div>
-                    )}
-                    {selectedRecipe.calories_per_serving != null && (
-                      <div className="bg-muted/50 p-3 rounded-lg text-center">
-                        <p className="text-xs text-muted-foreground">Calories</p>
-                        <p className="font-medium text-sm">{selectedRecipe.calories_per_serving}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Macros bar */}
-                  {(selectedRecipe.protein_grams || selectedRecipe.carbs_grams || selectedRecipe.fat_grams) && (
-                    <div className="flex items-center gap-4 p-3 bg-apollo-gold/5 border border-apollo-gold/20 rounded-lg">
-                      <span className="text-xs font-medium text-apollo-gold uppercase tracking-wide">Macros</span>
-                      <div className="flex gap-4 text-sm">
-                        {selectedRecipe.protein_grams != null && (
-                          <span>Protein: <strong>{selectedRecipe.protein_grams}g</strong></span>
-                        )}
-                        {selectedRecipe.carbs_grams != null && (
-                          <span>Carbs: <strong>{selectedRecipe.carbs_grams}g</strong></span>
-                        )}
-                        {selectedRecipe.fat_grams != null && (
-                          <span>Fat: <strong>{selectedRecipe.fat_grams}g</strong></span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Ingredients */}
-                  {parseIngredients(selectedRecipe.ingredients).length > 0 && (
-                    <div>
-                      <h3 className="font-heading text-lg mb-3">Ingredients</h3>
-                      <ul className="space-y-2">
-                        {parseIngredients(selectedRecipe.ingredients).map((ingredient, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm">
-                            <span className="w-1.5 h-1.5 rounded-full bg-apollo-gold mt-1.5 flex-shrink-0" />
-                            {ingredient}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Instructions */}
-                  {selectedRecipe.instructions && (
-                    <div>
-                      <h3 className="font-heading text-lg mb-3">Instructions</h3>
-                      <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                        {selectedRecipe.instructions}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Tags */}
-                  {selectedRecipe.dietary_tags && selectedRecipe.dietary_tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      {selectedRecipe.dietary_tags.map((tag) => (
-                        <Badge key={tag} variant="secondary">{tag}</Badge>
-                      ))}
-                    </div>
-                  )}
+              {selectedRecipe.cook_time_minutes != null && (
+                <div className="bg-muted/50 p-3 rounded-lg text-center">
+                  <p className="text-xs text-muted-foreground">Cook</p>
+                  <p className="font-medium text-sm">{selectedRecipe.cook_time_minutes} min</p>
+                </div>
+              )}
+              {selectedRecipe.servings != null && (
+                <div className="bg-muted/50 p-3 rounded-lg text-center">
+                  <p className="text-xs text-muted-foreground">Servings</p>
+                  <p className="font-medium text-sm">{selectedRecipe.servings}</p>
+                </div>
+              )}
+              {selectedRecipe.calories_per_serving != null && (
+                <div className="bg-muted/50 p-3 rounded-lg text-center">
+                  <p className="text-xs text-muted-foreground">Calories</p>
+                  <p className="font-medium text-sm">{selectedRecipe.calories_per_serving}</p>
+                </div>
+              )}
             </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
-    </DashboardLayout>
+
+            {(selectedRecipe.protein_grams || selectedRecipe.carbs_grams || selectedRecipe.fat_grams) && (
+              <div className="flex items-center gap-4 p-3 bg-apollo-gold/5 border border-apollo-gold/20 rounded-lg">
+                <span className="text-xs font-medium text-apollo-gold uppercase tracking-wide">Macros</span>
+                <div className="flex gap-4 text-sm">
+                  {selectedRecipe.protein_grams != null && (
+                    <span>Protein: <strong>{selectedRecipe.protein_grams}g</strong></span>
+                  )}
+                  {selectedRecipe.carbs_grams != null && (
+                    <span>Carbs: <strong>{selectedRecipe.carbs_grams}g</strong></span>
+                  )}
+                  {selectedRecipe.fat_grams != null && (
+                    <span>Fat: <strong>{selectedRecipe.fat_grams}g</strong></span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {parseIngredients(selectedRecipe.ingredients).length > 0 && (
+              <div>
+                <h3 className="font-heading text-lg mb-3">Ingredients</h3>
+                <ul className="space-y-2">
+                  {parseIngredients(selectedRecipe.ingredients).map((ingredient, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-apollo-gold mt-1.5 flex-shrink-0" />
+                      {ingredient}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {selectedRecipe.instructions && (
+              <div>
+                <h3 className="font-heading text-lg mb-3">Instructions</h3>
+                <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                  {selectedRecipe.instructions}
+                </div>
+              </div>
+            )}
+
+            {selectedRecipe.dietary_tags && selectedRecipe.dietary_tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                {selectedRecipe.dietary_tags.map((tag) => (
+                  <Badge key={tag} variant="secondary">{tag}</Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
 
