@@ -1,4 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
+import fitnessGymImg from "@/assets/fitness-gym.png";
+import fitness1Img from "@/assets/fitness-1.png";
+import fitness4Img from "@/assets/fitness-4.png";
+import fitness6Img from "@/assets/fitness-6.png";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Dumbbell, Utensils, CreditCard, Calendar, BookOpen, ChevronRight, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -142,35 +146,33 @@ const Dashboard = () => {
         <CoachIntroVideo />
 
         {/* Quick Nav Tabs — 2×2 grid below coach message */}
-        <div className="grid grid-cols-4 gap-2">
-          <Link
-            to="/dashboard/training"
-            className="card-apollo p-3 flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-all text-center"
-          >
-            <Dumbbell className="w-4 h-4 text-primary" />
-            <p className="text-[10px] font-medium leading-tight">Workout</p>
-          </Link>
-          <Link
-            to="/dashboard/nutrition"
-            className="card-apollo p-3 flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-all text-center"
-          >
-            <Utensils className="w-4 h-4 text-primary" />
-            <p className="text-[10px] font-medium leading-tight">Meals</p>
-          </Link>
-          <Link
-            to="/dashboard/macros"
-            className="card-apollo p-3 flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-all text-center"
-          >
-            <Camera className="w-4 h-4 text-primary" />
-            <p className="text-[10px] font-medium leading-tight">Macros</p>
-          </Link>
-          <Link
-            to="/dashboard/recipes"
-            className="card-apollo p-3 flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-all text-center"
-          >
-            <BookOpen className="w-4 h-4 text-primary" />
-            <p className="text-[10px] font-medium leading-tight">Recipes</p>
-          </Link>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {[
+            { to: "/dashboard/training", icon: Dumbbell, label: "Workout", img: fitnessGymImg },
+            { to: "/dashboard/nutrition", icon: Utensils, label: "Meals", img: fitness1Img },
+            { to: "/dashboard/macros", icon: Camera, label: "Macros", img: fitness4Img },
+            { to: "/dashboard/recipes", icon: BookOpen, label: "Recipes", img: fitness6Img },
+          ].map((tile) => (
+            <Link
+              key={tile.to}
+              to={tile.to}
+              className="card-apollo overflow-hidden group hover:border-primary/50 transition-all"
+            >
+              <div className="relative h-20 sm:h-24 overflow-hidden">
+                <img
+                  src={tile.img}
+                  alt={tile.label}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center">
+                  <tile.icon className="w-4 h-4 text-primary mb-0.5" />
+                  <p className="text-[10px] font-medium leading-tight text-white">{tile.label}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
 
         {/* Main grid: stacked on mobile, 2-col on desktop */}
