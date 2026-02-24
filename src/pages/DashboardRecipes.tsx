@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Clock, Users, Flame, Filter, Heart, X, ChefHat } from "lucide-react";
+import { Clock, Users, Flame, Filter, Heart, ChefHat } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,8 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import RecipeDetailSheet from "@/components/dashboard/RecipeDetailSheet";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Recipe = Tables<"recipes">;
@@ -65,15 +64,6 @@ const DashboardRecipes = () => {
     setFavorites((prev) =>
       prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
     );
-  };
-
-  const parseIngredients = (ingredients: any): string[] => {
-    if (!ingredients) return [];
-    if (Array.isArray(ingredients)) return ingredients as string[];
-    if (typeof ingredients === "string") {
-      try { return JSON.parse(ingredients); } catch { return [ingredients]; }
-    }
-    return [];
   };
 
   return (
@@ -237,113 +227,7 @@ const DashboardRecipes = () => {
       </div>
     </DashboardLayout>
 
-    {/* Recipe Detail Modal - outside DashboardLayout to avoid overflow clipping */}
-    <Dialog open={!!selectedRecipe} onOpenChange={(open) => { if (!open) setSelectedRecipe(null); }}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6">
-        {selectedRecipe && (
-          <div className="space-y-6">
-            <DialogHeader>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs text-apollo-gold uppercase tracking-wide">
-                  {selectedRecipe.category || "Recipe"}
-                </span>
-              </div>
-              <DialogTitle className="font-heading text-2xl">
-                {selectedRecipe.title}
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground text-sm mt-1">
-                {selectedRecipe.description || "Recipe details and instructions"}
-              </DialogDescription>
-            </DialogHeader>
-
-            {selectedRecipe.thumbnail_url && (
-              <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-                <img
-                  src={selectedRecipe.thumbnail_url}
-                  alt={selectedRecipe.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {selectedRecipe.prep_time_minutes != null && (
-                <div className="bg-muted/50 p-3 rounded-lg text-center">
-                  <p className="text-xs text-muted-foreground">Prep</p>
-                  <p className="font-medium text-sm">{selectedRecipe.prep_time_minutes} min</p>
-                </div>
-              )}
-              {selectedRecipe.cook_time_minutes != null && (
-                <div className="bg-muted/50 p-3 rounded-lg text-center">
-                  <p className="text-xs text-muted-foreground">Cook</p>
-                  <p className="font-medium text-sm">{selectedRecipe.cook_time_minutes} min</p>
-                </div>
-              )}
-              {selectedRecipe.servings != null && (
-                <div className="bg-muted/50 p-3 rounded-lg text-center">
-                  <p className="text-xs text-muted-foreground">Servings</p>
-                  <p className="font-medium text-sm">{selectedRecipe.servings}</p>
-                </div>
-              )}
-              {selectedRecipe.calories_per_serving != null && (
-                <div className="bg-muted/50 p-3 rounded-lg text-center">
-                  <p className="text-xs text-muted-foreground">Calories</p>
-                  <p className="font-medium text-sm">{selectedRecipe.calories_per_serving}</p>
-                </div>
-              )}
-            </div>
-
-            {(selectedRecipe.protein_grams || selectedRecipe.carbs_grams || selectedRecipe.fat_grams) && (
-              <div className="flex items-center gap-4 p-3 bg-apollo-gold/5 border border-apollo-gold/20 rounded-lg">
-                <span className="text-xs font-medium text-apollo-gold uppercase tracking-wide">Macros</span>
-                <div className="flex gap-4 text-sm">
-                  {selectedRecipe.protein_grams != null && (
-                    <span>Protein: <strong>{selectedRecipe.protein_grams}g</strong></span>
-                  )}
-                  {selectedRecipe.carbs_grams != null && (
-                    <span>Carbs: <strong>{selectedRecipe.carbs_grams}g</strong></span>
-                  )}
-                  {selectedRecipe.fat_grams != null && (
-                    <span>Fat: <strong>{selectedRecipe.fat_grams}g</strong></span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {parseIngredients(selectedRecipe.ingredients).length > 0 && (
-              <div>
-                <h3 className="font-heading text-lg mb-3">Ingredients</h3>
-                <ul className="space-y-2">
-                  {parseIngredients(selectedRecipe.ingredients).map((ingredient, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-apollo-gold mt-1.5 flex-shrink-0" />
-                      {ingredient}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {selectedRecipe.instructions && (
-              <div>
-                <h3 className="font-heading text-lg mb-3">Instructions</h3>
-                <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                  {selectedRecipe.instructions}
-                </div>
-              </div>
-            )}
-
-            {selectedRecipe.dietary_tags && selectedRecipe.dietary_tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                {selectedRecipe.dietary_tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">{tag}</Badge>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+    <RecipeDetailSheet recipe={selectedRecipe} onClose={() => setSelectedRecipe(null)} />
     </>
   );
 };
