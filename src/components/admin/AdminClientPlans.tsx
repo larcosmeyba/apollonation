@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import ClientNutritionPlans from "./ClientNutritionPlans";
 import ClientActivityLogs from "./ClientActivityLogs";
+import ClientNotesPanel from "./ClientNotesPanel";
 
 interface Profile {
   user_id: string;
@@ -306,6 +307,7 @@ const AdminClientPlans = () => {
             <TabsTrigger value="training">Training Plans</TabsTrigger>
             <TabsTrigger value="nutrition">Nutrition Plans</TabsTrigger>
             <TabsTrigger value="activity">Activity Logs</TabsTrigger>
+            <TabsTrigger value="notes">Coach Notes</TabsTrigger>
           </TabsList>
 
           <TabsContent value="training">
@@ -349,6 +351,10 @@ const AdminClientPlans = () => {
 
           <TabsContent value="activity">
             <ClientActivityLogs userId={selectedClient.user_id} />
+          </TabsContent>
+
+          <TabsContent value="notes">
+            <ClientNotesPanel userId={selectedClient.user_id} clientName={selectedClient.display_name || "Unknown"} />
           </TabsContent>
         </Tabs>
       )}
