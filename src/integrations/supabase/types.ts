@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_notes: {
+        Row: {
+          admin_user_id: string
+          client_user_id: string
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          admin_user_id: string
+          client_user_id: string
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_user_id?: string
+          client_user_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       client_nutrition_profiles: {
         Row: {
           activity_level: string | null
