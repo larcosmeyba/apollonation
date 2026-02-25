@@ -7,6 +7,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
+import React from "react";
+
+const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+
+function renderMessageContent(content: string) {
+  const parts = content.split(URL_REGEX);
+  return parts.map((part, i) =>
+    URL_REGEX.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline break-all hover:opacity-80"
+      >
+        {part}
+      </a>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
+}
 
 interface ChatViewProps {
   partnerId: string;
@@ -108,7 +130,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
                       : "bg-muted rounded-bl-sm"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">{renderMessageContent(msg.content)}</p>
                   <p
                     className={`text-[10px] mt-1 ${
                       isMine ? "text-primary-foreground/70" : "text-muted-foreground"
