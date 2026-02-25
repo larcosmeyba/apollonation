@@ -93,10 +93,11 @@ const AdminClientPlans = () => {
     queryFn: async () => {
       if (clientIds.length === 0) return {};
       // Query multiple tables for latest activity per user
-      const [sessions, macros, messages] = await Promise.all([
+      const [sessions, macros, messages, steps] = await Promise.all([
         supabase.from("workout_session_logs").select("user_id, created_at").in("user_id", clientIds).order("created_at", { ascending: false }).limit(200),
         supabase.from("macro_logs").select("user_id, created_at").in("user_id", clientIds).order("created_at", { ascending: false }).limit(200),
         supabase.from("messages").select("sender_id, created_at").in("sender_id", clientIds).order("created_at", { ascending: false }).limit(200),
+        supabase.from("step_logs").select("user_id, created_at").in("user_id", clientIds).order("created_at", { ascending: false }).limit(200),
       ]);
       const map: Record<string, string> = {};
       const update = (uid: string, ts: string) => {
@@ -105,6 +106,7 @@ const AdminClientPlans = () => {
       sessions.data?.forEach(r => update(r.user_id, r.created_at));
       macros.data?.forEach(r => update(r.user_id, r.created_at));
       messages.data?.forEach(r => update(r.sender_id, r.created_at));
+      steps.data?.forEach(r => update(r.user_id, r.created_at));
       return map;
     },
     enabled: clientIds.length > 0,
