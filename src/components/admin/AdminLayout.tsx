@@ -18,6 +18,7 @@ import {
   X,
   Megaphone,
   ClipboardList,
+  StickyNote,
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -30,6 +31,7 @@ const navItems = [
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "broadcast", label: "Broadcast", icon: Megaphone },
   { id: "client-plans", label: "Client Plans", icon: ClipboardList },
+  { id: "client-notes", label: "Client Notes", icon: StickyNote },
   { id: "workouts", label: "Workouts", icon: Dumbbell },
   { id: "exercises", label: "Exercise Library", icon: Activity },
   { id: "users", label: "Clients", icon: Users },

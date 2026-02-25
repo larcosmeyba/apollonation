@@ -10,6 +10,7 @@ import AdminNutrition from "@/components/admin/AdminNutrition";
 import AdminBroadcast from "@/components/admin/AdminBroadcast";
 import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientPlans from "@/components/admin/AdminClientPlans";
+import AdminClientNotes from "@/components/admin/AdminClientNotes";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("messages");
@@ -22,6 +23,8 @@ const AdminDashboard = () => {
         return <AdminBroadcast />;
       case "client-plans":
         return <AdminClientPlans />;
+      case "client-notes":
+        return <AdminClientNotes />;
       case "workouts":
         return <AdminWorkouts />;
       case "exercises":
