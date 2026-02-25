@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, Pencil, Trash2, Plus, GripVertical, Search } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ChevronLeft, Pencil, Trash2, Plus, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow } from "date-fns";
+import ClientNutritionPlans from "./ClientNutritionPlans";
+import ClientActivityLogs from "./ClientActivityLogs";
 
 interface Profile {
   user_id: string;
@@ -61,6 +64,7 @@ const AdminClientPlans = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [editingExercise, setEditingExercise] = useState<TrainingExercise | null>(null);
   const [isExerciseDialogOpen, setIsExerciseDialogOpen] = useState(false);
+  const [clientTab, setClientTab] = useState("training");
   const [exerciseForm, setExerciseForm] = useState({
     exercise_name: "", muscle_group: "", sets: 3, reps: "10", rest_seconds: 60, notes: "",
   });
@@ -81,6 +85,30 @@ const AdminClientPlans = () => {
     enabled: viewMode === "clients",
   });
 
+  // Fetch last active timestamps for all clients
+  const clientIds = clients?.map(c => c.user_id) || [];
+  const { data: lastActiveMap } = useQuery({
+    queryKey: ["admin-last-active", clientIds],
+    queryFn: async () => {
+      if (clientIds.length === 0) return {};
+      // Query multiple tables for latest activity per user
+      const [sessions, macros, messages] = await Promise.all([
+        supabase.from("workout_session_logs").select("user_id, created_at").in("user_id", clientIds).order("created_at", { ascending: false }).limit(200),
+        supabase.from("macro_logs").select("user_id, created_at").in("user_id", clientIds).order("created_at", { ascending: false }).limit(200),
+        supabase.from("messages").select("sender_id, created_at").in("sender_id", clientIds).order("created_at", { ascending: false }).limit(200),
+      ]);
+      const map: Record<string, string> = {};
+      const update = (uid: string, ts: string) => {
+        if (!map[uid] || ts > map[uid]) map[uid] = ts;
+      };
+      sessions.data?.forEach(r => update(r.user_id, r.created_at));
+      macros.data?.forEach(r => update(r.user_id, r.created_at));
+      messages.data?.forEach(r => update(r.sender_id, r.created_at));
+      return map;
+    },
+    enabled: clientIds.length > 0,
+  });
+
   const filteredClients = clients?.filter(c =>
     !searchQuery || (c.display_name || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -97,7 +125,7 @@ const AdminClientPlans = () => {
       if (error) throw error;
       return data as TrainingPlan[];
     },
-    enabled: viewMode === "plans" && !!selectedClient,
+    enabled: viewMode === "plans" && !!selectedClient && clientTab === "training",
   });
 
   // Fetch days for selected plan
@@ -192,10 +220,9 @@ const AdminClientPlans = () => {
   const handleBack = () => {
     if (viewMode === "exercises") setViewMode("days");
     else if (viewMode === "days") setViewMode("plans");
-    else if (viewMode === "plans") { setViewMode("clients"); setSelectedClient(null); }
+    else if (viewMode === "plans") { setViewMode("clients"); setSelectedClient(null); setClientTab("training"); }
   };
 
-  // ── Breadcrumb ──
   const breadcrumb = () => {
     const parts: string[] = ["Clients"];
     if (selectedClient) parts.push(selectedClient.display_name || "Unknown");
@@ -208,7 +235,7 @@ const AdminClientPlans = () => {
     <div className="space-y-6">
       <div>
         <h2 className="font-heading text-xl">Client Training Plans</h2>
-        <p className="text-sm text-muted-foreground">View and edit any client's training program</p>
+        <p className="text-sm text-muted-foreground">View and edit any client's training program, nutrition, and activity</p>
       </div>
 
       {/* Breadcrumb */}
@@ -241,20 +268,26 @@ const AdminClientPlans = () => {
                 <TableRow>
                   <TableHead>Client</TableHead>
                   <TableHead>Tier</TableHead>
+                  <TableHead>Last Active</TableHead>
                   <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loadingClients ? (
-                  <TableRow><TableCell colSpan={3} className="text-center py-8">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="text-center py-8">Loading...</TableCell></TableRow>
                 ) : filteredClients?.length === 0 ? (
-                  <TableRow><TableCell colSpan={3} className="text-center py-8 text-muted-foreground">No pro/elite clients found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No pro/elite clients found.</TableCell></TableRow>
                 ) : filteredClients?.map(c => (
                   <TableRow key={c.user_id}>
                     <TableCell className="font-medium">{c.display_name || "—"}</TableCell>
                     <TableCell><Badge variant="outline" className="capitalize">{c.subscription_tier}</Badge></TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {lastActiveMap?.[c.user_id]
+                        ? formatDistanceToNow(new Date(lastActiveMap[c.user_id]), { addSuffix: true })
+                        : "Never"}
+                    </TableCell>
                     <TableCell>
-                      <Button size="sm" variant="outline" onClick={() => { setSelectedClient(c); setViewMode("plans"); }}>
+                      <Button size="sm" variant="outline" onClick={() => { setSelectedClient(c); setViewMode("plans"); setClientTab("training"); }}>
                         View Plans
                       </Button>
                     </TableCell>
@@ -266,40 +299,58 @@ const AdminClientPlans = () => {
         </>
       )}
 
-      {/* ── PLANS LIST ── */}
-      {viewMode === "plans" && (
-        <div className="card-apollo overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Plan</TableHead>
-                <TableHead>Cycle</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Days/Week</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loadingPlans ? (
-                <TableRow><TableCell colSpan={5} className="text-center py-8">Loading...</TableCell></TableRow>
-              ) : plans?.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No training plans found.</TableCell></TableRow>
-              ) : plans?.map(p => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.title}</TableCell>
-                  <TableCell>{p.cycle_number}</TableCell>
-                  <TableCell><Badge variant={p.status === "active" ? "default" : "secondary"}>{p.status}</Badge></TableCell>
-                  <TableCell>{p.workout_days_per_week}</TableCell>
-                  <TableCell>
-                    <Button size="sm" variant="outline" onClick={() => { setSelectedPlan(p); setViewMode("days"); }}>
-                      View Days
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+      {/* ── CLIENT DETAIL WITH TABS ── */}
+      {viewMode === "plans" && selectedClient && (
+        <Tabs value={clientTab} onValueChange={setClientTab}>
+          <TabsList>
+            <TabsTrigger value="training">Training Plans</TabsTrigger>
+            <TabsTrigger value="nutrition">Nutrition Plans</TabsTrigger>
+            <TabsTrigger value="activity">Activity Logs</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="training">
+            <div className="card-apollo overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Plan</TableHead>
+                    <TableHead>Cycle</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Days/Week</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loadingPlans ? (
+                    <TableRow><TableCell colSpan={5} className="text-center py-8">Loading...</TableCell></TableRow>
+                  ) : plans?.length === 0 ? (
+                    <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No training plans found.</TableCell></TableRow>
+                  ) : plans?.map(p => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-medium">{p.title}</TableCell>
+                      <TableCell>{p.cycle_number}</TableCell>
+                      <TableCell><Badge variant={p.status === "active" ? "default" : "secondary"}>{p.status}</Badge></TableCell>
+                      <TableCell>{p.workout_days_per_week}</TableCell>
+                      <TableCell>
+                        <Button size="sm" variant="outline" onClick={() => { setSelectedPlan(p); setViewMode("days"); }}>
+                          View Days
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="nutrition">
+            <ClientNutritionPlans userId={selectedClient.user_id} />
+          </TabsContent>
+
+          <TabsContent value="activity">
+            <ClientActivityLogs userId={selectedClient.user_id} />
+          </TabsContent>
+        </Tabs>
       )}
 
       {/* ── DAYS LIST ── */}
