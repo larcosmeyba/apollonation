@@ -382,7 +382,7 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [
-            { role: "system", content: "You are an expert sports nutritionist. Generate precise, practical meal plans. Respond with ONLY valid JSON." },
+            { role: "system", content: "You are an expert sports nutritionist. Generate precise, practical meal plans with high variety across weeks. Respond with ONLY valid JSON." },
             { role: "user", content: nutritionPrompt },
           ],
         }),
