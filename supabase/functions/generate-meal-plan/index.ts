@@ -226,26 +226,23 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
       throw new Error("Failed to create nutrition plan");
     }
 
-    // Insert all meals (repeat 7 days across 4 weeks = 28 days)
+    // Insert all meals (28 unique days from AI)
     const allMeals: any[] = [];
-    for (let week = 0; week < 4; week++) {
-      for (const day of mealPlanData.days) {
-        const actualDay = week * 7 + day.day_number;
-        for (const meal of day.meals) {
-          allMeals.push({
-            plan_id: plan.id,
-            day_number: actualDay,
-            meal_type: meal.meal_type,
-            meal_name: meal.meal_name,
-            description: meal.description,
-            ingredients: meal.ingredients,
-            calories: meal.calories,
-            protein_grams: meal.protein_grams,
-            carbs_grams: meal.carbs_grams,
-            fat_grams: meal.fat_grams,
-            sort_order: meal.meal_type === "breakfast" ? 0 : meal.meal_type === "lunch" ? 1 : meal.meal_type === "dinner" ? 2 : 3,
-          });
-        }
+    for (const day of mealPlanData.days) {
+      for (const meal of day.meals) {
+        allMeals.push({
+          plan_id: plan.id,
+          day_number: day.day_number,
+          meal_type: meal.meal_type,
+          meal_name: meal.meal_name,
+          description: meal.description,
+          ingredients: meal.ingredients,
+          calories: meal.calories,
+          protein_grams: meal.protein_grams,
+          carbs_grams: meal.carbs_grams,
+          fat_grams: meal.fat_grams,
+          sort_order: meal.meal_type === "breakfast" ? 0 : meal.meal_type === "lunch" ? 1 : meal.meal_type === "dinner" ? 2 : 3,
+        });
       }
     }
 
