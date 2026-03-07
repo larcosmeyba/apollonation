@@ -106,7 +106,7 @@ serve(async (req) => {
       ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${profile.food_restrictions.join(", ")}. Do NOT include these ingredients in ANY meal.`
       : "";
 
-    const prompt = `Generate a complete 7-day meal plan (one week that will be repeated for 4 weeks) for a client with these specifications:
+    const prompt = `Generate a complete 28-day meal plan (4 unique weeks) for a client with these specifications:
 
 - Daily calories: ${dailyCalories} kcal
 - Protein: ${proteinGrams}g
@@ -117,7 +117,8 @@ ${dietaryPrefs}
 ${restrictions}
 ${profile.notes ? `Additional notes: ${profile.notes}` : ""}
 
-For EACH of the 7 days, provide exactly 4 meals: breakfast, lunch, dinner, and snack.
+For EACH of the 28 days, provide exactly 4 meals: breakfast, lunch, dinner, and snack.
+Each week should have DIFFERENT meals — do NOT repeat the same meals across weeks. Vary proteins, cooking methods, cuisines, and ingredients week to week.
 
 You MUST respond with ONLY valid JSON (no markdown, no code blocks) in this exact format:
 {
@@ -140,7 +141,7 @@ You MUST respond with ONLY valid JSON (no markdown, no code blocks) in this exac
   ]
 }
 
-Make meals practical, varied, and delicious. Each day's total macros should approximately match the targets.`;
+Make meals practical, varied, and delicious. Each day's total macros should approximately match the targets. Ensure variety across all 4 weeks.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -153,7 +154,7 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
         messages: [
           {
             role: "system",
-            content: "You are an expert sports nutritionist. Generate precise, practical meal plans. Respond with ONLY valid JSON."
+            content: "You are an expert sports nutritionist. Generate precise, practical meal plans with high variety across weeks. Respond with ONLY valid JSON."
           },
           { role: "user", content: prompt }
         ],
@@ -225,26 +226,23 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
       throw new Error("Failed to create nutrition plan");
     }
 
-    // Insert all meals (repeat 7 days across 4 weeks = 28 days)
+    // Insert all meals (28 unique days from AI)
     const allMeals: any[] = [];
-    for (let week = 0; week < 4; week++) {
-      for (const day of mealPlanData.days) {
-        const actualDay = week * 7 + day.day_number;
-        for (const meal of day.meals) {
-          allMeals.push({
-            plan_id: plan.id,
-            day_number: actualDay,
-            meal_type: meal.meal_type,
-            meal_name: meal.meal_name,
-            description: meal.description,
-            ingredients: meal.ingredients,
-            calories: meal.calories,
-            protein_grams: meal.protein_grams,
-            carbs_grams: meal.carbs_grams,
-            fat_grams: meal.fat_grams,
-            sort_order: meal.meal_type === "breakfast" ? 0 : meal.meal_type === "lunch" ? 1 : meal.meal_type === "dinner" ? 2 : 3,
-          });
-        }
+    for (const day of mealPlanData.days) {
+      for (const meal of day.meals) {
+        allMeals.push({
+          plan_id: plan.id,
+          day_number: day.day_number,
+          meal_type: meal.meal_type,
+          meal_name: meal.meal_name,
+          description: meal.description,
+          ingredients: meal.ingredients,
+          calories: meal.calories,
+          protein_grams: meal.protein_grams,
+          carbs_grams: meal.carbs_grams,
+          fat_grams: meal.fat_grams,
+          sort_order: meal.meal_type === "breakfast" ? 0 : meal.meal_type === "lunch" ? 1 : meal.meal_type === "dinner" ? 2 : 3,
+        });
       }
     }
 
