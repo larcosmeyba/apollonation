@@ -338,7 +338,7 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
       const budgetInfo = q.weekly_food_budget
         ? `Weekly food budget: $${q.weekly_food_budget}. ${q.grocery_store ? `Primary grocery store: ${q.grocery_store}.` : ""}` : "";
 
-      const nutritionPrompt = `Generate a complete 7-day meal plan for a client:
+      const nutritionPrompt = `Generate a complete 28-day meal plan (4 unique weeks) for a client:
 
 - Daily calories: ${dailyCalories} kcal
 - Protein: ${proteinGrams}g, Carbs: ${carbsGrams}g, Fat: ${fatGrams}g
@@ -347,7 +347,8 @@ ${dietaryInfo}
 ${dislikedInfo}
 ${budgetInfo}
 
-For EACH of the 7 days, provide exactly 4 meals: breakfast, lunch, dinner, and snack.
+For EACH of the 28 days, provide exactly 4 meals: breakfast, lunch, dinner, and snack.
+Each week should have DIFFERENT meals — do NOT repeat the same meals across weeks. Vary proteins, cooking methods, cuisines, and ingredients week to week.
 
 You MUST respond with ONLY valid JSON:
 {
@@ -370,7 +371,7 @@ You MUST respond with ONLY valid JSON:
   ]
 }
 
-Make meals practical, varied, and delicious.`;
+Make meals practical, varied, and delicious. Each day's total macros should approximately match the targets. Ensure variety across all 4 weeks.`;
 
       const nutritionResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
