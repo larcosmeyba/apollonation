@@ -512,18 +512,17 @@ const DashboardNutrition = () => {
                                         <span>F: {meal.fat_grams}g</span>
                                       </div>
                                     </div>
-                                    <div className="flex gap-1 ml-2">
+                                    <div className="flex flex-col gap-1 ml-2">
                                       <Button
-                                        variant="ghost"
+                                        variant="apollo-outline"
                                         size="sm"
                                         onClick={() => openSwap(meal)}
-                                        title="Swap this meal"
-                                        className="text-muted-foreground hover:text-primary"
+                                        className="text-xs h-7 px-2 gap-1"
                                       >
-                                        <RefreshCw className="w-3 h-3" />
+                                        <RefreshCw className="w-3 h-3" /> Swap
                                       </Button>
-                                      <Button variant="ghost" size="sm" onClick={() => startEditMeal(meal)}>
-                                        <Edit2 className="w-3 h-3" />
+                                      <Button variant="ghost" size="sm" onClick={() => startEditMeal(meal)} className="text-xs h-7 px-2 gap-1 text-muted-foreground">
+                                        <Edit2 className="w-3 h-3" /> Edit
                                       </Button>
                                     </div>
                                   </div>
