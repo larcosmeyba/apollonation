@@ -79,6 +79,21 @@ const DashboardNutrition = () => {
     enabled: !!user,
   });
 
+  const { data: hasQuestionnaire } = useQuery({
+    queryKey: ["has-questionnaire", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { count, error } = await supabase
+        .from("client_questionnaires")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_active", true);
+      if (error) return false;
+      return (count ?? 0) > 0;
+    },
+    enabled: !!user,
+  });
+
   const activePlan = selectedPlanId
     ? plans?.find((p) => p.id === selectedPlanId)
     : plans?.find((p) => p.status === "active") || plans?.[0];
