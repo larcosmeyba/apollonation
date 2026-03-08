@@ -384,13 +384,28 @@ const DashboardNutrition = () => {
 
                 {/* MEAL PLAN TAB */}
                 <TabsContent value="meals">
-                  <div className="flex items-center justify-center gap-4 mb-6">
-                    <Button variant="ghost" size="sm" disabled={currentWeek <= 1} onClick={() => setCurrentWeek((w) => w - 1)}>
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <span className="font-heading text-lg">Week {currentWeek}</span>
-                    <Button variant="ghost" size="sm" disabled={currentWeek >= (activePlan.duration_weeks || 4)} onClick={() => setCurrentWeek((w) => w + 1)}>
-                      <ChevronRight className="w-4 h-4" />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <Button variant="ghost" size="sm" disabled={currentWeek <= 1} onClick={() => setCurrentWeek((w) => w - 1)}>
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+                      <span className="font-heading text-lg">Week {currentWeek}</span>
+                      <Button variant="ghost" size="sm" disabled={currentWeek >= (activePlan.duration_weeks || 4)} onClick={() => setCurrentWeek((w) => w + 1)}>
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <Button
+                      variant="apollo-outline"
+                      size="sm"
+                      onClick={regenerateWeek}
+                      disabled={regenerating}
+                      className="gap-2"
+                    >
+                      {regenerating ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Regenerating...</>
+                      ) : (
+                        <><RefreshCw className="w-4 h-4" /> New Meals</>
+                      )}
                     </Button>
                   </div>
 
