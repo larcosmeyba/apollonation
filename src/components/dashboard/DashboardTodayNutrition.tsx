@@ -13,6 +13,8 @@ import {
   ChevronDown,
   ChevronUp,
   Camera,
+  AlertCircle,
+  ClipboardList,
 } from "lucide-react";
 import { format } from "date-fns";
 
