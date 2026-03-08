@@ -6,7 +6,8 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart, Loader2, Lightbulb, DollarSign, Store, RefreshCw, Check, CalendarSync, Sparkles } from "lucide-react";
+import { Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart, Loader2, Lightbulb, DollarSign, Store, RefreshCw, Check, CalendarSync, Sparkles, ClipboardList, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -74,6 +75,21 @@ const DashboardNutrition = () => {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
+    },
+    enabled: !!user,
+  });
+
+  const { data: hasQuestionnaire } = useQuery({
+    queryKey: ["has-questionnaire", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { count, error } = await supabase
+        .from("client_questionnaires")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_active", true);
+      if (error) return false;
+      return (count ?? 0) > 0;
     },
     enabled: !!user,
   });
@@ -303,11 +319,38 @@ const DashboardNutrition = () => {
           {!activePlan ? (
             <Card className="bg-card border-border">
               <CardContent className="py-12 text-center">
-                <Utensils className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-heading text-lg mb-2">No Nutrition Plan Yet</h3>
-                <p className="text-muted-foreground text-sm">
-                  Your coach hasn't created a nutrition plan for you yet. Check back soon!
-                </p>
+                {!hasQuestionnaire ? (
+                  <>
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <AlertCircle className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="font-heading text-lg mb-2">Complete Your Profile First</h3>
+                    <p className="text-muted-foreground text-sm mb-1">
+                      To receive a personalized weekly meal plan tailored to your goals, macros, and dietary preferences, you need to complete your questionnaire first.
+                    </p>
+                    <p className="text-xs text-muted-foreground mb-6">
+                      Your meal plan will automatically refresh every week once it's set up.
+                    </p>
+                    <Link to="/questionnaire">
+                      <Button variant="apollo" className="gap-2">
+                        <ClipboardList className="w-4 h-4" /> Complete Questionnaire
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <Utensils className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="font-heading text-lg mb-2">Your Meal Plan Is Being Prepared</h3>
+                    <p className="text-muted-foreground text-sm mb-1">
+                      Coach Marcos is setting up your personalized nutrition plan based on your goals and preferences.
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Once ready, your meals will refresh automatically every Monday with new recipes. Check back soon!
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
           ) : (
