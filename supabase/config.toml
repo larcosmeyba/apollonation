@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.weekly-meal-plan-refresh]
 verify_jwt = false
+
+[functions.client-regenerate-meal-plan]
+verify_jwt = false

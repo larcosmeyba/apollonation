@@ -6,7 +6,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart, Loader2, Lightbulb, DollarSign, Store, RefreshCw, Check } from "lucide-react";
+import { Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart, Loader2, Lightbulb, DollarSign, Store, RefreshCw, Check, CalendarSync, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,6 +53,7 @@ const DashboardNutrition = () => {
   const [swapMeal, setSwapMeal] = useState<any | null>(null);
   const [swapSuggestion, setSwapSuggestion] = useState<MealSuggestion | null>(null);
   const [swapLoading, setSwapLoading] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const [editForm, setEditForm] = useState({
     meal_name: "",
     description: "",
@@ -219,6 +220,24 @@ const DashboardNutrition = () => {
     setSwapSuggestion(null);
   };
 
+  const regenerateWeek = async () => {
+    if (!activePlan || regenerating) return;
+    setRegenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("client-regenerate-meal-plan", {
+        body: { planId: activePlan.id, week: currentWeek },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      toast({ title: "Meal plan refreshed! 🎉", description: `Week ${currentWeek} has been regenerated with new meals.` });
+      queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan.id] });
+    } catch (err: any) {
+      toast({ title: "Could not regenerate", description: err.message, variant: "destructive" });
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
   return (
     <>
       {/* Meal Swap Dialog */}
@@ -337,6 +356,22 @@ const DashboardNutrition = () => {
                 </Card>
               </div>
 
+              {/* Weekly Refresh Banner */}
+              <Card className="bg-primary/5 border-primary/20 mb-6">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-heading text-sm mb-0.5">Your meals refresh every week</p>
+                      <p className="text-xs text-muted-foreground">
+                        Your meal plan automatically updates each Monday with fresh recipes tailored to your goals, macros, and dietary preferences. Want something different this week? Hit regenerate below.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               <Tabs defaultValue="meals" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger value="meals" className="gap-2">
@@ -349,13 +384,28 @@ const DashboardNutrition = () => {
 
                 {/* MEAL PLAN TAB */}
                 <TabsContent value="meals">
-                  <div className="flex items-center justify-center gap-4 mb-6">
-                    <Button variant="ghost" size="sm" disabled={currentWeek <= 1} onClick={() => setCurrentWeek((w) => w - 1)}>
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <span className="font-heading text-lg">Week {currentWeek}</span>
-                    <Button variant="ghost" size="sm" disabled={currentWeek >= (activePlan.duration_weeks || 4)} onClick={() => setCurrentWeek((w) => w + 1)}>
-                      <ChevronRight className="w-4 h-4" />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <Button variant="ghost" size="sm" disabled={currentWeek <= 1} onClick={() => setCurrentWeek((w) => w - 1)}>
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+                      <span className="font-heading text-lg">Week {currentWeek}</span>
+                      <Button variant="ghost" size="sm" disabled={currentWeek >= (activePlan.duration_weeks || 4)} onClick={() => setCurrentWeek((w) => w + 1)}>
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <Button
+                      variant="apollo-outline"
+                      size="sm"
+                      onClick={regenerateWeek}
+                      disabled={regenerating}
+                      className="gap-2"
+                    >
+                      {regenerating ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Regenerating...</>
+                      ) : (
+                        <><RefreshCw className="w-4 h-4" /> New Meals</>
+                      )}
                     </Button>
                   </div>
 

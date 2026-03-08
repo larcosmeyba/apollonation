@@ -176,7 +176,7 @@ const DashboardTodayNutrition = () => {
             </div>
             <div>
               <p className="font-heading text-sm">{todayLabel}'s Meals</p>
-              <p className="text-[10px] text-primary">{activePlan.daily_calories} kcal target</p>
+              <p className="text-[10px] text-primary">{activePlan.daily_calories} kcal · refreshes weekly</p>
             </div>
           </div>
           <Link to="/dashboard/nutrition">
