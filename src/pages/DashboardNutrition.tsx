@@ -319,11 +319,38 @@ const DashboardNutrition = () => {
           {!activePlan ? (
             <Card className="bg-card border-border">
               <CardContent className="py-12 text-center">
-                <Utensils className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-heading text-lg mb-2">No Nutrition Plan Yet</h3>
-                <p className="text-muted-foreground text-sm">
-                  Your coach hasn't created a nutrition plan for you yet. Check back soon!
-                </p>
+                {!hasQuestionnaire ? (
+                  <>
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <AlertCircle className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="font-heading text-lg mb-2">Complete Your Profile First</h3>
+                    <p className="text-muted-foreground text-sm mb-1">
+                      To receive a personalized weekly meal plan tailored to your goals, macros, and dietary preferences, you need to complete your questionnaire first.
+                    </p>
+                    <p className="text-xs text-muted-foreground mb-6">
+                      Your meal plan will automatically refresh every week once it's set up.
+                    </p>
+                    <Link to="/questionnaire">
+                      <Button variant="apollo" className="gap-2">
+                        <ClipboardList className="w-4 h-4" /> Complete Questionnaire
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <Utensils className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="font-heading text-lg mb-2">Your Meal Plan Is Being Prepared</h3>
+                    <p className="text-muted-foreground text-sm mb-1">
+                      Coach Marcos is setting up your personalized nutrition plan based on your goals and preferences.
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Once ready, your meals will refresh automatically every Monday with new recipes. Check back soon!
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
           ) : (
