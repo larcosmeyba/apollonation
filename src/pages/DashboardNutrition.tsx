@@ -220,6 +220,24 @@ const DashboardNutrition = () => {
     setSwapSuggestion(null);
   };
 
+  const regenerateWeek = async () => {
+    if (!activePlan || regenerating) return;
+    setRegenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("client-regenerate-meal-plan", {
+        body: { planId: activePlan.id, week: currentWeek },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      toast({ title: "Meal plan refreshed! 🎉", description: `Week ${currentWeek} has been regenerated with new meals.` });
+      queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan.id] });
+    } catch (err: any) {
+      toast({ title: "Could not regenerate", description: err.message, variant: "destructive" });
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
   return (
     <>
       {/* Meal Swap Dialog */}
