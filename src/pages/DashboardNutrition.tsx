@@ -6,7 +6,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart, Loader2, Lightbulb, DollarSign, Store, RefreshCw, Check } from "lucide-react";
+import { Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart, Loader2, Lightbulb, DollarSign, Store, RefreshCw, Check, CalendarSync, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,6 +53,7 @@ const DashboardNutrition = () => {
   const [swapMeal, setSwapMeal] = useState<any | null>(null);
   const [swapSuggestion, setSwapSuggestion] = useState<MealSuggestion | null>(null);
   const [swapLoading, setSwapLoading] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const [editForm, setEditForm] = useState({
     meal_name: "",
     description: "",
