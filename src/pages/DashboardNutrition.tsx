@@ -356,6 +356,22 @@ const DashboardNutrition = () => {
                 </Card>
               </div>
 
+              {/* Weekly Refresh Banner */}
+              <Card className="bg-primary/5 border-primary/20 mb-6">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-heading text-sm mb-0.5">Your meals refresh every week</p>
+                      <p className="text-xs text-muted-foreground">
+                        Your meal plan automatically updates each Monday with fresh recipes tailored to your goals, macros, and dietary preferences. Want something different this week? Hit regenerate below.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               <Tabs defaultValue="meals" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger value="meals" className="gap-2">
