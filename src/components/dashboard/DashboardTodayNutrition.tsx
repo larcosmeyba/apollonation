@@ -163,7 +163,48 @@ const DashboardTodayNutrition = () => {
     },
   });
 
-  if (!activePlan) return null;
+  // Check if user has a questionnaire
+  const { data: hasQuestionnaire } = useQuery({
+    queryKey: ["has-questionnaire-widget", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { count, error } = await supabase
+        .from("client_questionnaires")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_active", true);
+      if (error) return false;
+      return (count ?? 0) > 0;
+    },
+    enabled: !!user && !activePlan,
+  });
+
+  if (!activePlan) {
+    // Show notification for clients without a questionnaire
+    if (hasQuestionnaire === false) {
+      return (
+        <div className="card-apollo p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <AlertCircle className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-heading text-sm mb-1">Complete Your Questionnaire</p>
+              <p className="text-xs text-muted-foreground mb-3">
+                Fill out your profile so Coach Marcos can create your personalized weekly meal plan with meals tailored to your goals and preferences.
+              </p>
+              <Link to="/questionnaire">
+                <Button variant="apollo" size="sm" className="gap-2">
+                  <ClipboardList className="w-3.5 h-3.5" /> Get Started
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  }
 
   const todayLabel = format(today, "EEEE");
 
