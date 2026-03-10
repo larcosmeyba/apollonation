@@ -101,90 +101,81 @@ const PricingSection = () => {
 
   return (
     <section id="pricing" className="py-16 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-white/[0.01] to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background" />
       
       <div className="container mx-auto px-4 relative z-10">
-        {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-20">
           <span className="text-primary font-medium text-xs uppercase tracking-[0.25em] mb-6 block">
             Membership
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-white break-words">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground break-words">
             Choose Your
             <span className="text-primary block mt-2">Path</span>
           </h2>
-          <p className="text-white/50 text-base font-light leading-relaxed">
+          <p className="text-muted-foreground text-base font-light leading-relaxed">
             Flexible plans designed for every stage of your wellness journey.
           </p>
         </div>
 
-        {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
           {tiers.map((tier) => (
             <div
               key={tier.name}
-            className={`relative p-6 lg:p-8 border transition-all duration-500 ${
+              className={`relative p-6 lg:p-8 border transition-all duration-500 rounded-2xl ${
                 tier.featured
                   ? "border-primary/50 bg-primary/[0.03]"
-                  : "border-white/10 bg-white/[0.02] hover:border-primary/30"
+                  : "border-primary/10 bg-card/30 hover:border-primary/30"
               }`}
             >
-              {/* Featured indicator */}
               {tier.featured && (
-                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-6 py-1.5 bg-primary">
+                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-6 py-1.5 bg-primary rounded-b-lg">
                   <span className="text-[10px] font-medium text-primary-foreground uppercase tracking-[0.2em]">
                     Most Popular
                   </span>
                 </div>
               )}
 
-              {/* Current plan badge */}
               {isCurrentTier(tier.tierKey) && (
-                <div className="absolute -top-px right-4 px-4 py-1.5 bg-accent">
+                <div className="absolute -top-px right-4 px-4 py-1.5 bg-accent rounded-b-lg">
                   <span className="text-[10px] font-medium text-accent-foreground uppercase tracking-[0.2em]">
                     Your Plan
                   </span>
                 </div>
               )}
 
-              {/* Header */}
               <div className="text-center mb-10 pt-4">
-                <h3 className="font-heading text-xl tracking-[0.1em] mb-3 text-white">{tier.name}</h3>
-                <p className="text-white/40 text-xs font-light mb-6">{tier.description}</p>
+                <h3 className="font-heading text-xl tracking-[0.1em] mb-3 text-foreground">{tier.name}</h3>
+                <p className="text-muted-foreground text-xs font-light mb-6">{tier.description}</p>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-white/40 text-lg font-light">$</span>
-                  <span className={`font-heading text-4xl tracking-wide ${tier.featured ? 'text-primary' : 'text-white'}`}>
+                  <span className="text-muted-foreground text-lg font-light">$</span>
+                  <span className={`font-heading text-4xl tracking-wide ${tier.featured ? 'text-primary' : 'text-foreground'}`}>
                     {tier.price}
                   </span>
-                  <span className="text-white/40 text-sm font-light">/mo</span>
+                  <span className="text-muted-foreground text-sm font-light">/mo</span>
                 </div>
               </div>
 
-              {/* App Access Badge */}
               {tier.appAccess && (
-                <div className="flex items-center justify-center gap-2 py-3 px-4 border border-primary/30 bg-primary/5 mb-8">
+                <div className="flex items-center justify-center gap-2 py-3 px-4 border border-primary/30 bg-primary/5 mb-8 rounded-lg">
                   <span className="text-primary text-xs font-light tracking-wide">
                     ✓ Includes Mobile App
                   </span>
                 </div>
               )}
 
-              {/* Features */}
               <ul className="space-y-4 mb-10">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
                     <Check size={14} className="text-primary flex-shrink-0 mt-1" strokeWidth={1.5} />
-                    <span className="text-white/50 text-sm font-light">{feature}</span>
+                    <span className="text-muted-foreground text-sm font-light">{feature}</span>
                   </li>
                 ))}
               </ul>
 
-              {/* CTA */}
               <Button
                 variant={tier.featured ? "apollo" : "apollo-outline"}
                 size="lg"
-                className="w-full"
+                className="w-full rounded-full"
                 disabled={isCurrentTier(tier.tierKey) || loadingTier === tier.tierKey}
                 onClick={() => handleSubscribe(tier.tierKey)}
               >
@@ -197,9 +188,8 @@ const PricingSection = () => {
           ))}
         </div>
 
-        {/* Guarantee */}
         <div className="text-center mt-16">
-          <p className="text-white/40 text-xs font-light tracking-wide">
+          <p className="text-muted-foreground/60 text-xs font-light tracking-wide">
             30-day satisfaction guarantee · Cancel anytime · Instant access
           </p>
         </div>

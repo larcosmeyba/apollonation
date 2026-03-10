@@ -32,7 +32,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-black/40 border-t border-white/10">
+    <footer className="bg-background/60 border-t border-primary/10">
       <div className="container mx-auto px-4 py-20">
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand */}
@@ -43,11 +43,11 @@ const Footer = () => {
                 alt="Apollo Nation Logo" 
                 className="w-10 h-10 invert brightness-0 invert opacity-90"
               />
-              <span className="font-heading text-lg tracking-[0.15em] text-white">
+              <span className="font-heading text-lg tracking-[0.15em] text-foreground">
                 APOLLO <span className="text-primary">NATION</span>
               </span>
             </div>
-            <p className="text-white/40 text-sm font-light leading-relaxed mb-8 max-w-xs">
+            <p className="text-muted-foreground text-sm font-light leading-relaxed mb-8 max-w-xs">
               Elevate your practice. Transform your body. Discover your potential.
             </p>
             <div className="flex gap-3">
@@ -55,7 +55,7 @@ const Footer = () => {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="w-10 h-10 border border-white/10 flex items-center justify-center text-white/40 hover:border-primary/50 hover:text-primary transition-all duration-500"
+                  className="w-10 h-10 border border-primary/15 flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary transition-all duration-500 rounded-full"
                   aria-label={social.label}
                 >
                   <social.icon size={16} strokeWidth={1.5} />
@@ -66,7 +66,7 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h4 className="font-heading text-xs uppercase tracking-[0.2em] text-white mb-6">
+            <h4 className="font-heading text-xs uppercase tracking-[0.2em] text-foreground mb-6">
               Experience
             </h4>
             <ul className="space-y-4">
@@ -74,7 +74,7 @@ const Footer = () => {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-white/40 hover:text-primary transition-colors duration-500 text-sm font-light"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-500 text-sm font-light"
                   >
                     {link.label}
                   </a>
@@ -84,7 +84,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-heading text-xs uppercase tracking-[0.2em] text-white mb-6">
+            <h4 className="font-heading text-xs uppercase tracking-[0.2em] text-foreground mb-6">
               Company
             </h4>
             <ul className="space-y-4">
@@ -92,7 +92,7 @@ const Footer = () => {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-white/40 hover:text-primary transition-colors duration-500 text-sm font-light"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-500 text-sm font-light"
                   >
                     {link.label}
                   </a>
@@ -102,7 +102,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-heading text-xs uppercase tracking-[0.2em] text-white mb-6">
+            <h4 className="font-heading text-xs uppercase tracking-[0.2em] text-foreground mb-6">
               Support
             </h4>
             <ul className="space-y-4">
@@ -111,14 +111,14 @@ const Footer = () => {
                   {link.isLink ? (
                     <Link
                       to={link.href}
-                      className="text-white/40 hover:text-primary transition-colors duration-500 text-sm font-light"
+                      className="text-muted-foreground hover:text-primary transition-colors duration-500 text-sm font-light"
                     >
                       {link.label}
                     </Link>
                   ) : (
                     <a
                       href={link.href}
-                      className="text-white/40 hover:text-primary transition-colors duration-500 text-sm font-light"
+                      className="text-muted-foreground hover:text-primary transition-colors duration-500 text-sm font-light"
                     >
                       {link.label}
                     </a>
@@ -130,11 +130,11 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-white/30 text-xs font-light">
+        <div className="mt-20 pt-8 border-t border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-muted-foreground/60 text-xs font-light">
             © {currentYear} Apollo Nation. All rights reserved.
           </p>
-          <p className="text-white/30 text-xs font-light">
+          <p className="text-muted-foreground/60 text-xs font-light">
             Designed for excellence.
           </p>
         </div>
