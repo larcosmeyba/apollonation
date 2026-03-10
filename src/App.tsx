@@ -18,6 +18,7 @@ import DashboardProfile from "./pages/DashboardProfile";
 import DashboardMessages from "./pages/DashboardMessages";
 import DashboardNutrition from "./pages/DashboardNutrition";
 import DashboardTraining from "./pages/DashboardTraining";
+import DashboardWorkoutDetail from "./pages/DashboardWorkoutDetail";
 import DashboardCalendar from "./pages/DashboardCalendar";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
