@@ -191,7 +191,7 @@ const DashboardCalendar = () => {
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
           <h1 className="font-heading text-3xl md:text-4xl mb-2">
-            My <span className="text-apollo-gold">Calendar</span>
+            My <span className="text-primary">Calendar</span>
           </h1>
           <p className="text-muted-foreground">Track workouts, meals, and progress</p>
         </div>
