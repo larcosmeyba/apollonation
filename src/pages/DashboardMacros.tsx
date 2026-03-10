@@ -345,7 +345,7 @@ const DashboardMacros = () => {
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-medium truncate">{entry.meal_name}</h3>
                     {entry.ai_estimated && (
-                      <span className="flex items-center gap-1 text-xs text-apollo-gold">
+                      <span className="flex items-center gap-1 text-xs text-primary">
                         <Sparkles className="w-3 h-3" /> AI
                       </span>
                     )}

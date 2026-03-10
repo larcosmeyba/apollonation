@@ -13,7 +13,7 @@ const TermsOfService = () => {
       <Navbar />
       <main className="container mx-auto px-4 py-24 max-w-4xl">
         <h1 className="font-heading text-4xl md:text-5xl mb-8">
-          Terms of <span className="text-apollo-gold">Service</span>
+          Terms of <span className="text-primary">Service</span>
         </h1>
         
         <div className="prose prose-invert max-w-none space-y-6 text-muted-foreground">
