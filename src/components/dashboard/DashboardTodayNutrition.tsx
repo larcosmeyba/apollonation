@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "react-router-dom";
 import {
   Utensils,
@@ -15,8 +17,9 @@ import {
   Camera,
   AlertCircle,
   ClipboardList,
+  Bell,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 
 const MEAL_TYPE_LABELS: Record<string, string> = {
   breakfast: "🌅 Breakfast",
@@ -25,6 +28,19 @@ const MEAL_TYPE_LABELS: Record<string, string> = {
   snack: "🍎 Snack",
 };
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"];
+
+const STORE_OPTIONS = [
+  "Trader Joe's",
+  "Walmart",
+  "Ralphs",
+  "Target",
+  "Costco",
+  "Whole Foods",
+  "Aldi",
+  "Kroger",
+  "Safeway",
+  "Other",
+];
 
 type GroceryItem = { name: string; quantity: string; estimated_price: number; note?: string };
 type GroceryCategory = { name: string; items: GroceryItem[] };
@@ -37,25 +53,60 @@ type GroceryList = {
   savings_tips: string[];
 };
 
-// Parse a YYYY-MM-DD date string as LOCAL midnight (not UTC).
-// new Date("2026-02-01") parses as UTC 00:00, which is wrong for clients in UTC-N timezones.
 const parseLocalDate = (dateStr: string) => new Date(dateStr + "T00:00:00");
+
+const GROCERY_UPDATE_KEY = "apollo_grocery_last_update";
 
 const DashboardTodayNutrition = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [groceryList, setGroceryList] = useState<GroceryList | null>(null);
   const [groceryOpen, setGroceryOpen] = useState(false);
+  const [selectedStore, setSelectedStore] = useState("");
+  const [weeklyBudget, setWeeklyBudget] = useState("");
+  const [storeError, setStoreError] = useState(false);
+  const [budgetError, setBudgetError] = useState(false);
+  const [showMonthlyReminder, setShowMonthlyReminder] = useState(false);
 
-  // Today in client's local time (no UTC offset issues)
   const today = new Date();
   const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-  // Day-of-week fallback (Mon=1 ... Sun=7)
   const todayDOW = today.getDay();
   const planDayOfWeek = todayDOW === 0 ? 7 : todayDOW;
 
-  // Fetch active nutrition plan
+  // Check monthly reminder
+  useEffect(() => {
+    const lastUpdate = localStorage.getItem(GROCERY_UPDATE_KEY);
+    if (lastUpdate) {
+      const daysSince = differenceInDays(today, new Date(lastUpdate));
+      if (daysSince >= 30) setShowMonthlyReminder(true);
+    }
+  }, []);
+
+  // Load saved store/budget from questionnaire
+  const { data: savedPrefs } = useQuery({
+    queryKey: ["grocery-prefs", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("client_questionnaires")
+        .select("grocery_store, weekly_food_budget")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  useEffect(() => {
+    if (savedPrefs) {
+      if (savedPrefs.grocery_store && !selectedStore) setSelectedStore(savedPrefs.grocery_store);
+      if (savedPrefs.weekly_food_budget && !weeklyBudget) setWeeklyBudget(String(savedPrefs.weekly_food_budget));
+    }
+  }, [savedPrefs]);
+
   const { data: activePlan } = useQuery({
     queryKey: ["nutrition-plan-today", user?.id],
     queryFn: async () => {
@@ -72,7 +123,6 @@ const DashboardTodayNutrition = () => {
     enabled: !!user,
   });
 
-  // Determine today's day_number within the plan using LOCAL dates
   const todayDayNumber = (() => {
     if (!activePlan?.start_date) return planDayOfWeek;
     const start = parseLocalDate(activePlan.start_date);
@@ -82,20 +132,10 @@ const DashboardTodayNutrition = () => {
     return (diffDays % totalDays) + 1;
   })();
 
-  // Current week number in the plan using LOCAL dates
   const currentWeek = activePlan?.start_date
-    ? Math.max(
-        1,
-        Math.min(
-          Math.ceil(
-            (Math.floor((todayLocal.getTime() - parseLocalDate(activePlan.start_date).getTime()) / (1000 * 60 * 60 * 24)) + 1) / 7
-          ),
-          activePlan.duration_weeks || 4
-        )
-      )
+    ? Math.max(1, Math.min(Math.ceil((Math.floor((todayLocal.getTime() - parseLocalDate(activePlan.start_date).getTime()) / (1000 * 60 * 60 * 24)) + 1) / 7), activePlan.duration_weeks || 4))
     : 1;
 
-  // Fetch today's logged macro entries
   const todayDateStr = format(today, "yyyy-MM-dd");
   const { data: macroLogs = [] } = useQuery({
     queryKey: ["macro-logs", user?.id, todayDateStr],
@@ -122,7 +162,6 @@ const DashboardTodayNutrition = () => {
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   );
 
-  // Fetch today's meals
   const { data: todayMeals = [] } = useQuery({
     queryKey: ["nutrition-today-meals", activePlan?.id, todayDayNumber],
     queryFn: async () => {
@@ -143,11 +182,24 @@ const DashboardTodayNutrition = () => {
     (a, b) => MEAL_TYPE_ORDER.indexOf(a.meal_type) - MEAL_TYPE_ORDER.indexOf(b.meal_type)
   );
 
+  const validateGroceryInputs = () => {
+    let valid = true;
+    if (!selectedStore) { setStoreError(true); valid = false; } else setStoreError(false);
+    const budgetNum = parseFloat(weeklyBudget);
+    if (!weeklyBudget || isNaN(budgetNum) || budgetNum <= 0) { setBudgetError(true); valid = false; } else setBudgetError(false);
+    return valid;
+  };
+
   const groceryMutation = useMutation({
     mutationFn: async () => {
       if (!activePlan) throw new Error("No plan");
       const { data, error } = await supabase.functions.invoke("generate-grocery-list", {
-        body: { planId: activePlan.id, week: currentWeek },
+        body: {
+          planId: activePlan.id,
+          week: currentWeek,
+          store: selectedStore,
+          budget: parseFloat(weeklyBudget),
+        },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -156,6 +208,17 @@ const DashboardTodayNutrition = () => {
     onSuccess: (data) => {
       setGroceryList(data);
       setGroceryOpen(true);
+      setShowMonthlyReminder(false);
+      localStorage.setItem(GROCERY_UPDATE_KEY, new Date().toISOString());
+      // Save to questionnaire
+      if (user) {
+        supabase
+          .from("client_questionnaires")
+          .update({ grocery_store: selectedStore, weekly_food_budget: parseFloat(weeklyBudget) })
+          .eq("user_id", user.id)
+          .eq("is_active", true)
+          .then(() => {});
+      }
       toast({ title: "Grocery list generated!" });
     },
     onError: (err: Error) => {
@@ -163,7 +226,19 @@ const DashboardTodayNutrition = () => {
     },
   });
 
-  // Check if user has a questionnaire
+  const handleGenerate = () => {
+    if (!validateGroceryInputs()) {
+      toast({ title: "Missing Info", description: "Please select a store and enter your weekly budget.", variant: "destructive" });
+      return;
+    }
+    groceryMutation.mutate();
+  };
+
+  const dismissReminder = () => {
+    setShowMonthlyReminder(false);
+    localStorage.setItem(GROCERY_UPDATE_KEY, new Date().toISOString());
+  };
+
   const { data: hasQuestionnaire } = useQuery({
     queryKey: ["has-questionnaire-widget", user?.id],
     queryFn: async () => {
@@ -180,7 +255,6 @@ const DashboardTodayNutrition = () => {
   });
 
   if (!activePlan) {
-    // Show notification for clients without a questionnaire
     if (hasQuestionnaire === false) {
       return (
         <div className="card-apollo p-4">
@@ -229,7 +303,6 @@ const DashboardTodayNutrition = () => {
           </Link>
         </div>
 
-        {/* Logged Macros Progress — compact single row */}
         {macroLogs.length > 0 && (
           <div className="mb-3 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/20 flex items-center gap-3">
             <Camera className="w-3 h-3 text-primary flex-shrink-0" />
@@ -246,16 +319,11 @@ const DashboardTodayNutrition = () => {
         )}
 
         {sortedMeals.length === 0 ? (
-          <p className="text-xs text-muted-foreground text-center py-2">
-            No meals scheduled for today.
-          </p>
+          <p className="text-xs text-muted-foreground text-center py-2">No meals scheduled for today.</p>
         ) : (
           <div className="space-y-1.5">
             {sortedMeals.slice(0, 3).map((meal) => (
-              <div
-                key={meal.id}
-                className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/50"
-              >
+              <div key={meal.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/50">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wide flex-shrink-0">
@@ -285,7 +353,7 @@ const DashboardTodayNutrition = () => {
 
       {/* GROCERY LIST */}
       <div className="card-apollo p-4">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <ShoppingCart className="w-4 h-4 text-primary" />
@@ -297,10 +365,7 @@ const DashboardTodayNutrition = () => {
           </div>
           <div className="flex items-center gap-2">
             {groceryList && (
-              <button
-                onClick={() => setGroceryOpen((o) => !o)}
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <button onClick={() => setGroceryOpen((o) => !o)} className="text-muted-foreground hover:text-foreground">
                 {groceryOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
             )}
@@ -312,12 +377,56 @@ const DashboardTodayNutrition = () => {
           </div>
         </div>
 
+        {/* Monthly Reminder */}
+        {showMonthlyReminder && (
+          <div className="mb-3 p-3 rounded-lg bg-accent/10 border border-accent/30 flex items-start gap-2">
+            <Bell className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs font-medium">Time to update your grocery preferences!</p>
+              <p className="text-[10px] text-muted-foreground">It's been over a month. Update your store and budget below.</p>
+            </div>
+            <button onClick={dismissReminder} className="text-muted-foreground hover:text-foreground text-xs">✕</button>
+          </div>
+        )}
+
+        {/* Store & Budget Inputs */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <Select value={selectedStore} onValueChange={(v) => { setSelectedStore(v); setStoreError(false); }}>
+              <SelectTrigger className={`h-9 text-xs ${storeError ? "border-destructive ring-1 ring-destructive" : ""}`}>
+                <SelectValue placeholder="Select store" />
+              </SelectTrigger>
+              <SelectContent>
+                {STORE_OPTIONS.map((store) => (
+                  <SelectItem key={store} value={store} className="text-xs">{store}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {storeError && <p className="text-[10px] text-destructive mt-0.5">Select a store</p>}
+          </div>
+          <div>
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+              <Input
+                type="number"
+                placeholder="Budget"
+                value={weeklyBudget}
+                onChange={(e) => { setWeeklyBudget(e.target.value); setBudgetError(false); }}
+                className={`h-9 text-xs pl-6 ${budgetError ? "border-destructive ring-1 ring-destructive" : ""}`}
+                min={1}
+                max={9999}
+              />
+            </div>
+            {budgetError && <p className="text-[10px] text-destructive mt-0.5">Enter weekly budget</p>}
+          </div>
+        </div>
+
         {!groceryList ? (
           <Button
             variant="apollo-outline"
             size="sm"
             className="w-full"
-            onClick={() => groceryMutation.mutate()}
+            onClick={handleGenerate}
             disabled={groceryMutation.isPending}
           >
             {groceryMutation.isPending ? (
@@ -328,7 +437,6 @@ const DashboardTodayNutrition = () => {
           </Button>
         ) : (
           <>
-            {/* Summary row */}
             <div className="flex items-center justify-between text-sm mb-3">
               <span className="text-muted-foreground">{groceryList.store}</span>
               <span className={`font-medium ${groceryList.budget_status === "over" ? "text-destructive" : "text-primary"}`}>
@@ -340,28 +448,18 @@ const DashboardTodayNutrition = () => {
               <div className="space-y-3">
                 {groceryList.categories.map((cat) => (
                   <div key={cat.name}>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                      {cat.name}
-                    </p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">{cat.name}</p>
                     <div className="space-y-1">
                       {cat.items.map((item, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between text-sm py-1 border-b border-border/30 last:border-0"
-                        >
+                        <div key={i} className="flex items-center justify-between text-sm py-1 border-b border-border/30 last:border-0">
                           <span className="truncate flex-1">{item.name}</span>
-                          <span className="text-muted-foreground text-xs ml-3 flex-shrink-0">
-                            {item.quantity}
-                          </span>
-                          <span className="text-muted-foreground text-xs ml-3 flex-shrink-0">
-                            ${item.estimated_price.toFixed(2)}
-                          </span>
+                          <span className="text-muted-foreground text-xs ml-3 flex-shrink-0">{item.quantity}</span>
+                          <span className="text-muted-foreground text-xs ml-3 flex-shrink-0">${item.estimated_price.toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                 ))}
-
                 {groceryList.savings_tips?.length > 0 && (
                   <div className="mt-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
                     <p className="text-xs font-medium text-primary mb-1">💡 Savings Tips</p>
@@ -377,7 +475,7 @@ const DashboardTodayNutrition = () => {
               variant="ghost"
               size="sm"
               className="w-full mt-2 text-xs text-muted-foreground"
-              onClick={() => groceryMutation.mutate()}
+              onClick={handleGenerate}
               disabled={groceryMutation.isPending}
             >
               {groceryMutation.isPending ? "Regenerating..." : "Regenerate"}
