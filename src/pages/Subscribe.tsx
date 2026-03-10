@@ -117,7 +117,7 @@ const Subscribe = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="border-b border-border/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
