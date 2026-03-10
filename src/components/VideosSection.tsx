@@ -61,31 +61,7 @@ const VideosSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
-          {/* Featured Video */}
-          <div className="md:col-span-2 lg:row-span-2 relative overflow-hidden border border-border rounded-xl">
-            <img
-              src={videos[0].thumbnail}
-              alt={videos[0].title}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full min-h-[300px] md:min-h-[400px] object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-
-            <div className="absolute bottom-0 left-0 right-0 p-6">
-              <span className="inline-block px-3 py-1 bg-foreground text-background text-[9px] font-semibold uppercase tracking-[0.2em] mb-3 rounded-full">
-                Featured
-              </span>
-              <h3 className="font-heading text-2xl md:text-3xl mb-3 text-foreground">{videos[0].title}</h3>
-              <div className="flex items-center gap-4 text-sm text-foreground/70">
-                <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{videos[0].duration}</span>
-                <span className="flex items-center gap-1.5"><Flame className="w-4 h-4" />{videos[0].calories} cal</span>
-                <span className="flex items-center gap-1.5"><Dumbbell className="w-4 h-4" />{videos[0].category}</span>
-              </div>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
           {videos.slice(1).map((video, index) => (
             <div
               key={index}
