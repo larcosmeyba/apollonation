@@ -116,6 +116,14 @@ const App = () => (
               }
             />
             <Route
+              path="/dashboard/training/workout"
+              element={
+                <ProtectedRoute>
+                  <DashboardWorkoutDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/dashboard/calendar"
               element={
                 <ProtectedRoute>
