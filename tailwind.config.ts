@@ -75,6 +75,16 @@ export default {
           gray: "hsl(var(--apollo-gray))",
           white: "hsl(var(--apollo-white))",
           accent: "hsl(var(--apollo-accent))",
+          // Legacy aliases
+          gold: "hsl(var(--apollo-gold))",
+          "gold-light": "hsl(var(--apollo-gold-light))",
+          "gold-dark": "hsl(var(--apollo-gold-dark))",
+          bronze: "hsl(var(--apollo-bronze))",
+          sandstone: "hsl(var(--apollo-sandstone))",
+          marble: "hsl(var(--apollo-marble))",
+          ivory: "hsl(var(--apollo-ivory))",
+          taupe: "hsl(var(--apollo-taupe))",
+          slate: "hsl(var(--apollo-slate))",
         },
       },
       borderRadius: {

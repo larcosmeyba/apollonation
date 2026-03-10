@@ -59,6 +59,17 @@
     --apollo-white: 0 0% 95%;
     --apollo-accent: 210 30% 17%;
 
+    /* Legacy aliases — map old gold tokens to new monochrome */
+    --apollo-gold: 0 0% 95%;
+    --apollo-gold-light: 0 0% 85%;
+    --apollo-gold-dark: 0 0% 70%;
+    --apollo-bronze: 0 0% 60%;
+    --apollo-sandstone: 0 0% 75%;
+    --apollo-marble: 0 0% 96%;
+    --apollo-ivory: 0 0% 95%;
+    --apollo-taupe: 0 0% 48%;
+    --apollo-slate: 0 0% 50%;
+
     /* Chart colors — Muted neutral */
     --chart-protein: 0 0% 54%;
     --chart-carbs: 210 12% 43%;
