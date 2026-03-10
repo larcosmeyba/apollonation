@@ -1,351 +1,36 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useMemo, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dumbbell, ChevronRight, Clock, Check, Target,
+  ChevronLeft, Plus, Flame, Calendar,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday,
+} from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dumbbell, ChevronLeft, ChevronRight, RefreshCw, Loader2,
-  Play, Check, Trophy, Sparkles, StickyNote, ChevronDown, ChevronUp,
-  Plus, X, Clock, Flame,
-} from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import {
-  format,
-  startOfWeek,
-  addDays,
-  addWeeks,
-  subWeeks,
-  isSameDay,
-  isToday,
-} from "date-fns";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
-// ── YouTube helpers ──────────────────────────────────────────────────
-const getYouTubeVideoId = (url: string): string | null => {
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname.includes("youtube.com")) return parsed.searchParams.get("v");
-    if (parsed.hostname === "youtu.be") return parsed.pathname.slice(1);
-    return null;
-  } catch { return null; }
-};
-
-const getYouTubeThumbnail = (url: string): string | null => {
-  const id = getYouTubeVideoId(url);
-  return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null;
-};
-
-// ── Types ────────────────────────────────────────────────────────────
-interface SetLog {
-  set_number: number;
-  weight: number | null;
-  reps_completed: number | null;
-}
-
-interface ExerciseNote {
-  note: string;
-  is_completed: boolean;
-}
-
-// ── Exercise Tile with Logging ───────────────────────────────────────
-interface ExerciseTileProps {
-  exerciseName: string;
-  exerciseId: string;
-  dayId: string;
-  sets?: number | null;
-  reps?: string | null;
-  restSeconds?: number | null;
-  muscleGroup?: string | null;
-  notes?: string | null;
-  logDate: string;
-  userId: string;
-  setLogs: SetLog[];
-  previousSetLogs: SetLog[];
-  exerciseNote: ExerciseNote | null;
-  onSetLogChange: (exerciseId: string, setNumber: number, field: "weight" | "reps_completed", value: number | null) => void;
-  onNoteChange: (exerciseId: string, note: string) => void;
-  onToggleComplete: (exerciseId: string, completed: boolean) => void;
-  onSwap: () => void;
-}
-
-const ExerciseTile = ({
-  exerciseName, exerciseId, dayId, sets, reps, restSeconds, muscleGroup, notes,
-  logDate, userId, setLogs, previousSetLogs, exerciseNote, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
-}: ExerciseTileProps) => {
-  const [videoOpen, setVideoOpen] = useState(false);
-  const [noteExpanded, setNoteExpanded] = useState(false);
-
-  const isCompleted = exerciseNote?.is_completed || false;
-  const totalSets = sets || 3;
-
-  const { data: exercise } = useQuery({
-    queryKey: ["exercise-tile", exerciseName],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("exercises")
-        .select("title, video_url, description, thumbnail_url")
-        .ilike("title", exerciseName)
-        .maybeSingle();
-      return data;
-    },
-    staleTime: 1000 * 60 * 30,
-  });
-
-  const isStorage = exercise?.video_url?.startsWith("storage:");
-  const videoId = exercise?.video_url && !isStorage ? getYouTubeVideoId(exercise.video_url) : null;
-  const thumbnail = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : exercise?.thumbnail_url;
-  const embedUrl = videoId
-    ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
-    : null;
-
-  return (
-    <>
-      <div className={`card-apollo overflow-hidden transition-all ${isCompleted ? "border-green-500/40 bg-green-500/5 opacity-75" : ""}`}>
-        {/* Top row: checkbox + name + video thumbnail */}
-        <div className="flex items-start gap-2 p-3 pb-1">
-          <Checkbox
-            id={`complete-${exerciseId}`}
-            checked={isCompleted}
-            onCheckedChange={(checked) => onToggleComplete(exerciseId, !!checked)}
-            className="flex-shrink-0 mt-0.5"
-          />
-          <div className="flex-1 min-w-0">
-            <p className={`font-heading text-[13px] leading-tight ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
-              {exerciseName}
-            </p>
-            <div className="flex flex-wrap items-center gap-x-1.5 mt-0.5 text-[10px] text-muted-foreground">
-              <span>{totalSets}×{reps}</span>
-              {restSeconds ? <span>· {restSeconds}s</span> : null}
-              {muscleGroup && <span>· <span className="capitalize">{muscleGroup}</span></span>}
-            </div>
-          </div>
-
-          {/* Video thumbnail corner */}
-          {exercise?.video_url ? (
-            <button
-              onClick={() => setVideoOpen(true)}
-              className="relative flex-shrink-0 w-14 h-14 rounded-md overflow-hidden border border-border/50 hover:border-primary/50 transition-colors group"
-              title={`Watch: ${exerciseName}`}
-            >
-              {thumbnail ? (
-                <img src={thumbnail} alt="" className="w-full h-full object-cover" loading="lazy" />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                  <Dumbbell className="w-4 h-4 text-muted-foreground/40" />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <div className="w-6 h-6 rounded-full bg-primary/90 flex items-center justify-center">
-                  <Play className="w-3 h-3 text-primary-foreground ml-0.5" fill="currentColor" />
-                </div>
-              </div>
-            </button>
-          ) : (
-            <Button variant="ghost" size="sm" onClick={onSwap} title="Swap" className="h-7 w-7 p-0 flex-shrink-0">
-              <RefreshCw className="w-3 h-3" />
-            </Button>
-          )}
-        </div>
-
-        {/* Coach notes */}
-        {notes && (
-          <div className="px-3 pb-1">
-            <p className="text-[10px] text-muted-foreground italic line-clamp-1">{notes}</p>
-          </div>
-        )}
-
-        {/* Set logging - ALWAYS VISIBLE */}
-        <div className="px-3 pb-2 pt-1">
-          <div className="space-y-1">
-            <div className="grid grid-cols-[24px_1fr_1fr] gap-1 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-              <span></span>
-              <span>lbs</span>
-              <span>Reps</span>
-            </div>
-            {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
-              const log = setLogs.find(l => l.set_number === setNum);
-              const prevLog = previousSetLogs.find(l => l.set_number === setNum);
-              return (
-                <div key={setNum} className="grid grid-cols-[24px_1fr_1fr] gap-1 items-center">
-                  <span className="text-[10px] font-heading text-muted-foreground text-center">{setNum}</span>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
-                    className="h-7 text-xs text-center px-1"
-                    value={log?.weight ?? ""}
-                    onChange={(e) => onSetLogChange(exerciseId, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
-                  />
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    placeholder={prevLog?.reps_completed ? String(prevLog.reps_completed) : (reps || "—")}
-                    className="h-7 text-xs text-center px-1"
-                    value={log?.reps_completed ?? ""}
-                    onChange={(e) => onSetLogChange(exerciseId, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null)}
-                  />
-                </div>
-              );
-            })}
-            {previousSetLogs.length > 0 && (
-              <p className="text-[9px] text-muted-foreground/60 text-right pt-0.5">
-                Placeholders = last session
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Bottom row: notes + swap */}
-        <div className="px-3 pb-2 flex items-center justify-between">
-          <button
-            onClick={() => setNoteExpanded(!noteExpanded)}
-            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <StickyNote className="w-3 h-3" />
-            {exerciseNote?.note ? "Note ✎" : "Add note"}
-          </button>
-          {exercise?.video_url && (
-            <Button variant="ghost" size="sm" onClick={onSwap} title="Swap" className="h-6 w-6 p-0">
-              <RefreshCw className="w-3 h-3" />
-            </Button>
-          )}
-        </div>
-
-        {noteExpanded && (
-          <div className="px-3 pb-3">
-            <Textarea
-              placeholder="Personal notes..."
-              className="text-xs min-h-[40px] resize-none"
-              value={exerciseNote?.note || ""}
-              onChange={(e) => onNoteChange(exerciseId, e.target.value)}
-              maxLength={500}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Video Dialog */}
-      <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-black border-border/30">
-          <DialogHeader className="p-3 pb-2 bg-background">
-            <DialogTitle className="font-heading text-sm tracking-wide">{exercise?.title || exerciseName}</DialogTitle>
-            {exercise?.description && <p className="text-[11px] text-muted-foreground mt-0.5">{exercise.description}</p>}
-          </DialogHeader>
-          <div className="aspect-video w-full bg-black">
-            {isStorage && videoOpen ? (
-              <StorageVideoPlayer storagePath={exercise!.video_url!.replace("storage:", "")} />
-            ) : embedUrl && videoOpen ? (
-              <iframe src={embedUrl} className="w-full h-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen title={exerciseName} style={{ border: 0 }} />
-            ) : null}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-};
-
-/** Storage video player with signed URL */
-const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
-  const [bucket, ...pathParts] = storagePath.split("/");
-  const filePath = pathParts.join("/");
-  const { data: signedUrl } = useQuery({
-    queryKey: ["signed-video", storagePath],
-    queryFn: async () => {
-      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600);
-      if (error) throw error;
-      return data.signedUrl;
-    },
-    staleTime: 1000 * 60 * 30,
-  });
-  if (!signedUrl) return <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
-  return <video src={signedUrl} controls autoPlay className="w-full h-full" />;
-};
-
-// ── Celebration Modal ────────────────────────────────────────────────
-const WorkoutCompleteModal = ({ open, onClose, dayLabel }: { open: boolean; onClose: () => void; dayLabel: string }) => {
-  return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-sm text-center border-primary/30 overflow-hidden">
-        <div className="relative py-6">
-          {/* Animated background glow */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 animate-pulse" />
-          
-          <div className="relative z-10 space-y-4">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30 animate-[bounce_1s_ease-in-out_2]">
-              <Trophy className="w-10 h-10 text-primary-foreground" />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <h2 className="font-heading text-2xl tracking-wide">Great Job!</h2>
-                <Sparkles className="w-4 h-4 text-primary" />
-              </div>
-              <p className="text-muted-foreground text-sm">
-                You just crushed <span className="text-foreground font-medium">{dayLabel}</span>!
-              </p>
-              <p className="text-xs text-muted-foreground/70">
-                Every rep counts. Stay consistent and the results will follow.
-              </p>
-            </div>
-
-            <div className="pt-2">
-              <Button variant="apollo" onClick={onClose} className="px-8">
-                Let's Go 💪
-              </Button>
-            </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-// ── Main Page ────────────────────────────────────────────────────────
 const DashboardTraining = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [swappingExercise, setSwappingExercise] = useState<any>(null);
-  const [alternatives, setAlternatives] = useState<any[]>([]);
-  const [loadingSwap, setLoadingSwap] = useState(false);
-  const [selectedDayDate, setSelectedDayDate] = useState<Date | null>(() => {
-    try {
-      const saved = localStorage.getItem("training-selected-day");
-      if (saved) {
-        const parsed = new Date(saved);
-        if (!isNaN(parsed.getTime())) return parsed;
-      }
-    } catch {}
-    return null;
-  });
-
-  // Persist selected workout day
-  useEffect(() => {
-    try {
-      if (selectedDayDate) localStorage.setItem("training-selected-day", selectedDayDate.toISOString());
-      else localStorage.removeItem("training-selected-day");
-    } catch {}
-  }, [selectedDayDate]);
-  const [showCelebration, setShowCelebration] = useState(false);
   const [showAddActivity, setShowAddActivity] = useState(false);
   const [activityForm, setActivityForm] = useState({ name: "", duration: "", calories: "", notes: "" });
 
-  // Local state for logging (batched saves)
-  const [localSetLogs, setLocalSetLogs] = useState<Record<string, SetLog[]>>({});
-  const [localNotes, setLocalNotes] = useState<Record<string, ExerciseNote>>({});
-
   const today = new Date();
-  const displayDate = selectedDayDate || today;
-  const logDateStr = format(displayDate, "yyyy-MM-dd");
-  const isShowingToday = !selectedDayDate || isSameDay(selectedDayDate, today);
+  const logDateStr = format(today, "yyyy-MM-dd");
 
   const currentWeekStart = useMemo(
     () => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -357,7 +42,7 @@ const DashboardTraining = () => {
   );
 
   // Fetch plan + days
-  const { data: planData } = useQuery({
+  const { data: planData, isLoading: planLoading } = useQuery({
     queryKey: ["my-training-plan-full", user?.id],
     queryFn: async () => {
       if (!user) return null;
@@ -381,116 +66,25 @@ const DashboardTraining = () => {
     enabled: !!user,
   });
 
-  const getWorkoutForDate = useCallback((date: Date) => {
-    if (!planData) return null;
-    const { plan, days } = planData;
-    const cycleStart = plan.client_questionnaires?.cycle_start_date
-      ? new Date(plan.client_questionnaires.cycle_start_date)
-      : new Date(plan.created_at);
-
-    const diffDays = Math.floor((date.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24));
-    if (diffDays < 0) return null;
-
-    const totalDays = plan.duration_weeks * 7;
-    const dayNumber = (diffDays % totalDays) + 1;
-
-    const rescheduled = days.find((d: any) =>
-      d.scheduled_date && isSameDay(new Date(d.scheduled_date), date)
-    );
-    if (rescheduled) return rescheduled;
-
-    return days.find((d: any) => !d.scheduled_date && d.day_number === dayNumber) || null;
-  }, [planData]);
-
-  const todayWorkout = getWorkoutForDate(displayDate);
-  const dayId = todayWorkout?.id;
-
-  // Fetch existing logs for this day
-  const { data: existingSetLogs } = useQuery({
-    queryKey: ["exercise-set-logs", user?.id, dayId, logDateStr],
+  // Fetch completed sessions this week
+  const { data: completedSessions = [] } = useQuery({
+    queryKey: ["completed-sessions-week", user?.id, format(currentWeekStart, "yyyy-MM-dd")],
     queryFn: async () => {
-      if (!user || !dayId) return [];
-      const { data } = await (supabase as any)
-        .from("exercise_set_logs")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("day_id", dayId)
-        .eq("log_date", logDateStr);
-      return data || [];
-    },
-    enabled: !!user && !!dayId,
-  });
-
-  const { data: existingNotes } = useQuery({
-    queryKey: ["exercise-user-notes", user?.id, dayId, logDateStr],
-    queryFn: async () => {
-      if (!user || !dayId) return [];
-      const { data } = await (supabase as any)
-        .from("exercise_user_notes")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("day_id", dayId)
-        .eq("log_date", logDateStr);
-      return data || [];
-    },
-    enabled: !!user && !!dayId,
-  });
-
-  // Fetch PREVIOUS session's set logs for this exercise (last time they did this day)
-  const { data: previousSetLogsRaw } = useQuery({
-    queryKey: ["previous-set-logs", user?.id, dayId, logDateStr],
-    queryFn: async () => {
-      if (!user || !dayId) return [];
-      // Find the most recent log_date for this day that isn't today
-      const { data } = await (supabase as any)
-        .from("exercise_set_logs")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("day_id", dayId)
-        .neq("log_date", logDateStr)
-        .order("log_date", { ascending: false })
-        .limit(50);
-      return data || [];
-    },
-    enabled: !!user && !!dayId,
-    staleTime: 1000 * 60 * 30,
-  });
-
-  // Group previous logs by exercise, only keeping the most recent date
-  const previousSetLogs = useMemo(() => {
-    if (!previousSetLogsRaw || previousSetLogsRaw.length === 0) return {};
-    // Find the most recent date
-    const latestDate = previousSetLogsRaw[0]?.log_date;
-    const latestOnly = previousSetLogsRaw.filter((l: any) => l.log_date === latestDate);
-    const grouped: Record<string, SetLog[]> = {};
-    latestOnly.forEach((log: any) => {
-      if (!grouped[log.training_plan_exercise_id]) grouped[log.training_plan_exercise_id] = [];
-      grouped[log.training_plan_exercise_id].push({
-        set_number: log.set_number,
-        weight: log.weight ? Number(log.weight) : null,
-        reps_completed: log.reps_completed,
-      });
-    });
-    return grouped;
-  }, [previousSetLogsRaw]);
-
-  const { data: sessionLog } = useQuery({
-    queryKey: ["workout-session-log", user?.id, dayId, logDateStr],
-    queryFn: async () => {
-      if (!user || !dayId) return null;
+      if (!user) return [];
+      const weekEnd = addDays(currentWeekStart, 6);
       const { data } = await (supabase as any)
         .from("workout_session_logs")
         .select("*")
         .eq("user_id", user.id)
-        .eq("day_id", dayId)
-        .eq("log_date", logDateStr)
-        .maybeSingle();
-      return data;
+        .gte("log_date", format(currentWeekStart, "yyyy-MM-dd"))
+        .lte("log_date", format(weekEnd, "yyyy-MM-dd"))
+        .not("completed_at", "is", null);
+      return data || [];
     },
-    enabled: !!user && !!dayId,
+    enabled: !!user,
   });
 
-  // Custom activities for this date
+  // Custom activities
   const { data: customActivities = [] } = useQuery({
     queryKey: ["custom-activities", user?.id, logDateStr],
     queryFn: async () => {
@@ -527,582 +121,317 @@ const DashboardTraining = () => {
       setActivityForm({ name: "", duration: "", calories: "", notes: "" });
       toast({ title: "Activity added! 🎉" });
     },
-    onError: (err: any) => {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    },
   });
 
-  const deleteActivityMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await (supabase as any)
-        .from("custom_activity_logs")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["custom-activities"] });
-    },
-  });
+  const getWorkoutForDate = useCallback((date: Date) => {
+    if (!planData) return null;
+    const { plan, days } = planData;
+    const cycleStart = plan.client_questionnaires?.cycle_start_date
+      ? new Date(plan.client_questionnaires.cycle_start_date)
+      : new Date(plan.created_at);
 
-  // Initialize local state from DB
-  useEffect(() => {
-    if (existingSetLogs) {
-      const grouped: Record<string, SetLog[]> = {};
-      existingSetLogs.forEach((log: any) => {
-        if (!grouped[log.training_plan_exercise_id]) grouped[log.training_plan_exercise_id] = [];
-        grouped[log.training_plan_exercise_id].push({
-          set_number: log.set_number,
-          weight: log.weight ? Number(log.weight) : null,
-          reps_completed: log.reps_completed,
-        });
-      });
-      setLocalSetLogs(grouped);
-    }
-  }, [existingSetLogs]);
+    const diffDays = Math.floor((date.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return null;
 
-  useEffect(() => {
-    if (existingNotes) {
-      const mapped: Record<string, ExerciseNote> = {};
-      existingNotes.forEach((n: any) => {
-        mapped[n.training_plan_exercise_id] = { note: n.note, is_completed: n.is_completed };
-      });
-      setLocalNotes(mapped);
-    }
-  }, [existingNotes]);
+    const totalDays = plan.duration_weeks * 7;
+    const dayNumber = (diffDays % totalDays) + 1;
 
-  // Save mutations
-  const saveSetLogMutation = useMutation({
-    mutationFn: async ({ exerciseId, setNumber, field, value }: { exerciseId: string; setNumber: number; field: string; value: number | null }) => {
-      if (!user || !dayId) return;
-      // Upsert: delete then insert for simplicity
-      await (supabase as any)
-        .from("exercise_set_logs")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("training_plan_exercise_id", exerciseId)
-        .eq("set_number", setNumber)
-        .eq("log_date", logDateStr);
+    const rescheduled = days.find((d: any) =>
+      d.scheduled_date && isSameDay(new Date(d.scheduled_date), date)
+    );
+    if (rescheduled) return rescheduled;
 
-      const currentLogs = localSetLogs[exerciseId] || [];
-      const existing = currentLogs.find(l => l.set_number === setNumber);
-      const newLog = { ...(existing || { set_number: setNumber, weight: null, reps_completed: null }), [field]: value };
+    return days.find((d: any) => !d.scheduled_date && d.day_number === dayNumber) || null;
+  }, [planData]);
 
-      if (newLog.weight !== null || newLog.reps_completed !== null) {
-        await (supabase as any)
-          .from("exercise_set_logs")
-          .insert({
-            user_id: user.id,
-            training_plan_exercise_id: exerciseId,
-            day_id: dayId,
-            set_number: setNumber,
-            weight: newLog.weight,
-            reps_completed: newLog.reps_completed,
-            log_date: logDateStr,
-          });
-      }
-    },
-  });
+  const todayWorkout = getWorkoutForDate(today);
 
-  const saveNoteMutation = useMutation({
-    mutationFn: async ({ exerciseId, note, isCompleted }: { exerciseId: string; note: string; isCompleted: boolean }) => {
-      if (!user || !dayId) return;
-      await (supabase as any)
-        .from("exercise_user_notes")
-        .upsert({
-          user_id: user.id,
-          training_plan_exercise_id: exerciseId,
-          day_id: dayId,
-          log_date: logDateStr,
-          note,
-          is_completed: isCompleted,
-        }, { onConflict: "user_id,training_plan_exercise_id,log_date" });
-    },
-  });
+  // This week's workouts
+  const thisWeekWorkouts = useMemo(() => {
+    return weekDates.map(date => {
+      const workout = getWorkoutForDate(date);
+      const dateStr = format(date, "yyyy-MM-dd");
+      const isCompleted = completedSessions.some((s: any) => s.log_date === dateStr);
+      return { date, workout, isCompleted };
+    }).filter(w => w.workout);
+  }, [weekDates, getWorkoutForDate, completedSessions]);
 
-  const saveSessionMutation = useMutation({
-    mutationFn: async () => {
-      if (!user || !dayId) return;
-      await (supabase as any)
-        .from("workout_session_logs")
-        .upsert({
-          user_id: user.id,
-          day_id: dayId,
-          log_date: logDateStr,
-          completed_at: new Date().toISOString(),
-        }, { onConflict: "user_id,day_id,log_date" });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["workout-session-log"] });
-    },
-  });
-
-  // Handlers
-  const handleSetLogChange = useCallback((exerciseId: string, setNumber: number, field: "weight" | "reps_completed", value: number | null) => {
-    setLocalSetLogs(prev => {
-      const current = prev[exerciseId] || [];
-      const existing = current.find(l => l.set_number === setNumber);
-      if (existing) {
-        return { ...prev, [exerciseId]: current.map(l => l.set_number === setNumber ? { ...l, [field]: value } : l) };
-      }
-      return { ...prev, [exerciseId]: [...current, { set_number: setNumber, weight: null, reps_completed: null, [field]: value }] };
-    });
-    saveSetLogMutation.mutate({ exerciseId, setNumber, field, value });
-  }, [saveSetLogMutation]);
-
-  const handleNoteChange = useCallback((exerciseId: string, note: string) => {
-    setLocalNotes(prev => {
-      const existing = prev[exerciseId] || { note: "", is_completed: false };
-      return { ...prev, [exerciseId]: { ...existing, note } };
-    });
-    const isCompleted = localNotes[exerciseId]?.is_completed || false;
-    saveNoteMutation.mutate({ exerciseId, note, isCompleted });
-  }, [localNotes, saveNoteMutation]);
-
-  const handleToggleComplete = useCallback((exerciseId: string, completed: boolean) => {
-    setLocalNotes(prev => {
-      const existing = prev[exerciseId] || { note: "", is_completed: false };
-      return { ...prev, [exerciseId]: { ...existing, is_completed: completed } };
-    });
-    const note = localNotes[exerciseId]?.note || "";
-    saveNoteMutation.mutate({ exerciseId, note, isCompleted: completed });
-
-    // Check if all exercises are now complete
-    if (completed && todayWorkout?.training_plan_exercises) {
-      const exercises = todayWorkout.training_plan_exercises;
-      const allDone = exercises.every((ex: any) => {
-        if (ex.id === exerciseId) return true; // this one is being checked
-        return localNotes[ex.id]?.is_completed || false;
-      });
-      if (allDone && !sessionLog?.completed_at) {
-        saveSessionMutation.mutate();
-        setTimeout(() => setShowCelebration(true), 300);
-      }
-    }
-  }, [localNotes, todayWorkout, saveNoteMutation, saveSessionMutation, sessionLog]);
-
-  // Swap logic
-  const handleSwapExercise = async (exercise: any) => {
-    setSwappingExercise(exercise);
-    setLoadingSwap(true);
-    setAlternatives([]);
-    try {
-      const { data, error } = await supabase.functions.invoke("suggest-exercise-swap", {
-        body: { exerciseName: exercise.exercise_name, muscleGroup: exercise.muscle_group },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      setAlternatives(data.alternatives || []);
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setLoadingSwap(false);
-    }
-  };
-
-  const confirmSwap = async (alt: any) => {
-    if (!swappingExercise) return;
-    const { error } = await (supabase as any)
-      .from("training_plan_exercises")
-      .update({
-        exercise_name: alt.exercise_name,
-        muscle_group: alt.muscle_group,
-        notes: `Swapped from: ${swappingExercise.exercise_name}. ${alt.reason}`,
-      })
-      .eq("id", swappingExercise.id);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-      return;
-    }
-    toast({ title: "Exercise swapped!" });
-    setSwappingExercise(null);
-    queryClient.invalidateQueries({ queryKey: ["my-training-plan-full"] });
-  };
-
-  // Progress indicator
-  const totalExercises = todayWorkout?.training_plan_exercises?.length || 0;
-  const completedExercises = todayWorkout?.training_plan_exercises?.filter(
-    (ex: any) => localNotes[ex.id]?.is_completed
-  ).length || 0;
-  const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
+  const completedThisWeek = thisWeekWorkouts.filter(w => w.isCompleted).length;
+  const totalThisWeek = thisWeekWorkouts.length;
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto w-full overflow-hidden">
-        {/* ── Header ─────────────────────────────────── */}
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-2xl md:text-3xl mb-1">
-              {isShowingToday ? "Today's" : format(displayDate, "EEEE's")}{" "}
-              <span className="text-primary">Workout</span>
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {format(displayDate, "EEEE, MMMM d")}
-              {!isShowingToday && (
-                <button
-                  onClick={() => setSelectedDayDate(null)}
-                  className="ml-2 text-primary hover:underline"
-                >
-                  Back to today
-                </button>
-              )}
-            </p>
+            <h1 className="font-heading text-2xl md:text-3xl tracking-wide">Train</h1>
+            <p className="text-sm text-muted-foreground mt-1">Your training program</p>
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="h-8 text-xs gap-1"
+            className="gap-1.5"
             onClick={() => setShowAddActivity(true)}
           >
-            <Plus className="w-3 h-3" /> Add Activity
+            <Plus className="w-3.5 h-3.5" /> Log Activity
           </Button>
         </div>
 
-        {!planData ? (
-          <div className="card-apollo p-8 text-center mb-8">
-            <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-            <h3 className="font-heading text-lg mb-2">No Training Program Yet</h3>
-            <p className="text-muted-foreground text-sm">
-              Your program will be generated after completing the questionnaire.
-            </p>
-          </div>
-        ) : todayWorkout ? (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-3">
-              <h2 className="font-heading text-lg">
-                {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
-              </h2>
-              {todayWorkout.focus && (
-                <Badge variant="outline" className="text-primary border-primary/30">
-                  {todayWorkout.focus}
-                </Badge>
-              )}
+        {/* Current Program Card */}
+        {planData ? (
+          <div className="rounded-xl border border-border bg-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="section-label mb-1">Current Program</p>
+                <h2 className="font-heading text-xl tracking-wide">{planData.plan.title}</h2>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-heading">{completedThisWeek}<span className="text-muted-foreground text-base">/{totalThisWeek}</span></p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">This Week</p>
+              </div>
             </div>
-
-            {/* Progress bar */}
-            {totalExercises > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-muted-foreground">{completedExercises}/{totalExercises} exercises</span>
-                  {sessionLog?.completed_at && (
-                    <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-500 border-green-500/20">
-                      <Check className="w-3 h-3 mr-1" /> Completed
-                    </Badge>
-                  )}
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all duration-500 ease-out"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              {todayWorkout.training_plan_exercises
-                ?.sort((a: any, b: any) => a.sort_order - b.sort_order)
-                .map((ex: any) => (
-                  <ExerciseTile
-                    key={ex.id}
-                    exerciseId={ex.id}
-                    dayId={todayWorkout.id}
-                    exerciseName={ex.exercise_name}
-                    sets={ex.sets}
-                    reps={ex.reps}
-                    restSeconds={ex.rest_seconds}
-                    muscleGroup={ex.muscle_group}
-                    notes={ex.notes}
-                    logDate={logDateStr}
-                    userId={user?.id || ""}
-                    setLogs={localSetLogs[ex.id] || []}
-                    previousSetLogs={previousSetLogs[ex.id] || []}
-                    exerciseNote={localNotes[ex.id] || null}
-                    onSetLogChange={handleSetLogChange}
-                    onNoteChange={handleNoteChange}
-                    onToggleComplete={handleToggleComplete}
-                    onSwap={() => handleSwapExercise(ex)}
-                  />
-                ))}
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5" />
+                {planData.plan.duration_weeks} weeks
+              </span>
+              <span className="flex items-center gap-1">
+                <Dumbbell className="w-3.5 h-3.5" />
+                {planData.plan.workout_days_per_week} days/week
+              </span>
+              <span className="flex items-center gap-1">
+                <Target className="w-3.5 h-3.5" />
+                Cycle {planData.plan.cycle_number}
+              </span>
             </div>
-
-            {/* Finish Workout Button */}
-            {totalExercises > 0 && !sessionLog?.completed_at && (
-              <div className="mt-4">
-                <Button
-                  variant="apollo"
-                  className="w-full gap-2"
-                  onClick={() => {
-                    saveSessionMutation.mutate();
-                    setTimeout(() => setShowCelebration(true), 300);
-                  }}
-                  disabled={saveSessionMutation.isPending}
-                >
-                  {saveSessionMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Check className="w-4 h-4" />
-                  )}
-                  Finish Workout
-                </Button>
+            {/* Weekly progress bar */}
+            <div className="mt-4">
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-foreground rounded-full transition-all duration-500"
+                  style={{ width: totalThisWeek > 0 ? `${(completedThisWeek / totalThisWeek) * 100}%` : "0%" }}
+                />
               </div>
-            )}
-            {sessionLog?.completed_at && (
-              <div className="mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
-                <p className="text-sm font-medium text-green-500 flex items-center justify-center gap-2">
-                  <Trophy className="w-4 h-4" /> Workout Completed! 💪
-                </p>
-              </div>
-            )}
+            </div>
           </div>
         ) : (
-          <div className="card-apollo p-8 text-center mb-8">
-            <Check className="w-10 h-10 text-green-500/50 mx-auto mb-3" />
-            <h3 className="font-heading text-lg mb-1">Rest Day</h3>
-            <p className="text-muted-foreground text-sm">No workout scheduled. Recovery is part of the plan.</p>
+          <div className="rounded-xl border border-border bg-card p-8 text-center">
+            <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+            <h3 className="font-heading text-lg mb-2">No Training Program Yet</h3>
+            <p className="text-muted-foreground text-sm mb-4">
+              Complete your questionnaire to get a personalized program.
+            </p>
+            <Link to="/questionnaire">
+              <Button variant="apollo" size="sm">Complete Questionnaire</Button>
+            </Link>
           </div>
         )}
 
-        {/* ── Custom Activities ──────────────────────────────── */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-heading text-sm text-muted-foreground">Extra Activities</h3>
+        {/* Today's Workout - Hero Card */}
+        {todayWorkout && (
+          <Link
+            to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`}
+            className="block"
+          >
+            <div className="rounded-xl border border-border bg-card overflow-hidden group hover:border-foreground/20 transition-all">
+              <div className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="section-label mb-2">Today's Workout</p>
+                    <h2 className="font-heading text-xl tracking-wide">
+                      {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
+                    </h2>
+                    {todayWorkout.focus && (
+                      <Badge variant="outline" className="mt-2 text-foreground/70 border-border">
+                        {todayWorkout.focus}
+                      </Badge>
+                    )}
+                    <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Dumbbell className="w-3.5 h-3.5" />
+                        {todayWorkout.training_plan_exercises?.length || 0} exercises
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-14 h-14 rounded-full bg-foreground flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <ChevronRight className="w-6 h-6 text-background" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        )}
+
+        {/* This Week's Schedule */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="section-label">This Week</h3>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-xs text-muted-foreground min-w-[120px] text-center">
+                {format(currentWeekStart, "MMM d")} — {format(addDays(currentWeekStart, 6), "MMM d")}
+              </span>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentDate(d => addWeeks(d, 1))}>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
-          {customActivities.length > 0 && (
-            <div className="space-y-2">
-              {customActivities.map((activity: any) => (
-                <div key={activity.id} className="card-apollo p-3 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-4 h-4 text-primary" />
+          <div className="space-y-2">
+            {weekDates.map((date) => {
+              const workout = getWorkoutForDate(date);
+              const isTodayDate = isToday(date);
+              const dateStr = format(date, "yyyy-MM-dd");
+              const isCompleted = completedSessions.some((s: any) => s.log_date === dateStr);
+
+              return (
+                <Link
+                  key={date.toISOString()}
+                  to={workout ? `/dashboard/training/workout?day=${workout.id}&date=${dateStr}` : "#"}
+                  onClick={(e) => !workout && e.preventDefault()}
+                  className={`flex items-center gap-4 p-3 rounded-lg transition-all ${
+                    isTodayDate
+                      ? "bg-foreground/5 border border-foreground/10"
+                      : "hover:bg-muted/50"
+                  } ${!workout ? "opacity-50 cursor-default" : ""}`}
+                >
+                  <div className={`w-10 text-center ${isTodayDate ? "text-foreground" : "text-muted-foreground"}`}>
+                    <p className="text-[10px] uppercase tracking-wider">{format(date, "EEE")}</p>
+                    <p className="text-lg font-heading">{format(date, "d")}</p>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-heading text-[13px]">{activity.activity_name}</p>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                      {activity.duration_minutes && (
-                        <span className="flex items-center gap-0.5">
-                          <Clock className="w-3 h-3" /> {activity.duration_minutes} min
-                        </span>
-                      )}
-                      {activity.calories_burned && (
-                        <span className="flex items-center gap-0.5">
-                          <Flame className="w-3 h-3" /> {activity.calories_burned} cal
-                        </span>
-                      )}
-                    </div>
-                    {activity.notes && (
-                      <p className="text-[10px] text-muted-foreground italic mt-0.5">{activity.notes}</p>
+                    {workout ? (
+                      <>
+                        <p className="text-sm font-medium truncate">
+                          {workout.day_label || `Day ${workout.day_number}`}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {workout.focus || `${workout.training_plan_exercises?.length || 0} exercises`}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Rest Day</p>
                     )}
                   </div>
-                  <button
-                    onClick={() => deleteActivityMutation.mutate(activity.id)}
-                    className="text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  {isCompleted ? (
+                    <div className="w-7 h-7 rounded-full bg-green-500/10 flex items-center justify-center">
+                      <Check className="w-4 h-4 text-green-500" />
+                    </div>
+                  ) : workout ? (
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  ) : null}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Extra Activities */}
+        {customActivities.length > 0 && (
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h3 className="section-label mb-3">Today's Activities</h3>
+            <div className="space-y-2">
+              {customActivities.map((activity: any) => (
+                <div key={activity.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                  <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center">
+                    <Flame className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{activity.activity_name}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      {activity.duration_minutes && <span>{activity.duration_minutes} min</span>}
+                      {activity.calories_burned && <span>· {activity.calories_burned} cal</span>}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Add Activity Dialog */}
-        <Dialog open={showAddActivity} onOpenChange={setShowAddActivity}>
-          <DialogContent className="max-w-sm">
-            <DialogHeader>
-              <DialogTitle className="font-heading text-lg">Add Activity</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-2">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Activity Name *</Label>
-                <Input
-                  placeholder="e.g., Yoga Class, Pilates, Hiking..."
-                  value={activityForm.name}
-                  onChange={(e) => setActivityForm(p => ({ ...p, name: e.target.value }))}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Duration (min)</Label>
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    placeholder="60"
-                    value={activityForm.duration}
-                    onChange={(e) => setActivityForm(p => ({ ...p, duration: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Calories Burned</Label>
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    placeholder="300"
-                    value={activityForm.calories}
-                    onChange={(e) => setActivityForm(p => ({ ...p, calories: e.target.value }))}
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Notes (optional)</Label>
-                <Textarea
-                  placeholder="How did it feel?"
-                  className="min-h-[60px] resize-none text-sm"
-                  value={activityForm.notes}
-                  onChange={(e) => setActivityForm(p => ({ ...p, notes: e.target.value }))}
-                  maxLength={500}
-                />
-              </div>
-              <Button
-                className="w-full"
-                disabled={!activityForm.name.trim() || addActivityMutation.isPending}
-                onClick={() => addActivityMutation.mutate({
-                  name: activityForm.name.trim(),
-                  duration: activityForm.duration ? parseInt(activityForm.duration) : null,
-                  calories: activityForm.calories ? parseInt(activityForm.calories) : null,
-                  notes: activityForm.notes,
-                })}
-              >
-                {addActivityMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                Add Activity
-              </Button>
+        {/* Quick Links */}
+        <div className="grid grid-cols-2 gap-3">
+          <Link to="/dashboard/calendar">
+            <div className="rounded-xl border border-border bg-card p-4 hover:border-foreground/20 transition-all text-center">
+              <Calendar className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-xs font-medium">Calendar</p>
             </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* ── Weekly Calendar Strip ───────────────────────────── */}
-        <div className="card-apollo p-4">
-          <div className="flex items-center justify-between mb-4">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <h3 className="font-heading text-sm text-muted-foreground">
-              {format(currentWeekStart, "MMM d")} — {format(addDays(currentWeekStart, 6), "MMM d")}
-            </h3>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCurrentDate(d => addWeeks(d, 1))}>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-
-          {/* Desktop: horizontal strip */}
-          <div className="hidden md:grid grid-cols-7 gap-2">
-            {weekDates.map((date) => {
-              const workout = getWorkoutForDate(date);
-              const isTodayDate = isToday(date);
-              const isSelected = selectedDayDate && isSameDay(date, selectedDayDate);
-
-              return (
-                <button
-                  key={date.toISOString()}
-                  onClick={() => setSelectedDayDate(date)}
-                  className={`rounded-lg border p-3 text-center transition-all hover:border-primary/50 ${
-                    isSelected
-                      ? "border-primary bg-primary/10"
-                      : isTodayDate
-                      ? "border-primary/30 bg-primary/5"
-                      : "border-border bg-card"
-                  }`}
-                >
-                  <p className={`text-[10px] uppercase tracking-wider mb-1 ${isTodayDate ? "text-primary font-semibold" : "text-muted-foreground"}`}>
-                    {format(date, "EEE")}
-                  </p>
-                  <p className={`text-lg font-heading ${isTodayDate ? "text-primary" : ""}`}>
-                    {format(date, "d")}
-                  </p>
-                  {workout ? (
-                    <div className="mt-2">
-                      <Dumbbell className="w-3.5 h-3.5 text-primary mx-auto" />
-                      <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
-                        {workout.focus || workout.day_label || `Day ${workout.day_number}`}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-[10px] text-muted-foreground/50 mt-2">Rest</p>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mobile: scrollable strip */}
-          <div className="md:hidden flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-            {weekDates.map((date) => {
-              const workout = getWorkoutForDate(date);
-              const isTodayDate = isToday(date);
-              const isSelected = selectedDayDate && isSameDay(date, selectedDayDate);
-
-              return (
-                <button
-                  key={date.toISOString()}
-                  onClick={() => setSelectedDayDate(date)}
-                  className={`flex-shrink-0 w-[72px] rounded-lg border p-2.5 text-center transition-all ${
-                    isSelected
-                      ? "border-primary bg-primary/10"
-                      : isTodayDate
-                      ? "border-primary/30 bg-primary/5"
-                      : "border-border bg-card"
-                  }`}
-                >
-                  <p className={`text-[10px] uppercase tracking-wider mb-0.5 ${isTodayDate ? "text-primary font-semibold" : "text-muted-foreground"}`}>
-                    {format(date, "EEE")}
-                  </p>
-                  <p className={`text-base font-heading ${isTodayDate ? "text-primary" : ""}`}>
-                    {format(date, "d")}
-                  </p>
-                  {workout ? (
-                    <Dumbbell className="w-3 h-3 text-primary mx-auto mt-1" />
-                  ) : (
-                    <p className="text-[9px] text-muted-foreground/40 mt-1">—</p>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          </Link>
+          <Link to="/dashboard/workouts">
+            <div className="rounded-xl border border-border bg-card p-4 hover:border-foreground/20 transition-all text-center">
+              <Dumbbell className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-xs font-medium">On Demand</p>
+            </div>
+          </Link>
         </div>
-
-        {/* ── Exercise Swap Dialog ────────────────────────────── */}
-        <Dialog open={!!swappingExercise} onOpenChange={(open) => !open && setSwappingExercise(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Swap Exercise</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-muted-foreground mb-4">
-              Replace <strong>{swappingExercise?.exercise_name}</strong> with an alternative:
-            </p>
-            {loadingSwap ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                <span className="ml-2 text-sm text-muted-foreground">Finding alternatives...</span>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {alternatives.map((alt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => confirmSwap(alt)}
-                    className="w-full text-left p-4 rounded-lg border border-border hover:border-primary/50 transition-all"
-                  >
-                    <p className="font-medium text-sm">{alt.exercise_name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-[10px]">{alt.muscle_group}</Badge>
-                      <Badge variant="outline" className="text-[10px]">{alt.difficulty}</Badge>
-                      <span className="text-[10px] text-muted-foreground">{alt.movement_pattern}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">{alt.reason}</p>
-                  </button>
-                ))}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* ── Celebration Modal ───────────────────────────────── */}
-        <WorkoutCompleteModal
-          open={showCelebration}
-          onClose={() => setShowCelebration(false)}
-          dayLabel={todayWorkout?.day_label || todayWorkout?.focus || `Day ${todayWorkout?.day_number || ""}`}
-        />
       </div>
+
+      {/* Add Activity Dialog */}
+      <Dialog open={showAddActivity} onOpenChange={setShowAddActivity}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-lg">Log Activity</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Activity Name *</Label>
+              <Input
+                placeholder="e.g., Yoga, Pilates, Hiking..."
+                value={activityForm.name}
+                onChange={(e) => setActivityForm(p => ({ ...p, name: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Duration (min)</Label>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="60"
+                  value={activityForm.duration}
+                  onChange={(e) => setActivityForm(p => ({ ...p, duration: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Calories</Label>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="300"
+                  value={activityForm.calories}
+                  onChange={(e) => setActivityForm(p => ({ ...p, calories: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Notes</Label>
+              <Textarea
+                placeholder="How did it feel?"
+                className="min-h-[60px] resize-none text-sm"
+                value={activityForm.notes}
+                onChange={(e) => setActivityForm(p => ({ ...p, notes: e.target.value }))}
+                maxLength={500}
+              />
+            </div>
+            <Button
+              className="w-full"
+              disabled={!activityForm.name.trim() || addActivityMutation.isPending}
+              onClick={() => addActivityMutation.mutate({
+                name: activityForm.name.trim(),
+                duration: activityForm.duration ? parseInt(activityForm.duration) : null,
+                calories: activityForm.calories ? parseInt(activityForm.calories) : null,
+                notes: activityForm.notes,
+              })}
+            >
+              {addActivityMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Add Activity
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
