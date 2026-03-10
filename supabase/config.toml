@@ -41,3 +41,21 @@ verify_jwt = false
 
 [functions.client-regenerate-meal-plan]
 verify_jwt = false
+
+[functions.generate-grocery-list]
+verify_jwt = false
+
+[functions.suggest-meal-swap]
+verify_jwt = false
+
+[functions.support-chat]
+verify_jwt = false
+
+[functions.enroll-program]
+verify_jwt = false
+
+[functions.suggest-exercise-swap]
+verify_jwt = false
+
+[functions.manage-client-status]
+verify_jwt = false
