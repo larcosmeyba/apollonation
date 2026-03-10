@@ -39,9 +39,10 @@ serve(async (req) => {
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
+      logStep("No auth header, returning unsubscribed");
       return new Response(
-        JSON.stringify({ subscribed: false, error: "No authorization header" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+        JSON.stringify({ subscribed: false }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
 
@@ -51,7 +52,7 @@ serve(async (req) => {
       logStep("Auth failed", { error: userError?.message });
       return new Response(
         JSON.stringify({ subscribed: false }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
     const user = userData.user;
