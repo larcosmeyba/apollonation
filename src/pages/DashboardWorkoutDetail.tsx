@@ -598,7 +598,7 @@ const DashboardWorkoutDetail = () => {
         )}
 
         {/* Exercises */}
-        <div className="space-y-3">
+        {dayData && exercises.length > 0 && <div className="space-y-3">
           {exercises.map((ex: any) => (
             <ExerciseRow
               key={ex.id}
