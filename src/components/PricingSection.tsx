@@ -19,7 +19,6 @@ const tiers = [
       "Community support",
       "Web & mobile app access"
     ],
-    appAccess: true,
     featured: false,
     tierKey: "basic" as const,
   },
@@ -35,7 +34,6 @@ const tiers = [
       "Live sessions access",
       "Priority support"
     ],
-    appAccess: true,
     featured: true,
     tierKey: "pro" as const,
   },
@@ -52,7 +50,6 @@ const tiers = [
       "Early access to content",
       "VIP community"
     ],
-    appAccess: true,
     featured: false,
     tierKey: "elite" as const,
   }
@@ -69,104 +66,82 @@ const PricingSection = () => {
       navigate("/auth");
       return;
     }
-
     const priceId = STRIPE_TIERS[tierKey as keyof typeof STRIPE_TIERS]?.price_id;
     if (!priceId) return;
-
     setLoadingTier(tierKey);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { priceId },
       });
-
       if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
+      if (data?.url) window.open(data.url, "_blank");
     } catch (err: any) {
-      console.error("Checkout error:", err);
-      toast({
-        title: "Checkout failed",
-        description: err.message || "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Checkout failed", description: err.message || "Please try again.", variant: "destructive" });
     } finally {
       setLoadingTier(null);
     }
   };
 
-  const isCurrentTier = (tierKey: string) => {
-    return profile?.subscription_tier === tierKey;
-  };
+  const isCurrentTier = (tierKey: string) => profile?.subscription_tier === tierKey;
 
   return (
-    <section id="pricing" className="py-16 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background" />
-      
+    <section id="pricing" className="py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-20">
-          <span className="text-primary font-medium text-xs uppercase tracking-[0.25em] mb-6 block">
+          <span className="text-muted-foreground font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
             Membership
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground break-words">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground">
             Choose Your
-            <span className="text-primary block mt-2">Path</span>
+            <span className="text-foreground/50 block mt-2">Path</span>
           </h2>
           <p className="text-muted-foreground text-base font-light leading-relaxed">
-            Flexible plans designed for every stage of your wellness journey.
+            Flexible plans designed for every stage of your journey.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
           {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`relative p-6 lg:p-8 border transition-all duration-500 rounded-2xl ${
+              className={`relative p-6 lg:p-8 border transition-all duration-500 rounded-xl ${
                 tier.featured
-                  ? "border-primary/50 bg-primary/[0.03]"
-                  : "border-primary/10 bg-card/30 hover:border-primary/30"
+                  ? "border-foreground/20 bg-card/50"
+                  : "border-border bg-card/20 hover:border-foreground/10"
               }`}
             >
               {tier.featured && (
-                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-6 py-1.5 bg-primary rounded-b-lg">
-                  <span className="text-[10px] font-medium text-primary-foreground uppercase tracking-[0.2em]">
+                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-5 py-1 bg-foreground rounded-b-lg">
+                  <span className="text-[9px] font-semibold text-background uppercase tracking-[0.2em]">
                     Most Popular
                   </span>
                 </div>
               )}
 
               {isCurrentTier(tier.tierKey) && (
-                <div className="absolute -top-px right-4 px-4 py-1.5 bg-accent rounded-b-lg">
-                  <span className="text-[10px] font-medium text-accent-foreground uppercase tracking-[0.2em]">
+                <div className="absolute -top-px right-4 px-4 py-1 bg-accent rounded-b-lg">
+                  <span className="text-[9px] font-medium text-accent-foreground uppercase tracking-[0.2em]">
                     Your Plan
                   </span>
                 </div>
               )}
 
               <div className="text-center mb-10 pt-4">
-                <h3 className="font-heading text-xl tracking-[0.1em] mb-3 text-foreground">{tier.name}</h3>
+                <h3 className="font-heading text-lg tracking-[0.1em] mb-3 text-foreground">{tier.name}</h3>
                 <p className="text-muted-foreground text-xs font-light mb-6">{tier.description}</p>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-muted-foreground text-lg font-light">$</span>
-                  <span className={`font-heading text-4xl tracking-wide ${tier.featured ? 'text-primary' : 'text-foreground'}`}>
+                  <span className={`font-heading text-4xl tracking-wide text-foreground`}>
                     {tier.price}
                   </span>
                   <span className="text-muted-foreground text-sm font-light">/mo</span>
                 </div>
               </div>
 
-              {tier.appAccess && (
-                <div className="flex items-center justify-center gap-2 py-3 px-4 border border-primary/30 bg-primary/5 mb-8 rounded-lg">
-                  <span className="text-primary text-xs font-light tracking-wide">
-                    ✓ Includes Mobile App
-                  </span>
-                </div>
-              )}
-
               <ul className="space-y-4 mb-10">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
-                    <Check size={14} className="text-primary flex-shrink-0 mt-1" strokeWidth={1.5} />
+                    <Check size={14} className="text-foreground/50 flex-shrink-0 mt-1" strokeWidth={1.5} />
                     <span className="text-muted-foreground text-sm font-light">{feature}</span>
                   </li>
                 ))}
@@ -179,9 +154,7 @@ const PricingSection = () => {
                 disabled={isCurrentTier(tier.tierKey) || loadingTier === tier.tierKey}
                 onClick={() => handleSubscribe(tier.tierKey)}
               >
-                {loadingTier === tier.tierKey ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : null}
+                {loadingTier === tier.tierKey && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 {isCurrentTier(tier.tierKey) ? "Current Plan" : "Get Started"}
               </Button>
             </div>
@@ -189,7 +162,7 @@ const PricingSection = () => {
         </div>
 
         <div className="text-center mt-16">
-          <p className="text-muted-foreground/60 text-xs font-light tracking-wide">
+          <p className="text-muted-foreground/40 text-xs font-light tracking-wide">
             30-day satisfaction guarantee · Cancel anytime · Instant access
           </p>
         </div>

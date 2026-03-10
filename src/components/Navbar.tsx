@@ -21,32 +21,25 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/90 border-b border-border/30">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <img 
-              src={apolloLogo} 
-              alt="Apollo Nation Logo" 
-              className="w-10 h-10 invert brightness-0 invert opacity-95"
-            />
+            <img src={apolloLogo} alt="Apollo Nation Logo" className="w-10 h-10 invert brightness-0 invert opacity-95" />
             <span className="font-heading text-lg tracking-[0.15em] text-foreground">
-              APOLLO <span className="text-accent">NATION</span>
+              APOLLO <span className="text-foreground/50">NATION</span>
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="text-muted-foreground hover:text-accent transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
+                className="text-muted-foreground hover:text-foreground transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
               >
                 {link.label}
               </a>
             ))}
           </div>
 
-          {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
             {loading ? (
               <div className="w-20 h-9 bg-muted animate-pulse rounded" />
@@ -54,41 +47,29 @@ const Navbar = () => {
               <>
                 {isAdmin && (
                   <Link to="/admin">
-                    <Button variant="ghost" size="sm" className="text-accent gap-2">
-                      <Shield className="w-4 h-4" />
-                      Admin
+                    <Button variant="ghost" size="sm" className="text-muted-foreground gap-2">
+                      <Shield className="w-4 h-4" /> Admin
                     </Button>
                   </Link>
                 )}
                 <Link to="/dashboard">
-                  <Button variant="apollo" size="sm">
-                    Dashboard
-                  </Button>
+                  <Button variant="apollo" size="sm">Dashboard</Button>
                 </Link>
               </>
             ) : (
               <>
-                <Link to="/auth?admin=true">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground/50 gap-1.5 text-xs">
-                    <Shield className="w-3 h-3" />
-                    Admin
-                  </Button>
-                </Link>
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button variant="apollo" size="sm">
-                    Join Now
-                  </Button>
+                  <Button variant="apollo" size="sm">Join Now</Button>
                 </Link>
               </>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             className="md:hidden text-foreground p-2"
             onClick={() => setIsOpen(!isOpen)}
@@ -99,7 +80,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-border/30">
           <div className="container mx-auto px-4 py-8 space-y-4">
@@ -118,35 +98,22 @@ const Navbar = () => {
                 <>
                   {isAdmin && (
                     <Link to="/admin" onClick={() => setIsOpen(false)}>
-                      <Button variant="ghost" className="w-full text-accent gap-2">
-                        <Shield className="w-4 h-4" />
-                        Admin Panel
+                      <Button variant="ghost" className="w-full text-muted-foreground gap-2">
+                        <Shield className="w-4 h-4" /> Admin Panel
                       </Button>
                     </Link>
                   )}
                   <Link to="/dashboard" onClick={() => setIsOpen(false)}>
-                    <Button variant="apollo" className="w-full">
-                      Dashboard
-                    </Button>
+                    <Button variant="apollo" className="w-full">Dashboard</Button>
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link to="/auth?admin=true" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-muted-foreground/50 gap-2 text-xs">
-                      <Shield className="w-3 h-3" />
-                      Admin
-                    </Button>
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
+                    <Button variant="ghost" className="w-full text-muted-foreground">Sign In</Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-primary hover:text-primary/80">
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="apollo" className="w-full">
-                      Join Now
-                    </Button>
+                    <Button variant="apollo" className="w-full">Join Now</Button>
                   </Link>
                 </>
               )}
