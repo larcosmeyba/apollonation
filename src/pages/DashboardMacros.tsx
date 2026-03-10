@@ -190,11 +190,11 @@ const DashboardMacros = () => {
     return (
       <DashboardLayout>
         <div className="max-w-2xl mx-auto text-center py-12">
-          <div className="w-20 h-20 rounded-full bg-apollo-gold/10 flex items-center justify-center mx-auto mb-6">
-            <Camera className="w-10 h-10 text-apollo-gold" />
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+            <Camera className="w-10 h-10 text-primary" />
           </div>
           <h1 className="font-heading text-3xl mb-4">
-            AI Macro <span className="text-apollo-gold">Tracker</span>
+            AI Macro <span className="text-primary">Tracker</span>
           </h1>
           <p className="text-muted-foreground mb-8">
             Snap a photo of your meal and let AI estimate your macros instantly. This feature is exclusive to Elite members.
