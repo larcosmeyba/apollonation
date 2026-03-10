@@ -24,7 +24,7 @@ const Navbar = () => {
           <Link to="/" className="flex items-center gap-3">
             <img src={apolloLogo} alt="Apollo Nation Logo" className="w-10 h-10 invert brightness-0 invert opacity-95" />
             <span className="font-heading text-lg tracking-[0.15em] text-foreground">
-              APOLLO <span className="text-foreground/50">NATION</span>
+              APOLLO <span className="text-foreground/70">NATION</span>
             </span>
           </Link>
 
@@ -33,7 +33,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
+                className="text-foreground/60 hover:text-foreground transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
               >
                 {link.label}
               </a>
@@ -47,7 +47,7 @@ const Navbar = () => {
               <>
                 {isAdmin && (
                   <Link to="/admin">
-                    <Button variant="ghost" size="sm" className="text-muted-foreground gap-2">
+                    <Button variant="ghost" size="sm" className="text-foreground/60 gap-2">
                       <Shield className="w-4 h-4" /> Admin
                     </Button>
                   </Link>
@@ -59,7 +59,7 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                  <Button variant="ghost" size="sm" className="text-foreground/60 hover:text-foreground">
                     Sign In
                   </Button>
                 </Link>
@@ -87,7 +87,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="block text-muted-foreground hover:text-foreground transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
+                className="block text-foreground/70 hover:text-foreground transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
                 onClick={() => setIsOpen(false)}
               >
                 {link.label}
@@ -98,7 +98,7 @@ const Navbar = () => {
                 <>
                   {isAdmin && (
                     <Link to="/admin" onClick={() => setIsOpen(false)}>
-                      <Button variant="ghost" className="w-full text-muted-foreground gap-2">
+                      <Button variant="ghost" className="w-full text-foreground/60 gap-2">
                         <Shield className="w-4 h-4" /> Admin Panel
                       </Button>
                     </Link>
@@ -110,7 +110,7 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-muted-foreground">Sign In</Button>
+                    <Button variant="ghost" className="w-full text-foreground/60">Sign In</Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
                     <Button variant="apollo" className="w-full">Join Now</Button>

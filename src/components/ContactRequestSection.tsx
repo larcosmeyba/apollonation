@@ -76,14 +76,14 @@ const ContactRequestSection = () => {
 
   if (submitted) {
     return (
-      <section className="py-20 bg-background">
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-lg mx-auto text-center rounded-xl border border-border bg-card p-12">
             <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
-              <Send className="w-6 h-6 text-foreground/60" />
+              <Send className="w-6 h-6 text-foreground/70" />
             </div>
-            <h3 className="font-heading text-2xl mb-3">We Got Your Message</h3>
-            <p className="text-muted-foreground">Thanks for reaching out! We'll get back to you shortly.</p>
+            <h3 className="font-heading text-2xl mb-3 text-foreground">We Got Your Message</h3>
+            <p className="text-foreground/70">Thanks for reaching out! We'll get back to you shortly.</p>
           </div>
         </div>
       </section>
@@ -91,15 +91,15 @@ const ContactRequestSection = () => {
   }
 
   return (
-    <section id="contact" className="py-20 bg-background">
+    <section id="contact" className="py-20">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-muted-foreground font-medium text-[10px] uppercase tracking-[0.2em] mb-6 block">Get In Touch</span>
-            <h2 className="font-heading text-3xl md:text-4xl mb-4">
-              Ready to <span className="text-foreground/50">Start?</span>
+            <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.2em] mb-6 block">Get In Touch</span>
+            <h2 className="font-heading text-3xl md:text-4xl mb-4 text-foreground">
+              Ready to <span className="text-foreground/70">Start?</span>
             </h2>
-            <p className="text-muted-foreground max-w-md mx-auto text-sm">
+            <p className="text-foreground/70 max-w-md mx-auto text-sm">
               Request a call or send us an email. We'll help you find the right plan.
             </p>
           </div>
@@ -107,7 +107,7 @@ const ContactRequestSection = () => {
           <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-card p-8 space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="contact-name" className="text-xs uppercase tracking-wider text-muted-foreground">Name *</Label>
+                <Label htmlFor="contact-name" className="text-xs uppercase tracking-wider text-foreground/60">Name *</Label>
                 <Input
                   id="contact-name"
                   type="text"
@@ -120,7 +120,7 @@ const ContactRequestSection = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="contact-email" className="text-xs uppercase tracking-wider text-muted-foreground">Email *</Label>
+                <Label htmlFor="contact-email" className="text-xs uppercase tracking-wider text-foreground/60">Email *</Label>
                 <Input
                   id="contact-email"
                   type="email"
@@ -135,7 +135,7 @@ const ContactRequestSection = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact-phone" className="text-xs uppercase tracking-wider text-muted-foreground">Phone (optional)</Label>
+              <Label htmlFor="contact-phone" className="text-xs uppercase tracking-wider text-foreground/60">Phone (optional)</Label>
               <Input
                 id="contact-phone"
                 type="tel"
@@ -148,7 +148,7 @@ const ContactRequestSection = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Preferred Contact Method</Label>
+              <Label className="text-xs uppercase tracking-wider text-foreground/60">Preferred Contact Method</Label>
               <div className="flex gap-3">
                 <button
                   type="button"
@@ -156,7 +156,7 @@ const ContactRequestSection = () => {
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border transition-all ${
                     preferredContact === "email"
                       ? "border-foreground/30 bg-foreground/5 text-foreground"
-                      : "border-border bg-muted text-muted-foreground hover:border-foreground/20"
+                      : "border-border bg-muted text-foreground/60 hover:border-foreground/20"
                   }`}
                 >
                   <Mail className="w-4 h-4" /> Email
@@ -167,7 +167,7 @@ const ContactRequestSection = () => {
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border transition-all ${
                     preferredContact === "call"
                       ? "border-foreground/30 bg-foreground/5 text-foreground"
-                      : "border-border bg-muted text-muted-foreground hover:border-foreground/20"
+                      : "border-border bg-muted text-foreground/60 hover:border-foreground/20"
                   }`}
                 >
                   <Phone className="w-4 h-4" /> Call
@@ -176,7 +176,7 @@ const ContactRequestSection = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact-message" className="text-xs uppercase tracking-wider text-muted-foreground">Message (optional)</Label>
+              <Label htmlFor="contact-message" className="text-xs uppercase tracking-wider text-foreground/60">Message (optional)</Label>
               <Textarea
                 id="contact-message"
                 placeholder="Tell us about your fitness goals..."
@@ -187,7 +187,7 @@ const ContactRequestSection = () => {
                 className="bg-muted border-border resize-none"
               />
               {message.length > 0 && (
-                <p className="text-[10px] text-muted-foreground text-right">{message.length}/1000</p>
+                <p className="text-[10px] text-foreground/50 text-right">{message.length}/1000</p>
               )}
             </div>
 
