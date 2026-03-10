@@ -13,7 +13,6 @@ const HeroSection = () => {
 
   return (
     <header className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 w-full" role="banner">
-      {/* Background image */}
       <img
         src={heroImage}
         alt=""
@@ -22,40 +21,27 @@ const HeroSection = () => {
         decoding="async"
         className={`absolute inset-0 w-full h-full object-cover object-[50%_20%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-background/30" />
-      {/* Bottom fade */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-background/30" />
       <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background to-transparent" />
-      
-      {/* Warm ambient glow */}
-      <div className="absolute top-1/3 left-1/4 w-[min(500px,80vw)] h-[min(500px,80vw)] bg-primary/5 rounded-full blur-[120px]" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl">
-          {/* Animated badge */}
           <div 
-            className={`inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 border border-primary/30 bg-primary/5 backdrop-blur-sm mb-8 rounded-full transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`inline-flex items-center gap-2 px-5 py-2 border border-foreground/15 bg-foreground/5 backdrop-blur-sm mb-8 rounded-full transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           >
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" />
-            <span className="text-xs text-primary font-medium tracking-[0.15em] sm:tracking-[0.25em] uppercase">
-              Luxury Fitness Coaching
+            <span className="w-1.5 h-1.5 rounded-full bg-foreground/60 animate-pulse flex-shrink-0" />
+            <span className="text-[10px] text-foreground/70 font-medium tracking-[0.2em] uppercase">
+              Elite Fitness Coaching
             </span>
           </div>
 
-          {/* Main Heading */}
           <h1 
-            className={`font-heading text-3xl sm:text-5xl md:text-6xl lg:text-8xl leading-[1.05] mb-8 tracking-[0.02em] transition-all duration-1000 delay-100 break-words ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`font-heading text-4xl sm:text-5xl md:text-6xl lg:text-8xl leading-[1.05] mb-8 tracking-[0.02em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             <span className="block text-foreground">Forge Your</span>
-            <span 
-              className="block text-primary mt-2"
-              style={{ textShadow: '0 0 80px hsl(37 49% 60% / 0.4)' }}
-            >
-              Legend
-            </span>
+            <span className="block text-foreground/60 mt-2">Legend</span>
           </h1>
 
-          {/* Subheading */}
           <p 
             className={`text-lg md:text-xl text-muted-foreground max-w-xl mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
@@ -63,7 +49,6 @@ const HeroSection = () => {
             designed for those who refuse to be ordinary.
           </p>
 
-          {/* CTA Buttons */}
           <div 
             className={`flex flex-col sm:flex-row items-start gap-4 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
@@ -80,22 +65,19 @@ const HeroSection = () => {
             </a>
           </div>
 
-          {/* Stats row */}
           <div 
-            className={`grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-primary/20 max-w-lg transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`grid grid-cols-3 gap-6 mt-16 pt-8 border-t border-foreground/10 max-w-lg transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             {[
               { value: "Training", label: "Structured programs tailored to your goals" },
               { value: "Nutrition", label: "Weekly meal plans that adapt to you" },
               { value: "Support", label: "Premium accountability & tracking" },
             ].map((stat) => (
-              <div key={stat.value} className="border-t border-primary/20 pt-4">
-                <div 
-                  className="font-heading text-lg md:text-xl text-apollo-gold-light mb-1 tracking-wide"
-                >
+              <div key={stat.value}>
+                <div className="font-heading text-lg md:text-xl text-foreground/70 mb-1 tracking-wide">
                   {stat.value}
                 </div>
-                <div className="text-xs text-muted-foreground leading-relaxed">
+                <div className="text-[10px] text-muted-foreground leading-relaxed">
                   {stat.label}
                 </div>
               </div>
@@ -104,15 +86,13 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/80 to-transparent" />
       
-      {/* Scroll indicator */}
       <div 
-        className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-50' : 'opacity-0'}`}
+        className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-40' : 'opacity-0'}`}
       >
-        <span className="text-xs text-foreground/40 uppercase tracking-widest">Scroll</span>
-        <div className="w-px h-8 bg-gradient-to-b from-primary/50 to-transparent animate-pulse" />
+        <span className="text-[10px] text-foreground/40 uppercase tracking-widest">Scroll</span>
+        <div className="w-px h-8 bg-gradient-to-b from-foreground/30 to-transparent animate-pulse" />
       </div>
     </header>
   );

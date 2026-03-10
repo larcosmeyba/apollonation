@@ -24,22 +24,18 @@ const ContactRequestSection = () => {
       toast({ title: "Please fill in your name and email", variant: "destructive" });
       return;
     }
-
     if (name.trim().length > 100) {
       toast({ title: "Name must be under 100 characters", variant: "destructive" });
       return;
     }
-
     if (email.trim().length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       toast({ title: "Please enter a valid email address", variant: "destructive" });
       return;
     }
-
     if (phone && phone.trim().length > 20) {
       toast({ title: "Phone number is too long", variant: "destructive" });
       return;
     }
-
     if (message && message.trim().length > 1000) {
       toast({ title: "Message must be under 1000 characters", variant: "destructive" });
       return;
@@ -47,7 +43,6 @@ const ContactRequestSection = () => {
 
     setIsSubmitting(true);
 
-    // Client-side rate limit check using email as identifier
     const { data: allowed, error: rlError } = await supabase.rpc("check_rate_limit", {
       p_identifier: email.trim().toLowerCase(),
       p_action: "contact_form",
@@ -81,16 +76,14 @@ const ContactRequestSection = () => {
 
   if (submitted) {
     return (
-      <section className="py-16 bg-background">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <div className="max-w-lg mx-auto text-center card-apollo p-12">
-            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
-              <Send className="w-8 h-8 text-primary" />
+          <div className="max-w-lg mx-auto text-center rounded-xl border border-border bg-card p-12">
+            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
+              <Send className="w-6 h-6 text-foreground/60" />
             </div>
             <h3 className="font-heading text-2xl mb-3">We Got Your Message</h3>
-            <p className="text-muted-foreground">
-              Thanks for reaching out! We'll get back to you shortly.
-            </p>
+            <p className="text-muted-foreground">Thanks for reaching out! We'll get back to you shortly.</p>
           </div>
         </div>
       </section>
@@ -98,26 +91,23 @@ const ContactRequestSection = () => {
   }
 
   return (
-    <section id="contact" className="py-16 bg-background">
+    <section id="contact" className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
-          {/* Header */}
           <div className="text-center mb-12">
-            <span className="section-label">Get In Touch</span>
-            <h2 className="font-heading text-3xl md:text-4xl mt-4 mb-4">
-              Ready to <span className="text-primary">Start?</span>
+            <span className="text-muted-foreground font-medium text-[10px] uppercase tracking-[0.2em] mb-6 block">Get In Touch</span>
+            <h2 className="font-heading text-3xl md:text-4xl mb-4">
+              Ready to <span className="text-foreground/50">Start?</span>
             </h2>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              Request a call or send us an email. We'll help you find the right plan for your goals.
+            <p className="text-muted-foreground max-w-md mx-auto text-sm">
+              Request a call or send us an email. We'll help you find the right plan.
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="card-apollo p-8 space-y-6">
-            {/* Name & Email */}
+          <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-card p-8 space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="contact-name">Name *</Label>
+                <Label htmlFor="contact-name" className="text-xs uppercase tracking-wider text-muted-foreground">Name *</Label>
                 <Input
                   id="contact-name"
                   type="text"
@@ -126,11 +116,11 @@ const ContactRequestSection = () => {
                   onChange={(e) => setName(e.target.value)}
                   maxLength={100}
                   required
-                  className="bg-muted border-border"
+                  className="bg-muted border-border h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="contact-email">Email *</Label>
+                <Label htmlFor="contact-email" className="text-xs uppercase tracking-wider text-muted-foreground">Email *</Label>
                 <Input
                   id="contact-email"
                   type="email"
@@ -139,14 +129,13 @@ const ContactRequestSection = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   maxLength={255}
                   required
-                  className="bg-muted border-border"
+                  className="bg-muted border-border h-11"
                 />
               </div>
             </div>
 
-            {/* Phone */}
             <div className="space-y-2">
-              <Label htmlFor="contact-phone">Phone (optional)</Label>
+              <Label htmlFor="contact-phone" className="text-xs uppercase tracking-wider text-muted-foreground">Phone (optional)</Label>
               <Input
                 id="contact-phone"
                 type="tel"
@@ -154,44 +143,40 @@ const ContactRequestSection = () => {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 maxLength={20}
-                className="bg-muted border-border"
+                className="bg-muted border-border h-11"
               />
             </div>
 
-            {/* Preferred contact method */}
             <div className="space-y-2">
-              <Label>Preferred Contact Method</Label>
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Preferred Contact Method</Label>
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setPreferredContact("email")}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border transition-all ${
                     preferredContact === "email"
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-muted text-muted-foreground hover:border-primary/50"
+                      ? "border-foreground/30 bg-foreground/5 text-foreground"
+                      : "border-border bg-muted text-muted-foreground hover:border-foreground/20"
                   }`}
                 >
-                  <Mail className="w-4 h-4" />
-                  Email
+                  <Mail className="w-4 h-4" /> Email
                 </button>
                 <button
                   type="button"
                   onClick={() => setPreferredContact("call")}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border transition-all ${
                     preferredContact === "call"
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-muted text-muted-foreground hover:border-primary/50"
+                      ? "border-foreground/30 bg-foreground/5 text-foreground"
+                      : "border-border bg-muted text-muted-foreground hover:border-foreground/20"
                   }`}
                 >
-                  <Phone className="w-4 h-4" />
-                  Call
+                  <Phone className="w-4 h-4" /> Call
                 </button>
               </div>
             </div>
 
-            {/* Message */}
             <div className="space-y-2">
-              <Label htmlFor="contact-message">Message (optional)</Label>
+              <Label htmlFor="contact-message" className="text-xs uppercase tracking-wider text-muted-foreground">Message (optional)</Label>
               <Textarea
                 id="contact-message"
                 placeholder="Tell us about your fitness goals..."
@@ -202,17 +187,11 @@ const ContactRequestSection = () => {
                 className="bg-muted border-border resize-none"
               />
               {message.length > 0 && (
-                <p className="text-xs text-muted-foreground text-right">{message.length}/1000</p>
+                <p className="text-[10px] text-muted-foreground text-right">{message.length}/1000</p>
               )}
             </div>
 
-            <Button
-              type="submit"
-              variant="apollo"
-              size="lg"
-              className="w-full"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" variant="apollo" size="lg" className="w-full h-12" disabled={isSubmitting}>
               {isSubmitting ? "Sending..." : "Send Request"}
             </Button>
           </form>
