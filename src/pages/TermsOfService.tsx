@@ -179,8 +179,7 @@ const TermsOfService = () => {
             If you have questions about these Terms, please contact us at:
           </p>
           <p className="font-medium text-foreground">
-            Apollo Fitness LLC<br />
-            Email: legal@apollonation.com
+            Apollo Fitness LLC
           </p>
 
           <div className="mt-12 p-6 bg-muted rounded-lg">

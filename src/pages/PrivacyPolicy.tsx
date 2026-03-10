@@ -111,8 +111,7 @@ const PrivacyPolicy = () => {
             If you have questions about this Privacy Policy or our privacy practices, please contact us at:
           </p>
           <p className="font-medium text-foreground">
-            Apollo Fitness LLC<br />
-            Email: privacy@apollonation.com
+            Apollo Fitness LLC
           </p>
         </div>
       </main>
