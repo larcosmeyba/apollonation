@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import heroCoach from "@/assets/hero-coach.png";
+import heroImage from "@/assets/marcos-3.jpg";
 import { useEffect, useState } from "react";
 
 const HeroSection = () => {
@@ -13,41 +13,43 @@ const HeroSection = () => {
 
   return (
     <header className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 w-full" role="banner">
-      {/* Background image - native img for better loading control */}
+      {/* Background image */}
       <img
-        src={heroCoach}
+        src={heroImage}
         alt=""
         role="presentation"
         fetchPriority="high"
         decoding="async"
-        className={`absolute inset-0 w-full h-full object-cover object-[75%_30%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
+        className={`absolute inset-0 w-full h-full object-cover object-[50%_20%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
-      {/* Bottom fade only - no overlay */}
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-background/30" />
+      {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background to-transparent" />
       
-      {/* Ambient glow - reduced from two heavy blurs to one lighter one */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[min(600px,100vw)] h-[min(600px,100vw)] bg-white/5 rounded-full blur-[120px]" />
+      {/* Warm ambient glow */}
+      <div className="absolute top-1/3 left-1/4 w-[min(500px,80vw)] h-[min(500px,80vw)] bg-primary/5 rounded-full blur-[120px]" />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-3xl">
           {/* Animated badge */}
           <div 
-            className={`inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 border border-primary/30 bg-primary/5 backdrop-blur-sm mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 border border-primary/30 bg-primary/5 backdrop-blur-sm mb-8 rounded-full transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           >
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" />
             <span className="text-xs text-primary font-medium tracking-[0.15em] sm:tracking-[0.25em] uppercase">
-              Transform Your Body & Mind
+              Luxury Fitness Coaching
             </span>
           </div>
 
-          {/* Main Heading with staggered animation */}
+          {/* Main Heading */}
           <h1 
             className={`font-heading text-3xl sm:text-5xl md:text-6xl lg:text-8xl leading-[1.05] mb-8 tracking-[0.02em] transition-all duration-1000 delay-100 break-words ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            <span className="block text-white">Forge Your</span>
+            <span className="block text-foreground">Forge Your</span>
             <span 
               className="block text-primary mt-2"
-              style={{ textShadow: '0 0 80px hsl(215 45% 58% / 0.4)' }}
+              style={{ textShadow: '0 0 80px hsl(37 49% 60% / 0.4)' }}
             >
               Legend
             </span>
@@ -55,7 +57,7 @@ const HeroSection = () => {
 
           {/* Subheading */}
           <p 
-            className={`text-lg md:text-xl text-white/60 max-w-xl mx-auto mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`text-lg md:text-xl text-muted-foreground max-w-xl mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             Elite training programs, personalized coaching, and custom nutrition plans—
             designed for those who refuse to be ordinary.
@@ -63,32 +65,37 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div 
-            className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`flex flex-col sm:flex-row items-start gap-4 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             <Link to="/auth">
-              <Button variant="apollo" size="lg" className="group min-w-[220px] h-14 text-base">
+              <Button variant="apollo" size="lg" className="group min-w-[220px] h-14 text-base rounded-full">
                 Start Your Journey
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
               </Button>
             </Link>
+            <a href="#features">
+              <Button variant="apollo-outline" size="lg" className="min-w-[200px] h-14 text-base rounded-full">
+                Explore Coaching
+              </Button>
+            </a>
           </div>
 
           {/* Stats row */}
           <div 
-            className={`flex flex-wrap justify-center gap-6 md:gap-16 mt-12 pt-8 border-t border-primary/20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-primary/20 max-w-lg transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             {[
-              { value: "100+", label: "Athletes" },
-              { value: "98%", label: "Success Rate" },
-            ].map((stat, index) => (
-              <div key={stat.label} className="text-center" style={{ transitionDelay: `${600 + index * 100}ms` }}>
+              { value: "Training", label: "Structured programs tailored to your goals" },
+              { value: "Nutrition", label: "Weekly meal plans that adapt to you" },
+              { value: "Support", label: "Premium accountability & tracking" },
+            ].map((stat) => (
+              <div key={stat.value} className="border-t border-primary/20 pt-4">
                 <div 
-                  className="font-heading text-3xl md:text-4xl text-primary mb-1 tracking-wide"
-                  style={{ textShadow: '0 0 40px hsl(215 45% 58% / 0.3)' }}
+                  className="font-heading text-lg md:text-xl text-apollo-gold-light mb-1 tracking-wide"
                 >
                   {stat.value}
                 </div>
-                <div className="text-sm text-white/50 uppercase tracking-[0.15em]">
+                <div className="text-xs text-muted-foreground leading-relaxed">
                   {stat.label}
                 </div>
               </div>
@@ -104,7 +111,7 @@ const HeroSection = () => {
       <div 
         className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-50' : 'opacity-0'}`}
       >
-        <span className="text-xs text-white/40 uppercase tracking-widest">Scroll</span>
+        <span className="text-xs text-foreground/40 uppercase tracking-widest">Scroll</span>
         <div className="w-px h-8 bg-gradient-to-b from-primary/50 to-transparent animate-pulse" />
       </div>
     </header>
