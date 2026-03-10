@@ -243,7 +243,7 @@ const DashboardMacros = () => {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-apollo-gold/50 transition-colors">
+                    <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 transition-colors">
                       <Upload className="w-10 h-10 text-muted-foreground mb-3" />
                       <span className="text-muted-foreground text-sm">Click to upload or drag a photo</span>
                       <input type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
