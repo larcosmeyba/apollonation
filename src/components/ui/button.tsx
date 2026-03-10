@@ -5,18 +5,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs font-medium tracking-[0.15em] uppercase ring-offset-background transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs font-medium tracking-[0.15em] uppercase ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02]",
+        default: "bg-primary text-primary-foreground hover:opacity-90",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground shadow-[0_0_25px_-5px_hsl(37_49%_60%_/_0.35)] hover:shadow-[0_0_40px_-5px_hsl(37_49%_60%_/_0.55)]",
+        outline: "border border-foreground/40 text-foreground bg-transparent hover:bg-foreground hover:text-background",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-muted hover:text-foreground",
-        link: "text-primary underline-offset-4 hover:underline tracking-normal",
-        apollo: "bg-[linear-gradient(180deg,hsl(37_56%_72%),hsl(36_45%_51%))] text-primary-foreground font-semibold hover:scale-[1.02] shadow-[0_8px_24px_hsl(37_49%_60%_/_0.18)] hover:shadow-[0_12px_32px_hsl(37_49%_60%_/_0.3)]",
-        "apollo-outline": "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground shadow-[0_0_30px_-5px_hsl(37_49%_60%_/_0.35)] hover:shadow-[0_0_45px_-5px_hsl(37_49%_60%_/_0.55)]",
+        link: "text-foreground underline-offset-4 hover:underline tracking-normal",
+        apollo: "bg-foreground text-background font-semibold hover:opacity-90",
+        "apollo-outline": "border border-foreground/40 text-foreground bg-transparent hover:bg-foreground hover:text-background",
       },
       size: {
         default: "h-11 px-8 py-3",

@@ -155,11 +155,11 @@ const Dashboard = () => {
     breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack",
   };
 
-  const MacroBar = ({ current, target, color, label }: { current: number; target: number; color: string; label: string }) => (
+  const MacroBar = ({ current, target, bgColor, label }: { current: number; target: number; bgColor: string; label: string }) => (
     <div className="flex items-center gap-2">
-      <span className={`text-[10px] font-semibold w-3 ${color}`}>{label}</span>
-      <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-        <div className={`h-full rounded-full transition-all duration-500 ${color === "text-blue-400" ? "bg-blue-400" : color === "text-amber-400" ? "bg-amber-400" : "bg-rose-400"}`}
+      <span className="text-[10px] font-semibold w-3 text-muted-foreground">{label}</span>
+      <div className="flex-1 h-1.5 rounded-full bg-[hsl(var(--apollo-divider))] overflow-hidden">
+        <div className={`h-full rounded-full transition-all duration-500 ${bgColor}`}
           style={{ width: `${Math.min((current / target) * 100, 100)}%` }} />
       </div>
       <span className="text-[10px] text-muted-foreground w-10 text-right">{current}g</span>
@@ -309,9 +309,9 @@ const Dashboard = () => {
 
             {/* Macro bars */}
             <div className="flex-1 space-y-2">
-              <MacroBar current={loggedTotals.protein} target={targets.protein} color="text-blue-400" label="P" />
-              <MacroBar current={loggedTotals.carbs} target={targets.carbs} color="text-amber-400" label="C" />
-              <MacroBar current={loggedTotals.fat} target={targets.fat} color="text-rose-400" label="F" />
+              <MacroBar current={loggedTotals.protein} target={targets.protein} bgColor="bg-[hsl(var(--chart-protein))]" label="P" />
+              <MacroBar current={loggedTotals.carbs} target={targets.carbs} bgColor="bg-[hsl(var(--chart-carbs))]" label="C" />
+              <MacroBar current={loggedTotals.fat} target={targets.fat} bgColor="bg-[hsl(var(--chart-fat))]" label="F" />
             </div>
           </div>
 
