@@ -539,8 +539,26 @@ const DashboardWorkoutDetail = () => {
           Back to Train
         </Link>
 
+        {!dayId ? (
+          <div className="rounded-xl border border-border bg-card p-8 text-center">
+            <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+            <h3 className="font-heading text-lg mb-2">No Workout Selected</h3>
+            <p className="text-muted-foreground text-sm">Go back and select a workout day to begin.</p>
+          </div>
+        ) : !dayData ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : exercises.length === 0 ? (
+          <div className="rounded-xl border border-border bg-card p-8 text-center">
+            <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+            <h3 className="font-heading text-lg mb-2">No Exercises Found</h3>
+            <p className="text-muted-foreground text-sm">This workout day doesn't have exercises assigned yet. Your coach will update it soon.</p>
+          </div>
+        ) : null}
+
         {/* Day header */}
-        {dayData && (
+        {dayData && exercises.length > 0 && (
           <div className="rounded-xl border border-border bg-card p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
@@ -580,7 +598,7 @@ const DashboardWorkoutDetail = () => {
         )}
 
         {/* Exercises */}
-        <div className="space-y-3">
+        {dayData && exercises.length > 0 && <div className="space-y-3">
           {exercises.map((ex: any) => (
             <ExerciseRow
               key={ex.id}
@@ -597,7 +615,7 @@ const DashboardWorkoutDetail = () => {
               onSwap={() => handleSwapExercise(ex)}
             />
           ))}
-        </div>
+        </div>}
 
         {/* Finish Workout Button */}
         {totalExercises > 0 && !sessionLog?.completed_at && (
