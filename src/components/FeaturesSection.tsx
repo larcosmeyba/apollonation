@@ -45,11 +45,11 @@ const FeaturesSection = () => {
           <span className="text-primary font-medium text-xs uppercase tracking-[0.25em] mb-6 block">
             The Experience
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-white break-words">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground break-words">
             Everything You Need
             <span className="text-primary block mt-2">To Transform</span>
           </h2>
-          <p className="text-white/50 text-base font-light leading-relaxed">
+          <p className="text-muted-foreground text-base font-light leading-relaxed">
             A complete wellness ecosystem designed to elevate both body and mind.
           </p>
         </div>
@@ -59,19 +59,19 @@ const FeaturesSection = () => {
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group p-8 border border-white/10 hover:border-primary/40 transition-all duration-700 bg-white/[0.02] hover:bg-white/[0.04]"
+              className="group p-8 border border-primary/10 hover:border-primary/40 transition-all duration-700 bg-card/30 hover:bg-card/60 rounded-2xl"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Icon */}
-              <div className="w-12 h-12 flex items-center justify-center mb-6 border border-primary/30 group-hover:border-primary/60 group-hover:bg-primary/5 transition-all duration-500">
+              <div className="w-12 h-12 flex items-center justify-center mb-6 border border-primary/30 group-hover:border-primary/60 group-hover:bg-primary/5 transition-all duration-500 rounded-full">
                 <feature.icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
               </div>
 
               {/* Content */}
-              <h3 className="font-heading text-lg mb-4 tracking-[0.08em] text-white group-hover:text-primary transition-colors duration-500">
+              <h3 className="font-heading text-lg mb-4 tracking-[0.08em] text-foreground group-hover:text-primary transition-colors duration-500">
                 {feature.title}
               </h3>
-              <p className="text-white/50 font-light leading-relaxed text-sm">
+              <p className="text-muted-foreground font-light leading-relaxed text-sm">
                 {feature.description}
               </p>
             </div>

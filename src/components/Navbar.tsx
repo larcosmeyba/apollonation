@@ -75,7 +75,7 @@ const Navbar = () => {
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300">
+                  <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
                     Sign In
                   </Button>
                 </Link>
@@ -139,7 +139,7 @@ const Navbar = () => {
                     </Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-blue-400 hover:text-blue-300">
+                    <Button variant="ghost" className="w-full text-primary hover:text-primary/80">
                       Sign In
                     </Button>
                   </Link>
