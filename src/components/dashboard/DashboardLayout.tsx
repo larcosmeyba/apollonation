@@ -9,7 +9,7 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
-    <div className="min-h-screen flex overflow-x-hidden w-full">
+    <div className="min-h-screen bg-background flex overflow-x-hidden w-full">
       {/* Desktop sidebar */}
       <div className="hidden lg:block flex-shrink-0">
         <DashboardSidebar />
