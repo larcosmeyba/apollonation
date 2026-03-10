@@ -3,7 +3,6 @@ import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import VideosSection from "@/components/VideosSection";
 import PricingSection from "@/components/PricingSection";
-import JoinSection from "@/components/JoinSection";
 import ContactRequestSection from "@/components/ContactRequestSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 
@@ -15,7 +14,7 @@ const Index = () => {
     <main className="min-h-screen overflow-x-hidden w-full">
       <SEOHead
         path="/"
-        description="Transform your body with Coach Marcos at Apollo Nation. Elite personal training programs, HD workout videos, custom nutrition plans, and 1-on-1 coaching. Join 100+ athletes today."
+        description="Transform your body with Coach Marcos at Apollo Nation. Elite personal training programs, HD workout videos, custom nutrition plans, and 1-on-1 coaching. Join today."
         jsonLd={[
           {
             "@context": "https://schema.org",
@@ -24,7 +23,10 @@ const Index = () => {
             "url": "https://www.www-apollo.com",
             "logo": "https://www.www-apollo.com/favicon.png",
             "description": "Elite personal training and coaching by Coach Marcos.",
-            "sameAs": []
+            "sameAs": [
+              "https://www.instagram.com/larcosfit",
+              "https://www.youtube.com/@larcosfitness"
+            ]
           },
           {
             "@context": "https://schema.org",
@@ -62,7 +64,6 @@ const Index = () => {
       <ContactRequestSection />
       <VideosSection />
       <PricingSection />
-      <JoinSection />
       <TestimonialsSection />
       <Footer />
     </main>

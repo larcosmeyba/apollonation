@@ -88,14 +88,14 @@ const PricingSection = () => {
     <section id="pricing" className="py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-20">
-          <span className="text-muted-foreground font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
+          <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
             Membership
           </span>
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground">
             Choose Your
-            <span className="text-foreground/50 block mt-2">Path</span>
+            <span className="text-foreground/70 block mt-2">Path</span>
           </h2>
-          <p className="text-muted-foreground text-base font-light leading-relaxed">
+          <p className="text-foreground/70 text-base font-light leading-relaxed">
             Flexible plans designed for every stage of your journey.
           </p>
         </div>
@@ -106,8 +106,8 @@ const PricingSection = () => {
               key={tier.name}
               className={`relative p-6 lg:p-8 border transition-all duration-500 rounded-xl ${
                 tier.featured
-                  ? "border-foreground/20 bg-card/50"
-                  : "border-border bg-card/20 hover:border-foreground/10"
+                  ? "border-foreground/20 bg-card/80"
+                  : "border-border bg-card/60 hover:border-foreground/10"
               }`}
             >
               {tier.featured && (
@@ -128,21 +128,21 @@ const PricingSection = () => {
 
               <div className="text-center mb-10 pt-4">
                 <h3 className="font-heading text-lg tracking-[0.1em] mb-3 text-foreground">{tier.name}</h3>
-                <p className="text-muted-foreground text-xs font-light mb-6">{tier.description}</p>
+                <p className="text-foreground/60 text-xs font-light mb-6">{tier.description}</p>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-muted-foreground text-lg font-light">$</span>
-                  <span className={`font-heading text-4xl tracking-wide text-foreground`}>
+                  <span className="text-foreground/70 text-lg font-light">$</span>
+                  <span className="font-heading text-4xl tracking-wide text-foreground">
                     {tier.price}
                   </span>
-                  <span className="text-muted-foreground text-sm font-light">/mo</span>
+                  <span className="text-foreground/60 text-sm font-light">/mo</span>
                 </div>
               </div>
 
               <ul className="space-y-4 mb-10">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
-                    <Check size={14} className="text-foreground/50 flex-shrink-0 mt-1" strokeWidth={1.5} />
-                    <span className="text-muted-foreground text-sm font-light">{feature}</span>
+                    <Check size={14} className="text-foreground/70 flex-shrink-0 mt-1" strokeWidth={1.5} />
+                    <span className="text-foreground/60 text-sm font-light">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -162,7 +162,7 @@ const PricingSection = () => {
         </div>
 
         <div className="text-center mt-16">
-          <p className="text-muted-foreground/40 text-xs font-light tracking-wide">
+          <p className="text-foreground/40 text-xs font-light tracking-wide">
             30-day satisfaction guarantee · Cancel anytime · Instant access
           </p>
         </div>
