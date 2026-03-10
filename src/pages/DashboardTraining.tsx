@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dumbbell, ChevronRight, Clock, Check, Target,
-  ChevronLeft, Plus, Flame, Calendar,
+  ChevronLeft, Plus, Flame, Calendar, Play,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -20,6 +20,19 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+
+const getYouTubeVideoId = (url: string): string | null => {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes("youtube.com")) return parsed.searchParams.get("v");
+    if (parsed.hostname === "youtu.be") return parsed.pathname.slice(1);
+    if (url.includes("/shorts/")) {
+      const m = url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
+      return m ? m[1] : null;
+    }
+    return null;
+  } catch { return null; }
+};
 
 const DashboardTraining = () => {
   const { user } = useAuth();
@@ -100,6 +113,24 @@ const DashboardTraining = () => {
     enabled: !!user,
   });
 
+  // Fetch exercise library for video lookups
+  const { data: exerciseLibrary = [] } = useQuery({
+    queryKey: ["exercise-library-all"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("exercises")
+        .select("title, video_url, thumbnail_url");
+      return data || [];
+    },
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const getExerciseVideo = (exerciseName: string) => {
+    return exerciseLibrary.find(
+      (e: any) => e.title?.toLowerCase() === exerciseName?.toLowerCase()
+    );
+  };
+
   const addActivityMutation = useMutation({
     mutationFn: async (activity: { name: string; duration: number | null; calories: number | null; notes: string }) => {
       if (!user) return;
@@ -145,19 +176,7 @@ const DashboardTraining = () => {
   }, [planData]);
 
   const todayWorkout = getWorkoutForDate(today);
-
-  // This week's workouts
-  const thisWeekWorkouts = useMemo(() => {
-    return weekDates.map(date => {
-      const workout = getWorkoutForDate(date);
-      const dateStr = format(date, "yyyy-MM-dd");
-      const isCompleted = completedSessions.some((s: any) => s.log_date === dateStr);
-      return { date, workout, isCompleted };
-    }).filter(w => w.workout);
-  }, [weekDates, getWorkoutForDate, completedSessions]);
-
-  const completedThisWeek = thisWeekWorkouts.filter(w => w.isCompleted).length;
-  const totalThisWeek = thisWeekWorkouts.length;
+  const exercises = todayWorkout?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
 
   return (
     <DashboardLayout>
@@ -178,44 +197,56 @@ const DashboardTraining = () => {
           </Button>
         </div>
 
-        {/* Current Program Card */}
-        {planData ? (
-          <div className="rounded-xl border border-border bg-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="section-label mb-1">Current Program</p>
-                <h2 className="font-heading text-xl tracking-wide">{planData.plan.title}</h2>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-heading">{completedThisWeek}<span className="text-muted-foreground text-base">/{totalThisWeek}</span></p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">This Week</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5" />
-                {planData.plan.duration_weeks} weeks
-              </span>
-              <span className="flex items-center gap-1">
-                <Dumbbell className="w-3.5 h-3.5" />
-                {planData.plan.workout_days_per_week} days/week
-              </span>
-              <span className="flex items-center gap-1">
-                <Target className="w-3.5 h-3.5" />
-                Cycle {planData.plan.cycle_number}
-              </span>
-            </div>
-            {/* Weekly progress bar */}
-            <div className="mt-4">
-              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-foreground rounded-full transition-all duration-500"
-                  style={{ width: totalThisWeek > 0 ? `${(completedThisWeek / totalThisWeek) * 100}%` : "0%" }}
-                />
-              </div>
-            </div>
+        {/* Horizontal Calendar Strip */}
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center justify-between mb-2">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {format(currentWeekStart, "MMM d")} — {format(addDays(currentWeekStart, 6), "MMM d")}
+            </span>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentDate(d => addWeeks(d, 1))}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
-        ) : (
+          <div className="flex items-center gap-1">
+            {weekDates.map((date) => {
+              const workout = getWorkoutForDate(date);
+              const isTodayDate = isToday(date);
+              const dateStr = format(date, "yyyy-MM-dd");
+              const isCompleted = completedSessions.some((s: any) => s.log_date === dateStr);
+              const isSelected = isSameDay(date, today);
+
+              return (
+                <Link
+                  key={date.toISOString()}
+                  to={workout ? `/dashboard/training/workout?day=${workout.id}&date=${dateStr}` : "#"}
+                  onClick={(e) => !workout && e.preventDefault()}
+                  className={`flex-1 flex flex-col items-center py-2 rounded-lg transition-all ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground"
+                      : isTodayDate
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted/50"
+                  } ${!workout ? "opacity-40" : ""}`}
+                >
+                  <span className="text-[10px] uppercase tracking-wider">{format(date, "EEE")}</span>
+                  <span className="text-sm font-heading">{format(date, "d")}</span>
+                  {isCompleted && (
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-0.5" />
+                  )}
+                  {workout && !isCompleted && (
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/30 mt-0.5" />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* No plan state */}
+        {!planData ? (
           <div className="rounded-xl border border-border bg-card p-8 text-center">
             <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
             <h3 className="font-heading text-lg mb-2">No Training Program Yet</h3>
@@ -226,108 +257,89 @@ const DashboardTraining = () => {
               <Button variant="apollo" size="sm">Complete Questionnaire</Button>
             </Link>
           </div>
-        )}
-
-        {/* Today's Workout - Hero Card */}
-        {todayWorkout && (
-          <Link
-            to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`}
-            className="block"
-          >
-            <div className="rounded-xl border border-border bg-card overflow-hidden group hover:border-foreground/20 transition-all">
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="section-label mb-2">Today's Workout</p>
-                    <h2 className="font-heading text-xl tracking-wide">
-                      {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
-                    </h2>
-                    {todayWorkout.focus && (
-                      <Badge variant="outline" className="mt-2 text-foreground/70 border-border">
-                        {todayWorkout.focus}
-                      </Badge>
-                    )}
-                    <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Dumbbell className="w-3.5 h-3.5" />
-                        {todayWorkout.training_plan_exercises?.length || 0} exercises
-                      </span>
+        ) : (
+          <>
+            {/* Today's Workout — Exercise List with Videos */}
+            {todayWorkout ? (
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="p-4 pb-3 border-b border-border/50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="section-label mb-1">Today's Workout</p>
+                      <h2 className="font-heading text-xl tracking-wide">
+                        {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
+                      </h2>
+                      {todayWorkout.focus && (
+                        <Badge variant="outline" className="mt-1.5 text-foreground/70 border-border text-[10px]">
+                          {todayWorkout.focus}
+                        </Badge>
+                      )}
                     </div>
-                  </div>
-                  <div className="w-14 h-14 rounded-full bg-foreground flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <ChevronRight className="w-6 h-6 text-background" />
+                    <Link to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`}>
+                      <Button variant="apollo" size="sm" className="gap-1.5">
+                        <Dumbbell className="w-3.5 h-3.5" /> Start
+                      </Button>
+                    </Link>
                   </div>
                 </div>
+
+                {/* Exercise List */}
+                <div className="divide-y divide-border/30">
+                  {exercises.map((ex: any, i: number) => {
+                    const exData = getExerciseVideo(ex.exercise_name);
+                    const videoId = exData?.video_url ? getYouTubeVideoId(exData.video_url) : null;
+                    const thumbnail = videoId
+                      ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+                      : exData?.thumbnail_url;
+
+                    return (
+                      <div key={ex.id} className="flex items-center gap-3 px-4 py-3">
+                        <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary flex-shrink-0">
+                          {i + 1}
+                        </span>
+
+                        {/* Video thumbnail */}
+                        {thumbnail ? (
+                          <div className="relative w-14 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-border">
+                            <img src={thumbnail} alt="" className="w-full h-full object-cover" loading="lazy" />
+                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                              <Play className="w-3 h-3 text-white" fill="currentColor" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-14 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 border border-border">
+                            <Dumbbell className="w-3.5 h-3.5 text-muted-foreground/40" />
+                          </div>
+                        )}
+
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{ex.exercise_name}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {ex.sets} × {ex.reps}{ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Start Workout CTA */}
+                <div className="p-4 pt-2">
+                  <Link to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`} className="block">
+                    <Button variant="apollo" className="w-full">
+                      <Dumbbell className="w-4 h-4 mr-2" /> Start Full Workout
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </div>
-          </Link>
+            ) : (
+              <div className="rounded-xl border border-border bg-card p-8 text-center">
+                <p className="font-heading text-lg mb-2">Rest Day</p>
+                <p className="text-sm text-muted-foreground">Recovery is part of the process. Come back stronger.</p>
+              </div>
+            )}
+          </>
         )}
-
-        {/* This Week's Schedule */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="section-label">This Week</h3>
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="text-xs text-muted-foreground min-w-[120px] text-center">
-                {format(currentWeekStart, "MMM d")} — {format(addDays(currentWeekStart, 6), "MMM d")}
-              </span>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentDate(d => addWeeks(d, 1))}>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            {weekDates.map((date) => {
-              const workout = getWorkoutForDate(date);
-              const isTodayDate = isToday(date);
-              const dateStr = format(date, "yyyy-MM-dd");
-              const isCompleted = completedSessions.some((s: any) => s.log_date === dateStr);
-
-              return (
-                <Link
-                  key={date.toISOString()}
-                  to={workout ? `/dashboard/training/workout?day=${workout.id}&date=${dateStr}` : "#"}
-                  onClick={(e) => !workout && e.preventDefault()}
-                  className={`flex items-center gap-4 p-3 rounded-lg transition-all ${
-                    isTodayDate
-                      ? "bg-foreground/5 border border-foreground/10"
-                      : "hover:bg-muted/50"
-                  } ${!workout ? "opacity-50 cursor-default" : ""}`}
-                >
-                  <div className={`w-10 text-center ${isTodayDate ? "text-foreground" : "text-muted-foreground"}`}>
-                    <p className="text-[10px] uppercase tracking-wider">{format(date, "EEE")}</p>
-                    <p className="text-lg font-heading">{format(date, "d")}</p>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    {workout ? (
-                      <>
-                        <p className="text-sm font-medium truncate">
-                          {workout.day_label || `Day ${workout.day_number}`}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {workout.focus || `${workout.training_plan_exercises?.length || 0} exercises`}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Rest Day</p>
-                    )}
-                  </div>
-                  {isCompleted ? (
-                    <div className="w-7 h-7 rounded-full bg-green-500/10 flex items-center justify-center">
-                      <Check className="w-4 h-4 text-green-500" />
-                    </div>
-                  ) : workout ? (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  ) : null}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Extra Activities */}
         {customActivities.length > 0 && (

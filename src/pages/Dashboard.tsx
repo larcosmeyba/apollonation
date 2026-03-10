@@ -1,17 +1,22 @@
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Dumbbell, ChevronRight, Plus, MessageSquare, User, Footprints } from "lucide-react";
+import { Dumbbell, ChevronRight, Plus, MessageSquare, User, Footprints, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardStepTracker from "@/components/dashboard/DashboardStepTracker";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { format, startOfWeek, addDays, isSameDay, isToday } from "date-fns";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
+import fitnessImage from "@/assets/fitness-gym.png";
+
+const MEAL_LABELS: Record<string, string> = {
+  breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack",
+};
 
 const Dashboard = () => {
   const { user, profile, subscription } = useAuth();
@@ -141,6 +146,13 @@ const Dashboard = () => {
     fat: nutritionPlan?.fat_grams || 70,
   };
 
+  const remaining = {
+    calories: Math.max(0, targets.calories - loggedTotals.calories),
+    protein: Math.max(0, targets.protein - loggedTotals.protein),
+    carbs: Math.max(0, targets.carbs - loggedTotals.carbs),
+    fat: Math.max(0, targets.fat - loggedTotals.fat),
+  };
+
   const calPct = Math.min(Math.round((loggedTotals.calories / targets.calories) * 100), 100);
 
   // Coach message preview
@@ -151,20 +163,24 @@ const Dashboard = () => {
   const isRestDay = !todayWorkout;
   const isViewingToday = isSameDay(selectedDate, new Date());
 
-  const MEAL_LABELS: Record<string, string> = {
-    breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack",
-  };
-
-  const MacroBar = ({ current, target, bgColor, label }: { current: number; target: number; bgColor: string; label: string }) => (
-    <div className="flex items-center gap-2">
-      <span className="text-[10px] font-semibold w-3 text-muted-foreground">{label}</span>
-      <div className="flex-1 h-1.5 rounded-full bg-[hsl(var(--apollo-divider))] overflow-hidden">
-        <div className={`h-full rounded-full transition-all duration-500 ${bgColor}`}
-          style={{ width: `${Math.min((current / target) * 100, 100)}%` }} />
+  const MacroRing = ({ current, target, label, size = 48 }: { current: number; target: number; label: string; size?: number }) => {
+    const pct = Math.min(Math.round((current / target) * 100), 100);
+    const rem = Math.max(0, target - current);
+    return (
+      <div className="flex flex-col items-center gap-1">
+        <div className="relative" style={{ width: size, height: size }}>
+          <svg className="-rotate-90" viewBox="0 0 36 36" width={size} height={size}>
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray={`${pct}, 100`} strokeLinecap="round" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-xs font-heading">{rem}</span>
+          </div>
+        </div>
+        <span className="text-[10px] text-muted-foreground">{label}</span>
       </div>
-      <span className="text-[10px] text-muted-foreground w-10 text-right">{current}g</span>
-    </div>
-  );
+    );
+  };
 
   return (
     <DashboardLayout>
@@ -221,22 +237,34 @@ const Dashboard = () => {
           })}
         </div>
 
-        {/* Section 3 — Hero Workout Card */}
+        {/* Section 3 — Hero Workout Card with Image */}
         <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          <div className="p-5">
-            <div className="flex items-center justify-between mb-4">
+          {/* Workout Hero Image */}
+          <div className="relative h-36 overflow-hidden">
+            <img
+              src={fitnessImage}
+              alt="Today's workout"
+              className="w-full h-full object-cover object-center"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/60 to-transparent" />
+            <div className="absolute bottom-3 left-5">
               <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">
                 {isViewingToday ? "Today's Workout" : format(selectedDate, "EEEE")}
               </p>
+            </div>
+            <div className="absolute bottom-3 right-5">
               <Link to="/dashboard/training">
                 <Button variant="ghost" size="sm" className="text-muted-foreground text-[10px] h-6 px-2">
                   <Plus className="w-3 h-3 mr-1" /> Log Activity
                 </Button>
               </Link>
             </div>
+          </div>
 
+          <div className="p-5 pt-3">
             {isRestDay ? (
-              <div className="text-center py-8">
+              <div className="text-center py-6">
                 <p className="font-heading text-xl mb-2">Rest Day</p>
                 <p className="text-sm text-muted-foreground">Recovery is part of the process. Come back stronger.</p>
               </div>
@@ -282,59 +310,83 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Section 4 — Nutrition Today Card */}
+        {/* Section 4A — Calories & Macros Remaining Card */}
         <div className="rounded-2xl border border-border bg-card p-5">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Nutrition Today</p>
-            <Link to="/dashboard/nutrition">
+            <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Calories & Macros</p>
+            <Link to="/dashboard/macros">
               <Button variant="ghost" size="sm" className="text-muted-foreground text-[10px] h-6 px-2">
-                Open <ChevronRight className="w-3 h-3 ml-1" />
+                Log Food <ChevronRight className="w-3 h-3 ml-1" />
               </Button>
             </Link>
           </div>
 
-          {/* Calories + Macros */}
-          <div className="flex items-center gap-4 mb-4">
-            {/* Circular progress */}
-            <div className="relative w-20 h-20 flex-shrink-0">
-              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
+          <div className="flex items-center gap-6 justify-center">
+            {/* Main calorie ring */}
+            <div className="relative w-24 h-24 flex-shrink-0">
+              <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
                 <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="2.5" />
                 <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="2.5" strokeDasharray={`${calPct}, 100`} strokeLinecap="round" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-lg font-heading">{loggedTotals.calories}</span>
-                <span className="text-[8px] text-muted-foreground">/ {targets.calories}</span>
+                <span className="text-xl font-heading">{remaining.calories}</span>
+                <span className="text-[8px] text-muted-foreground">remaining</span>
               </div>
             </div>
 
-            {/* Macro bars */}
-            <div className="flex-1 space-y-2">
-              <MacroBar current={loggedTotals.protein} target={targets.protein} bgColor="bg-[hsl(var(--chart-protein))]" label="P" />
-              <MacroBar current={loggedTotals.carbs} target={targets.carbs} bgColor="bg-[hsl(var(--chart-carbs))]" label="C" />
-              <MacroBar current={loggedTotals.fat} target={targets.fat} bgColor="bg-[hsl(var(--chart-fat))]" label="F" />
+            {/* Macro mini rings */}
+            <div className="flex gap-4">
+              <MacroRing current={loggedTotals.protein} target={targets.protein} label="Protein" />
+              <MacroRing current={loggedTotals.carbs} target={targets.carbs} label="Carbs" />
+              <MacroRing current={loggedTotals.fat} target={targets.fat} label="Fat" />
             </div>
           </div>
 
-          {/* Meal preview */}
-          {todayMeals.length > 0 && (
+          {/* Eaten summary */}
+          <div className="flex items-center justify-center gap-4 mt-4 text-[10px] text-muted-foreground">
+            <span>{loggedTotals.calories} eaten</span>
+            <span>·</span>
+            <span>P: {loggedTotals.protein}g</span>
+            <span>C: {loggedTotals.carbs}g</span>
+            <span>F: {loggedTotals.fat}g</span>
+          </div>
+        </div>
+
+        {/* Section 4B — Today's Meal Plan Card (separate) */}
+        {todayMeals.length > 0 && (
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Utensils className="w-4 h-4 text-primary" />
+                <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Today's Meals</p>
+              </div>
+              <Link to="/dashboard/nutrition">
+                <Button variant="ghost" size="sm" className="text-muted-foreground text-[10px] h-6 px-2">
+                  Full Plan <ChevronRight className="w-3 h-3 ml-1" />
+                </Button>
+              </Link>
+            </div>
+
             <div className="space-y-1.5">
-              {todayMeals.slice(0, 3).map((meal) => (
-                <div key={meal.id} className="flex items-center justify-between py-1.5 border-b border-border/20 last:border-0">
+              {todayMeals.slice(0, 4).map((meal) => (
+                <div key={meal.id} className="flex items-center justify-between py-2 border-b border-border/20 last:border-0">
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium truncate">{meal.meal_name}</p>
                     <p className="text-[10px] text-muted-foreground">{MEAL_LABELS[meal.meal_type] || meal.meal_type}</p>
                   </div>
-                  <span className="text-[10px] text-muted-foreground flex-shrink-0 ml-2">{meal.calories} cal</span>
+                  <div className="text-right flex-shrink-0 ml-2">
+                    <span className="text-[10px] text-muted-foreground">{meal.calories} cal</span>
+                  </div>
                 </div>
               ))}
-              {todayMeals.length > 3 && (
+              {todayMeals.length > 4 && (
                 <Link to="/dashboard/nutrition">
-                  <p className="text-[10px] text-primary text-center pt-1 hover:underline">+{todayMeals.length - 3} more meals</p>
+                  <p className="text-[10px] text-primary text-center pt-1 hover:underline">+{todayMeals.length - 4} more meals</p>
                 </Link>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Section 5 — Steps (compact) */}
         <DashboardStepTracker />
