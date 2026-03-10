@@ -80,7 +80,6 @@ const Index = () => {
       <PricingSection />
       <JoinSection />
       <TestimonialsSection />
-      <CTASection />
       <Footer />
     </main>
   );
