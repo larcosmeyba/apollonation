@@ -309,9 +309,9 @@ const Dashboard = () => {
 
             {/* Macro bars */}
             <div className="flex-1 space-y-2">
-              <MacroBar current={loggedTotals.protein} target={targets.protein} color="text-blue-400" label="P" />
-              <MacroBar current={loggedTotals.carbs} target={targets.carbs} color="text-amber-400" label="C" />
-              <MacroBar current={loggedTotals.fat} target={targets.fat} color="text-rose-400" label="F" />
+              <MacroBar current={loggedTotals.protein} target={targets.protein} bgColor="bg-[hsl(var(--chart-protein))]" label="P" />
+              <MacroBar current={loggedTotals.carbs} target={targets.carbs} bgColor="bg-[hsl(var(--chart-carbs))]" label="C" />
+              <MacroBar current={loggedTotals.fat} target={targets.fat} bgColor="bg-[hsl(var(--chart-fat))]" label="F" />
             </div>
           </div>
 
