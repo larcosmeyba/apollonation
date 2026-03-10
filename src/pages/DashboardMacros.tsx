@@ -311,7 +311,7 @@ const DashboardMacros = () => {
         {/* Consumed totals */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="card-apollo p-4 text-center">
-            <p className="text-3xl font-heading text-apollo-gold">{totals.calories}</p>
+            <p className="text-3xl font-heading text-primary">{totals.calories}</p>
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Consumed</p>
           </div>
           <div className="card-apollo p-4 text-center">
