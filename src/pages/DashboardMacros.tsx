@@ -293,7 +293,7 @@ const DashboardMacros = () => {
           {/* Progress bars */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
             {[
-              { label: "Cal", current: totals.calories, target: targets.calories, color: "bg-apollo-gold" },
+              { label: "Cal", current: totals.calories, target: targets.calories, color: "bg-primary" },
               { label: "Protein", current: totals.protein, target: targets.protein, color: "bg-blue-400" },
               { label: "Carbs", current: totals.carbs, target: targets.carbs, color: "bg-amber-400" },
               { label: "Fat", current: totals.fat, target: targets.fat, color: "bg-rose-400" },
