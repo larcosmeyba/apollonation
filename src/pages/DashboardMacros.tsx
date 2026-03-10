@@ -274,7 +274,7 @@ const DashboardMacros = () => {
           <h2 className="font-heading text-base mb-3 text-muted-foreground uppercase tracking-wider text-xs">Remaining Today</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className={`text-3xl font-heading ${remaining.calories === 0 ? "text-green-400" : "text-apollo-gold"}`}>{remaining.calories}</p>
+              <p className={`text-3xl font-heading ${remaining.calories === 0 ? "text-green-400" : "text-primary"}`}>{remaining.calories}</p>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Calories</p>
             </div>
             <div className="text-center">
