@@ -44,7 +44,7 @@ const DashboardSidebar = () => {
     <aside className="w-64 bg-[hsl(var(--apollo-charcoal-light))] border-r border-border min-h-screen flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/dashboard" className="flex items-center gap-3">
           <img src={apolloLogo} alt="Apollo Nation" className="w-10 h-10 invert" />
           <span className="font-heading text-lg tracking-wider">
             APOLLO <span className="text-primary">NATION</span>

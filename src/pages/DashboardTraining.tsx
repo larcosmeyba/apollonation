@@ -9,6 +9,8 @@ import {
   Dumbbell, ChevronRight, Clock, Check, Target,
   ChevronLeft, Plus, Flame, Calendar, Play,
 } from "lucide-react";
+import TrainingScheduleAdjust from "@/components/dashboard/TrainingScheduleAdjust";
+import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
 import { Link } from "react-router-dom";
 import {
   format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday,
@@ -197,6 +199,9 @@ const DashboardTraining = () => {
           </Button>
         </div>
 
+        {/* Schedule Adjustment */}
+        <TrainingScheduleAdjust />
+
         {/* Horizontal Calendar Strip */}
         <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center justify-between mb-2">
@@ -244,6 +249,9 @@ const DashboardTraining = () => {
             })}
           </div>
         </div>
+
+        {/* Browse Programs */}
+        <TrainingProgramCards />
 
         {/* No plan state */}
         {!planData ? (
