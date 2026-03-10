@@ -8,7 +8,7 @@ import PricingSection from "@/components/PricingSection";
 import JoinSection from "@/components/JoinSection";
 import ContactRequestSection from "@/components/ContactRequestSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
-import CTASection from "@/components/CTASection";
+
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
@@ -80,7 +80,6 @@ const Index = () => {
       <PricingSection />
       <JoinSection />
       <TestimonialsSection />
-      <CTASection />
       <Footer />
     </main>
   );

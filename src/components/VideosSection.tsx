@@ -1,6 +1,11 @@
 import { Play, Clock, Flame, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import marcos5 from "@/assets/marcos-5.jpg";
+import marcos6 from "@/assets/marcos-6.jpg";
+import marcos7 from "@/assets/marcos-7.jpg";
+import marcos8 from "@/assets/marcos-8.jpg";
+import marcos9 from "@/assets/marcos-9.jpg";
 
 const videos = [
   {
@@ -8,7 +13,7 @@ const videos = [
     duration: "45 min",
     calories: "450",
     category: "Strength",
-    thumbnail: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop",
+    thumbnail: marcos5,
     featured: true,
   },
   {
@@ -16,28 +21,28 @@ const videos = [
     duration: "30 min",
     calories: "380",
     category: "Cardio",
-    thumbnail: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=400&fit=crop",
+    thumbnail: marcos6,
   },
   {
     title: "Core Destroyer",
     duration: "20 min",
     calories: "200",
     category: "Core",
-    thumbnail: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop",
+    thumbnail: marcos7,
   },
   {
     title: "Upper Body Sculpt",
     duration: "40 min",
     calories: "320",
     category: "Strength",
-    thumbnail: "https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=600&h=400&fit=crop",
+    thumbnail: marcos8,
   },
   {
     title: "Leg Day Domination",
     duration: "50 min",
     calories: "500",
     category: "Strength",
-    thumbnail: "https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=600&h=400&fit=crop",
+    thumbnail: marcos9,
   },
 ];
 
