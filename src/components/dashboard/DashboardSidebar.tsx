@@ -41,7 +41,7 @@ const DashboardSidebar = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <aside className="w-64 bg-[hsl(var(--apollo-charcoal-light))] border-r border-border min-h-screen flex flex-col">
+    <aside className="w-64 bg-[hsl(var(--apollo-charcoal-light)/0.85)] backdrop-blur-xl border-r border-border min-h-screen flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border">
         <Link to="/" className="flex items-center gap-3">

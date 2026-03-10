@@ -31,7 +31,7 @@ const DashboardMobileNav = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <header className="bg-[hsl(var(--apollo-charcoal-light))] border-b border-border p-4">
+    <header className="bg-[hsl(var(--apollo-charcoal-light)/0.85)] backdrop-blur-xl border-b border-border p-4">
       <div className="flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <img src={apolloLogo} alt="Apollo Nation" className="w-8 h-8 invert" />
