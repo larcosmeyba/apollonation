@@ -250,6 +250,9 @@ const DashboardTraining = () => {
           </div>
         </div>
 
+        {/* Browse Programs */}
+        <TrainingProgramCards />
+
         {/* No plan state */}
         {!planData ? (
           <div className="rounded-xl border border-border bg-card p-8 text-center">
