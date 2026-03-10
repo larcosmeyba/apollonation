@@ -86,16 +86,16 @@ const CalendarMonthView = ({
                   !inMonth
                     ? "opacity-30 border-border/50 bg-card/50 cursor-default"
                     : isSelected
-                    ? "border-apollo-gold bg-apollo-gold/10 ring-1 ring-apollo-gold/30"
+                    ? "border-primary bg-primary/10 ring-1 ring-primary/30"
                     : today
-                    ? "border-apollo-gold/50 bg-apollo-gold/5"
+                    ? "border-primary/50 bg-primary/5"
                     : "border-border bg-card hover:border-muted-foreground/30"
-                } ${hasDraggedDay && inMonth ? "hover:border-apollo-gold/50 hover:bg-apollo-gold/5" : ""}`}
+                } ${hasDraggedDay && inMonth ? "hover:border-primary/50 hover:bg-primary/5" : ""}`}
                 onDragOver={(e) => inMonth && e.preventDefault()}
                 onDrop={() => inMonth && onDrop(date)}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-xs font-medium ${today ? "text-apollo-gold" : ""}`}>
+                  <span className={`text-xs font-medium ${today ? "text-primary" : ""}`}>
                     {format(date, "d")}
                   </span>
                   {completed && (
@@ -109,10 +109,10 @@ const CalendarMonthView = ({
                   <div
                     draggable
                     onDragStart={(e) => { e.stopPropagation(); onDragStart(workout, date); }}
-                    className="mb-1 p-1 rounded bg-apollo-gold/10 border border-apollo-gold/20 cursor-grab active:cursor-grabbing"
+                    className="mb-1 p-1 rounded bg-primary/10 border border-primary/20 cursor-grab active:cursor-grabbing"
                   >
                     <div className="flex items-center gap-0.5">
-                      <Dumbbell className="w-2.5 h-2.5 text-apollo-gold flex-shrink-0" />
+                      <Dumbbell className="w-2.5 h-2.5 text-primary flex-shrink-0" />
                       <span className="text-[10px] font-medium truncate">
                         {workout.focus || workout.day_label || `D${workout.day_number}`}
                       </span>
@@ -170,21 +170,21 @@ const CalendarMonthView = ({
                   !inMonth
                     ? "opacity-20 border-transparent"
                     : isSelected
-                    ? "border-apollo-gold bg-apollo-gold/10 ring-1 ring-apollo-gold/30"
+                    ? "border-primary bg-primary/10 ring-1 ring-primary/30"
                     : today
-                    ? "border-apollo-gold/50 bg-apollo-gold/5"
+                    ? "border-primary/50 bg-primary/5"
                     : "border-border bg-card"
                 }`}
               >
-                <span className={`text-[10px] font-medium block text-center ${today ? "text-apollo-gold" : ""}`}>
+                <span className={`text-[10px] font-medium block text-center ${today ? "text-primary" : ""}`}>
                   {format(date, "d")}
                 </span>
 
                 {inMonth && (
                   <div className="flex flex-col items-center gap-0.5 mt-0.5">
                     {workout && (
-                      <div className="w-4 h-4 rounded-full bg-apollo-gold/20 flex items-center justify-center">
-                        <Dumbbell className="w-2.5 h-2.5 text-apollo-gold" />
+                      <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Dumbbell className="w-2.5 h-2.5 text-primary" />
                       </div>
                     )}
                     {meals.length > 0 && (
@@ -232,7 +232,7 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
   const totalCals = meals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0);
 
   return (
-    <div className="mt-3 rounded-lg border border-apollo-gold/30 bg-card p-4 animate-in slide-in-from-top-2 duration-200">
+    <div className="mt-3 rounded-lg border border-primary/30 bg-card p-4 animate-in slide-in-from-top-2 duration-200">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <h3 className="font-heading text-sm font-semibold">
@@ -254,10 +254,10 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Workout section */}
-        <div className="rounded-md border border-apollo-gold/20 bg-apollo-gold/5 p-3">
+        <div className="rounded-md border border-primary/20 bg-primary/5 p-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <Dumbbell className="w-4 h-4 text-apollo-gold" />
-            <span className="text-xs font-semibold text-apollo-gold">Workout</span>
+            <Dumbbell className="w-4 h-4 text-primary" />
+            <span className="text-xs font-semibold text-primary">Workout</span>
           </div>
           {workout ? (
             <div>
@@ -268,7 +268,7 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
                 <ul className="mt-1.5 space-y-0.5">
                   {workout.training_plan_exercises.map((ex: any, i: number) => (
                     <li key={ex.id || i} className="text-xs text-muted-foreground flex items-baseline gap-1">
-                      <span className="text-[10px] text-apollo-gold/60">{i + 1}.</span>
+                      <span className="text-[10px] text-primary/60">{i + 1}.</span>
                       <span>{ex.exercise_name}</span>
                       {ex.sets && ex.reps && (
                         <span className="text-[10px] text-muted-foreground/60 ml-auto whitespace-nowrap">

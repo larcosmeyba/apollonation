@@ -19,7 +19,6 @@ const parseIngredients = (ingredients: any): string[] => {
     return ingredients.map((item) => {
       if (typeof item === "string") return item;
       if (typeof item === "object" && item !== null) {
-        // Handle common shapes: { name, amount, unit }, { ingredient }, etc.
         const parts: string[] = [];
         if (item.amount || item.quantity) parts.push(String(item.amount || item.quantity));
         if (item.unit) parts.push(item.unit);
@@ -33,7 +32,6 @@ const parseIngredients = (ingredients: any): string[] => {
 };
 
 const RecipeDetailSheet = ({ recipe, onClose }: RecipeDetailSheetProps) => {
-  // Lock body scroll when open
   useEffect(() => {
     if (recipe) {
       document.body.style.overflow = "hidden";
@@ -45,15 +43,12 @@ const RecipeDetailSheet = ({ recipe, onClose }: RecipeDetailSheetProps) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
 
-      {/* Content panel */}
       <div className="relative z-10 w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[85vh] bg-card border border-border rounded-t-2xl sm:rounded-2xl flex flex-col animate-in slide-in-from-bottom-4 duration-300">
-        {/* Header */}
         <div className="flex items-start justify-between p-4 border-b border-border flex-shrink-0">
           <div className="pr-4">
-            <span className="text-xs text-apollo-gold uppercase tracking-wide">
+            <span className="text-xs text-primary uppercase tracking-wide">
               {recipe.category || "Recipe"}
             </span>
             <h2 className="font-heading text-xl mt-1 text-foreground">{recipe.title}</h2>
@@ -70,7 +65,6 @@ const RecipeDetailSheet = ({ recipe, onClose }: RecipeDetailSheetProps) => {
           </button>
         </div>
 
-        {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto p-4 pb-8 space-y-6">
           {recipe.thumbnail_url && (
             <div className="relative aspect-video w-full overflow-hidden rounded-lg">
@@ -106,8 +100,8 @@ const RecipeDetailSheet = ({ recipe, onClose }: RecipeDetailSheetProps) => {
           </div>
 
           {(recipe.protein_grams || recipe.carbs_grams || recipe.fat_grams) && (
-            <div className="flex flex-wrap items-center gap-4 p-3 bg-apollo-gold/5 border border-apollo-gold/20 rounded-lg">
-              <span className="text-xs font-medium text-apollo-gold uppercase tracking-wide">Macros</span>
+            <div className="flex flex-wrap items-center gap-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+              <span className="text-xs font-medium text-primary uppercase tracking-wide">Macros</span>
               <div className="flex flex-wrap gap-4 text-sm text-foreground">
                 {recipe.protein_grams != null && <span>Protein: <strong>{recipe.protein_grams}g</strong></span>}
                 {recipe.carbs_grams != null && <span>Carbs: <strong>{recipe.carbs_grams}g</strong></span>}
@@ -122,7 +116,7 @@ const RecipeDetailSheet = ({ recipe, onClose }: RecipeDetailSheetProps) => {
               <ul className="space-y-2">
                 {parseIngredients(recipe.ingredients).map((ingredient, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-foreground">
-                    <span className="w-1.5 h-1.5 rounded-full bg-apollo-gold mt-1.5 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
                     {ingredient}
                   </li>
                 ))}

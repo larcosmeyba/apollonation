@@ -73,7 +73,7 @@ const DashboardRecipes = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-heading text-3xl md:text-4xl mb-2">
-            Nutrition <span className="text-apollo-gold">Recipes</span>
+            Nutrition <span className="text-primary">Recipes</span>
           </h1>
           <p className="text-muted-foreground">
             {recipes.length} healthy, delicious meals designed to fuel your fitness goals
@@ -121,7 +121,7 @@ const DashboardRecipes = () => {
                   tabIndex={0}
                   onClick={() => setSelectedRecipe(recipe)}
                   onKeyDown={(e) => e.key === "Enter" && setSelectedRecipe(recipe)}
-                  className="card-apollo group overflow-hidden hover:border-apollo-gold/50 transition-all cursor-pointer select-none"
+                  className="card-apollo group overflow-hidden hover:border-primary/50 transition-all cursor-pointer select-none"
                 >
                   {/* Thumbnail */}
                   <div className="relative aspect-video overflow-hidden bg-muted">
@@ -150,7 +150,7 @@ const DashboardRecipes = () => {
                       <Heart
                         className={`w-4 h-4 ${
                           favorites.includes(recipe.id)
-                            ? "fill-apollo-gold text-apollo-gold"
+                            ? "fill-primary text-primary"
                             : "text-white"
                         }`}
                       />
@@ -182,7 +182,7 @@ const DashboardRecipes = () => {
                   {/* Content */}
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-apollo-gold uppercase tracking-wide">
+                      <span className="text-xs text-primary uppercase tracking-wide">
                         {recipe.category || "Recipe"}
                       </span>
                     </div>

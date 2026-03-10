@@ -43,13 +43,13 @@ const CalendarWeekView = ({
             <div
               key={date.toISOString()}
               className={`min-h-[140px] rounded-lg border p-2 transition-all ${
-                today ? "border-apollo-gold/50 bg-apollo-gold/5" : "border-border bg-card"
-              } ${hasDraggedDay ? "hover:border-apollo-gold/50 hover:bg-apollo-gold/5" : ""}`}
+                today ? "border-primary/50 bg-primary/5" : "border-border bg-card"
+              } ${hasDraggedDay ? "hover:border-primary/50 hover:bg-primary/5" : ""}`}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(date)}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className={`text-sm font-medium ${today ? "text-apollo-gold" : ""}`}>
+                <span className={`text-sm font-medium ${today ? "text-primary" : ""}`}>
                   {format(date, "d")}
                 </span>
                 {completed && (
@@ -63,10 +63,10 @@ const CalendarWeekView = ({
                 <div
                   draggable
                   onDragStart={() => onDragStart(workout, date)}
-                  className="mb-1.5 p-1.5 rounded bg-apollo-gold/10 border border-apollo-gold/20 cursor-grab active:cursor-grabbing"
+                  className="mb-1.5 p-1.5 rounded bg-primary/10 border border-primary/20 cursor-grab active:cursor-grabbing"
                 >
                   <div className="flex items-center gap-1">
-                    <Dumbbell className="w-3 h-3 text-apollo-gold flex-shrink-0" />
+                    <Dumbbell className="w-3 h-3 text-primary flex-shrink-0" />
                     <span className="text-[11px] font-medium truncate">
                       {workout.focus || workout.day_label || `Day ${workout.day_number}`}
                     </span>
@@ -105,18 +105,18 @@ const CalendarWeekView = ({
             <div
               key={date.toISOString()}
               className={`rounded-lg border p-3 transition-all ${
-                today ? "border-apollo-gold/50 bg-apollo-gold/5" : "border-border bg-card"
+                today ? "border-primary/50 bg-primary/5" : "border-border bg-card"
               }`}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(date)}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className={`text-sm font-semibold ${today ? "text-apollo-gold" : ""}`}>
+                  <span className={`text-sm font-semibold ${today ? "text-primary" : ""}`}>
                     {format(date, "EEE, MMM d")}
                   </span>
                   {today && (
-                    <Badge variant="outline" className="text-[10px] border-apollo-gold/40 text-apollo-gold px-1.5 py-0">
+                    <Badge variant="outline" className="text-[10px] border-primary/40 text-primary px-1.5 py-0">
                       Today
                     </Badge>
                   )}
@@ -133,9 +133,9 @@ const CalendarWeekView = ({
                   <div
                     draggable
                     onDragStart={() => onDragStart(workout, date)}
-                    className="flex items-center gap-2 p-2 rounded bg-apollo-gold/10 border border-apollo-gold/20 cursor-grab active:cursor-grabbing flex-1 min-w-0"
+                    className="flex items-center gap-2 p-2 rounded bg-primary/10 border border-primary/20 cursor-grab active:cursor-grabbing flex-1 min-w-0"
                   >
-                    <Dumbbell className="w-4 h-4 text-apollo-gold flex-shrink-0" />
+                    <Dumbbell className="w-4 h-4 text-primary flex-shrink-0" />
                     <div className="min-w-0">
                       <span className="text-xs font-medium block truncate">
                         {workout.focus || workout.day_label || `Day ${workout.day_number}`}

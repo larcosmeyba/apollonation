@@ -58,7 +58,7 @@ const ExerciseVideoButton = ({ exerciseName }: ExerciseVideoButtonProps) => {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden group border border-border/50 hover:border-apollo-gold/50 transition-colors"
+        className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden group border border-border/50 hover:border-primary/50 transition-colors"
         title={`Watch: ${exerciseName}`}
       >
         {thumbnail ? (
@@ -74,7 +74,7 @@ const ExerciseVideoButton = ({ exerciseName }: ExerciseVideoButtonProps) => {
           </div>
         )}
         <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="w-6 h-6 rounded-full bg-apollo-gold flex items-center justify-center">
+          <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
             <Play className="w-3 h-3 text-primary-foreground ml-0.5" fill="currentColor" />
           </div>
         </div>

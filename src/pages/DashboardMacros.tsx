@@ -190,11 +190,11 @@ const DashboardMacros = () => {
     return (
       <DashboardLayout>
         <div className="max-w-2xl mx-auto text-center py-12">
-          <div className="w-20 h-20 rounded-full bg-apollo-gold/10 flex items-center justify-center mx-auto mb-6">
-            <Camera className="w-10 h-10 text-apollo-gold" />
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+            <Camera className="w-10 h-10 text-primary" />
           </div>
           <h1 className="font-heading text-3xl mb-4">
-            AI Macro <span className="text-apollo-gold">Tracker</span>
+            AI Macro <span className="text-primary">Tracker</span>
           </h1>
           <p className="text-muted-foreground mb-8">
             Snap a photo of your meal and let AI estimate your macros instantly. This feature is exclusive to Elite members.
@@ -211,7 +211,7 @@ const DashboardMacros = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="font-heading text-3xl md:text-4xl mb-2">
-              Macro <span className="text-apollo-gold">Tracker</span>
+              Macro <span className="text-primary">Tracker</span>
             </h1>
             <p className="text-muted-foreground">Track your daily nutrition — data is saved automatically</p>
           </div>
@@ -243,7 +243,7 @@ const DashboardMacros = () => {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-apollo-gold/50 transition-colors">
+                    <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 transition-colors">
                       <Upload className="w-10 h-10 text-muted-foreground mb-3" />
                       <span className="text-muted-foreground text-sm">Click to upload or drag a photo</span>
                       <input type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
@@ -274,7 +274,7 @@ const DashboardMacros = () => {
           <h2 className="font-heading text-base mb-3 text-muted-foreground uppercase tracking-wider text-xs">Remaining Today</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className={`text-3xl font-heading ${remaining.calories === 0 ? "text-green-400" : "text-apollo-gold"}`}>{remaining.calories}</p>
+              <p className={`text-3xl font-heading ${remaining.calories === 0 ? "text-green-400" : "text-primary"}`}>{remaining.calories}</p>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Calories</p>
             </div>
             <div className="text-center">
@@ -293,7 +293,7 @@ const DashboardMacros = () => {
           {/* Progress bars */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
             {[
-              { label: "Cal", current: totals.calories, target: targets.calories, color: "bg-apollo-gold" },
+              { label: "Cal", current: totals.calories, target: targets.calories, color: "bg-primary" },
               { label: "Protein", current: totals.protein, target: targets.protein, color: "bg-blue-400" },
               { label: "Carbs", current: totals.carbs, target: targets.carbs, color: "bg-amber-400" },
               { label: "Fat", current: totals.fat, target: targets.fat, color: "bg-rose-400" },
@@ -311,7 +311,7 @@ const DashboardMacros = () => {
         {/* Consumed totals */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="card-apollo p-4 text-center">
-            <p className="text-3xl font-heading text-apollo-gold">{totals.calories}</p>
+            <p className="text-3xl font-heading text-primary">{totals.calories}</p>
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Consumed</p>
           </div>
           <div className="card-apollo p-4 text-center">
@@ -345,7 +345,7 @@ const DashboardMacros = () => {
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-medium truncate">{entry.meal_name}</h3>
                     {entry.ai_estimated && (
-                      <span className="flex items-center gap-1 text-xs text-apollo-gold">
+                      <span className="flex items-center gap-1 text-xs text-primary">
                         <Sparkles className="w-3 h-3" /> AI
                       </span>
                     )}

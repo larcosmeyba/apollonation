@@ -13,7 +13,7 @@ const PrivacyPolicy = () => {
       <Navbar />
       <main className="container mx-auto px-4 py-24 max-w-4xl">
         <h1 className="font-heading text-4xl md:text-5xl mb-8">
-          Privacy <span className="text-apollo-gold">Policy</span>
+          Privacy <span className="text-primary">Policy</span>
         </h1>
         
         <div className="prose prose-invert max-w-none space-y-6 text-muted-foreground">

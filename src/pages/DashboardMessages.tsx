@@ -17,7 +17,7 @@ const DashboardMessages = () => {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-apollo-gold border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -28,8 +28,8 @@ const DashboardMessages = () => {
       <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
         {/* Coach name header */}
         <div className="flex items-center gap-3 p-4 border-b border-border bg-card/95 backdrop-blur-lg flex-shrink-0">
-          <div className="w-9 h-9 rounded-full bg-apollo-gold/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-sm font-medium text-apollo-gold">M</span>
+          <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+            <span className="text-sm font-medium text-primary">M</span>
           </div>
           <div>
             <p className="font-heading text-sm tracking-wide">Marcos Leyba</p>
@@ -91,7 +91,7 @@ const AdminInbox = () => {
           >
             <div className="p-4 border-b border-border">
               <h1 className="font-heading text-xl flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-apollo-gold" />
+                <MessageSquare className="w-5 h-5 text-primary" />
                 Messages
               </h1>
             </div>
@@ -120,11 +120,11 @@ const AdminInbox = () => {
                       key={conv.partnerId}
                       onClick={() => handleSelectChat(conv.partnerId)}
                       className={`w-full text-left flex items-center gap-3 p-4 transition-all hover:bg-muted/50 ${
-                        isSelected ? "bg-apollo-gold/10 border-l-2 border-apollo-gold" : ""
-                      } ${isUnread ? "bg-apollo-gold/5" : ""}`}
+                        isSelected ? "bg-primary/10 border-l-2 border-primary" : ""
+                      } ${isUnread ? "bg-primary/5" : ""}`}
                     >
-                      <div className="w-10 h-10 rounded-full bg-apollo-gold/20 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-medium text-apollo-gold">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-medium text-primary">
                           {name.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -145,7 +145,7 @@ const AdminInbox = () => {
                         </p>
                       </div>
                       {isUnread && (
-                        <span className="w-2.5 h-2.5 rounded-full bg-apollo-gold flex-shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0" />
                       )}
                     </button>
                   );
