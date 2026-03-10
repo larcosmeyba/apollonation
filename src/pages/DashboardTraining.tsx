@@ -9,6 +9,8 @@ import {
   Dumbbell, ChevronRight, Clock, Check, Target,
   ChevronLeft, Plus, Flame, Calendar, Play,
 } from "lucide-react";
+import TrainingScheduleAdjust from "@/components/dashboard/TrainingScheduleAdjust";
+import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
 import { Link } from "react-router-dom";
 import {
   format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday,
