@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
-import { Menu, X, LayoutDashboard, Dumbbell, Utensils, Camera, User, LogOut, Lock, Shield, MessageSquare, Apple, ClipboardList, Calendar } from "lucide-react";
+import { Menu, User, LogOut, Lock, Shield, Dumbbell, MessageSquare, Apple, Play, Camera, Calendar, BookOpen, LayoutDashboard } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,26 +17,26 @@ const DashboardMobileNav = () => {
   const isElite = profile?.subscription_tier === "elite";
 
   const navItems = [
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, locked: false },
-    { label: "Workouts", href: "/dashboard/workouts", icon: Dumbbell, locked: false },
-    { label: "Recipes", href: "/dashboard/recipes", icon: Utensils, locked: false },
-    { label: "Training Program", href: "/dashboard/training", icon: ClipboardList, locked: false },
-    { label: "Nutrition Plan", href: "/dashboard/nutrition", icon: Apple, locked: false },
+    { label: "Today", href: "/dashboard", icon: LayoutDashboard, locked: false },
+    { label: "Train", href: "/dashboard/training", icon: Dumbbell, locked: false },
+    { label: "Inbox", href: "/dashboard/messages", icon: MessageSquare, locked: false, badge: unreadCount > 0 ? unreadCount : undefined },
+    { label: "Nutrition", href: "/dashboard/nutrition", icon: Apple, locked: false },
+    { label: "On Demand", href: "/dashboard/workouts", icon: Play, locked: false },
     { label: "Calendar", href: "/dashboard/calendar", icon: Calendar, locked: false },
+    { label: "Recipes", href: "/dashboard/recipes", icon: BookOpen, locked: false },
     { label: "Macro Tracker", href: "/dashboard/macros", icon: Camera, locked: !isElite, tier: "Elite" },
-    { label: "Messages", href: "/dashboard/messages", icon: MessageSquare, locked: false, badge: unreadCount > 0 ? unreadCount : undefined },
     { label: "Profile", href: "/dashboard/profile", icon: User, locked: false },
   ];
 
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <header className="bg-apollo-charcoal-light border-b border-border p-4">
+    <header className="bg-[hsl(var(--apollo-charcoal-light))] border-b border-border p-4">
       <div className="flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <img src={apolloLogo} alt="Apollo Nation" className="w-8 h-8 invert" />
           <span className="font-heading text-sm tracking-wider">
-            APOLLO <span className="text-apollo-gold">NATION</span>
+            APOLLO <span className="text-primary">NATION</span>
           </span>
         </Link>
 
@@ -46,16 +46,16 @@ const DashboardMobileNav = () => {
               <Menu className="w-6 h-6" />
             </button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-72 bg-apollo-charcoal-light border-border">
+          <SheetContent side="right" className="w-72 bg-[hsl(var(--apollo-charcoal-light))] border-border">
             {/* User info */}
             <div className="py-6 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-apollo-gold/20 flex items-center justify-center">
-                  <User className="w-5 h-5 text-apollo-gold" />
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <User className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">{profile?.display_name || "Member"}</p>
-                  <p className="text-xs text-apollo-gold uppercase">{profile?.subscription_tier || "Basic"}</p>
+                  <p className="text-xs text-primary uppercase">{profile?.subscription_tier || "Basic"}</p>
                 </div>
               </div>
             </div>
@@ -75,7 +75,7 @@ const DashboardMobileNav = () => {
                   }}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     isActive(item.href)
-                      ? "bg-apollo-gold/20 text-apollo-gold"
+                      ? "bg-primary/20 text-primary"
                       : item.locked
                       ? "text-muted-foreground/50"
                       : "text-muted-foreground hover:bg-muted"
@@ -84,7 +84,7 @@ const DashboardMobileNav = () => {
                   <item.icon className="w-5 h-5" />
                   <span className="flex-1">{item.label}</span>
                   {(item as any).badge && (
-                    <span className="bg-apollo-gold text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                    <span className="bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
                       {(item as any).badge}
                     </span>
                   )}
@@ -97,10 +97,10 @@ const DashboardMobileNav = () => {
                 <Link
                   to="/admin"
                   onClick={() => setOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all mt-4 border border-apollo-gold/30 ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all mt-4 border border-primary/30 ${
                     location.pathname === "/admin"
-                      ? "bg-apollo-gold/20 text-apollo-gold"
-                      : "text-apollo-gold hover:bg-apollo-gold/10"
+                      ? "bg-primary/20 text-primary"
+                      : "text-primary hover:bg-primary/10"
                   }`}
                 >
                   <Shield className="w-5 h-5" />

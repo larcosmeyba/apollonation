@@ -1,13 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, ClipboardList, MessageSquare, Play, User } from "lucide-react";
+import { LayoutDashboard, Dumbbell, MessageSquare, Apple, Play } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 
 const tabs = [
   { label: "Today", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Coaching", href: "/dashboard/training", icon: ClipboardList },
+  { label: "Train", href: "/dashboard/training", icon: Dumbbell },
   { label: "Inbox", href: "/dashboard/messages", icon: MessageSquare },
-  { label: "Programs", href: "/dashboard/workouts", icon: Play },
-  { label: "You", href: "/dashboard/profile", icon: User },
+  { label: "Nutrition", href: "/dashboard/nutrition", icon: Apple },
+  { label: "On Demand", href: "/dashboard/workouts", icon: Play },
 ];
 
 const DashboardBottomTabs = () => {
