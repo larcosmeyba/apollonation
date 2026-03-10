@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import apolloLogo from "@/assets/apollo-logo.png";
-import heroImage from "@/assets/marcos-3.jpg";
+import heroImage from "@/assets/marcos-1.jpg";
 
 const Auth = () => {
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
