@@ -15,17 +15,17 @@ const MessageInboxPreview = () => {
     <div className="card-apollo p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-apollo-gold" />
+          <MessageSquare className="w-5 h-5 text-primary" />
           <h2 className="font-heading text-lg">Messages</h2>
           {unreadCount > 0 && (
-            <span className="bg-apollo-gold text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className="bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
               {unreadCount}
             </span>
           )}
         </div>
         <Link
           to="/dashboard/messages"
-          className="text-sm text-apollo-gold hover:underline flex items-center gap-1"
+          className="text-sm text-primary hover:underline flex items-center gap-1"
         >
           View All <ChevronRight className="w-4 h-4" />
         </Link>
@@ -47,11 +47,11 @@ const MessageInboxPreview = () => {
                 key={conv.partnerId}
                 to={`/dashboard/messages?chat=${conv.partnerId}`}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-muted/50 ${
-                  isUnread ? "bg-apollo-gold/5 border border-apollo-gold/20" : ""
+                  isUnread ? "bg-primary/5 border border-primary/20" : ""
                 }`}
               >
-                <div className="w-9 h-9 rounded-full bg-apollo-gold/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-medium text-apollo-gold">
+                <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-medium text-primary">
                     {name.charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -71,7 +71,7 @@ const MessageInboxPreview = () => {
                   </p>
                 </div>
                 {isUnread && (
-                  <span className="w-2 h-2 rounded-full bg-apollo-gold flex-shrink-0" />
+                  <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
                 )}
               </Link>
             );

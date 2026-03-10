@@ -96,8 +96,8 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
               <ArrowLeft className="w-5 h-5" />
             </button>
           )}
-          <div className="w-9 h-9 rounded-full bg-apollo-gold/20 flex items-center justify-center">
-            <span className="text-sm font-medium text-apollo-gold">
+          <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center">
+            <span className="text-sm font-medium text-primary">
               {partnerName.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -126,7 +126,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
                 <div
                   className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
                     isMine
-                      ? "bg-apollo-gold text-primary-foreground rounded-br-sm"
+                      ? "bg-primary text-primary-foreground rounded-br-sm"
                       : "bg-muted rounded-bl-sm"
                   }`}
                 >
