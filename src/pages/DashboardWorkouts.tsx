@@ -232,14 +232,20 @@ const DashboardWorkouts = () => {
             <p className="text-muted-foreground animate-pulse">Loading...</p>
           </div>
         ) : searchQuery || selectedCategory !== "All" ? (
-          /* Filtered grid view */
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredWorkouts.map((w) => (
-              <WorkoutCard key={w.id} workout={w} size="sm" />
-            ))}
-            {filteredWorkouts.length === 0 && (
-              <div className="col-span-full text-center py-12">
+          /* Filtered — horizontal scroll */
+          <div className="space-y-3">
+            <h2 className="font-heading text-lg tracking-wide">
+              {selectedCategory !== "All" ? selectedCategory : "Results"}
+            </h2>
+            {filteredWorkouts.length === 0 ? (
+              <div className="text-center py-12">
                 <p className="text-muted-foreground">No workouts found.</p>
+              </div>
+            ) : (
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                {filteredWorkouts.map((w) => (
+                  <WorkoutCard key={w.id} workout={w} size="md" />
+                ))}
               </div>
             )}
           </div>

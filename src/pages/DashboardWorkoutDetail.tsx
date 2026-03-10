@@ -615,7 +615,7 @@ const DashboardWorkoutDetail = () => {
               onSwap={() => handleSwapExercise(ex)}
             />
           ))}
-        </div>
+        </div>}
 
         {/* Finish Workout Button */}
         {totalExercises > 0 && !sessionLog?.completed_at && (
