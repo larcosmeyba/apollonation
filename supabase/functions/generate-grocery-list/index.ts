@@ -167,6 +167,18 @@ Consolidate duplicates, group by aisle, estimate prices. Respond with ONLY valid
       throw new Error("Failed to parse grocery list from AI response");
     }
 
+    // Sanitize numeric fields to prevent client-side .toFixed() errors
+    if (groceryData.categories) {
+      for (const cat of groceryData.categories) {
+        if (cat.items) {
+          for (const item of cat.items) {
+            item.estimated_price = typeof item.estimated_price === "number" ? item.estimated_price : 0;
+          }
+        }
+      }
+    }
+    groceryData.estimated_total = typeof groceryData.estimated_total === "number" ? groceryData.estimated_total : 0;
+
     return new Response(JSON.stringify({ success: true, groceryList: groceryData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

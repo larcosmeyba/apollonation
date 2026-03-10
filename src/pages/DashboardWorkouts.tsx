@@ -13,15 +13,30 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type Workout = Tables<"workouts">;
 
+const getYouTubeVideoId = (url: string): string | null => {
+  try {
+    const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+    if (shortMatch) return shortMatch[1];
+    const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+    if (watchMatch) return watchMatch[1];
+    const shortsMatch = url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
+    if (shortsMatch) return shortsMatch[1];
+    const embedMatch = url.match(/\/embed\/([a-zA-Z0-9_-]+)/);
+    if (embedMatch) return embedMatch[1];
+    return null;
+  } catch { return null; }
+};
+
 const getYouTubeEmbedUrl = (url: string): string => {
-  if (url.includes("/embed/")) return url;
-  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-  if (shortMatch) return `https://www.youtube-nocookie.com/embed/${shortMatch[1]}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1`;
-  const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
-  if (watchMatch) return `https://www.youtube-nocookie.com/embed/${watchMatch[1]}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1`;
-  const shortsMatch = url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
-  if (shortsMatch) return `https://www.youtube-nocookie.com/embed/${shortsMatch[1]}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1`;
+  const videoId = getYouTubeVideoId(url);
+  if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1`;
   return url;
+};
+
+const getYouTubeThumbnail = (url: string): string | null => {
+  const videoId = getYouTubeVideoId(url);
+  if (videoId) return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  return null;
 };
 
 const CATEGORIES = ["All", "Strength", "HIIT", "Flexibility", "Recovery"];
@@ -85,8 +100,16 @@ const DashboardWorkouts = () => {
   const recentWorkouts = workouts.filter((w) => recentlyWatched.includes(w.id)).slice(0, 6);
   const categoryWorkouts = (cat: string) => workouts.filter((w) => w.category.toLowerCase() === cat.toLowerCase()).slice(0, 8);
 
+  // Get thumbnail: prefer DB thumbnail, fallback to YouTube auto-thumbnail
+  const getWorkoutThumbnail = (workout: Workout): string | null => {
+    if (workout.thumbnail_url) return workout.thumbnail_url;
+    if (workout.video_url) return getYouTubeThumbnail(workout.video_url);
+    return null;
+  };
+
   const WorkoutCard = ({ workout, size = "md" }: { workout: Workout; size?: "sm" | "md" | "lg" }) => {
     const isLg = size === "lg";
+    const thumb = getWorkoutThumbnail(workout);
     return (
       <button
         onClick={() => setSelectedWorkout(workout)}
@@ -95,9 +118,9 @@ const DashboardWorkouts = () => {
         }`}
       >
         <div className={`relative overflow-hidden ${isLg ? "aspect-[16/7]" : "aspect-video"}`}>
-          {workout.thumbnail_url ? (
+          {thumb ? (
             <img
-              src={workout.thumbnail_url}
+              src={thumb}
               alt={workout.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               loading="lazy"
@@ -259,9 +282,9 @@ const DashboardWorkouts = () => {
                     allowFullScreen
                   />
                 </div>
-              ) : selectedWorkout.thumbnail_url ? (
+              ) : getWorkoutThumbnail(selectedWorkout) ? (
                 <div className="relative aspect-video w-full overflow-hidden">
-                  <img src={selectedWorkout.thumbnail_url} alt={selectedWorkout.title} className="w-full h-full object-cover" />
+                  <img src={getWorkoutThumbnail(selectedWorkout)!} alt={selectedWorkout.title} className="w-full h-full object-cover" />
                 </div>
               ) : null}
 
