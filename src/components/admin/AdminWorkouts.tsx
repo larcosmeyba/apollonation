@@ -212,8 +212,8 @@ const AdminWorkouts = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="font-heading text-xl">On-Demand Workouts</h2>
-          <p className="text-sm text-muted-foreground">15-minute YouTube-style workout videos</p>
+          <h2 className="font-heading text-xl">On-Demand Classes</h2>
+          <p className="text-sm text-muted-foreground">Video classes and workout content</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); else setIsDialogOpen(true); }}>
           <DialogTrigger asChild>
