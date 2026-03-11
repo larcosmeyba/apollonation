@@ -29,7 +29,7 @@ import {
   Pencil,
 } from "lucide-react";
 import MarketingCarousel from "./marketing/MarketingCarousel";
-import MarketingStockImages from "./marketing/MarketingStockImages";
+import MarketingAIImages from "./marketing/MarketingAIImages";
 import MarketingQuickEdit from "./marketing/MarketingQuickEdit";
 
 interface MarketingPhoto {
