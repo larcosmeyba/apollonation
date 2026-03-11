@@ -791,6 +791,7 @@ export type Database = {
       }
       slideshow_slides: {
         Row: {
+          block_label: string | null
           coaching_cue: string | null
           created_at: string
           exercise_name: string | null
@@ -806,6 +807,7 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          block_label?: string | null
           coaching_cue?: string | null
           created_at?: string
           exercise_name?: string | null
@@ -821,6 +823,7 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          block_label?: string | null
           coaching_cue?: string | null
           created_at?: string
           exercise_name?: string | null
