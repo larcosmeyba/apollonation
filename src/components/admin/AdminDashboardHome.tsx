@@ -147,7 +147,7 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
       {/* Page title */}
       <div>
         <h1 className="font-heading text-2xl tracking-wider">DASHBOARD</h1>
-        <p className="text-sm text-muted-foreground mt-1">Welcome back, {profile?.display_name || "Coach"}</p>
+        <p className="text-sm text-muted-foreground mt-1">Welcome back</p>
       </div>
 
       {/* ─── SECTION 1: ALERTS ─── */}
