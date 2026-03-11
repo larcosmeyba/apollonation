@@ -43,7 +43,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-apollo-charcoal-light border-r border-border min-h-screen flex-col">
+      <aside className="hidden xl:flex w-64 bg-apollo-charcoal-light border-r border-border min-h-screen flex-col">
         {/* Logo */}
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-3">
