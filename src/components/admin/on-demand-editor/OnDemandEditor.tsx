@@ -26,6 +26,7 @@ const OnDemandEditor = () => {
   const [uploading, setUploading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [activeTab, setActiveTab] = useState("build");
+  const { recording, progress: recordProgress, download } = useWorkoutDownload();
 
   // Project state
   const [project, setProject] = useState<WorkoutProject>({
