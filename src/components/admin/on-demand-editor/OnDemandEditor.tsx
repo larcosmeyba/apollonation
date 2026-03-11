@@ -17,6 +17,8 @@ import {
   TEMPLATES, MUSIC_LIBRARY,
 } from "./types";
 import WorkoutPreview from "./WorkoutPreview";
+import { useWorkoutDownload } from "./useWorkoutDownload";
+import { Progress } from "@/components/ui/progress";
 
 const OnDemandEditor = () => {
   const { toast } = useToast();
