@@ -139,7 +139,31 @@ const AdminGroupCoaching = () => {
         .single();
       if (showErr) throw showErr;
 
-      if (data.exercises?.length) {
+      // Handle block-based response
+      if (data.blocks?.length) {
+        let slideNum = 0;
+        const newSlides: any[] = [];
+        data.blocks.forEach((block: any) => {
+          (block.exercises || []).forEach((ex: any) => {
+            slideNum++;
+            newSlides.push({
+              slideshow_id: newShow.id,
+              slide_number: slideNum,
+              slide_type: "exercise",
+              exercise_name: ex.exercise_name,
+              sets: ex.sets,
+              reps: ex.reps,
+              rest_seconds: ex.rest_seconds,
+              coaching_cue: ex.coaching_cue,
+              block_label: block.block_label || `Block ${data.blocks.indexOf(block) + 1}`,
+            });
+          });
+        });
+        if (newSlides.length > 0) {
+          await supabase.from("slideshow_slides").insert(newSlides);
+        }
+      } else if (data.exercises?.length) {
+        // Fallback for old format
         const newSlides = data.exercises.map((ex: any, i: number) => ({
           slideshow_id: newShow.id,
           slide_number: i + 1,
@@ -149,6 +173,7 @@ const AdminGroupCoaching = () => {
           reps: ex.reps,
           rest_seconds: ex.rest_seconds,
           coaching_cue: ex.coaching_cue,
+          block_label: "Block 1",
         }));
         await supabase.from("slideshow_slides").insert(newSlides);
       }
