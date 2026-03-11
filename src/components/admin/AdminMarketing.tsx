@@ -24,7 +24,13 @@ import {
   ImagePlus,
   LayoutGrid,
   Eye,
+  Layers,
+  Search,
+  Pencil,
 } from "lucide-react";
+import MarketingCarousel from "./marketing/MarketingCarousel";
+import MarketingStockImages from "./marketing/MarketingStockImages";
+import MarketingQuickEdit from "./marketing/MarketingQuickEdit";
 
 interface MarketingPhoto {
   id: string;
@@ -613,9 +619,18 @@ const AdminMarketing = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="create" className="gap-2">
             <Sparkles className="w-4 h-4" /> Create
+          </TabsTrigger>
+          <TabsTrigger value="carousel" className="gap-2">
+            <Layers className="w-4 h-4" /> Carousel
+          </TabsTrigger>
+          <TabsTrigger value="quick-edit" className="gap-2">
+            <Pencil className="w-4 h-4" /> Quick Edit
+          </TabsTrigger>
+          <TabsTrigger value="stock" className="gap-2">
+            <Search className="w-4 h-4" /> Stock Images
           </TabsTrigger>
           <TabsTrigger value="library" className="gap-2">
             <LayoutGrid className="w-4 h-4" /> Photo Library
@@ -829,6 +844,21 @@ const AdminMarketing = () => {
               </Card>
             </div>
           </div>
+        </TabsContent>
+
+        {/* ─── CAROUSEL TAB ─── */}
+        <TabsContent value="carousel" className="mt-4">
+          <MarketingCarousel />
+        </TabsContent>
+
+        {/* ─── QUICK EDIT TAB ─── */}
+        <TabsContent value="quick-edit" className="mt-4">
+          <MarketingQuickEdit />
+        </TabsContent>
+
+        {/* ─── STOCK IMAGES TAB ─── */}
+        <TabsContent value="stock" className="mt-4">
+          <MarketingStockImages />
         </TabsContent>
 
         {/* ─── PHOTO LIBRARY TAB ─── */}
