@@ -619,9 +619,18 @@ const AdminMarketing = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="create" className="gap-2">
             <Sparkles className="w-4 h-4" /> Create
+          </TabsTrigger>
+          <TabsTrigger value="carousel" className="gap-2">
+            <Layers className="w-4 h-4" /> Carousel
+          </TabsTrigger>
+          <TabsTrigger value="quick-edit" className="gap-2">
+            <Pencil className="w-4 h-4" /> Quick Edit
+          </TabsTrigger>
+          <TabsTrigger value="stock" className="gap-2">
+            <Search className="w-4 h-4" /> Stock Images
           </TabsTrigger>
           <TabsTrigger value="library" className="gap-2">
             <LayoutGrid className="w-4 h-4" /> Photo Library
