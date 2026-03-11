@@ -43,6 +43,7 @@ const navItems = [
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "broadcast", label: "Broadcast", icon: Megaphone },
   { id: "workouts", label: "On-Demand Classes", icon: Dumbbell },
+  { id: "video-editor", label: "Video Builder", icon: Film },
   { id: "exercises", label: "Exercise Library", icon: Activity },
   { id: "recipes", label: "Recipes", icon: Utensils },
   { id: "group-coaching", label: "Group Coaching", icon: UsersRound },
