@@ -505,6 +505,95 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_photos: {
+        Row: {
+          category: string
+          created_at: string
+          file_name: string
+          file_path: string
+          id: string
+          tags: string[] | null
+          uploaded_by: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          id?: string
+          tags?: string[] | null
+          uploaded_by: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          tags?: string[] | null
+          uploaded_by?: string
+        }
+        Relationships: []
+      }
+      marketing_posts: {
+        Row: {
+          created_at: string
+          created_by: string
+          cta_text: string | null
+          generated_image_path: string | null
+          headline: string | null
+          height: number
+          id: string
+          platform: string
+          source_photo_id: string | null
+          status: string
+          subheadline: string | null
+          title: string
+          updated_at: string
+          width: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          cta_text?: string | null
+          generated_image_path?: string | null
+          headline?: string | null
+          height?: number
+          id?: string
+          platform?: string
+          source_photo_id?: string | null
+          status?: string
+          subheadline?: string | null
+          title?: string
+          updated_at?: string
+          width?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          cta_text?: string | null
+          generated_image_path?: string | null
+          headline?: string | null
+          height?: number
+          id?: string
+          platform?: string
+          source_photo_id?: string | null
+          status?: string
+          subheadline?: string | null
+          title?: string
+          updated_at?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_posts_source_photo_id_fkey"
+            columns: ["source_photo_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_photos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
