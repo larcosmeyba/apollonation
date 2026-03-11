@@ -530,82 +530,64 @@ const AdminExercises = () => {
         />
       </div>
 
-      <div className="card-apollo overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Exercise</TableHead>
-              <TableHead>Muscle Group</TableHead>
-              <TableHead>Equipment</TableHead>
-              <TableHead>Difficulty</TableHead>
-              <TableHead className="w-24">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : exercises?.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  No exercises yet. Add your first exercise!
-                </TableCell>
-              </TableRow>
-            ) : (
-              exercises
-                ?.filter((ex) => {
-                  if (!searchQuery.trim()) return true;
-                  const q = searchQuery.toLowerCase();
-                  return (
-                    ex.title.toLowerCase().includes(q) ||
-                    ex.muscle_group.toLowerCase().includes(q) ||
-                    (ex.equipment?.toLowerCase().includes(q) ?? false) ||
-                    (ex.difficulty?.toLowerCase().includes(q) ?? false)
-                  );
-                })
-                .map((exercise) => (
-                <TableRow key={exercise.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      {exercise.title}
-                      {exercise.video_url && (
-                        <button
-                          onClick={() => setVideoPreview({ title: exercise.title, url: exercise.video_url! })}
-                          className="text-muted-foreground hover:text-apollo-gold transition-colors"
-                          title="Watch video"
-                        >
-                          <Play className="w-3.5 h-3.5" />
-                        </button>
-                      )}
+      {/* Card Grid */}
+      {isLoading ? (
+        <p className="text-center py-8 text-muted-foreground">Loading...</p>
+      ) : exercises?.length === 0 ? (
+        <p className="text-center py-8 text-muted-foreground">No exercises yet. Add your first!</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {exercises
+            ?.filter((ex) => {
+              if (!searchQuery.trim()) return true;
+              const q = searchQuery.toLowerCase();
+              return (
+                ex.title.toLowerCase().includes(q) ||
+                ex.muscle_group.toLowerCase().includes(q) ||
+                (ex.equipment?.toLowerCase().includes(q) ?? false) ||
+                (ex.difficulty?.toLowerCase().includes(q) ?? false)
+              );
+            })
+            .map((exercise) => (
+              <div key={exercise.id} className="card-apollo overflow-hidden group">
+                <div className="aspect-video bg-muted relative">
+                  {exercise.thumbnail_url ? (
+                    <img src={exercise.thumbnail_url} alt={exercise.title} className="w-full h-full object-cover" />
+                  ) : exercise.video_url ? (
+                    <button
+                      onClick={() => setVideoPreview({ title: exercise.title, url: exercise.video_url! })}
+                      className="w-full h-full flex items-center justify-center hover:bg-muted/80 transition-colors"
+                    >
+                      <Play className="w-8 h-8 text-apollo-gold/50" />
+                    </button>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Image className="w-8 h-8 text-muted-foreground/30" />
                     </div>
-                  </TableCell>
-                  <TableCell className="capitalize">{exercise.muscle_group}</TableCell>
-                  <TableCell>{exercise.equipment || "None"}</TableCell>
-                  <TableCell className="capitalize">{exercise.difficulty}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => handleEdit(exercise)}>
-                        <Pencil className="w-4 h-4" />
+                  )}
+                  <span className="absolute top-2 left-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded capitalize">{exercise.muscle_group}</span>
+                </div>
+                <div className="p-3">
+                  <p className="font-medium text-sm truncate">{exercise.title}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{exercise.difficulty} · {exercise.equipment || "No equipment"}</p>
+                  <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {exercise.video_url && (
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setVideoPreview({ title: exercise.title, url: exercise.video_url! })}>
+                        <Play className="w-3.5 h-3.5 text-apollo-gold" />
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => deleteMutation.mutate(exercise.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                    )}
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(exercise)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteMutation.mutate(exercise.id)} disabled={deleteMutation.isPending}>
+                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
 
       {/* Video Preview Modal */}
       <Dialog open={!!videoPreview} onOpenChange={(open) => { if (!open) setVideoPreview(null); }}>
