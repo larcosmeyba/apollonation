@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import AdminDashboardHome from "@/components/admin/AdminDashboardHome";
 import AdminWorkouts from "@/components/admin/AdminWorkouts";
 import AdminRecipes from "@/components/admin/AdminRecipes";
 import AdminExercises from "@/components/admin/AdminExercises";
@@ -8,13 +9,15 @@ import AdminContactRequests from "@/components/admin/AdminContactRequests";
 import AdminBroadcast from "@/components/admin/AdminBroadcast";
 import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientList from "@/components/admin/AdminClientList";
-import AdminNotifications from "@/components/admin/AdminNotifications";
+import AdminGroupCoaching from "@/components/admin/AdminGroupCoaching";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("messages");
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   const renderContent = () => {
     switch (activeTab) {
+      case "dashboard":
+        return <AdminDashboardHome onNavigate={setActiveTab} />;
       case "messages":
         return <AdminMessages />;
       case "broadcast":
@@ -27,21 +30,20 @@ const AdminDashboard = () => {
         return <AdminExercises />;
       case "recipes":
         return <AdminRecipes />;
+      case "group-coaching":
+        return <AdminGroupCoaching />;
       case "contacts":
         return <AdminContactRequests />;
       case "profile":
         return <AdminCoachProfile />;
       default:
-        return <AdminMessages />;
+        return <AdminDashboardHome onNavigate={setActiveTab} />;
     }
   };
 
   return (
     <AdminLayout activeTab={activeTab} onTabChange={setActiveTab}>
-      <div className="max-w-6xl mx-auto">
-        <AdminNotifications onNavigate={setActiveTab} />
-        {renderContent()}
-      </div>
+      {renderContent()}
     </AdminLayout>
   );
 };
