@@ -4,10 +4,10 @@ const WarmUpSlide = () => {
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center bg-background overflow-hidden">
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-10"
+        className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(/images/marble-bg.jpeg)` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+      <div className="absolute inset-0 bg-background/70" />
 
       <img src={apolloLogo} alt="Apollo Nation" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
 

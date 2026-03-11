@@ -15,10 +15,10 @@ const ExerciseSlide = ({ exercise, slideNumber, totalSlides }: ExerciseSlideProp
     <div className="relative w-full h-full flex bg-background overflow-hidden">
       {/* Background — coach photo with heavy overlay */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-10"
+        className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(/images/marble-bg.jpeg)` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/70" />
+      <div className="absolute inset-0 bg-background/70" />
 
       {/* Apollo logo */}
       <img src={apolloLogo} alt="Apollo" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
