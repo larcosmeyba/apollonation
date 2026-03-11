@@ -20,6 +20,7 @@ import {
   ChevronDown,
   Settings,
   UsersRound,
+  Palette,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -45,6 +46,7 @@ const navItems = [
   { id: "exercises", label: "Exercise Library", icon: Activity },
   { id: "recipes", label: "Recipes", icon: Utensils },
   { id: "group-coaching", label: "Group Coaching", icon: UsersRound },
+  { id: "marketing", label: "Marketing", icon: Palette },
   { id: "contacts", label: "Contact Requests", icon: Inbox },
   { id: "profile", label: "Coach Profile", icon: User },
 ];
