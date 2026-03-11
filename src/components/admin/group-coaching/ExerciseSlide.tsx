@@ -21,7 +21,7 @@ const ExerciseSlide = ({ exercise, slideNumber, totalSlides }: ExerciseSlideProp
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/70" />
 
       {/* Apollo logo */}
-      <img src={apolloLogo} alt="Apollo" className="absolute top-6 right-6 w-10 h-10 opacity-60 object-contain z-20" />
+      <img src={apolloLogo} alt="Apollo" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
 
       {/* Slide counter */}
       <div className="absolute top-6 left-6 text-xs tracking-[0.2em] text-muted-foreground z-20">

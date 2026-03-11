@@ -17,7 +17,7 @@ const CoolDownSlide = ({ appUrl = "https://apollonation.lovable.app" }: CoolDown
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/80" />
 
       {/* Logo */}
-      <img src={apolloLogo} alt="Apollo Nation" className="absolute top-6 right-6 w-10 h-10 opacity-60 object-contain z-20" />
+      <img src={apolloLogo} alt="Apollo Nation" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
 
       {/* Content — split layout */}
       <div className="relative z-10 flex w-full h-full items-center">
