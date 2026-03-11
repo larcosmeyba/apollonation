@@ -388,6 +388,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
 
 // Training sub-component for drill-down
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ChevronRight } from "lucide-react";
 
 const TrainingSection = ({ userId, plans }: { userId: string; plans: any[] }) => {
   const { toast } = useToast();
