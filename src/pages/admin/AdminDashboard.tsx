@@ -8,6 +8,7 @@ import AdminContactRequests from "@/components/admin/AdminContactRequests";
 import AdminBroadcast from "@/components/admin/AdminBroadcast";
 import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientList from "@/components/admin/AdminClientList";
+import AdminNotifications from "@/components/admin/AdminNotifications";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("messages");
@@ -38,6 +39,7 @@ const AdminDashboard = () => {
   return (
     <AdminLayout activeTab={activeTab} onTabChange={setActiveTab}>
       <div className="max-w-6xl mx-auto">
+        <AdminNotifications onNavigate={setActiveTab} />
         {renderContent()}
       </div>
     </AdminLayout>

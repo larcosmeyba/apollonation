@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,11 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import apolloLogo from "@/assets/apollo-logo.png";
 import heroImage from "@/assets/marcos-1.jpg";
+import { Shield } from "lucide-react";
 
 const Auth = () => {
+  const [searchParams] = useSearchParams();
+  const isAdminMode = searchParams.get("role") === "admin";
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,6 +63,17 @@ const Auth = () => {
               .eq("user_id", userId)
               .eq("role", "admin")
               .maybeSingle();
+
+            if (isAdminMode) {
+              if (roleData) {
+                navigate("/admin");
+              } else {
+                toast({ title: "Access denied", description: "This account does not have admin privileges.", variant: "destructive" });
+                await supabase.auth.signOut();
+              }
+              return;
+            }
+
             if (roleData) {
               navigate("/admin");
               return;
@@ -68,6 +82,10 @@ const Auth = () => {
           navigate("/dashboard");
         }
       } else {
+        if (isAdminMode) {
+          toast({ title: "Not allowed", description: "Admin accounts cannot be created from the login page.", variant: "destructive" });
+          return;
+        }
         const { error } = await signUp(email, password, displayName);
         if (error) {
           toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
@@ -98,7 +116,9 @@ const Auth = () => {
             </span>
           </div>
           <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-sm">
-            Elite training programs, personalized coaching, and custom nutrition plans.
+            {isAdminMode
+              ? "Coach Panel — Manage your clients, programs, and content."
+              : "Elite training programs, personalized coaching, and custom nutrition plans."}
           </p>
         </div>
       </div>
@@ -114,19 +134,31 @@ const Auth = () => {
             </span>
           </div>
 
+          {/* Admin badge */}
+          {isAdminMode && (
+            <div className="flex items-center gap-2 mb-6 px-3 py-2 rounded-lg bg-apollo-gold/10 border border-apollo-gold/20">
+              <Shield className="w-4 h-4 text-apollo-gold" />
+              <span className="text-sm text-apollo-gold font-medium">Coach Panel Login</span>
+            </div>
+          )}
+
           <h2 className="font-heading text-3xl mb-2">
-            {mode === "login" ? "Sign In" : mode === "signup" ? "Create Account" : "Reset Password"}
+            {mode === "login"
+              ? isAdminMode ? "Coach Sign In" : "Sign In"
+              : mode === "signup"
+              ? "Create Account"
+              : "Reset Password"}
           </h2>
           <p className="text-muted-foreground text-sm mb-10">
             {mode === "login"
-              ? "Welcome back"
+              ? isAdminMode ? "Access the coach dashboard" : "Welcome back"
               : mode === "signup"
               ? "Start your transformation today"
               : "Enter your email to receive a reset link"}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {mode === "signup" && (
+            {mode === "signup" && !isAdminMode && (
               <div className="space-y-2">
                 <Label htmlFor="displayName" className="text-xs uppercase tracking-wider text-muted-foreground">Display Name</Label>
                 <Input
@@ -198,7 +230,7 @@ const Auth = () => {
             </Button>
           </form>
 
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-center space-y-3">
             {mode === "forgot" ? (
               <button
                 type="button"
@@ -207,7 +239,7 @@ const Auth = () => {
               >
                 Back to sign in
               </button>
-            ) : (
+            ) : !isAdminMode ? (
               <button
                 type="button"
                 onClick={() => setMode(mode === "login" ? "signup" : "login")}
@@ -217,7 +249,21 @@ const Auth = () => {
                   ? "Don't have an account? Sign up"
                   : "Already have an account? Sign in"}
               </button>
-            )}
+            ) : null}
+
+            {/* Toggle between admin/client login */}
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  const newUrl = isAdminMode ? "/auth" : "/auth?role=admin";
+                  navigate(newUrl, { replace: true });
+                }}
+                className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+              >
+                {isAdminMode ? "← Client login" : "Coach login →"}
+              </button>
+            </div>
           </div>
         </div>
       </div>

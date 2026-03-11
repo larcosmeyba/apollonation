@@ -623,74 +623,48 @@ const AdminRecipes = () => {
         </Dialog>
       </div>
 
-      {/* Recipe Table */}
-      <div className="card-apollo overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Calories</TableHead>
-              <TableHead>Protein</TableHead>
-              <TableHead>Tags</TableHead>
-              <TableHead className="w-24">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : recipes?.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  No recipes yet. Use AI or add one manually!
-                </TableCell>
-              </TableRow>
-            ) : (
-              recipes?.map((recipe) => (
-                <TableRow key={recipe.id}>
-                  <TableCell className="font-medium">{recipe.title}</TableCell>
-                  <TableCell className="capitalize">{recipe.category}</TableCell>
-                  <TableCell>{recipe.calories_per_serving} cal</TableCell>
-                  <TableCell>{recipe.protein_grams}g</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {recipe.dietary_tags?.slice(0, 2).map((tag) => (
-                        <span key={tag} className="text-xs bg-muted px-1.5 py-0.5 rounded capitalize">
-                          {tag}
-                        </span>
-                      ))}
-                      {(recipe.dietary_tags?.length || 0) > 2 && (
-                        <span className="text-xs text-muted-foreground">
-                          +{(recipe.dietary_tags?.length || 0) - 2}
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => handleEdit(recipe)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => deleteMutation.mutate(recipe.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      {/* Recipe Card Grid */}
+      {isLoading ? (
+        <p className="text-center py-8 text-muted-foreground">Loading...</p>
+      ) : recipes?.length === 0 ? (
+        <p className="text-center py-8 text-muted-foreground">No recipes yet. Use AI or add one manually!</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {recipes?.map((recipe) => (
+            <div key={recipe.id} className="card-apollo overflow-hidden group">
+              <div className="aspect-video bg-muted relative">
+                {recipe.thumbnail_url ? (
+                  <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-muted-foreground/30" />
+                  </div>
+                )}
+                {recipe.category && (
+                  <span className="absolute top-2 left-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded capitalize">{recipe.category}</span>
+                )}
+                {recipe.calories_per_serving && (
+                  <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{recipe.calories_per_serving} cal</span>
+                )}
+              </div>
+              <div className="p-3">
+                <p className="font-medium text-sm truncate">{recipe.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  {recipe.protein_grams || 0}g P · {recipe.carbs_grams || 0}g C · {recipe.fat_grams || 0}g F
+                </p>
+                <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(recipe)}>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteMutation.mutate(recipe.id)} disabled={deleteMutation.isPending}>
+                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

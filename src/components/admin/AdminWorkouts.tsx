@@ -212,8 +212,8 @@ const AdminWorkouts = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="font-heading text-xl">On-Demand Workouts</h2>
-          <p className="text-sm text-muted-foreground">15-minute YouTube-style workout videos</p>
+          <h2 className="font-heading text-xl">On-Demand Classes</h2>
+          <p className="text-sm text-muted-foreground">Video classes and workout content</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); else setIsDialogOpen(true); }}>
           <DialogTrigger asChild>
@@ -394,66 +394,47 @@ const AdminWorkouts = () => {
         </Dialog>
       </div>
 
-      <div className="card-apollo overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Featured</TableHead>
-              <TableHead className="w-32">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : workouts?.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  No workouts yet. Add your first workout!
-                </TableCell>
-              </TableRow>
-            ) : (
-              workouts?.map((workout) => (
-                <TableRow key={workout.id}>
-                  <TableCell className="font-medium">{workout.title}</TableCell>
-                  <TableCell className="capitalize">{workout.category}</TableCell>
-                  <TableCell>{workout.duration_minutes} min</TableCell>
-                  <TableCell>{workout.is_featured ? "⭐ Yes" : "No"}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        title="Link exercises"
-                        onClick={() => setLinkingWorkout(workout)}
-                      >
-                        <ListChecks className="w-4 h-4 text-primary" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleEdit(workout)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => deleteMutation.mutate(workout.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      {/* Card Grid */}
+      {isLoading ? (
+        <p className="text-center py-8 text-muted-foreground">Loading...</p>
+      ) : workouts?.length === 0 ? (
+        <p className="text-center py-8 text-muted-foreground">No classes yet. Add your first!</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {workouts?.map((workout) => (
+            <div key={workout.id} className="card-apollo overflow-hidden group">
+              <div className="aspect-video bg-muted relative">
+                {workout.thumbnail_url ? (
+                  <img src={workout.thumbnail_url} alt={workout.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Image className="w-8 h-8 text-muted-foreground/30" />
+                  </div>
+                )}
+                {workout.is_featured && (
+                  <span className="absolute top-2 left-2 text-[10px] font-medium bg-apollo-gold/90 text-primary-foreground px-1.5 py-0.5 rounded">⭐ Featured</span>
+                )}
+                <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{workout.duration_minutes} min</span>
+              </div>
+              <div className="p-3">
+                <p className="font-medium text-sm truncate">{workout.title}</p>
+                <p className="text-xs text-muted-foreground capitalize">{workout.category}</p>
+                <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button size="icon" variant="ghost" className="h-7 w-7" title="Link exercises" onClick={() => setLinkingWorkout(workout)}>
+                    <ListChecks className="w-3.5 h-3.5 text-primary" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(workout)}>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteMutation.mutate(workout.id)} disabled={deleteMutation.isPending}>
+                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

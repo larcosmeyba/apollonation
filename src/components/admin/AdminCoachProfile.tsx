@@ -1,20 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Save, User } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { Shield, Save, User, Camera, Loader2 } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const AdminCoachProfile = () => {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, user } = useAuth();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [fitnessGoals, setFitnessGoals] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -23,6 +26,49 @@ const AdminCoachProfile = () => {
       setFitnessGoals(profile.fitness_goals || "");
     }
   }, [profile]);
+
+  // Get signed avatar URL
+  const { data: avatarUrl, refetch: refetchAvatar } = useQuery({
+    queryKey: ["coach-avatar", profile?.avatar_url],
+    queryFn: async () => {
+      const url = profile?.avatar_url;
+      if (!url) return null;
+      if (url.startsWith("http")) return url;
+      const { data } = await supabase.storage.from("avatars").createSignedUrl(url, 3600);
+      return data?.signedUrl || null;
+    },
+    enabled: !!profile?.avatar_url,
+  });
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 5MB", variant: "destructive" });
+      return;
+    }
+    setIsUploading(true);
+    const ext = file.name.split(".").pop();
+    const fileName = `coach-${user.id}.${ext}`;
+    const { error } = await supabase.storage.from("avatars").upload(fileName, file, { contentType: file.type, upsert: true });
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      setIsUploading(false);
+      return;
+    }
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ avatar_url: fileName })
+      .eq("id", profile!.id);
+    if (updateError) {
+      toast({ title: "Error saving", description: updateError.message, variant: "destructive" });
+    } else {
+      toast({ title: "Profile photo updated!" });
+      refreshProfile();
+      refetchAvatar();
+    }
+    setIsUploading(false);
+  };
 
   const updateMutation = useMutation({
     mutationFn: async () => {
@@ -54,15 +100,28 @@ const AdminCoachProfile = () => {
           Coach Profile
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Manage your coach profile. This name appears when you message clients.
+          Your profile photo and bio are visible to clients in the chat.
         </p>
       </div>
 
       <div className="card-apollo p-6 space-y-5">
-        {/* Avatar placeholder */}
+        {/* Avatar with upload */}
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-apollo-gold/20 flex items-center justify-center">
-            <User className="w-8 h-8 text-apollo-gold" />
+          <div className="relative">
+            <Avatar className="h-20 w-20">
+              {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+              <AvatarFallback className="bg-apollo-gold/20 text-apollo-gold font-bold text-xl">
+                {(displayName || "C")[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-apollo-gold text-primary-foreground flex items-center justify-center hover:opacity-80 transition-opacity"
+            >
+              {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
+            </button>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
           </div>
           <div>
             <p className="font-heading text-lg">{profile?.display_name || "Coach"}</p>
@@ -93,7 +152,7 @@ const AdminCoachProfile = () => {
               rows={4}
               maxLength={500}
             />
-            <p className="text-xs text-muted-foreground">{bio.length}/500</p>
+            <p className="text-xs text-muted-foreground">{bio.length}/500 — Visible when clients tap your profile in chat</p>
           </div>
 
           <div className="space-y-2">
