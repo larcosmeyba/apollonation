@@ -194,6 +194,19 @@ const OnDemandEditor = () => {
         </div>
       )}
 
+      {recording && (
+        <div className="mb-6 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Recording workout…</span>
+            <span className="text-foreground font-medium">{Math.round(recordProgress)}%</span>
+          </div>
+          <Progress value={recordProgress} className="h-2" />
+          <p className="text-xs text-muted-foreground">
+            Playing through your workout and recording. This will take the full workout duration.
+          </p>
+        </div>
+      )}
+
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-4 w-full max-w-lg">
           <TabsTrigger value="build"><Film className="w-3.5 h-3.5 mr-1.5" />Build</TabsTrigger>
