@@ -27,6 +27,58 @@ const CATEGORIES = [
   { value: "mindset", label: "Mindset & Focus", icon: Brain, color: "text-cyan-500" },
 ];
 
+// Curated luxury stock images — no people, minimal, premium aesthetic
+const CURATED_IMAGES: Record<string, { url: string; alt: string }[]> = {
+  wellness: [
+    { url: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80&auto=format", alt: "Yoga mat and candle in serene setting" },
+    { url: "https://images.unsplash.com/photo-1600618528240-fb9fc964b853?w=800&q=80&auto=format", alt: "Spa stones stacked on marble" },
+    { url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80&auto=format", alt: "Essential oils and towels" },
+    { url: "https://images.unsplash.com/photo-1540555700478-4be289fbec6d?w=800&q=80&auto=format", alt: "Minimal wellness space" },
+    { url: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800&q=80&auto=format", alt: "Steam sauna detail" },
+    { url: "https://images.unsplash.com/photo-1552693673-1bf958298935?w=800&q=80&auto=format", alt: "Luxury bath products on marble" },
+  ],
+  recovery: [
+    { url: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=800&q=80&auto=format", alt: "Foam roller on dark floor" },
+    { url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80&auto=format", alt: "Ice bath tub in premium gym" },
+    { url: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800&q=80&auto=format", alt: "Massage gun on dark surface" },
+    { url: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80&auto=format", alt: "Stretching bands and equipment" },
+    { url: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&q=80&auto=format", alt: "Recovery tools flat lay" },
+    { url: "https://images.unsplash.com/photo-1519823551278-64ac92734314?w=800&q=80&auto=format", alt: "Minimalist recovery space" },
+  ],
+  nutrition: [
+    { url: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&q=80&auto=format", alt: "Clean meal prep bowls" },
+    { url: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80&auto=format", alt: "Colorful healthy salad on dark plate" },
+    { url: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800&q=80&auto=format", alt: "Fresh ingredients flat lay" },
+    { url: "https://images.unsplash.com/photo-1547592180-85f173990554?w=800&q=80&auto=format", alt: "Protein shake ingredients on marble" },
+    { url: "https://images.unsplash.com/photo-1505576399279-0d0b15740f0f?w=800&q=80&auto=format", alt: "Avocado toast on dark surface" },
+    { url: "https://images.unsplash.com/photo-1610348725531-acac202c9a51?w=800&q=80&auto=format", alt: "Luxury dining setup with healthy food" },
+  ],
+  training: [
+    { url: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80&auto=format", alt: "Empty premium gym with dark lighting" },
+    { url: "https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=800&q=80&auto=format", alt: "Dumbbells on rack in moody light" },
+    { url: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80&auto=format", alt: "Barbell plates close-up" },
+    { url: "https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&q=80&auto=format", alt: "Kettlebells on dark floor" },
+    { url: "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=800&q=80&auto=format", alt: "Luxury gym interior" },
+    { url: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=800&q=80&auto=format", alt: "Minimalist weight room" },
+  ],
+  motivation: [
+    { url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80&auto=format", alt: "Sunrise over mountains" },
+    { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80&auto=format", alt: "Misty forest path" },
+    { url: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80&auto=format", alt: "Luxury watch and journal on marble" },
+    { url: "https://images.unsplash.com/photo-1483721310020-03333e577078?w=800&q=80&auto=format", alt: "Dark road leading forward" },
+    { url: "https://images.unsplash.com/photo-1465188162913-8fb5709d6d57?w=800&q=80&auto=format", alt: "Ocean waves at golden hour" },
+    { url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80&auto=format", alt: "Minimalist mountain landscape" },
+  ],
+  mindset: [
+    { url: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80&auto=format", alt: "Journal and coffee on clean desk" },
+    { url: "https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?w=800&q=80&auto=format", alt: "Notebook with pen on marble" },
+    { url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=80&auto=format", alt: "Minimal desk workspace" },
+    { url: "https://images.unsplash.com/photo-1476234251651-f353703a034d?w=800&q=80&auto=format", alt: "Meditation space with candles" },
+    { url: "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=800&q=80&auto=format", alt: "Open book on dark surface" },
+    { url: "https://images.unsplash.com/photo-1501139083538-0139583c060f?w=800&q=80&auto=format", alt: "Hourglass on clean background" },
+  ],
+};
+
 const CONTENT_IDEAS = [
   { category: "App Features", ideas: ["Custom training plans", "AI-powered meal planning", "Progress tracking dashboard", "In-app messaging with your coach"] },
   { category: "What Sets Us Apart", ideas: ["1-on-1 personalized coaching", "Not a cookie-cutter program", "Plans that adapt to your schedule", "Real coach, real accountability"] },
