@@ -54,7 +54,7 @@ const CoolDownSlide = ({ appUrl = "https://apollonation.lovable.app" }: CoolDown
 
             <div className="text-center space-y-1">
               <h3 className="font-heading text-lg tracking-[0.15em] text-foreground">APOLLO NATION</h3>
-              <p className="text-xs text-muted-foreground">Your coaching app — anytime, anywhere</p>
+              <p className="text-xs text-muted-foreground">Training, nutrition & coaching — all in one place</p>
             </div>
 
             <div className="bg-white rounded-xl p-3">
