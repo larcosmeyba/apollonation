@@ -846,6 +846,21 @@ const AdminMarketing = () => {
           </div>
         </TabsContent>
 
+        {/* ─── CAROUSEL TAB ─── */}
+        <TabsContent value="carousel" className="mt-4">
+          <MarketingCarousel />
+        </TabsContent>
+
+        {/* ─── QUICK EDIT TAB ─── */}
+        <TabsContent value="quick-edit" className="mt-4">
+          <MarketingQuickEdit />
+        </TabsContent>
+
+        {/* ─── STOCK IMAGES TAB ─── */}
+        <TabsContent value="stock" className="mt-4">
+          <MarketingStockImages />
+        </TabsContent>
+
         {/* ─── PHOTO LIBRARY TAB ─── */}
         <TabsContent value="library" className="space-y-4 mt-4">
           <Card>
