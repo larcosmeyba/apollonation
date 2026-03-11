@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMessages } from "@/hooks/useMessages";
-import { useSignedUrl } from "@/hooks/useSignedUrl";
+
 import apolloLogo from "@/assets/apollo-logo.png";
 import {
   LayoutDashboard,
