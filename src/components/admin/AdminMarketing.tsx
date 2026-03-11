@@ -24,7 +24,13 @@ import {
   ImagePlus,
   LayoutGrid,
   Eye,
+  Layers,
+  Search,
+  Pencil,
 } from "lucide-react";
+import MarketingCarousel from "./marketing/MarketingCarousel";
+import MarketingStockImages from "./marketing/MarketingStockImages";
+import MarketingQuickEdit from "./marketing/MarketingQuickEdit";
 
 interface MarketingPhoto {
   id: string;
