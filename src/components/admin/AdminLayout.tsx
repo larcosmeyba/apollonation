@@ -136,7 +136,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
 
         {/* Mobile menu overlay */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-apollo-charcoal-light border-b border-border p-3 space-y-0.5">
+          <div className="xl:hidden bg-apollo-charcoal-light border-b border-border p-3 space-y-0.5">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
