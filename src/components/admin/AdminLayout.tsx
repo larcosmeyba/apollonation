@@ -9,7 +9,6 @@ import {
   Activity,
   Users,
   Inbox,
-  Apple,
   Utensils,
   Shield,
   LogOut,
@@ -17,8 +16,6 @@ import {
   Menu,
   X,
   Megaphone,
-  ClipboardList,
-  StickyNote,
 } from "lucide-react";
 
 interface AdminLayoutProps {
