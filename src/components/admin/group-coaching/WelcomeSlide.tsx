@@ -51,9 +51,7 @@ const WelcomeSlide = ({ classType, equipment, onEquipmentChange, isEditing }: We
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-8 text-center px-8 max-w-2xl">
         {/* Venue branding */}
-        <h1 className="font-heading text-4xl md:text-5xl tracking-[0.2em] text-foreground uppercase">
-          Pedal Spin Studios
-        </h1>
+        <p className="text-sm md:text-base tracking-[0.35em] text-muted-foreground uppercase">Pedal Spin Studios</p>
 
         <div className="space-y-3">
           <p className="text-xs tracking-[0.3em] text-muted-foreground uppercase">{classLabels[classType]} Class</p>
