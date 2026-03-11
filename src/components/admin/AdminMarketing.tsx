@@ -856,9 +856,9 @@ const AdminMarketing = () => {
           <MarketingQuickEdit />
         </TabsContent>
 
-        {/* ─── STOCK IMAGES TAB ─── */}
-        <TabsContent value="stock" className="mt-4">
-          <MarketingStockImages />
+        {/* ─── AI IMAGES TAB ─── */}
+        <TabsContent value="ai-images" className="mt-4">
+          <MarketingAIImages />
         </TabsContent>
 
         {/* ─── PHOTO LIBRARY TAB ─── */}
