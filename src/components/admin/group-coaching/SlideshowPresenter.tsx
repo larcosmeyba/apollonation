@@ -7,15 +7,16 @@ import CoachControlPanel from "./CoachControlPanel";
 interface SlideshowPresenterProps {
   classType: ClassType;
   exercises: SlideExercise[];
+  initialEquipment?: string[];
   onExit: () => void;
 }
 
-const SlideshowPresenter = ({ classType, exercises, onExit }: SlideshowPresenterProps) => {
+const SlideshowPresenter = ({ classType, exercises, initialEquipment, onExit }: SlideshowPresenterProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [equipment, setEquipment] = useState<string[]>(["Dumbbells", "Yoga Mat"]);
+  const [equipment, setEquipment] = useState<string[]>(initialEquipment || ["Dumbbells", "Yoga Mat"]);
 
-  const totalSlides = 1 + exercises.length; // welcome + exercises
+  const totalSlides = 1 + exercises.length;
 
   const goNext = useCallback(() => {
     setCurrentSlide((s) => Math.min(s + 1, totalSlides - 1));
@@ -25,7 +26,6 @@ const SlideshowPresenter = ({ classType, exercises, onExit }: SlideshowPresenter
     setCurrentSlide((s) => Math.max(s - 1, 0));
   }, []);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === " ") {
@@ -71,7 +71,6 @@ const SlideshowPresenter = ({ classType, exercises, onExit }: SlideshowPresenter
         onExit={onExit}
       />
 
-      {/* Pause overlay */}
       {isPaused && (
         <div className="absolute inset-0 z-40 bg-background/60 backdrop-blur-sm flex items-center justify-center pointer-events-none">
           <div className="text-center space-y-2">
