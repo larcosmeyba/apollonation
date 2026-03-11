@@ -40,10 +40,10 @@ const WelcomeSlide = ({ classType, equipment, onEquipmentChange, isEditing }: We
     <div className="relative w-full h-full flex flex-col items-center justify-center bg-background overflow-hidden">
       {/* Background */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-15"
+        className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(/images/marble-bg.jpeg)` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+      <div className="absolute inset-0 bg-background/70" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-8 text-center px-8 max-w-2xl">
