@@ -61,7 +61,7 @@ const AdminGroupCoaching = () => {
   }
 
   // Class type selection (after workout is chosen, before presenting)
-  if (selectedWorkoutId && exercises.length > 0 && !classType) {
+  if (selectedWorkoutId && !classType) {
     return (
       <div className="max-w-6xl mx-auto space-y-6">
         <Button variant="ghost" size="sm" onClick={() => setSelectedWorkoutId(null)}>
