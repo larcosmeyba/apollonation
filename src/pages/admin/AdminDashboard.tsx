@@ -33,6 +33,8 @@ const AdminDashboard = () => {
         return <AdminRecipes />;
       case "group-coaching":
         return <AdminGroupCoaching />;
+      case "marketing":
+        return <AdminMarketing />;
       case "contacts":
         return <AdminContactRequests />;
       case "profile":
