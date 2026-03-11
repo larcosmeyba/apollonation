@@ -38,18 +38,18 @@ const WelcomeSlide = ({ classType, equipment, onEquipmentChange, isEditing }: We
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center bg-background overflow-hidden">
-      {/* Background image overlay */}
+      {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-15"
         style={{ backgroundImage: `url(/images/marble-bg.jpeg)` }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
 
-      {/* Apollo logo */}
-      <img src={apolloLogo} alt="Apollo" className="absolute top-6 right-6 w-10 h-10 opacity-60 object-contain" />
-
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-8 text-center px-8 max-w-2xl">
+        {/* Prominent Apollo Nation Logo */}
+        <img src={apolloLogo} alt="Apollo Nation" className="w-24 h-24 md:w-32 md:h-32 object-contain" />
+
         <div className="space-y-3">
           <p className="text-xs tracking-[0.3em] text-muted-foreground uppercase">{classLabels[classType]} Class</p>
           <h1 className="font-heading text-4xl md:text-5xl tracking-[0.1em] text-foreground leading-tight">
@@ -81,7 +81,6 @@ const WelcomeSlide = ({ classType, equipment, onEquipmentChange, isEditing }: We
             <p className="text-muted-foreground text-sm italic">No equipment added yet</p>
           )}
 
-          {/* Editing controls */}
           {isEditing && (
             <div className="space-y-3 mt-4">
               {!showAdd ? (

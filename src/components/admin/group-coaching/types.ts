@@ -10,9 +10,14 @@ export interface SlideExercise {
   notes: string | null;
 }
 
+export interface BlockData {
+  label: string;
+  exercises: SlideExercise[];
+}
+
 export interface SlideshowState {
   classType: ClassType;
   equipment: string[];
-  currentSlide: number; // 0 = welcome, 1+ = exercises
+  currentSlide: number; // 0 = welcome, 1 = warmup, 2+ = blocks, last = cooldown
   isPaused: boolean;
 }

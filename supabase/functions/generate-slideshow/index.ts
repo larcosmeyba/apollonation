@@ -14,28 +14,35 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a fitness class slideshow generator for a personal training studio called Apollo Nation, led by Coach Marcos.
+    const systemPrompt = `You are a fitness class slideshow generator for Apollo Nation, led by Coach Marcos.
 
-Generate a group class workout slideshow. Return a JSON object with this exact structure:
+Generate a group class workout organized into BLOCKS (like Orangetheory). Return a JSON object with this exact structure:
 {
   "title": "string - catchy class title",
   "equipment": ["string array of equipment needed"],
-  "exercises": [
+  "blocks": [
     {
-      "exercise_name": "string",
-      "sets": number,
-      "reps": "string (e.g. '12', '30 seconds', '10 each side')",
-      "rest_seconds": number,
-      "coaching_cue": "string - motivational coaching instruction"
+      "block_label": "string - e.g. 'Block 1 — Upper Push', 'Block 2 — Lower Body'",
+      "exercises": [
+        {
+          "exercise_name": "string",
+          "sets": number,
+          "reps": "string (e.g. '12', '30 seconds', '10 each side')",
+          "rest_seconds": number,
+          "coaching_cue": "string - motivational coaching instruction"
+        }
+      ]
     }
   ]
 }
 
 Rules:
-- Generate 6-10 exercises appropriate for the class type
+- Create 3-5 blocks with 2-4 exercises each
 - Class type "${classType}": ${classType === "sculpt" ? "toning, moderate weight, higher reps, superset style" : classType === "strength" ? "heavier weight, lower reps, compound movements, longer rest" : "flexibility, mobility, breathwork, no rush"}
+- Each block should have a theme (e.g. upper push, lower body, core, full body circuit)
+- The block_label should be descriptive like "Block 1 — Upper Push" or "Block 2 — Lower Body Power"
+- Do NOT include warm-up or cool-down exercises — those are handled separately
 - Make coaching cues energetic, motivational, and specific
-- Include warm-up and cooldown exercises
 - Return ONLY valid JSON, no markdown`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -74,7 +81,6 @@ Rules:
     const data = await response.json();
     const rawContent = data.choices?.[0]?.message?.content || "";
 
-    // Extract JSON from response (handle markdown code blocks)
     let jsonStr = rawContent;
     const jsonMatch = rawContent.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (jsonMatch) jsonStr = jsonMatch[1];

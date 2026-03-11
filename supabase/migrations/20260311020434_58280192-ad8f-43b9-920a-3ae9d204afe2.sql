@@ -1,0 +1,1 @@
+ALTER TABLE public.slideshow_slides ADD COLUMN block_label text DEFAULT null;
