@@ -9,7 +9,6 @@ import {
   Activity,
   Users,
   Inbox,
-  Apple,
   Utensils,
   Shield,
   LogOut,
@@ -17,8 +16,6 @@ import {
   Menu,
   X,
   Megaphone,
-  ClipboardList,
-  StickyNote,
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -30,13 +27,10 @@ interface AdminLayoutProps {
 const navItems = [
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "broadcast", label: "Broadcast", icon: Megaphone },
-  { id: "client-plans", label: "Client Plans", icon: ClipboardList },
-  { id: "client-notes", label: "Client Notes", icon: StickyNote },
-  { id: "workouts", label: "Workouts", icon: Dumbbell },
+  { id: "clients", label: "Clients", icon: Users },
+  { id: "workouts", label: "On-Demand Classes", icon: Dumbbell },
   { id: "exercises", label: "Exercise Library", icon: Activity },
-  { id: "users", label: "Clients", icon: Users },
   { id: "recipes", label: "Recipes", icon: Utensils },
-  { id: "nutrition", label: "Nutrition Plans", icon: Apple },
   { id: "contacts", label: "Contact Requests", icon: Inbox },
   { id: "profile", label: "Coach Profile", icon: User },
 ];
