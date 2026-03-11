@@ -27,9 +27,10 @@ import {
   Layers,
   Search,
   Pencil,
+  Wand2,
 } from "lucide-react";
 import MarketingCarousel from "./marketing/MarketingCarousel";
-import MarketingStockImages from "./marketing/MarketingStockImages";
+import MarketingAIImages from "./marketing/MarketingAIImages";
 import MarketingQuickEdit from "./marketing/MarketingQuickEdit";
 
 interface MarketingPhoto {
@@ -629,8 +630,8 @@ const AdminMarketing = () => {
           <TabsTrigger value="quick-edit" className="gap-2">
             <Pencil className="w-4 h-4" /> Quick Edit
           </TabsTrigger>
-          <TabsTrigger value="stock" className="gap-2">
-            <Search className="w-4 h-4" /> Stock Images
+          <TabsTrigger value="ai-images" className="gap-2">
+            <Wand2 className="w-4 h-4" /> AI Images
           </TabsTrigger>
           <TabsTrigger value="library" className="gap-2">
             <LayoutGrid className="w-4 h-4" /> Photo Library
@@ -856,9 +857,9 @@ const AdminMarketing = () => {
           <MarketingQuickEdit />
         </TabsContent>
 
-        {/* ─── STOCK IMAGES TAB ─── */}
-        <TabsContent value="stock" className="mt-4">
-          <MarketingStockImages />
+        {/* ─── AI IMAGES TAB ─── */}
+        <TabsContent value="ai-images" className="mt-4">
+          <MarketingAIImages />
         </TabsContent>
 
         {/* ─── PHOTO LIBRARY TAB ─── */}
