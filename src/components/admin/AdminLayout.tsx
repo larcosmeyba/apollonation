@@ -53,7 +53,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
   const { profile, signOut } = useAuth();
   const { unreadCount } = useMessages();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const avatarUrl = useSignedUrl(profile?.avatar_url);
+  const avatarUrl = profile?.avatar_url;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
