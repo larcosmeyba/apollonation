@@ -171,10 +171,20 @@ const OnDemandEditor = () => {
           <h2 className="font-heading text-xl">On-Demand Video Builder</h2>
           <p className="text-sm text-muted-foreground">Assemble workout videos from exercise clips</p>
         </div>
-        <Button variant="apollo" onClick={() => setShowPreview(!showPreview)}>
-          <Eye className="w-4 h-4 mr-2" />
-          {showPreview ? "Hide Preview" : "Preview Workout"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="apollo" onClick={() => setShowPreview(!showPreview)}>
+            <Eye className="w-4 h-4 mr-2" />
+            {showPreview ? "Hide Preview" : "Preview Workout"}
+          </Button>
+          <Button
+            variant="apollo-outline"
+            onClick={() => download(project)}
+            disabled={recording || project.blocks.length === 0}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            {recording ? "Recording…" : "Download Video"}
+          </Button>
+        </div>
       </div>
 
       {/* Preview */}
