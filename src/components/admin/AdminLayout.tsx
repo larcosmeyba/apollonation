@@ -20,6 +20,7 @@ import {
   ChevronDown,
   Settings,
   UsersRound,
+  Palette,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
