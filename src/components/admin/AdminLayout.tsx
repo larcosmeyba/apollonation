@@ -109,7 +109,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 ml-2 p-1.5 rounded-md hover:bg-muted transition-colors">
                 <Avatar className="w-7 h-7">
-                  <AvatarImage src={avatarUrl || undefined} />
+                  <AvatarImage src={avatarUrl ?? undefined} />
                   <AvatarFallback className="bg-apollo-gold/20 text-apollo-gold text-xs">
                     {profile?.display_name?.charAt(0) || "C"}
                   </AvatarFallback>

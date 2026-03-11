@@ -262,11 +262,4 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
   );
 };
 
-// need profile in scope
-import { useAuth } from "@/contexts/AuthContext";
-
-const AdminDashboardHomeWrapper = ({ onNavigate }: Props) => {
-  return <AdminDashboardHome onNavigate={onNavigate} />;
-};
-
 export default AdminDashboardHome;
