@@ -427,6 +427,39 @@ export type Database = {
         }
         Relationships: []
       }
+      group_coaching_slideshows: {
+        Row: {
+          class_type: string
+          created_at: string
+          created_by: string
+          equipment: string[]
+          id: string
+          is_template: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          class_type?: string
+          created_at?: string
+          created_by: string
+          equipment?: string[]
+          id?: string
+          is_template?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          class_type?: string
+          created_at?: string
+          created_by?: string
+          equipment?: string[]
+          id?: string
+          is_template?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       macro_logs: {
         Row: {
           ai_estimated: boolean | null
@@ -755,6 +788,62 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      slideshow_slides: {
+        Row: {
+          coaching_cue: string | null
+          created_at: string
+          exercise_name: string | null
+          id: string
+          notes: string | null
+          reps: string | null
+          rest_seconds: number | null
+          sets: number | null
+          slide_number: number
+          slide_type: string
+          slideshow_id: string
+          thumbnail_url: string | null
+          video_url: string | null
+        }
+        Insert: {
+          coaching_cue?: string | null
+          created_at?: string
+          exercise_name?: string | null
+          id?: string
+          notes?: string | null
+          reps?: string | null
+          rest_seconds?: number | null
+          sets?: number | null
+          slide_number?: number
+          slide_type?: string
+          slideshow_id: string
+          thumbnail_url?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          coaching_cue?: string | null
+          created_at?: string
+          exercise_name?: string | null
+          id?: string
+          notes?: string | null
+          reps?: string | null
+          rest_seconds?: number | null
+          sets?: number | null
+          slide_number?: number
+          slide_type?: string
+          slideshow_id?: string
+          thumbnail_url?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slideshow_slides_slideshow_id_fkey"
+            columns: ["slideshow_id"]
+            isOneToOne: false
+            referencedRelation: "group_coaching_slideshows"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       step_logs: {
         Row: {
