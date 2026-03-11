@@ -27,6 +27,7 @@ import {
   Layers,
   Search,
   Pencil,
+  Wand2,
 } from "lucide-react";
 import MarketingCarousel from "./marketing/MarketingCarousel";
 import MarketingAIImages from "./marketing/MarketingAIImages";
