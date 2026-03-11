@@ -117,7 +117,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
       {/* Mobile header + content */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Mobile header */}
-        <header className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-apollo-charcoal-light">
+        <header className="xl:hidden flex items-center justify-between p-4 border-b border-border bg-apollo-charcoal-light">
           <div className="flex items-center gap-3">
             <img src={apolloLogo} alt="Apollo Nation" className="w-8 h-8 invert" />
             <div>
