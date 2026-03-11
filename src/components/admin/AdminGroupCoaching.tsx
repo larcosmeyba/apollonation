@@ -73,7 +73,7 @@ const AdminGroupCoaching = () => {
   }
 
   // After class type selected — preview & launch
-  if (selectedWorkoutId && exercises.length > 0 && classType) {
+  if (selectedWorkoutId && classType) {
     return (
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
