@@ -45,6 +45,9 @@ const WelcomeSlide = ({ classType, equipment, onEquipmentChange, isEditing }: We
       />
       <div className="absolute inset-0 bg-background/70" />
 
+      {/* Apollo logo in corner */}
+      <img src={apolloLogo} alt="Apollo Nation" className="absolute top-6 right-6 w-12 h-12 opacity-80 object-contain z-20 invert" />
+
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-8 text-center px-8 max-w-2xl">
         {/* Venue branding */}
