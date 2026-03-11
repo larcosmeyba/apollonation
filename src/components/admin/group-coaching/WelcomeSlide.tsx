@@ -47,6 +47,9 @@ const WelcomeSlide = ({ classType, equipment, onEquipmentChange, isEditing }: We
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-8 text-center px-8 max-w-2xl">
+        {/* Venue branding */}
+        <p className="text-xs tracking-[0.35em] text-muted-foreground uppercase">Pedal Spin Studios</p>
+
         {/* Prominent Apollo Nation Logo */}
         <img src={apolloLogo} alt="Apollo Nation" className="w-24 h-24 md:w-32 md:h-32 object-contain invert" />
 
