@@ -94,33 +94,51 @@ const MarketingStockImages = () => {
   const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
 
-  const searchImages = useCallback(async (category?: string) => {
+  const searchImages = useCallback((category?: string) => {
     setLoading(true);
-    const query = category
-      ? CATEGORIES.find(c => c.value === category)?.label || category
-      : searchQuery;
+    const cat = category || selectedCategory;
 
-    if (!query.trim()) {
+    if (!cat && !searchQuery.trim()) {
       setLoading(false);
       return;
     }
 
-    try {
-      // Use Unsplash Source for free stock images (no API key needed)
-      const terms = `${query} fitness luxury dark`;
-      const results: StockImage[] = Array.from({ length: 12 }, (_, i) => ({
-        id: `stock-${Date.now()}-${i}`,
-        url: `https://source.unsplash.com/800x800/?${encodeURIComponent(terms)}&sig=${Date.now() + i}`,
-        alt: `${query} stock image ${i + 1}`,
-        category: category || "search",
+    // If a category is selected, use curated images
+    if (cat && CURATED_IMAGES[cat]) {
+      const results: StockImage[] = CURATED_IMAGES[cat].map((img, i) => ({
+        id: `stock-${cat}-${i}`,
+        url: img.url,
+        alt: img.alt,
+        category: cat,
       }));
       setImages(results);
-    } catch {
-      toast({ title: "Failed to load images", variant: "destructive" });
-    } finally {
       setLoading(false);
+      return;
     }
-  }, [searchQuery]);
+
+    // For search queries, search across all curated categories
+    const query = searchQuery.toLowerCase();
+    const results: StockImage[] = [];
+    Object.entries(CURATED_IMAGES).forEach(([catKey, imgs]) => {
+      imgs.forEach((img, i) => {
+        if (img.alt.toLowerCase().includes(query) || catKey.includes(query)) {
+          results.push({ id: `stock-${catKey}-${i}`, url: img.url, alt: img.alt, category: catKey });
+        }
+      });
+    });
+
+    // If no matches, show all images
+    if (results.length === 0) {
+      Object.entries(CURATED_IMAGES).forEach(([catKey, imgs]) => {
+        imgs.forEach((img, i) => {
+          results.push({ id: `stock-${catKey}-${i}`, url: img.url, alt: img.alt, category: catKey });
+        });
+      });
+    }
+
+    setImages(results);
+    setLoading(false);
+  }, [searchQuery, selectedCategory]);
 
   const saveToLibrary = async (image: StockImage) => {
     if (!user) return;
