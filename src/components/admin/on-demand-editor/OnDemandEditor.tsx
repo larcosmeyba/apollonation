@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Plus, Trash2, GripVertical, Play, Upload, Music, Clock,
-  Timer, Film, Loader2, ChevronUp, ChevronDown, Eye,
+  Timer, Film, Loader2, ChevronUp, ChevronDown, Eye, Download,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
