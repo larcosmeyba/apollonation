@@ -267,7 +267,14 @@ const WorkoutPreview = ({ project }: Props) => {
 
       {/* Hidden audio element */}
       {project.musicTrack && (
-        <audio ref={audioRef} src={project.musicTrack.url} loop preload="auto" />
+        <audio
+          ref={audioRef}
+          src={project.musicTrack.url}
+          loop
+          preload="auto"
+          crossOrigin="anonymous"
+          onError={() => console.warn("Music track failed to load:", project.musicTrack?.url)}
+        />
       )}
     </div>
   );

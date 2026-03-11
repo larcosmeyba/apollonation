@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Plus, Trash2, GripVertical, Play, Upload, Music, Clock,
-  Timer, Film, Loader2, ChevronUp, ChevronDown, Eye,
+  Timer, Film, Loader2, ChevronUp, ChevronDown, Eye, Download,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -17,6 +17,8 @@ import {
   TEMPLATES, MUSIC_LIBRARY,
 } from "./types";
 import WorkoutPreview from "./WorkoutPreview";
+import { useWorkoutDownload } from "./useWorkoutDownload";
+import { Progress } from "@/components/ui/progress";
 
 const OnDemandEditor = () => {
   const { toast } = useToast();
@@ -24,6 +26,7 @@ const OnDemandEditor = () => {
   const [uploading, setUploading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [activeTab, setActiveTab] = useState("build");
+  const { recording, progress: recordProgress, download } = useWorkoutDownload();
 
   // Project state
   const [project, setProject] = useState<WorkoutProject>({
@@ -168,16 +171,39 @@ const OnDemandEditor = () => {
           <h2 className="font-heading text-xl">On-Demand Video Builder</h2>
           <p className="text-sm text-muted-foreground">Assemble workout videos from exercise clips</p>
         </div>
-        <Button variant="apollo" onClick={() => setShowPreview(!showPreview)}>
-          <Eye className="w-4 h-4 mr-2" />
-          {showPreview ? "Hide Preview" : "Preview Workout"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="apollo" onClick={() => setShowPreview(!showPreview)}>
+            <Eye className="w-4 h-4 mr-2" />
+            {showPreview ? "Hide Preview" : "Preview Workout"}
+          </Button>
+          <Button
+            variant="apollo-outline"
+            onClick={() => download(project)}
+            disabled={recording || project.blocks.length === 0}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            {recording ? "Recording…" : "Download Video"}
+          </Button>
+        </div>
       </div>
 
       {/* Preview */}
       {showPreview && (
         <div className="mb-6">
           <WorkoutPreview project={project} />
+        </div>
+      )}
+
+      {recording && (
+        <div className="mb-6 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Recording workout…</span>
+            <span className="text-foreground font-medium">{Math.round(recordProgress)}%</span>
+          </div>
+          <Progress value={recordProgress} className="h-2" />
+          <p className="text-xs text-muted-foreground">
+            Playing through your workout and recording. This will take the full workout duration.
+          </p>
         </div>
       )}
 
