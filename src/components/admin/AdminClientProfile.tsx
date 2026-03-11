@@ -104,7 +104,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
     mutationFn: async (tier: string) => {
       const { error } = await supabase
         .from("profiles")
-        .update({ subscription_tier: tier })
+        .update({ subscription_tier: tier as any })
         .eq("user_id", userId);
       if (error) throw error;
     },
