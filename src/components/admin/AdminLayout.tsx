@@ -43,7 +43,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-apollo-charcoal-light border-r border-border min-h-screen flex-col">
+      <aside className="hidden xl:flex w-64 bg-apollo-charcoal-light border-r border-border min-h-screen flex-col">
         {/* Logo */}
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-3">
@@ -117,7 +117,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
       {/* Mobile header + content */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Mobile header */}
-        <header className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-apollo-charcoal-light">
+        <header className="xl:hidden flex items-center justify-between p-4 border-b border-border bg-apollo-charcoal-light">
           <div className="flex items-center gap-3">
             <img src={apolloLogo} alt="Apollo Nation" className="w-8 h-8 invert" />
             <div>
@@ -136,7 +136,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
 
         {/* Mobile menu overlay */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-apollo-charcoal-light border-b border-border p-3 space-y-0.5">
+          <div className="xl:hidden bg-apollo-charcoal-light border-b border-border p-3 space-y-0.5">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -173,7 +173,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
         )}
 
         {/* Page content */}
-        <main className="flex-1 p-4 lg:p-8 overflow-auto">{children}</main>
+        <main className="flex-1 p-4 xl:p-8 overflow-auto">{children}</main>
       </div>
     </div>
   );
