@@ -11,6 +11,7 @@ import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientList from "@/components/admin/AdminClientList";
 import AdminGroupCoaching from "@/components/admin/AdminGroupCoaching";
 import AdminMarketing from "@/components/admin/AdminMarketing";
+import OnDemandEditor from "@/components/admin/on-demand-editor/OnDemandEditor";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
