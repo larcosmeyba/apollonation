@@ -173,7 +173,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
         )}
 
         {/* Page content */}
-        <main className="flex-1 p-4 lg:p-8 overflow-auto">{children}</main>
+        <main className="flex-1 p-4 xl:p-8 overflow-auto">{children}</main>
       </div>
     </div>
   );
