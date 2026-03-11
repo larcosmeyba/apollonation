@@ -177,6 +177,26 @@ const AdminGroupCoaching = () => {
       notes: s.coaching_cue || s.notes,
     }));
 
+  // Group exercises into blocks
+  const blocksForPresenter = (() => {
+    const exerciseSlides = slides.filter((s) => s.slide_type === "exercise");
+    const blockMap = new Map<string, SlideExercise[]>();
+    exerciseSlides.forEach((s) => {
+      const label = s.block_label || "Block 1";
+      if (!blockMap.has(label)) blockMap.set(label, []);
+      blockMap.get(label)!.push({
+        name: s.exercise_name || "Exercise",
+        thumbnail_url: s.thumbnail_url,
+        video_url: s.video_url,
+        sets: s.sets,
+        reps: s.reps,
+        rest_seconds: s.rest_seconds,
+        notes: s.coaching_cue || s.notes,
+      });
+    });
+    return Array.from(blockMap.entries()).map(([label, exercises]) => ({ label, exercises }));
+  })();
+
   const selected = slideshows.find((s) => s.id === selectedId);
 
   // Presenting mode
@@ -185,6 +205,7 @@ const AdminGroupCoaching = () => {
       <SlideshowPresenter
         classType={selected.class_type as ClassType}
         exercises={exercisesForPresenter}
+        blocks={blocksForPresenter}
         initialEquipment={selected.equipment || []}
         onExit={() => setPresenting(false)}
       />
