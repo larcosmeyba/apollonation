@@ -76,8 +76,8 @@
     --chart-fat: 0 0% 24%;
 
     /* Shadows — Clean elevation */
-    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
-    --shadow-elevated: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
+    --shadow-card: 0 2px 16px -2px hsl(0 0% 0% / 0.08), 0 1px 4px -1px hsl(0 0% 0% / 0.04);
+    --shadow-elevated: 0 8px 30px -6px hsl(0 0% 0% / 0.12), 0 2px 8px -2px hsl(0 0% 0% / 0.06);
 
     /* Sidebar */
     --sidebar-background: 0 0% 4%;
