@@ -341,7 +341,7 @@ const DashboardTraining = () => {
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-border bg-card p-8 text-center">
+              <div className="card-glass p-8 text-center">
                 <p className="font-heading text-lg mb-2">Rest Day</p>
                 <p className="text-sm text-muted-foreground">Recovery is part of the process. Come back stronger.</p>
               </div>
