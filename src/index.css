@@ -13,25 +13,25 @@
     --background: 0 0% 4%;
     --foreground: 0 0% 95%;
 
-    /* Card surfaces — Elevated Charcoal #1C1C1C */
-    --card: 0 0% 11%;
-    --card-foreground: 0 0% 95%;
+    /* Card surfaces — Pure White for strong contrast */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
 
-    /* Popover — Soft Graphite #1F1F1F */
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 95%;
+    /* Popover — Match white box system */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
     /* Primary — White buttons / active elements */
     --primary: 0 0% 95%;
     --primary-foreground: 0 0% 0%;
 
-    /* Secondary — Charcoal panel */
-    --secondary: 0 0% 9%;
-    --secondary-foreground: 0 0% 95%;
+    /* Secondary — White surface for box consistency */
+    --secondary: 0 0% 100%;
+    --secondary-foreground: 0 0% 0%;
 
-    /* Muted — Soft Graphite #1F1F1F */
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 75%;
+    /* Muted — Near-white surface with black text */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 0%;
 
     /* Accent — Deep Graphite Blue #1E2A38 (very subtle) */
     --accent: 210 30% 17%;
@@ -41,10 +41,10 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Bright white outline for premium contrast */
-    --border: 0 0% 85%;
-    --input: 0 0% 14%;
-    --ring: 0 0% 95%;
+    /* Borders — Black outline for white/black concept */
+    --border: 0 0% 0%;
+    --input: 0 0% 100%;
+    --ring: 0 0% 0%;
 
     --radius: 0.5rem;
 
