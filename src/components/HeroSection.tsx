@@ -51,7 +51,7 @@ const HeroSection = () => {
               Precision Nutrition
             </p>
             <p className="text-lg md:text-xl text-primary/70 font-light tracking-[0.15em] uppercase">
-              A Higher Standard of Fitness
+              A Higher Standard
             </p>
           </div>
 
