@@ -17,9 +17,9 @@
     --card: 36 30% 96%;
     --card-foreground: 30 10% 10%;
 
-    /* Popover — Match white box system */
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    /* Popover — Match cream system */
+    --popover: 36 30% 96%;
+    --popover-foreground: 30 10% 10%;
 
     /* Primary — White buttons / active elements */
     --primary: 0 0% 95%;
