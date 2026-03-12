@@ -77,16 +77,22 @@ const MembershipSection = () => {
           {programs.map((program, i) => (
             <div
               key={program.name}
-              className={`group relative p-8 lg:p-10 rounded-2xl border border-border bg-card/60 backdrop-blur-sm transition-all duration-700 hover:border-primary/30 hover:-translate-y-1 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              className={`group relative p-8 lg:p-10 rounded-2xl transition-all duration-700 hover:-translate-y-1 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
               style={{ 
                 transitionDelay: `${200 + i * 150}ms`,
-                boxShadow: 'var(--shadow-card)',
+                background: 'rgba(24,28,44,0.82)',
+                backdropFilter: 'blur(18px)',
+                WebkitBackdropFilter: 'blur(18px)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-glow)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(106,163,255,0.2)';
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 30px -5px rgba(106,163,255,0.15), 0 20px 60px rgba(0,0,0,0.45)';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-card)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)';
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 60px rgba(0,0,0,0.45)';
               }}
             >
               {/* Subtle glow edge on hover */}

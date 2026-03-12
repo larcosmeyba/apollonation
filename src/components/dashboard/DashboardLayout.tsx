@@ -10,7 +10,7 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
-    <div className="min-h-screen flex overflow-x-hidden w-full" style={{ backgroundImage: "url('/images/marble-bg.jpeg')", backgroundSize: "cover", backgroundAttachment: "fixed", backgroundPosition: "center" }}>
+    <div className="min-h-screen flex overflow-x-hidden w-full bg-apollo-interior">
       {/* Desktop sidebar */}
       <div className="hidden lg:block flex-shrink-0">
         <DashboardSidebar />
