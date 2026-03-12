@@ -13,9 +13,9 @@
     --background: 0 0% 4%;
     --foreground: 0 0% 95%;
 
-    /* Card surfaces — Pure White for strong contrast */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    /* Card surfaces — Crisp White */
+    --card: 0 0% 99%;
+    --card-foreground: 0 0% 5%;
 
     /* Popover — Match white box system */
     --popover: 0 0% 100%;
@@ -41,10 +41,10 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Black outline for white/black concept */
-    --border: 0 0% 0%;
-    --input: 0 0% 100%;
-    --ring: 0 0% 0%;
+    /* Borders — Subtle dark border for clean white boxes */
+    --border: 0 0% 80%;
+    --input: 0 0% 94%;
+    --ring: 0 0% 30%;
 
     --radius: 0.5rem;
 
@@ -76,8 +76,8 @@
     --chart-fat: 0 0% 24%;
 
     /* Shadows — Clean elevation */
-    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
-    --shadow-elevated: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
+    --shadow-card: 0 2px 16px -2px hsl(0 0% 0% / 0.08), 0 1px 4px -1px hsl(0 0% 0% / 0.04);
+    --shadow-elevated: 0 8px 30px -6px hsl(0 0% 0% / 0.12), 0 2px 8px -2px hsl(0 0% 0% / 0.06);
 
     /* Sidebar */
     --sidebar-background: 0 0% 4%;
