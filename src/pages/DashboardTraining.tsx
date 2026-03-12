@@ -351,7 +351,7 @@ const DashboardTraining = () => {
 
         {/* Extra Activities */}
         {customActivities.length > 0 && (
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="card-glass p-5">
             <h3 className="section-label mb-3">Today's Activities</h3>
             <div className="space-y-2">
               {customActivities.map((activity: any) => (
