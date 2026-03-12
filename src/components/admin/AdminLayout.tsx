@@ -22,6 +22,7 @@ import {
   UsersRound,
   Palette,
   Film,
+  BookOpen,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
