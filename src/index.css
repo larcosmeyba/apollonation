@@ -170,13 +170,21 @@
 
   /* Card styles — White surface + black border */
   .card-apollo {
-    @apply rounded-2xl border border-border bg-card p-8;
+    @apply rounded-2xl border border-border bg-card p-8 transition-all duration-300;
     box-shadow: var(--shadow-card);
+  }
+  .card-apollo:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
   }
 
   .card-apollo-featured {
-    @apply rounded-2xl border border-border bg-card p-10;
+    @apply rounded-2xl border border-border bg-card p-10 transition-all duration-300;
     box-shadow: var(--shadow-elevated);
+  }
+  .card-apollo-featured:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px -8px hsl(0 0% 0% / 0.16);
   }
 
   /* Force black text inside all box/card surfaces */
