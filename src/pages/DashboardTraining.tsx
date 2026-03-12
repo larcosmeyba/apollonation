@@ -255,7 +255,7 @@ const DashboardTraining = () => {
 
         {/* No plan state */}
         {!planData ? (
-          <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <div className="card-glass p-8 text-center">
             <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
             <h3 className="font-heading text-lg mb-2">No Training Program Yet</h3>
             <p className="text-muted-foreground text-sm mb-4">
