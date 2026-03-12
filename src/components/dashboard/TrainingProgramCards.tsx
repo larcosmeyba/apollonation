@@ -3,47 +3,44 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Clock, CheckCircle2 } from "lucide-react";
+import { Loader2, Clock, CheckCircle2, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+// Fallback images for categories
+import imgStrength from "@/assets/program-strength.jpg";
+import imgRunning from "@/assets/program-running.jpg";
+import imgHiit from "@/assets/program-hiit.jpg";
+import imgRecovery from "@/assets/program-recovery.jpg";
+import imgCardio from "@/assets/program-cardio.jpg";
+import imgHome from "@/assets/program-home.jpg";
+
+const FALLBACK_IMAGES: Record<string, string> = {
+  strength: imgStrength,
+  running: imgRunning,
+  hiit: imgHiit,
+  recovery: imgRecovery,
+  cardio: imgCardio,
+  home: imgHome,
+  default: imgStrength,
+};
+
+const getFallbackImage = (category: string) => {
+  const key = category.toLowerCase();
+  for (const [k, v] of Object.entries(FALLBACK_IMAGES)) {
+    if (key.includes(k)) return v;
+  }
+  return FALLBACK_IMAGES.default;
+};
 
 interface Program {
   id: string;
   name: string;
+  description: string | null;
   category: string;
-  emoji: string;
-  description: string;
+  cover_image_url: string | null;
   durations: number[];
 }
-
-const PROGRAMS: Program[] = [
-  { id: "5k-runner", name: "5K Runner Prep", category: "Running", emoji: "🏃", description: "Build endurance to complete your first 5K", durations: [4, 8] },
-  { id: "10k-runner", name: "10K Runner Prep", category: "Running", emoji: "🏃‍♂️", description: "Train for a 10K race with structured running", durations: [6, 8, 12] },
-  { id: "marathon-prep", name: "Marathon Prep", category: "Running", emoji: "🏅", description: "Full marathon training with progressive mileage", durations: [12] },
-  { id: "beginner-strength", name: "Beginner Strength", category: "Strength", emoji: "💪", description: "Learn the fundamentals of strength training", durations: [4, 8] },
-  { id: "advanced-strength", name: "Advanced Strength", category: "Strength", emoji: "🏋️", description: "Push your limits with advanced lifting", durations: [6, 8, 12] },
-  { id: "arms-focus", name: "Arms Focus", category: "Strength", emoji: "💪", description: "Build bigger, stronger arms", durations: [4, 6] },
-  { id: "core-strength", name: "Core Strength", category: "Core", emoji: "🎯", description: "Build a rock-solid core foundation", durations: [4, 6] },
-  { id: "cardio-conditioning", name: "Cardio Conditioning", category: "Cardio", emoji: "❤️", description: "Improve cardiovascular fitness and endurance", durations: [4, 6, 8] },
-  { id: "fat-loss", name: "Fat Loss Training", category: "Fat Loss", emoji: "🔥", description: "High-intensity program designed for fat loss", durations: [4, 6, 8] },
-  { id: "muscle-building", name: "Muscle Building", category: "Hypertrophy", emoji: "🏗️", description: "Progressive overload for maximum muscle growth", durations: [8, 12] },
-  { id: "hiit-program", name: "HIIT Program", category: "HIIT", emoji: "⚡", description: "High-intensity interval training for results", durations: [4, 6] },
-  { id: "home-workout", name: "Home Workout Plan", category: "Home", emoji: "🏠", description: "Full program with minimal equipment", durations: [4, 6, 8] },
-  { id: "mobility-flexibility", name: "Mobility & Flexibility", category: "Recovery", emoji: "🧘", description: "Improve range of motion and flexibility", durations: [4, 6] },
-  { id: "lower-body", name: "Lower Body Strength", category: "Strength", emoji: "🦵", description: "Focus on legs, glutes, and lower body power", durations: [4, 6, 8] },
-  { id: "upper-body", name: "Upper Body Strength", category: "Strength", emoji: "💪", description: "Build upper body strength and definition", durations: [4, 6, 8] },
-  { id: "full-body", name: "Full Body Conditioning", category: "Conditioning", emoji: "🔄", description: "Total body workouts for overall fitness", durations: [4, 6, 8] },
-  { id: "athletic-performance", name: "Athletic Performance", category: "Performance", emoji: "🏆", description: "Train like an athlete for peak performance", durations: [6, 8, 12] },
-  { id: "endurance-builder", name: "Endurance Builder", category: "Endurance", emoji: "⏱️", description: "Build stamina and endurance for any activity", durations: [6, 8] },
-  { id: "speed-agility", name: "Speed & Agility", category: "Performance", emoji: "⚡", description: "Improve speed, agility, and reaction time", durations: [4, 6] },
-  { id: "posture-core", name: "Posture & Core", category: "Wellness", emoji: "🧍", description: "Fix posture issues and strengthen your core", durations: [4, 6] },
-  { id: "beginner-running", name: "Beginner Running", category: "Running", emoji: "👟", description: "Couch to runner in a structured plan", durations: [4, 8] },
-  { id: "interval-cardio", name: "Interval Cardio", category: "Cardio", emoji: "💓", description: "Varied interval training for heart health", durations: [4, 6] },
-  { id: "functional-fitness", name: "Functional Fitness", category: "Functional", emoji: "🔧", description: "Train movements, not muscles", durations: [4, 6, 8] },
-  { id: "strength-cardio-hybrid", name: "Strength & Cardio Hybrid", category: "Hybrid", emoji: "🔀", description: "Best of both worlds — strength meets cardio", durations: [6, 8] },
-  { id: "recovery-mobility", name: "Recovery & Mobility", category: "Recovery", emoji: "🌿", description: "Active recovery and mobility focused program", durations: [2, 4] },
-];
 
 const TrainingProgramCards = () => {
   const { user } = useAuth();
@@ -52,6 +49,19 @@ const TrainingProgramCards = () => {
   const [selected, setSelected] = useState<Program | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [enrolling, setEnrolling] = useState(false);
+
+  const { data: programs = [], isLoading } = useQuery({
+    queryKey: ["programs-list"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("programs")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return (data || []) as Program[];
+    },
+  });
 
   const { data: questionnaire } = useQuery({
     queryKey: ["program-questionnaire", user?.id],
@@ -72,20 +82,17 @@ const TrainingProgramCards = () => {
     if (!selected || !selectedDuration || !user || !questionnaire) return;
     setEnrolling(true);
     try {
-      // Deactivate existing training plans
       await (supabase as any)
         .from("client_training_plans")
         .update({ status: "archived" })
         .eq("user_id", user.id)
         .eq("status", "active");
 
-      // Update questionnaire goal to match program
       await (supabase as any)
         .from("client_questionnaires")
         .update({ goal_next_4_weeks: selected.name })
         .eq("id", questionnaire.id);
 
-      // Generate new plan via edge function
       const { error } = await supabase.functions.invoke("enroll-program", {
         body: {
           questionnaireId: questionnaire.id,
@@ -99,8 +106,8 @@ const TrainingProgramCards = () => {
 
       queryClient.invalidateQueries({ queryKey: ["my-training-plan-full"] });
       toast({
-        title: `Enrolled in ${selected.name}! 🎉`,
-        description: `Your ${selectedDuration}-week program is being generated. This may take a minute.`,
+        title: `Enrolled in ${selected.name}!`,
+        description: `Your ${selectedDuration}-week program is being generated.`,
       });
       setSelected(null);
     } catch (err: any) {
@@ -110,32 +117,85 @@ const TrainingProgramCards = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        <h2 className="font-heading text-lg tracking-wide">Browse Programs</h2>
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex-shrink-0 w-52 h-72 rounded-2xl bg-card animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (programs.length === 0) return null;
+
   return (
     <div className="space-y-3">
-      <h2 className="font-heading text-lg tracking-wide">Browse Programs</h2>
-      <p className="text-xs text-muted-foreground -mt-1">Join a pre-designed program tailored to your goals</p>
+      <div>
+        <h2 className="font-heading text-lg tracking-wide">Programs</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">Expert-designed training programs</p>
+      </div>
 
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-        {PROGRAMS.map((program) => (
-          <button
-            key={program.id}
-            onClick={() => {
-              setSelected(program);
-              setSelectedDuration(program.durations[0]);
-            }}
-            className="flex-shrink-0 w-40 rounded-xl border border-border bg-card p-4 text-left hover:border-foreground/20 transition-all"
-          >
-            <span className="text-2xl">{program.emoji}</span>
-            <p className="font-heading text-sm mt-2 leading-tight">{program.name}</p>
-            <Badge variant="outline" className="mt-2 text-[9px] py-0 border-border text-muted-foreground">
-              {program.category}
-            </Badge>
-            <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
-              <Clock className="w-3 h-3" />
-              {program.durations.join("/")} wk
-            </div>
-          </button>
-        ))}
+        {programs.map((program) => {
+          const coverImg = program.cover_image_url || getFallbackImage(program.category);
+
+          return (
+            <button
+              key={program.id}
+              onClick={() => {
+                setSelected(program);
+                setSelectedDuration(program.durations[0]);
+              }}
+              className="flex-shrink-0 w-52 rounded-2xl overflow-hidden relative group text-left border border-border hover:border-foreground/20 transition-all"
+            >
+              {/* Cover Image */}
+              <div className="relative h-72">
+                <img
+                  src={coverImg}
+                  alt={program.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+
+                {/* Category badge */}
+                <div className="absolute top-3 left-3">
+                  <span className="text-[9px] uppercase tracking-[0.2em] font-medium text-white/70 bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                    {program.category}
+                  </span>
+                </div>
+
+                {/* Duration */}
+                <div className="absolute top-3 right-3 flex items-center gap-1 text-white/60">
+                  <Clock className="w-3 h-3" />
+                  <span className="text-[10px] font-medium">
+                    {program.durations.join("/")} wk
+                  </span>
+                </div>
+
+                {/* Text content at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="font-heading text-base text-white leading-tight mb-1">
+                    {program.name}
+                  </h3>
+                  {program.description && (
+                    <p className="text-[11px] text-white/60 line-clamp-2 leading-relaxed">
+                      {program.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-1 mt-3 text-[10px] text-white/50 font-medium uppercase tracking-wider group-hover:text-white/80 transition-colors">
+                    Start Program <ArrowRight className="w-3 h-3" />
+                  </div>
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* Enrollment Dialog */}
@@ -143,13 +203,24 @@ const TrainingProgramCards = () => {
         <DialogContent className="max-w-sm">
           {selected && (
             <>
-              <DialogHeader>
-                <DialogTitle className="font-heading text-lg flex items-center gap-2">
-                  <span className="text-2xl">{selected.emoji}</span> {selected.name}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-5 pt-2">
-                <p className="text-sm text-muted-foreground">{selected.description}</p>
+              {/* Program cover in dialog */}
+              <div className="relative -mx-6 -mt-6 h-44 overflow-hidden rounded-t-lg">
+                <img
+                  src={selected.cover_image_url || getFallbackImage(selected.category)}
+                  alt={selected.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/60 to-transparent" />
+                <div className="absolute bottom-4 left-6">
+                  <span className="text-[9px] uppercase tracking-[0.2em] text-foreground/60">{selected.category}</span>
+                  <h3 className="font-heading text-xl text-foreground">{selected.name}</h3>
+                </div>
+              </div>
+
+              <div className="space-y-5 pt-4">
+                {selected.description && (
+                  <p className="text-sm text-muted-foreground">{selected.description}</p>
+                )}
 
                 <div className="space-y-2">
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">

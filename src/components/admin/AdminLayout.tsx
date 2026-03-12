@@ -22,6 +22,7 @@ import {
   UsersRound,
   Palette,
   Film,
+  BookOpen,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -43,6 +44,7 @@ const navItems = [
   { id: "clients", label: "Clients", icon: Users },
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "broadcast", label: "Broadcast", icon: Megaphone },
+  { id: "programs", label: "Programs", icon: BookOpen },
   { id: "workouts", label: "On-Demand Classes", icon: Dumbbell },
   { id: "video-editor", label: "Video Builder", icon: Film },
   { id: "exercises", label: "Exercise Library", icon: Activity },

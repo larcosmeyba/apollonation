@@ -13,6 +13,7 @@ import { format, startOfWeek, addDays, isSameDay, isToday } from "date-fns";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
 import fitnessImage from "@/assets/fitness-gym.png";
+import ClientNotifications from "@/components/dashboard/ClientNotifications";
 
 const MEAL_LABELS: Record<string, string> = {
   breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack",
@@ -185,6 +186,9 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="max-w-2xl mx-auto space-y-6">
+
+        {/* Notification Alerts */}
+        <ClientNotifications />
 
         {/* Section 1 — Header */}
         <div className="flex items-start justify-between">

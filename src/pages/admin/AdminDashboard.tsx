@@ -12,6 +12,7 @@ import AdminClientList from "@/components/admin/AdminClientList";
 import AdminGroupCoaching from "@/components/admin/AdminGroupCoaching";
 import AdminMarketing from "@/components/admin/AdminMarketing";
 import OnDemandEditor from "@/components/admin/on-demand-editor/OnDemandEditor";
+import AdminPrograms from "@/components/admin/AdminPrograms";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -38,6 +39,8 @@ const AdminDashboard = () => {
         return <AdminMarketing />;
       case "video-editor":
         return <OnDemandEditor />;
+      case "programs":
+        return <AdminPrograms />;
       case "contacts":
         return <AdminContactRequests />;
       case "profile":
