@@ -13,6 +13,7 @@ import { format, startOfWeek, addDays, isSameDay, isToday } from "date-fns";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
 import fitnessImage from "@/assets/fitness-gym.png";
+import ClientNotifications from "@/components/dashboard/ClientNotifications";
 
 const MEAL_LABELS: Record<string, string> = {
   breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack",
