@@ -13,82 +13,82 @@
     --background: 222 38% 7%;
     --foreground: 222 14% 91%;
 
-    /* Card surfaces — Dark elevated panels */
-    --card: 222 30% 12%;
+    /* Card surfaces — Dark glass */
+    --card: 228 30% 13%;
     --card-foreground: 222 14% 91%;
 
-    /* Popover */
-    --popover: 222 30% 12%;
+    /* Popover — Dark glass */
+    --popover: 228 30% 13%;
     --popover-foreground: 222 14% 91%;
 
-    /* Primary — Cosmic Blue #5B8CFF */
-    --primary: 222 100% 68%;
+    /* Primary — Cosmic Blue #6AA3FF */
+    --primary: 216 100% 70%;
     --primary-foreground: 222 38% 7%;
 
     /* Secondary — Muted navy */
-    --secondary: 222 25% 16%;
+    --secondary: 228 25% 16%;
     --secondary-foreground: 222 14% 91%;
 
     /* Muted */
-    --muted: 222 20% 14%;
-    --muted-foreground: 222 12% 62%;
+    --muted: 228 20% 14%;
+    --muted-foreground: 222 14% 42%;
 
     /* Accent — Cosmic Blue */
-    --accent: 222 100% 68%;
+    --accent: 216 100% 70%;
     --accent-foreground: 222 38% 7%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders */
-    --border: 222 20% 18%;
-    --input: 222 25% 16%;
-    --ring: 222 100% 68%;
+    /* Borders — Very subtle */
+    --border: 228 15% 16%;
+    --input: 228 25% 16%;
+    --ring: 216 100% 70%;
 
     --radius: 0.5rem;
 
     /* Apollo custom tokens — Cosmic */
     --apollo-black: 222 38% 7%;
-    --apollo-charcoal: 222 30% 12%;
-    --apollo-charcoal-light: 222 30% 12%;
-    --apollo-graphite: 222 25% 16%;
-    --apollo-divider: 222 20% 20%;
-    --apollo-inactive: 222 12% 55%;
-    --apollo-gray: 222 12% 62%;
+    --apollo-charcoal: 228 30% 13%;
+    --apollo-charcoal-light: 228 30% 13%;
+    --apollo-graphite: 228 25% 16%;
+    --apollo-divider: 228 15% 20%;
+    --apollo-inactive: 222 12% 42%;
+    --apollo-gray: 222 14% 42%;
     --apollo-white: 222 14% 91%;
-    --apollo-accent: 222 100% 68%;
+    --apollo-accent: 216 100% 70%;
 
     /* Legacy aliases */
-    --apollo-gold: 222 100% 68%;
-    --apollo-gold-light: 222 100% 74%;
-    --apollo-gold-dark: 222 100% 58%;
-    --apollo-bronze: 222 12% 55%;
-    --apollo-sandstone: 222 12% 62%;
+    --apollo-gold: 216 100% 70%;
+    --apollo-gold-light: 216 100% 76%;
+    --apollo-gold-dark: 216 100% 60%;
+    --apollo-bronze: 222 12% 42%;
+    --apollo-sandstone: 222 14% 42%;
     --apollo-marble: 222 14% 91%;
     --apollo-ivory: 222 14% 91%;
-    --apollo-taupe: 222 12% 55%;
-    --apollo-slate: 222 12% 55%;
+    --apollo-taupe: 222 12% 42%;
+    --apollo-slate: 222 12% 42%;
 
     /* Chart colors */
-    --chart-protein: 222 100% 68%;
+    --chart-protein: 216 100% 70%;
     --chart-carbs: 200 60% 50%;
     --chart-fat: 260 50% 55%;
 
     /* Shadows */
-    --shadow-card: 0 4px 24px -4px hsl(222 100% 68% / 0.06), 0 1px 4px -1px hsl(0 0% 0% / 0.2);
-    --shadow-elevated: 0 8px 40px -8px hsl(222 100% 68% / 0.12), 0 2px 8px -2px hsl(0 0% 0% / 0.3);
-    --shadow-glow: 0 0 30px -5px hsl(222 100% 68% / 0.2);
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3), 0 1px 4px -1px hsl(0 0% 0% / 0.2);
+    --shadow-elevated: 0 20px 60px -8px hsl(0 0% 0% / 0.45), 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --shadow-glow: 0 0 30px -5px hsl(216 100% 70% / 0.15);
 
     /* Sidebar */
     --sidebar-background: 222 38% 7%;
     --sidebar-foreground: 222 14% 91%;
-    --sidebar-primary: 222 100% 68%;
+    --sidebar-primary: 216 100% 70%;
     --sidebar-primary-foreground: 222 38% 7%;
-    --sidebar-accent: 222 25% 16%;
+    --sidebar-accent: 228 25% 16%;
     --sidebar-accent-foreground: 222 14% 91%;
-    --sidebar-border: 222 20% 18%;
-    --sidebar-ring: 222 100% 68%;
+    --sidebar-border: 228 15% 16%;
+    --sidebar-ring: 216 100% 70%;
   }
 
   .dark {
