@@ -75,9 +75,9 @@
     --chart-carbs: 210 12% 43%;
     --chart-fat: 0 0% 24%;
 
-    /* Shadows — Very subtle */
-    --shadow-card: 0 20px 40px -10px hsl(0 0% 0% / 0.1);
-    --shadow-elevated: 0 10px 30px -10px hsl(0 0% 0% / 0.15);
+    /* Shadows — Clean elevation */
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
+    --shadow-elevated: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
 
     /* Sidebar */
     --sidebar-background: 0 0% 4%;
