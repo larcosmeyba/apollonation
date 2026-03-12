@@ -187,6 +187,9 @@ const Dashboard = () => {
     <DashboardLayout>
       <div className="max-w-2xl mx-auto space-y-6">
 
+        {/* Notification Alerts */}
+        <ClientNotifications />
+
         {/* Section 1 — Header */}
         <div className="flex items-start justify-between">
           <div>

@@ -39,6 +39,8 @@ const AdminDashboard = () => {
         return <AdminMarketing />;
       case "video-editor":
         return <OnDemandEditor />;
+      case "programs":
+        return <AdminPrograms />;
       case "contacts":
         return <AdminContactRequests />;
       case "profile":
