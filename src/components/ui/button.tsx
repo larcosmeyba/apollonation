@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:opacity-90",
+        default: "bg-primary text-primary-foreground hover:brightness-110 shadow-[0_0_20px_-4px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-2px_hsl(var(--primary)/0.5)]",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-foreground/40 text-foreground bg-transparent hover:bg-foreground hover:text-background",
+        outline: "border border-primary/40 text-foreground bg-transparent hover:bg-primary/10 hover:border-primary/70",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-foreground underline-offset-4 hover:underline tracking-normal",
-        apollo: "bg-foreground text-background font-semibold hover:opacity-90",
-        "apollo-outline": "border border-foreground/40 text-foreground bg-transparent hover:bg-foreground hover:text-background",
+        apollo: "bg-primary text-primary-foreground font-semibold hover:brightness-110 shadow-[0_0_20px_-4px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-2px_hsl(var(--primary)/0.5)]",
+        "apollo-outline": "border border-primary/40 text-foreground bg-transparent hover:bg-primary/10 hover:border-primary/70 hover:shadow-[0_0_20px_-6px_hsl(var(--primary)/0.3)]",
       },
       size: {
         default: "h-11 px-8 py-3",

@@ -2,92 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-/* APOLLO NATION — Dark Editorial Design System
-   Theme: Monochrome Black + White, photography for color
-   Palette: Matte Black, Charcoal, Soft White, Cool Gray
+/* APOLLO NATION — Cosmic Luxury Design System
+   Theme: Deep Navy + Cosmic Blue + Marble Textures
+   Palette: #0B0F19, #141A2A, #5B8CFF, #E6E8ED
 */
 
 @layer base {
   :root {
-    /* Primary Background — Matte Black #0B0B0B */
-    --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
+    /* Primary Background — Deep Space Navy #0B0F19 */
+    --background: 222 38% 7%;
+    --foreground: 222 14% 91%;
 
-    /* Card surfaces — Luxury Cream */
-    --card: 36 30% 96%;
-    --card-foreground: 30 10% 10%;
+    /* Card surfaces — Dark elevated panels */
+    --card: 222 30% 12%;
+    --card-foreground: 222 14% 91%;
 
-    /* Popover — Match cream system */
-    --popover: 36 30% 96%;
-    --popover-foreground: 30 10% 10%;
+    /* Popover */
+    --popover: 222 30% 12%;
+    --popover-foreground: 222 14% 91%;
 
-    /* Primary — White buttons / active elements */
-    --primary: 0 0% 95%;
-    --primary-foreground: 0 0% 0%;
+    /* Primary — Cosmic Blue #5B8CFF */
+    --primary: 222 100% 68%;
+    --primary-foreground: 222 38% 7%;
 
-    /* Secondary — Cream surface */
-    --secondary: 36 25% 94%;
-    --secondary-foreground: 30 10% 10%;
+    /* Secondary — Muted navy */
+    --secondary: 222 25% 16%;
+    --secondary-foreground: 222 14% 91%;
 
-    /* Muted — Soft cream */
-    --muted: 36 20% 93%;
-    --muted-foreground: 30 8% 25%;
+    /* Muted */
+    --muted: 222 20% 14%;
+    --muted-foreground: 222 12% 62%;
 
-    /* Accent — Deep Graphite Blue #1E2A38 (very subtle) */
-    --accent: 210 30% 17%;
-    --accent-foreground: 0 0% 95%;
+    /* Accent — Cosmic Blue */
+    --accent: 222 100% 68%;
+    --accent-foreground: 222 38% 7%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Warm taupe for cream boxes */
-    --border: 30 15% 78%;
-    --input: 36 25% 94%;
-    --ring: 30 10% 30%;
+    /* Borders */
+    --border: 222 20% 18%;
+    --input: 222 25% 16%;
+    --ring: 222 100% 68%;
 
     --radius: 0.5rem;
 
-    /* Apollo custom tokens — Monochrome */
-    --apollo-black: 0 0% 4%;
-    --apollo-charcoal: 0 0% 9%;
-    --apollo-charcoal-light: 0 0% 9%;
-    --apollo-graphite: 0 0% 12%;
-    --apollo-divider: 0 0% 16%;
-    --apollo-inactive: 0 0% 48%;
-    --apollo-gray: 0 0% 75%;
-    --apollo-white: 0 0% 95%;
-    --apollo-accent: 210 30% 17%;
+    /* Apollo custom tokens — Cosmic */
+    --apollo-black: 222 38% 7%;
+    --apollo-charcoal: 222 30% 12%;
+    --apollo-charcoal-light: 222 30% 12%;
+    --apollo-graphite: 222 25% 16%;
+    --apollo-divider: 222 20% 20%;
+    --apollo-inactive: 222 12% 55%;
+    --apollo-gray: 222 12% 62%;
+    --apollo-white: 222 14% 91%;
+    --apollo-accent: 222 100% 68%;
 
-    /* Legacy aliases — map old gold tokens to new monochrome */
-    --apollo-gold: 0 0% 95%;
-    --apollo-gold-light: 0 0% 85%;
-    --apollo-gold-dark: 0 0% 70%;
-    --apollo-bronze: 0 0% 60%;
-    --apollo-sandstone: 0 0% 75%;
-    --apollo-marble: 0 0% 96%;
-    --apollo-ivory: 0 0% 95%;
-    --apollo-taupe: 0 0% 48%;
-    --apollo-slate: 0 0% 50%;
+    /* Legacy aliases */
+    --apollo-gold: 222 100% 68%;
+    --apollo-gold-light: 222 100% 74%;
+    --apollo-gold-dark: 222 100% 58%;
+    --apollo-bronze: 222 12% 55%;
+    --apollo-sandstone: 222 12% 62%;
+    --apollo-marble: 222 14% 91%;
+    --apollo-ivory: 222 14% 91%;
+    --apollo-taupe: 222 12% 55%;
+    --apollo-slate: 222 12% 55%;
 
-    /* Chart colors — Muted neutral */
-    --chart-protein: 0 0% 54%;
-    --chart-carbs: 210 12% 43%;
-    --chart-fat: 0 0% 24%;
+    /* Chart colors */
+    --chart-protein: 222 100% 68%;
+    --chart-carbs: 200 60% 50%;
+    --chart-fat: 260 50% 55%;
 
-    /* Shadows — Clean elevation */
-    --shadow-card: 0 2px 16px -2px hsl(0 0% 0% / 0.08), 0 1px 4px -1px hsl(0 0% 0% / 0.04);
-    --shadow-elevated: 0 8px 30px -6px hsl(0 0% 0% / 0.12), 0 2px 8px -2px hsl(0 0% 0% / 0.06);
+    /* Shadows */
+    --shadow-card: 0 4px 24px -4px hsl(222 100% 68% / 0.06), 0 1px 4px -1px hsl(0 0% 0% / 0.2);
+    --shadow-elevated: 0 8px 40px -8px hsl(222 100% 68% / 0.12), 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --shadow-glow: 0 0 30px -5px hsl(222 100% 68% / 0.2);
 
     /* Sidebar */
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 0 0% 95%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 16%;
-    --sidebar-ring: 0 0% 95%;
+    --sidebar-background: 222 38% 7%;
+    --sidebar-foreground: 222 14% 91%;
+    --sidebar-primary: 222 100% 68%;
+    --sidebar-primary-foreground: 222 38% 7%;
+    --sidebar-accent: 222 25% 16%;
+    --sidebar-accent-foreground: 222 14% 91%;
+    --sidebar-border: 222 20% 18%;
+    --sidebar-ring: 222 100% 68%;
   }
 
   .dark {
@@ -115,15 +116,10 @@
     overflow-x: hidden;
     width: 100%;
     max-width: 100vw;
-    background-image: url('/images/marble-bg.jpeg');
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cinzel', serif;
+    font-family: 'Playfair Display', serif;
     font-weight: 500;
     letter-spacing: 0.08em;
     word-break: break-word;
@@ -141,22 +137,24 @@
 }
 
 @layer components {
-  /* Apollo Button Variants — White primary, transparent outline */
+  /* Apollo Button Variants */
   .btn-apollo-primary {
-    @apply relative overflow-hidden bg-foreground text-background font-medium px-8 py-4 rounded transition-all duration-300;
+    @apply relative overflow-hidden bg-primary text-primary-foreground font-medium px-8 py-4 rounded transition-all duration-300;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     font-size: 0.75rem;
+    box-shadow: 0 0 20px -4px hsl(var(--primary) / 0.4);
   }
 
   .btn-apollo-primary:hover {
-    @apply opacity-90;
+    box-shadow: 0 0 30px -2px hsl(var(--primary) / 0.5);
+    @apply brightness-110;
   }
 
   .btn-apollo-outline {
-    @apply border border-foreground/60 text-foreground bg-transparent px-8 py-4 rounded transition-all duration-300;
+    @apply border border-primary/40 text-foreground bg-transparent px-8 py-4 rounded transition-all duration-300;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     letter-spacing: 0.1em;
@@ -165,10 +163,11 @@
   }
 
   .btn-apollo-outline:hover {
-    @apply bg-foreground text-background;
+    @apply border-primary/70 bg-primary/10;
+    box-shadow: 0 0 20px -6px hsl(var(--primary) / 0.3);
   }
 
-  /* Card styles — White surface + black border */
+  /* Card styles */
   .card-apollo {
     @apply rounded-2xl border border-border bg-card p-8 transition-all duration-300;
     box-shadow: var(--shadow-card);
@@ -176,36 +175,21 @@
   .card-apollo:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--primary) / 0.2);
   }
 
   .card-apollo-featured {
-    @apply rounded-2xl border border-border bg-card p-10 transition-all duration-300;
-    box-shadow: var(--shadow-elevated);
+    @apply rounded-2xl border border-primary/20 bg-card p-10 transition-all duration-300;
+    box-shadow: var(--shadow-glow);
   }
   .card-apollo-featured:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px -8px hsl(0 0% 0% / 0.16);
+    box-shadow: 0 0 40px -8px hsl(var(--primary) / 0.25);
   }
 
-  /* Force black text inside all box/card surfaces */
-  .bg-card,
-  .card-apollo,
-  .card-apollo-featured {
-    color: hsl(var(--card-foreground));
-  }
-
-  .bg-card .text-foreground,
-  .bg-card .text-muted-foreground,
-  .card-apollo .text-foreground,
-  .card-apollo .text-muted-foreground,
-  .card-apollo-featured .text-foreground,
-  .card-apollo-featured .text-muted-foreground {
-    color: hsl(var(--card-foreground)) !important;
-  }
-
-  /* Text gradient — subtle white fade */
+  /* Text gradient — cosmic blue */
   .text-gradient-gold {
-    background: linear-gradient(135deg, hsl(0 0% 95%), hsl(0 0% 70%));
+    background: linear-gradient(135deg, hsl(222 100% 68%), hsl(222 100% 80%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -213,17 +197,17 @@
 
   /* Section backgrounds */
   .bg-apollo-gradient {
-    background: linear-gradient(180deg, hsl(0 0% 4%), hsl(0 0% 2%));
+    background: linear-gradient(180deg, hsl(222 38% 7%), hsl(222 30% 5%));
   }
 
-  /* Animated underline — thin, clean */
+  /* Animated underline */
   .underline-apollo {
     @apply relative;
   }
 
   .underline-apollo::after {
     content: '';
-    @apply absolute bottom-0 left-0 h-px w-0 bg-foreground transition-all duration-500;
+    @apply absolute bottom-0 left-0 h-px w-0 bg-primary transition-all duration-500;
   }
 
   .underline-apollo:hover::after {
@@ -232,13 +216,29 @@
 
   /* Divider line */
   .divider-gold {
-    @apply h-px bg-gradient-to-r from-transparent via-border to-transparent;
+    @apply h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent;
   }
 
   /* Section label */
   .section-label {
     font-family: 'Inter', sans-serif;
-    @apply text-muted-foreground font-medium text-xs uppercase tracking-[0.2em];
+    @apply text-primary font-medium text-xs uppercase tracking-[0.3em];
+  }
+
+  /* Cosmic glow button */
+  .btn-cosmic {
+    @apply relative px-10 py-4 bg-primary text-primary-foreground font-medium rounded-full transition-all duration-500;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    box-shadow: 0 0 25px -3px hsl(var(--primary) / 0.4), 0 0 60px -10px hsl(var(--primary) / 0.2);
+  }
+
+  .btn-cosmic:hover {
+    box-shadow: 0 0 35px -2px hsl(var(--primary) / 0.5), 0 0 80px -10px hsl(var(--primary) / 0.3);
+    transform: translateY(-1px);
   }
 }
 
