@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/marcos-4.jpg";
 import { useEffect, useState } from "react";
+import StarParticles from "./StarParticles";
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -28,6 +29,8 @@ const HeroSection = () => {
       <div className="absolute inset-0" style={{ backgroundImage: "url('/images/marble-texture.jpeg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.06, mixBlendMode: 'overlay' as const }} />
       {/* Cosmic radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(106,163,255,0.06)_0%,_transparent_70%)]" />
+      {/* Star particles */}
+      <StarParticles />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
@@ -48,7 +51,7 @@ const HeroSection = () => {
               Precision Nutrition
             </p>
             <p className="text-lg md:text-xl text-primary/70 font-light tracking-[0.15em] uppercase">
-              A Higher Standard of Fitness
+              A Higher Standard
             </p>
           </div>
 
