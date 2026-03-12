@@ -41,8 +41,8 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Visible Divider #3A3A3A */
-    --border: 0 0% 22%;
+    /* Borders — Bright white outline for premium contrast */
+    --border: 0 0% 85%;
     --input: 0 0% 14%;
     --ring: 0 0% 95%;
 
