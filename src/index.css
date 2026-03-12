@@ -170,12 +170,12 @@
 
   /* Card styles — Charcoal with subtle shadow */
   .card-apollo {
-    @apply rounded-lg border border-border bg-card p-8;
+    @apply rounded-2xl border border-border bg-card p-8;
     box-shadow: var(--shadow-card);
   }
 
   .card-apollo-featured {
-    @apply rounded-lg border border-foreground/10 bg-card p-10;
+    @apply rounded-2xl border border-foreground/10 bg-card p-10;
     box-shadow: var(--shadow-elevated);
   }
 
