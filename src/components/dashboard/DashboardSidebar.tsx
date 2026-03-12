@@ -30,13 +30,13 @@ const DashboardSidebar = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <aside className="w-64 min-h-screen flex flex-col border-r border-border/30" style={{ background: 'rgba(14,18,30,0.95)', backdropFilter: 'blur(24px)' }}>
+    <aside className="w-64 min-h-screen flex flex-col border-r border-border/30" style={{ background: '#0F0F0E' }}>
       {/* Logo */}
       <div className="p-6 border-b border-border/20">
         <Link to="/dashboard" className="flex items-center gap-3">
           <img src={apolloLogo} alt="Apollo Nation" className="w-10 h-10 invert" />
           <span className="font-heading text-lg tracking-[0.2em]">
-            APOLLO <span className="text-foreground/50">NATION</span>
+            APOLLO <span className="text-muted-foreground">NATION</span>
           </span>
         </Link>
       </div>
@@ -51,7 +51,7 @@ const DashboardSidebar = () => {
             <p className="font-medium text-sm truncate text-foreground">
               {profile?.display_name || "Member"}
             </p>
-            <p className="text-[10px] text-primary/70 uppercase tracking-[0.2em]">
+            <p className="text-[10px] text-secondary uppercase tracking-[0.2em]">
               {profile?.subscription_tier || "Basic"} Member
             </p>
           </div>
@@ -70,7 +70,7 @@ const DashboardSidebar = () => {
                 ? "bg-primary/15 text-primary border border-primary/20"
                 : item.locked
                 ? "text-muted-foreground/40 cursor-not-allowed"
-                : "text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.04)]"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
             <item.icon className="w-4 h-4" />
@@ -108,7 +108,7 @@ const DashboardSidebar = () => {
       <div className="p-3 border-t border-border/20">
         <button
           onClick={signOut}
-          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.04)] transition-all duration-300"
+          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-300"
         >
           <LogOut className="w-4 h-4" />
           <span className="text-sm font-light">Sign Out</span>
