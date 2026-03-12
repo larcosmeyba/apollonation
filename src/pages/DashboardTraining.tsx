@@ -203,7 +203,7 @@ const DashboardTraining = () => {
         <TrainingScheduleAdjust />
 
         {/* Horizontal Calendar Strip */}
-        <div className="rounded-xl border border-border bg-card p-3">
+        <div className="card-glass p-3">
           <div className="flex items-center justify-between mb-2">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
               <ChevronLeft className="w-4 h-4" />
