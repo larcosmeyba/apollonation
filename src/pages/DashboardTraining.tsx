@@ -269,7 +269,7 @@ const DashboardTraining = () => {
           <>
             {/* Today's Workout — Exercise List with Videos */}
             {todayWorkout ? (
-              <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <div className="card-glass overflow-hidden">
                 <div className="p-4 pb-3 border-b border-border/50">
                   <div className="flex items-center justify-between">
                     <div>
