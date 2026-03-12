@@ -94,7 +94,8 @@ const ClientNotifications = () => {
       {visibleAlerts.map((alert) => (
         <div
           key={alert.id}
-          className="relative rounded-xl bg-destructive/15 border border-destructive/30 px-4 py-3 shadow-sm"
+          className="relative card-glass px-4 py-3"
+          style={{ borderColor: 'rgba(106,163,255,0.2)' }}
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-destructive/20 flex items-center justify-center flex-shrink-0">
