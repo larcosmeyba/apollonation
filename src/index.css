@@ -168,15 +168,31 @@
     @apply bg-foreground text-background;
   }
 
-  /* Card styles — Charcoal with subtle shadow */
+  /* Card styles — White surface + black border */
   .card-apollo {
     @apply rounded-2xl border border-border bg-card p-8;
     box-shadow: var(--shadow-card);
   }
 
   .card-apollo-featured {
-    @apply rounded-2xl border border-foreground/10 bg-card p-10;
+    @apply rounded-2xl border border-border bg-card p-10;
     box-shadow: var(--shadow-elevated);
+  }
+
+  /* Force black text inside all box/card surfaces */
+  .bg-card,
+  .card-apollo,
+  .card-apollo-featured {
+    color: hsl(var(--card-foreground));
+  }
+
+  .bg-card .text-foreground,
+  .bg-card .text-muted-foreground,
+  .card-apollo .text-foreground,
+  .card-apollo .text-muted-foreground,
+  .card-apollo-featured .text-foreground,
+  .card-apollo-featured .text-muted-foreground {
+    color: hsl(var(--card-foreground)) !important;
   }
 
   /* Text gradient — subtle white fade */
