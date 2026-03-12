@@ -137,6 +137,9 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
                 <Settings className="w-4 h-4 mr-2" /> Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                <Eye className="w-4 h-4 mr-2" /> View as Client
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
                 <LogOut className="w-4 h-4 mr-2" /> Sign Out
               </DropdownMenuItem>
