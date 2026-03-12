@@ -315,7 +315,7 @@ const Dashboard = () => {
         </div>
 
         {/* Section 4A — Calories & Macros Remaining Card */}
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Calories & Macros</p>
             <Link to="/dashboard/macros">
