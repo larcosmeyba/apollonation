@@ -41,10 +41,10 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Subtle dark border for clean white boxes */
-    --border: 0 0% 80%;
-    --input: 0 0% 94%;
-    --ring: 0 0% 30%;
+    /* Borders — Warm taupe for cream boxes */
+    --border: 30 15% 78%;
+    --input: 36 25% 94%;
+    --ring: 30 10% 30%;
 
     --radius: 0.5rem;
 
