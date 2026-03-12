@@ -41,9 +41,9 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Subtle Divider #2A2A2A */
-    --border: 0 0% 16%;
-    --input: 0 0% 12%;
+    /* Borders — Visible Divider #3A3A3A */
+    --border: 0 0% 22%;
+    --input: 0 0% 14%;
     --ring: 0 0% 95%;
 
     --radius: 0.5rem;
