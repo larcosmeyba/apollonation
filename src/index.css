@@ -13,9 +13,9 @@
     --background: 0 0% 4%;
     --foreground: 0 0% 95%;
 
-    /* Card surfaces — Pure White for strong contrast */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    /* Card surfaces — Crisp White */
+    --card: 0 0% 99%;
+    --card-foreground: 0 0% 5%;
 
     /* Popover — Match white box system */
     --popover: 0 0% 100%;
