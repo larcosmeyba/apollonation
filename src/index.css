@@ -29,9 +29,9 @@
     --secondary: 36 25% 94%;
     --secondary-foreground: 30 10% 10%;
 
-    /* Muted — Near-white surface with black text */
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 0%;
+    /* Muted — Soft cream */
+    --muted: 36 20% 93%;
+    --muted-foreground: 30 8% 25%;
 
     /* Accent — Deep Graphite Blue #1E2A38 (very subtle) */
     --accent: 210 30% 17%;
