@@ -63,7 +63,6 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const avatarUrl = profile?.avatar_url;
-  const avatarUrl = profile?.avatar_url;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
