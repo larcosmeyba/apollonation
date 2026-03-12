@@ -61,6 +61,8 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
   const { profile, signOut } = useAuth();
   const { unreadCount } = useMessages();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const avatarUrl = profile?.avatar_url;
   const avatarUrl = profile?.avatar_url;
 
   return (
