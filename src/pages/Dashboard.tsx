@@ -242,7 +242,7 @@ const Dashboard = () => {
         </div>
 
         {/* Section 3 — Hero Workout Card with Image */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[var(--shadow-card)]">
+        <div className="card-glass overflow-hidden shadow-[var(--shadow-card)]">
           {/* Workout Hero Image */}
           <div className="relative h-36 overflow-hidden">
             <img
