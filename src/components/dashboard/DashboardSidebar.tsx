@@ -2,18 +2,8 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import {
-  LayoutDashboard,
-  Dumbbell,
-  User,
-  LogOut,
-  Lock,
-  Shield,
-  MessageSquare,
-  Apple,
-  Play,
-  Camera,
-  Calendar,
-  BookOpen,
+  LayoutDashboard, Dumbbell, User, LogOut, Lock, Shield,
+  MessageSquare, Apple, Play, Camera, Calendar, BookOpen,
 } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
@@ -23,7 +13,6 @@ const DashboardSidebar = () => {
   const { isAdmin } = useAdminStatus();
   const location = useLocation();
   const { unreadCount } = useMessages();
-
   const isElite = profile?.subscription_tier === "elite";
 
   const navItems = [
@@ -41,28 +30,28 @@ const DashboardSidebar = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <aside className="w-64 bg-[hsl(var(--apollo-charcoal-light))] border-r border-border min-h-screen flex flex-col">
+    <aside className="w-64 min-h-screen flex flex-col border-r border-border/30" style={{ background: 'rgba(14,18,30,0.95)', backdropFilter: 'blur(24px)' }}>
       {/* Logo */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-border/20">
         <Link to="/dashboard" className="flex items-center gap-3">
           <img src={apolloLogo} alt="Apollo Nation" className="w-10 h-10 invert" />
-          <span className="font-heading text-lg tracking-wider">
-            APOLLO <span className="text-primary">NATION</span>
+          <span className="font-heading text-lg tracking-[0.2em]">
+            APOLLO <span className="text-foreground/50">NATION</span>
           </span>
         </Link>
       </div>
 
       {/* User info */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-border/20">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
             <User className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm truncate">
+            <p className="font-medium text-sm truncate text-foreground">
               {profile?.display_name || "Member"}
             </p>
-            <p className="text-xs text-primary uppercase tracking-wide">
+            <p className="text-[10px] text-primary/70 uppercase tracking-[0.2em]">
               {profile?.subscription_tier || "Basic"} Member
             </p>
           </div>
@@ -70,29 +59,29 @@ const DashboardSidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-3 space-y-0.5">
         {navItems.map((item) => (
           <Link
             key={item.href}
             to={item.locked ? "#" : item.href}
             onClick={(e) => item.locked && e.preventDefault()}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 ${
               isActive(item.href)
-                ? "bg-primary/20 text-primary"
+                ? "bg-primary/15 text-primary border border-primary/20"
                 : item.locked
-                ? "text-muted-foreground/50 cursor-not-allowed"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? "text-muted-foreground/40 cursor-not-allowed"
+                : "text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.04)]"
             }`}
           >
-            <item.icon className="w-5 h-5" />
-            <span className="flex-1">{item.label}</span>
+            <item.icon className="w-4 h-4" />
+            <span className="flex-1 text-sm font-light">{item.label}</span>
             {(item as any).badge && (
-              <span className="bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+              <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                 {(item as any).badge}
               </span>
             )}
             {item.locked && (
-              <div className="flex items-center gap-1 text-xs">
+              <div className="flex items-center gap-1 text-[10px]">
                 <Lock className="w-3 h-3" />
                 <span>{(item as any).tier}</span>
               </div>
@@ -100,30 +89,29 @@ const DashboardSidebar = () => {
           </Link>
         ))}
 
-        {/* Admin toggle */}
         {isAdmin && (
           <Link
             to="/admin"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all mt-4 border border-primary/30 ${
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 mt-4 border ${
               location.pathname === "/admin"
-                ? "bg-primary/20 text-primary"
-                : "text-primary hover:bg-primary/10"
+                ? "bg-primary/15 text-primary border-primary/20"
+                : "text-primary/70 border-primary/15 hover:bg-primary/10"
             }`}
           >
-            <Shield className="w-5 h-5" />
-            <span className="flex-1">Admin Panel</span>
+            <Shield className="w-4 h-4" />
+            <span className="flex-1 text-sm font-light">Admin Panel</span>
           </Link>
         )}
       </nav>
 
       {/* Sign out */}
-      <div className="p-4 border-t border-border">
+      <div className="p-3 border-t border-border/20">
         <button
           onClick={signOut}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.04)] transition-all duration-300"
         >
-          <LogOut className="w-5 h-5" />
-          <span>Sign Out</span>
+          <LogOut className="w-4 h-4" />
+          <span className="text-sm font-light">Sign Out</span>
         </button>
       </div>
     </aside>

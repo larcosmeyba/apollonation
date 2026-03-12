@@ -94,17 +94,18 @@ const ClientNotifications = () => {
       {visibleAlerts.map((alert) => (
         <div
           key={alert.id}
-          className="relative rounded-xl bg-destructive/15 border border-destructive/30 px-4 py-3 shadow-sm"
+          className="relative card-glass px-4 py-3"
+          style={{ borderColor: 'rgba(106,163,255,0.2)' }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-destructive/20 flex items-center justify-center flex-shrink-0">
-              <alert.icon className="w-4 h-4 text-destructive" />
+            <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 border border-primary/20">
+              <alert.icon className="w-4 h-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">{alert.message}</p>
             </div>
             <Link to={alert.link}>
-              <button className="text-xs font-semibold text-destructive hover:text-destructive/80 transition-colors whitespace-nowrap uppercase tracking-wider">
+              <button className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors whitespace-nowrap uppercase tracking-[0.15em]">
                 {alert.action}
               </button>
             </Link>
