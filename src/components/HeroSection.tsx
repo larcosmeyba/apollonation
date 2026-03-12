@@ -13,6 +13,7 @@ const HeroSection = () => {
 
   return (
     <header className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 w-full" role="banner">
+      {/* Hero photo */}
       <img
         src={heroImage}
         alt=""
@@ -21,19 +22,20 @@ const HeroSection = () => {
         decoding="async"
         className={`absolute inset-0 w-full h-full object-cover object-[50%_20%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
-      {/* Cosmic dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background/50 via-transparent to-background/50" />
-      {/* Subtle cosmic blue radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(222_100%_68%/0.08)_0%,_transparent_70%)]" />
+      {/* Layer 2 — Dark luxury overlay */}
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(11,15,25,0.82) 0%, rgba(11,15,25,0.90) 45%, rgba(11,15,25,0.96) 100%)' }} />
+      {/* Layer 3 — Marble texture overlay */}
+      <div className="absolute inset-0" style={{ backgroundImage: "url('/images/marble-texture.jpeg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.06, mixBlendMode: 'overlay' as const }} />
+      {/* Cosmic radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(106,163,255,0.06)_0%,_transparent_70%)]" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <h1 
-            className={`font-heading text-5xl sm:text-6xl md:text-7xl lg:text-9xl leading-[1.05] mb-10 tracking-[0.12em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`font-heading text-5xl sm:text-6xl md:text-7xl lg:text-9xl leading-[1.05] mb-10 tracking-[0.14em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             <span className="block text-foreground">APOLLO</span>
-            <span className="block text-foreground/60 mt-2">NATION</span>
+            <span className="block text-foreground/50 mt-2">NATION</span>
           </h1>
 
           <div 
@@ -45,7 +47,7 @@ const HeroSection = () => {
             <p className="text-lg md:text-xl text-foreground/70 font-light tracking-[0.15em] uppercase">
               Precision Nutrition
             </p>
-            <p className="text-lg md:text-xl text-primary/80 font-light tracking-[0.15em] uppercase">
+            <p className="text-lg md:text-xl text-primary/70 font-light tracking-[0.15em] uppercase">
               A Higher Standard of Fitness
             </p>
           </div>

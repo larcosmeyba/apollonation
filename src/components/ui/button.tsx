@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:brightness-110 shadow-[0_0_20px_-4px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-2px_hsl(var(--primary)/0.5)]",
+        default: "bg-[rgba(106,163,255,0.14)] text-foreground border border-[rgba(106,163,255,0.45)] hover:bg-[rgba(106,163,255,0.22)] hover:shadow-[0_0_30px_-4px_rgba(106,163,255,0.3)]",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-primary/40 text-foreground bg-transparent hover:bg-primary/10 hover:border-primary/70",
+        outline: "border border-[rgba(255,255,255,0.12)] text-foreground bg-transparent hover:bg-[rgba(106,163,255,0.08)] hover:border-[rgba(106,163,255,0.4)]",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-foreground underline-offset-4 hover:underline tracking-normal",
-        apollo: "bg-primary text-primary-foreground font-semibold hover:brightness-110 shadow-[0_0_20px_-4px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-2px_hsl(var(--primary)/0.5)]",
-        "apollo-outline": "border border-primary/40 text-foreground bg-transparent hover:bg-primary/10 hover:border-primary/70 hover:shadow-[0_0_20px_-6px_hsl(var(--primary)/0.3)]",
+        apollo: "bg-[rgba(106,163,255,0.14)] text-foreground border border-[rgba(106,163,255,0.45)] font-semibold hover:bg-[rgba(106,163,255,0.22)] hover:shadow-[0_0_30px_-4px_rgba(106,163,255,0.3)]",
+        "apollo-outline": "border border-[rgba(255,255,255,0.12)] text-foreground bg-transparent hover:bg-[rgba(106,163,255,0.08)] hover:border-[rgba(106,163,255,0.4)]",
       },
       size: {
         default: "h-11 px-8 py-3",
