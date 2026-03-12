@@ -358,7 +358,7 @@ const Dashboard = () => {
 
         {/* Section 4B — Today's Meal Plan Card (separate) */}
         {todayMeals.length > 0 && (
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+          <div className="card-glass p-5 shadow-[var(--shadow-card)]">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Utensils className="w-4 h-4 text-primary" />

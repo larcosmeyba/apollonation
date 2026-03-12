@@ -105,7 +105,7 @@ const ClientNotifications = () => {
               <p className="text-sm font-medium text-foreground">{alert.message}</p>
             </div>
             <Link to={alert.link}>
-              <button className="text-xs font-semibold text-destructive hover:text-destructive/80 transition-colors whitespace-nowrap uppercase tracking-wider">
+              <button className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors whitespace-nowrap uppercase tracking-[0.15em]">
                 {alert.action}
               </button>
             </Link>
