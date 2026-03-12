@@ -7,12 +7,12 @@ const DashboardMobileNav = () => {
   const { profile } = useAuth();
 
   return (
-    <header className="border-b border-border/20 p-4" style={{ background: 'rgba(14,18,30,0.92)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
+    <header className="border-b border-border/20 p-4" style={{ background: '#0F0F0E' }}>
       <div className="flex items-center justify-between">
         <Link to="/dashboard" className="flex items-center gap-2">
           <img src={apolloLogo} alt="Apollo Nation" className="w-8 h-8 invert" />
           <span className="font-heading text-sm tracking-[0.2em]">
-            APOLLO <span className="text-foreground/50">NATION</span>
+            APOLLO <span className="text-muted-foreground">NATION</span>
           </span>
         </Link>
 

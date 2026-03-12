@@ -16,7 +16,7 @@ const DashboardBottomTabs = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/20 lg:hidden" style={{ background: 'rgba(14,18,30,0.95)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/20 lg:hidden" style={{ background: '#0F0F0E' }}>
       <div className="flex items-center justify-around h-16 px-2 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const active = isActive(tab.href);

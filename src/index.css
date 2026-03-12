@@ -2,93 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-/* APOLLO NATION — Cosmic Luxury Design System
-   Theme: Deep Navy + Cosmic Blue + Marble Textures
-   Palette: #0B0F19, #141A2A, #5B8CFF, #E6E8ED
+/* APOLLO NATION — Greek Temple Design System
+   Theme: Black Stone + Olive + Earth Brown + Marble
+   Palette: #0F0F0E, #171614, #5F6F52, #8B7355, #E5E0D5
 */
 
 @layer base {
   :root {
-    /* Primary Background — Deep Space Navy #0B0F19 */
-    --background: 222 38% 7%;
-    --foreground: 222 14% 91%;
+    /* Primary Background — Deep Black Stone #0F0F0E */
+    --background: 60 4% 5%;
+    --foreground: 40 10% 88%;
 
-    /* Card surfaces — Dark glass */
-    --card: 228 30% 13%;
-    --card-foreground: 222 14% 91%;
+    /* Card surfaces — Dark stone */
+    --card: 40 5% 8%;
+    --card-foreground: 40 10% 88%;
 
-    /* Popover — Dark glass */
-    --popover: 228 30% 13%;
-    --popover-foreground: 222 14% 91%;
+    /* Popover — Dark stone */
+    --popover: 40 5% 8%;
+    --popover-foreground: 40 10% 88%;
 
-    /* Primary — Cosmic Blue #6AA3FF */
-    --primary: 216 100% 70%;
-    --primary-foreground: 222 38% 7%;
+    /* Primary — Matte Olive #5F6F52 */
+    --primary: 100 15% 38%;
+    --primary-foreground: 40 30% 94%;
 
-    /* Secondary — Muted navy */
-    --secondary: 228 25% 16%;
-    --secondary-foreground: 222 14% 91%;
+    /* Secondary — Earth Brown #8B7355 */
+    --secondary: 30 24% 44%;
+    --secondary-foreground: 40 30% 94%;
 
     /* Muted */
-    --muted: 228 20% 14%;
-    --muted-foreground: 222 14% 42%;
+    --muted: 40 5% 10%;
+    --muted-foreground: 35 7% 62%;
 
-    /* Accent — Cosmic Blue */
-    --accent: 216 100% 70%;
-    --accent-foreground: 222 38% 7%;
+    /* Accent — Olive */
+    --accent: 100 15% 38%;
+    --accent-foreground: 40 30% 94%;
 
     /* Destructive */
-    --destructive: 0 60% 50%;
+    --destructive: 0 50% 42%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Very subtle */
-    --border: 228 15% 16%;
-    --input: 228 25% 16%;
-    --ring: 216 100% 70%;
+    /* Borders — Very subtle warm */
+    --border: 40 5% 14%;
+    --input: 40 5% 12%;
+    --ring: 100 15% 38%;
 
     --radius: 0.5rem;
 
-    /* Apollo custom tokens — Cosmic */
-    --apollo-black: 222 38% 7%;
-    --apollo-charcoal: 228 30% 13%;
-    --apollo-charcoal-light: 228 30% 13%;
-    --apollo-graphite: 228 25% 16%;
-    --apollo-divider: 228 15% 20%;
-    --apollo-inactive: 222 12% 42%;
-    --apollo-gray: 222 14% 42%;
-    --apollo-white: 222 14% 91%;
-    --apollo-accent: 216 100% 70%;
+    /* Apollo custom tokens — Greek Temple */
+    --apollo-black: 60 4% 5%;
+    --apollo-charcoal: 40 5% 8%;
+    --apollo-charcoal-light: 40 5% 10%;
+    --apollo-graphite: 40 5% 12%;
+    --apollo-divider: 40 5% 16%;
+    --apollo-inactive: 35 7% 50%;
+    --apollo-gray: 35 7% 62%;
+    --apollo-white: 40 10% 88%;
+    --apollo-accent: 100 15% 38%;
 
-    /* Legacy aliases */
-    --apollo-gold: 216 100% 70%;
-    --apollo-gold-light: 216 100% 76%;
-    --apollo-gold-dark: 216 100% 60%;
-    --apollo-bronze: 222 12% 42%;
-    --apollo-sandstone: 222 14% 42%;
-    --apollo-marble: 222 14% 91%;
-    --apollo-ivory: 222 14% 91%;
-    --apollo-taupe: 222 12% 42%;
-    --apollo-slate: 222 12% 42%;
+    /* Material tokens */
+    --apollo-gold: 30 24% 44%;
+    --apollo-gold-light: 30 24% 52%;
+    --apollo-gold-dark: 30 24% 36%;
+    --apollo-bronze: 30 24% 44%;
+    --apollo-sandstone: 35 7% 62%;
+    --apollo-marble: 36 22% 87%;
+    --apollo-ivory: 40 30% 94%;
+    --apollo-taupe: 35 7% 50%;
+    --apollo-slate: 35 7% 40%;
 
     /* Chart colors */
-    --chart-protein: 216 100% 70%;
-    --chart-carbs: 200 60% 50%;
-    --chart-fat: 260 50% 55%;
+    --chart-protein: 100 15% 38%;
+    --chart-carbs: 30 24% 44%;
+    --chart-fat: 35 7% 55%;
 
-    /* Shadows */
-    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3), 0 1px 4px -1px hsl(0 0% 0% / 0.2);
-    --shadow-elevated: 0 20px 60px -8px hsl(0 0% 0% / 0.45), 0 2px 8px -2px hsl(0 0% 0% / 0.3);
-    --shadow-glow: 0 0 30px -5px hsl(216 100% 70% / 0.15);
+    /* Shadows — warm */
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.35), 0 1px 4px -1px hsl(0 0% 0% / 0.25);
+    --shadow-elevated: 0 15px 40px -8px hsl(0 0% 0% / 0.45), 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --shadow-glow: none;
 
     /* Sidebar */
-    --sidebar-background: 222 38% 7%;
-    --sidebar-foreground: 222 14% 91%;
-    --sidebar-primary: 216 100% 70%;
-    --sidebar-primary-foreground: 222 38% 7%;
-    --sidebar-accent: 228 25% 16%;
-    --sidebar-accent-foreground: 222 14% 91%;
-    --sidebar-border: 228 15% 16%;
-    --sidebar-ring: 216 100% 70%;
+    --sidebar-background: 60 4% 5%;
+    --sidebar-foreground: 40 10% 88%;
+    --sidebar-primary: 100 15% 38%;
+    --sidebar-primary-foreground: 40 30% 94%;
+    --sidebar-accent: 40 5% 10%;
+    --sidebar-accent-foreground: 40 10% 88%;
+    --sidebar-border: 40 5% 14%;
+    --sidebar-ring: 100 15% 38%;
   }
 
   .dark {
@@ -139,22 +139,17 @@
 @layer components {
   /* ── Layered Background System ── */
 
-  /* Homepage: full cosmic visibility */
+  /* Homepage: black stone + marble texture */
   .bg-apollo-homepage {
     position: relative;
-    background-color: hsl(222 38% 7%);
-    background-image: url('/images/cosmic-bg.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-color: #0F0F0E;
   }
   .bg-apollo-homepage::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: 0;
-    background: linear-gradient(180deg, rgba(11,15,25,0.82) 0%, rgba(11,15,25,0.90) 45%, rgba(11,15,25,0.96) 100%);
+    background: radial-gradient(circle at 50% 0%, rgba(200,180,140,0.07), transparent 60%);
     pointer-events: none;
   }
   .bg-apollo-homepage::after {
@@ -166,27 +161,22 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.06;
-    mix-blend-mode: overlay;
+    opacity: 0.05;
+    mix-blend-mode: soft-light;
     pointer-events: none;
   }
 
-  /* Interior app: subdued cosmic */
+  /* Interior app: darker stone */
   .bg-apollo-interior {
     position: relative;
-    background-color: hsl(222 38% 7%);
-    background-image: url('/images/cosmic-bg.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-color: #0F0F0E;
   }
   .bg-apollo-interior::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: 0;
-    background: linear-gradient(180deg, rgba(11,15,25,0.92) 0%, rgba(11,15,25,0.95) 45%, rgba(11,15,25,0.97) 100%);
+    background: radial-gradient(circle at 50% 0%, rgba(200,180,140,0.04), transparent 50%);
     pointer-events: none;
   }
   .bg-apollo-interior::after {
@@ -198,35 +188,33 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.05;
-    mix-blend-mode: overlay;
+    opacity: 0.04;
+    mix-blend-mode: soft-light;
     pointer-events: none;
   }
 
-  /* Dark glass card */
+  /* Dark stone card */
   .card-glass {
-    background: rgba(24,28,44,0.82);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
-    border-radius: 1rem;
+    background: #171614;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+    border-radius: 1.125rem;
   }
 
   /* Light stone card (nutrition etc.) */
   .card-stone {
-    background: #E8E6E1;
-    color: #171717;
+    background: #E5E0D5;
+    color: #171614;
     border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 1rem;
+    border-radius: 1.125rem;
   }
 
   /* Apollo Button Variants */
   .btn-apollo-primary {
-    @apply relative overflow-hidden font-medium px-8 py-4 rounded transition-all duration-300;
-    background: rgba(106,163,255,0.14);
-    border: 1px solid rgba(106,163,255,0.45);
-    color: hsl(222 14% 91%);
+    @apply relative overflow-hidden font-medium px-8 py-4 transition-all duration-300;
+    background: hsl(100 15% 38%);
+    border-radius: 12px;
+    color: #F3EFE6;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     letter-spacing: 0.1em;
@@ -235,14 +223,14 @@
   }
 
   .btn-apollo-primary:hover {
-    background: rgba(106,163,255,0.22);
-    box-shadow: 0 0 30px -4px rgba(106,163,255,0.3);
+    background: hsl(100 15% 43%);
   }
 
   .btn-apollo-outline {
-    @apply border bg-transparent px-8 py-4 rounded transition-all duration-300;
-    border-color: rgba(255,255,255,0.12);
-    color: hsl(222 14% 91%);
+    @apply border bg-transparent px-8 py-4 transition-all duration-300;
+    border-color: #8B7355;
+    border-radius: 12px;
+    color: #E5E0D5;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     letter-spacing: 0.1em;
@@ -251,41 +239,37 @@
   }
 
   .btn-apollo-outline:hover {
-    border-color: rgba(106,163,255,0.4);
-    background: rgba(106,163,255,0.08);
+    border-color: #A68B6B;
+    background: rgba(139,115,85,0.08);
   }
 
   /* Card styles */
   .card-apollo {
     @apply rounded-2xl transition-all duration-300;
-    background: rgba(24,28,44,0.82);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    background: #171614;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.45);
   }
   .card-apollo:hover {
     transform: translateY(-2px);
-    border-color: rgba(106,163,255,0.15);
-    box-shadow: 0 24px 70px rgba(0,0,0,0.5);
+    border-color: rgba(95,111,82,0.2);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
   }
 
   .card-apollo-featured {
     @apply rounded-2xl transition-all duration-300;
-    background: rgba(24,28,44,0.85);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(106,163,255,0.12);
-    box-shadow: 0 0 30px -5px rgba(106,163,255,0.12);
+    background: #1A1916;
+    border: 1px solid rgba(95,111,82,0.15);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.45);
   }
   .card-apollo-featured:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 40px -8px rgba(106,163,255,0.2);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
   }
 
-  /* Text gradient — cosmic blue */
+  /* Text gradient — warm stone */
   .text-gradient-gold {
-    background: linear-gradient(135deg, hsl(216 100% 70%), hsl(216 100% 82%));
+    background: linear-gradient(135deg, #E5E0D5, #8B7355);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -293,7 +277,7 @@
 
   /* Section backgrounds */
   .bg-apollo-gradient {
-    background: linear-gradient(180deg, hsl(222 38% 7%), hsl(222 30% 5%));
+    background: linear-gradient(180deg, #0F0F0E, #0A0A09);
   }
 
   /* Animated underline */
@@ -312,7 +296,7 @@
 
   /* Divider line */
   .divider-gold {
-    @apply h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent;
+    @apply h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent;
   }
 
   /* Section label */
@@ -321,23 +305,21 @@
     @apply text-primary font-medium text-xs uppercase tracking-[0.3em];
   }
 
-  /* Cosmic glow button */
+  /* Primary temple button */
   .btn-cosmic {
-    @apply relative px-10 py-4 font-medium rounded-full transition-all duration-500;
-    background: rgba(106,163,255,0.14);
-    border: 1px solid rgba(106,163,255,0.45);
-    color: hsl(222 14% 91%);
+    @apply relative px-10 py-4 font-medium transition-all duration-500;
+    background: hsl(100 15% 38%);
+    border-radius: 12px;
+    color: #F3EFE6;
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     font-size: 0.8rem;
-    box-shadow: 0 0 25px -3px rgba(106,163,255,0.25), 0 0 60px -10px rgba(106,163,255,0.12);
   }
 
   .btn-cosmic:hover {
-    background: rgba(106,163,255,0.22);
-    box-shadow: 0 0 35px -2px rgba(106,163,255,0.35), 0 0 80px -10px rgba(106,163,255,0.2);
+    background: hsl(100 15% 43%);
     transform: translateY(-1px);
   }
 }
