@@ -242,7 +242,7 @@ const Dashboard = () => {
         </div>
 
         {/* Section 3 — Hero Workout Card with Image */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[var(--shadow-card)]">
           {/* Workout Hero Image */}
           <div className="relative h-36 overflow-hidden">
             <img
@@ -315,7 +315,7 @@ const Dashboard = () => {
         </div>
 
         {/* Section 4A — Calories & Macros Remaining Card */}
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Calories & Macros</p>
             <Link to="/dashboard/macros">
@@ -358,7 +358,7 @@ const Dashboard = () => {
 
         {/* Section 4B — Today's Meal Plan Card (separate) */}
         {todayMeals.length > 0 && (
-          <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Utensils className="w-4 h-4 text-primary" />
