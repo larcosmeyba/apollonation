@@ -41,10 +41,10 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Black outline for white/black concept */
-    --border: 0 0% 0%;
-    --input: 0 0% 100%;
-    --ring: 0 0% 0%;
+    /* Borders — Subtle dark border for clean white boxes */
+    --border: 0 0% 80%;
+    --input: 0 0% 94%;
+    --ring: 0 0% 30%;
 
     --radius: 0.5rem;
 
