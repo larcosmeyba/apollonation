@@ -84,13 +84,13 @@ const CalendarMonthView = ({
                 onClick={() => handleDayClick(date, inMonth)}
                 className={`min-h-[90px] rounded-lg border p-1.5 transition-all cursor-pointer ${
                   !inMonth
-                    ? "opacity-30 border-border/50 bg-card/50 cursor-default"
+                    ? "opacity-30 border-[hsl(35,20%,70%)]/50 bg-[hsl(35,25%,88%)]/50 cursor-default"
                     : isSelected
-                    ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                    ? "border-[hsl(18,55%,45%)] bg-[hsl(18,55%,45%)]/10 ring-1 ring-[hsl(18,55%,45%)]/30"
                     : today
-                    ? "border-primary/50 bg-primary/5"
-                    : "border-border bg-card hover:border-muted-foreground/30"
-                } ${hasDraggedDay && inMonth ? "hover:border-primary/50 hover:bg-primary/5" : ""}`}
+                    ? "border-[hsl(18,55%,45%)]/50 bg-[hsl(18,55%,45%)]/5"
+                    : "border-[hsl(25,30%,65%)] bg-[hsl(35,35%,78%)] hover:border-[hsl(25,40%,35%)]/40"
+                } ${hasDraggedDay && inMonth ? "hover:border-[hsl(18,55%,45%)]/50 hover:bg-[hsl(18,55%,45%)]/5" : ""}`}
                 onDragOver={(e) => inMonth && e.preventDefault()}
                 onDrop={() => inMonth && onDrop(date)}
               >
