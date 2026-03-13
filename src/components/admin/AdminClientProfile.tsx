@@ -8,12 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ChevronLeft, Snowflake, Archive, XCircle, RotateCcw, Pencil,
-  User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity
+  User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity, BarChart3
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientNotesPanel from "./ClientNotesPanel";
 import ClientNutritionPlans from "./ClientNutritionPlans";
 import ClientActivityLogs from "./ClientActivityLogs";
+import ClientBodyMetrics from "./ClientBodyMetrics";
+import ClientQuickActions from "./ClientQuickActions";
 
 interface Props {
   userId: string;
