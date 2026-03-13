@@ -162,9 +162,9 @@ const ClientBodyMetrics = ({ userId }: { userId: string }) => {
             </LineChart>
           </ChartContainer>
           <div className="flex items-center justify-center gap-4 mt-2 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-primary inline-block rounded" /> Weight</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block rounded" style={{ background: "hsl(38 92% 50%)" }} /> Body Fat</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block rounded" style={{ background: "hsl(142 71% 45%)" }} /> Muscle</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-white inline-block rounded" /> Weight</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block rounded" style={{ background: "hsl(0 0% 60%)" }} /> Body Fat</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block rounded" style={{ background: "hsl(210 100% 52%)" }} /> Muscle</span>
           </div>
         </div>
       )}
