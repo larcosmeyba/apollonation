@@ -105,7 +105,7 @@ const CalendarWeekView = ({
             <div
               key={date.toISOString()}
               className={`rounded-lg border p-3 transition-all ${
-                today ? "border-primary/50 bg-primary/5" : "border-border bg-card"
+                today ? "border-[hsl(18,55%,45%)]/50 bg-[hsl(18,55%,45%)]/5" : "border-[hsl(25,30%,65%)] bg-[hsl(35,35%,78%)]"
               }`}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(date)}
