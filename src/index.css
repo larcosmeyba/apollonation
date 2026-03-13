@@ -11,15 +11,15 @@
   :root {
     /* Primary Background — Pure Black */
     --background: 0 0% 0%;
-    --foreground: 30 20% 92%;
+    --foreground: 0 0% 100%;
 
     /* Card surfaces — Matte Black */
     --card: 0 0% 6%;
-    --card-foreground: 30 20% 92%;
+    --card-foreground: 0 0% 100%;
 
     /* Popover — Matte Black */
     --popover: 0 0% 7%;
-    --popover-foreground: 30 20% 92%;
+    --popover-foreground: 0 0% 100%;
 
     /* Primary — Clean White */
     --primary: 0 0% 100%;
@@ -27,15 +27,15 @@
 
     /* Secondary — Dark surface */
     --secondary: 0 0% 9%;
-    --secondary-foreground: 30 15% 88%;
+    --secondary-foreground: 0 0% 100%;
 
     /* Muted — Subtle dark surface */
     --muted: 0 0% 10%;
-    --muted-foreground: 30 10% 65%;
+    --muted-foreground: 0 0% 70%;
 
     /* Accent — Muted Olive */
     --accent: 80 20% 30%;
-    --accent-foreground: 30 20% 92%;
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
