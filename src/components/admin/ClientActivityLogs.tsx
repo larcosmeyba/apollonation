@@ -175,12 +175,13 @@ const ClientActivityLogs = ({ userId }: Props) => {
     return acc;
   }, {} as Record<string, { calories: number; protein: number; carbs: number; fat: number; meals: number }>) || {};
 
-  const handlePhotoClick = async (photoUrl: string) => {
-    // Photo URL could be a storage path
+  const handlePhotoClick = async (photoUrl: string, title = "Food Photo") => {
+    setPhotoPreviewTitle(title);
     if (photoUrl.startsWith("http")) {
       setPhotoPreview(photoUrl);
     } else {
-      const { data } = await supabase.storage.from("food-photos").createSignedUrl(photoUrl, 300);
+      const bucket = title === "Watch Screenshot" ? "workout-screenshots" : "food-photos";
+      const { data } = await supabase.storage.from(bucket).createSignedUrl(photoUrl, 300);
       setPhotoPreview(data?.signedUrl || null);
     }
   };
