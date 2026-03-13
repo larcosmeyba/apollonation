@@ -167,7 +167,7 @@ const Auth = () => {
                   placeholder="Your name"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="bg-card border-border h-12"
+                  className="bg-muted border-border h-12 text-foreground"
                 />
               </div>
             )}
