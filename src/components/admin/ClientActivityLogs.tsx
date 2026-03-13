@@ -278,7 +278,7 @@ const ClientActivityLogs = ({ userId }: Props) => {
                     </TableCell>
                     <TableCell>
                       {m.photo_url ? (
-                        <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => handlePhotoClick(m.photo_url!)}>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => handlePhotoClick(m.photo_url!, "Food Photo")}>
                           <Camera className="w-3 h-3" /> View
                         </Button>
                       ) : (
