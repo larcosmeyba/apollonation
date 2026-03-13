@@ -34,7 +34,7 @@ const Footer = () => {
                 APOLLO <span className="text-foreground/70">NATION</span>
               </span>
             </div>
-            <p className="text-foreground/70 text-sm font-light leading-relaxed mb-6 max-w-xs">
+            <p className="text-white/70 text-sm font-light leading-relaxed mb-6 max-w-xs">
               Elevate your practice. Transform your body. Discover your potential.
             </p>
             <div className="flex gap-3">
