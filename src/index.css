@@ -9,51 +9,51 @@
 
 @layer base {
   :root {
-    /* Primary Background — Deep Obsidian */
-    --background: 220 15% 6%;
-    --foreground: 35 15% 88%;
+    /* Primary Background — Pure Black */
+    --background: 0 0% 0%;
+    --foreground: 30 20% 92%;
 
-    /* Card surfaces — Dark Graphite */
-    --card: 220 12% 10%;
-    --card-foreground: 35 15% 88%;
+    /* Card surfaces — Matte Black */
+    --card: 0 0% 6%;
+    --card-foreground: 30 20% 92%;
 
-    /* Popover — Dark Stone */
-    --popover: 220 12% 12%;
-    --popover-foreground: 35 15% 88%;
+    /* Popover — Matte Black */
+    --popover: 0 0% 7%;
+    --popover-foreground: 30 20% 92%;
 
     /* Primary — Clean White */
     --primary: 0 0% 100%;
-    --primary-foreground: 60 7% 5%;
+    --primary-foreground: 0 0% 0%;
 
-    /* Secondary — Darker stone surface */
-    --secondary: 220 10% 15%;
-    --secondary-foreground: 35 15% 85%;
+    /* Secondary — Dark surface */
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 30 15% 88%;
 
     /* Muted — Subtle dark surface */
-    --muted: 220 10% 16%;
-    --muted-foreground: 35 10% 60%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 30 10% 65%;
 
     /* Accent — Muted Olive */
     --accent: 80 20% 30%;
-    --accent-foreground: 35 15% 88%;
+    --accent-foreground: 30 20% 92%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Graphite edge */
-    --border: 220 10% 18%;
-    --input: 220 10% 16%;
+    /* Borders — White outline */
+    --border: 0 0% 18%;
+    --input: 0 0% 12%;
     --ring: 0 0% 60%;
 
     --radius: 0.5rem;
 
     /* Apollo custom tokens */
-    --apollo-black: 220 15% 4%;
-    --apollo-charcoal: 220 12% 8%;
-    --apollo-charcoal-light: 220 12% 10%;
-    --apollo-graphite: 220 10% 10%;
-    --apollo-divider: 220 10% 18%;
+    --apollo-black: 0 0% 0%;
+    --apollo-charcoal: 0 0% 4%;
+    --apollo-charcoal-light: 0 0% 6%;
+    --apollo-graphite: 0 0% 6%;
+    --apollo-divider: 0 0% 18%;
     --apollo-inactive: 0 0% 40%;
     --apollo-gray: 0 0% 55%;
     --apollo-white: 0 0% 95%;
@@ -73,10 +73,10 @@
     --apollo-gold-dark: 0 0% 70%;
     --apollo-bronze: 0 0% 60%;
     --apollo-sandstone: 0 0% 55%;
-    --apollo-marble: 220 10% 18%;
-    --apollo-ivory: 0 0% 90%;
-    --apollo-taupe: 220 5% 40%;
-    --apollo-slate: 220 8% 35%;
+    --apollo-marble: 0 0% 18%;
+    --apollo-ivory: 0 0% 92%;
+    --apollo-taupe: 0 0% 40%;
+    --apollo-slate: 0 0% 35%;
 
     /* Chart colors — Clean monochrome */
     --chart-protein: 0 0% 90%;
@@ -88,13 +88,13 @@
     --shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
 
     /* Sidebar */
-    --sidebar-background: 220 15% 6%;
-    --sidebar-foreground: 0 0% 90%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 92%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 220 15% 6%;
-    --sidebar-accent: 220 10% 12%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 220 10% 18%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 0 0% 18%;
     --sidebar-ring: 0 0% 60%;
   }
 
@@ -173,23 +173,24 @@
 
   /* Card styles — Dark Glass */
   .card-apollo {
-    @apply rounded-2xl border border-border bg-card p-8 transition-all duration-300;
+    @apply rounded-2xl bg-card p-8 transition-all duration-300;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: var(--shadow-card);
   }
   .card-apollo:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-elevated);
-    border-color: hsl(var(--apollo-gold) / 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   .card-apollo-featured {
-    @apply rounded-2xl border border-border bg-card p-10 transition-all duration-300;
+    @apply rounded-2xl bg-card p-10 transition-all duration-300;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: var(--shadow-elevated);
-    border-color: hsl(var(--apollo-gold) / 0.15);
   }
   .card-apollo-featured:hover {
     transform: translateY(-2px);
-    border-color: hsl(var(--apollo-gold) / 0.3);
+    border-color: rgba(255, 255, 255, 0.25);
   }
 
   /* Text gradient — Clean silver */
@@ -202,7 +203,7 @@
 
   /* Section backgrounds */
   .bg-apollo-gradient {
-    background: linear-gradient(180deg, hsl(220 15% 6%), hsl(220 15% 4%));
+    background: linear-gradient(180deg, hsl(0 0% 0%), hsl(0 0% 2%));
   }
 
   /* Animated underline */
