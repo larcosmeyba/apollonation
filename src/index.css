@@ -78,10 +78,10 @@
     --apollo-taupe: 220 5% 40%;
     --apollo-slate: 220 8% 35%;
 
-    /* Chart colors — Earth tones */
-    --chart-protein: 35 30% 55%;
-    --chart-carbs: 80 20% 45%;
-    --chart-fat: 25 25% 40%;
+    /* Chart colors — Clean monochrome */
+    --chart-protein: 0 0% 90%;
+    --chart-carbs: 0 0% 60%;
+    --chart-fat: 0 0% 40%;
 
     /* Shadows — Deep elevation */
     --shadow-card: 0 12px 30px rgba(0, 0, 0, 0.45);
