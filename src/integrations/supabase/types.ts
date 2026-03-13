@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      body_metrics: {
+        Row: {
+          body_fat_pct: number | null
+          body_weight_lbs: number | null
+          bone_density: number | null
+          created_at: string
+          created_by: string
+          id: string
+          muscle_mass_lbs: number | null
+          notes: string | null
+          recorded_at: string
+          user_id: string
+        }
+        Insert: {
+          body_fat_pct?: number | null
+          body_weight_lbs?: number | null
+          bone_density?: number | null
+          created_at?: string
+          created_by: string
+          id?: string
+          muscle_mass_lbs?: number | null
+          notes?: string | null
+          recorded_at?: string
+          user_id: string
+        }
+        Update: {
+          body_fat_pct?: number | null
+          body_weight_lbs?: number | null
+          bone_density?: number | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          muscle_mass_lbs?: number | null
+          notes?: string | null
+          recorded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       client_notes: {
         Row: {
           admin_user_id: string
