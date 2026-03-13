@@ -288,10 +288,10 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
         </div>
 
         {/* Meals section */}
-        <div className="rounded-md border border-primary/20 bg-primary/5 p-3">
+        <div className="rounded-md border border-[hsl(80,25%,40%)]/25 bg-[hsl(80,25%,40%)]/8 p-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <Utensils className="w-4 h-4 text-primary" />
-            <span className="text-xs font-semibold text-primary">Meals</span>
+            <Utensils className="w-4 h-4 text-[hsl(80,25%,40%)]" />
+            <span className="text-xs font-semibold text-[hsl(80,25%,40%)]">Meals</span>
           </div>
           {meals.length > 0 ? (
             <div>
