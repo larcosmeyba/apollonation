@@ -52,12 +52,13 @@
     --apollo-black: 220 15% 4%;
     --apollo-charcoal: 220 12% 8%;
     --apollo-charcoal-light: 220 12% 10%;
-    --apollo-graphite: 220 10% 14%;
-    --apollo-divider: 30 8% 18%;
-    --apollo-inactive: 35 5% 40%;
-    --apollo-gray: 35 5% 55%;
-    --apollo-white: 35 15% 88%;
+    --apollo-graphite: 220 10% 10%;
+    --apollo-divider: 220 10% 18%;
+    --apollo-inactive: 0 0% 40%;
+    --apollo-gray: 0 0% 55%;
+    --apollo-white: 0 0% 95%;
     --apollo-accent: 80 20% 30%;
+    --apollo-star: 45 90% 61%;
 
     /* Earth tone tokens */
     --earth-terracotta: 18 55% 45%;
