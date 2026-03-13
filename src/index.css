@@ -9,41 +9,41 @@
 
 @layer base {
   :root {
-    /* Primary Background — Deep Obsidian */
-    --background: 220 15% 6%;
-    --foreground: 35 15% 88%;
+    /* Primary Background — Pure Black */
+    --background: 0 0% 0%;
+    --foreground: 30 20% 92%;
 
-    /* Card surfaces — Dark Graphite */
-    --card: 220 12% 10%;
-    --card-foreground: 35 15% 88%;
+    /* Card surfaces — Matte Black */
+    --card: 0 0% 6%;
+    --card-foreground: 30 20% 92%;
 
-    /* Popover — Dark Stone */
-    --popover: 220 12% 12%;
-    --popover-foreground: 35 15% 88%;
+    /* Popover — Matte Black */
+    --popover: 0 0% 7%;
+    --popover-foreground: 30 20% 92%;
 
     /* Primary — Clean White */
     --primary: 0 0% 100%;
-    --primary-foreground: 60 7% 5%;
+    --primary-foreground: 0 0% 0%;
 
-    /* Secondary — Darker stone surface */
-    --secondary: 220 10% 15%;
-    --secondary-foreground: 35 15% 85%;
+    /* Secondary — Dark surface */
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 30 15% 88%;
 
     /* Muted — Subtle dark surface */
-    --muted: 220 10% 16%;
-    --muted-foreground: 35 10% 60%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 30 10% 65%;
 
     /* Accent — Muted Olive */
     --accent: 80 20% 30%;
-    --accent-foreground: 35 15% 88%;
+    --accent-foreground: 30 20% 92%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Graphite edge */
-    --border: 220 10% 18%;
-    --input: 220 10% 16%;
+    /* Borders — White outline */
+    --border: 0 0% 18%;
+    --input: 0 0% 12%;
     --ring: 0 0% 60%;
 
     --radius: 0.5rem;
