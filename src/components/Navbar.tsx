@@ -18,13 +18,13 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/90 border-b border-border/30">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/90 border-b border-white/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center gap-3">
             <img src={apolloLogo} alt="Apollo Nation Logo" className="w-10 h-10 invert brightness-0 invert opacity-95" />
-            <span className="font-heading text-lg tracking-[0.15em] text-foreground">
-              APOLLO <span className="text-foreground/70">NATION</span>
+            <span className="font-heading text-lg tracking-[0.15em] text-white">
+              APOLLO <span className="text-white/70">NATION</span>
             </span>
           </Link>
 
@@ -33,7 +33,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-foreground/60 hover:text-foreground transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
+                className="text-white/60 hover:text-white transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
               >
                 {link.label}
               </a>
@@ -47,7 +47,7 @@ const Navbar = () => {
               <>
                 {isAdmin && (
                   <Link to="/admin">
-                    <Button variant="ghost" size="sm" className="text-foreground/60 gap-2">
+                    <Button variant="ghost" size="sm" className="text-white/60 gap-2">
                       <Shield className="w-4 h-4" /> Admin
                     </Button>
                   </Link>
@@ -59,7 +59,7 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="text-foreground/60 hover:text-foreground">
+                  <Button variant="ghost" size="sm" className="text-white/60 hover:text-white">
                     Sign In
                   </Button>
                 </Link>
@@ -71,7 +71,7 @@ const Navbar = () => {
           </div>
 
           <button
-            className="md:hidden text-foreground p-2"
+            className="md:hidden text-white p-2"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
           >
@@ -81,24 +81,24 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-border/30">
+        <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-white/10">
           <div className="container mx-auto px-4 py-8 space-y-4">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="block text-foreground/70 hover:text-foreground transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
+                className="block text-white/70 hover:text-white transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
                 onClick={() => setIsOpen(false)}
               >
                 {link.label}
               </a>
             ))}
-            <div className="pt-6 space-y-3 border-t border-border/30">
+            <div className="pt-6 space-y-3 border-t border-white/10">
               {user ? (
                 <>
                   {isAdmin && (
                     <Link to="/admin" onClick={() => setIsOpen(false)}>
-                      <Button variant="ghost" className="w-full text-foreground/60 gap-2">
+                      <Button variant="ghost" className="w-full text-white/60 gap-2">
                         <Shield className="w-4 h-4" /> Admin Panel
                       </Button>
                     </Link>
@@ -110,7 +110,7 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-foreground/60">Sign In</Button>
+                    <Button variant="ghost" className="w-full text-white/60">Sign In</Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
                     <Button variant="apollo" className="w-full">Join Now</Button>
