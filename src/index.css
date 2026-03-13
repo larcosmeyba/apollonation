@@ -173,7 +173,8 @@
 
   /* Card styles — Dark Glass */
   .card-apollo {
-    @apply rounded-2xl border border-border bg-card p-8 transition-all duration-300;
+    @apply rounded-2xl bg-card p-8 transition-all duration-300;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: var(--shadow-card);
   }
   .card-apollo:hover {
