@@ -17,7 +17,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
-import { format } from "date-fns";
 
 // ── YouTube helpers ──────────────────────────────────────────────────
 const getYouTubeVideoId = (url: string): string | null => {
