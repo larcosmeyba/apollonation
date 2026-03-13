@@ -78,7 +78,7 @@
     /* Shadows */
     --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3), 0 1px 4px -1px hsl(0 0% 0% / 0.2);
     --shadow-elevated: 0 20px 60px -8px hsl(0 0% 0% / 0.45), 0 2px 8px -2px hsl(0 0% 0% / 0.3);
-    --shadow-glow: 0 0 30px -5px hsl(216 100% 70% / 0.15);
+    --shadow-glow: 0 0 30px -5px hsl(93 15% 38% / 0.15);
 
     /* Sidebar */
     --sidebar-background: 222 38% 7%;
