@@ -49,7 +49,7 @@ const CalendarWeekView = ({
               onDrop={() => onDrop(date)}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className={`text-sm font-medium ${today ? "text-primary" : ""}`}>
+                <span className={`text-sm font-medium ${today ? "text-[hsl(18,55%,45%)]" : ""}`}>
                   {format(date, "d")}
                 </span>
                 {completed && (
