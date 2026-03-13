@@ -201,12 +201,24 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
         </div>
       </div>
 
+      {/* Quick Actions Bar */}
+      <ClientQuickActions
+        userId={userId}
+        clientName={profile?.display_name || "Client"}
+        onRefresh={() => {
+          queryClient.invalidateQueries({ queryKey: ["admin-client-profile", userId] });
+          queryClient.invalidateQueries({ queryKey: ["admin-client-nutrition-plans", userId] });
+          queryClient.invalidateQueries({ queryKey: ["admin-client-training-plans", userId] });
+        }}
+      />
+
       {/* Tabbed sections */}
       <Tabs value={activeSection} onValueChange={setActiveSection}>
         <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="overview" className="gap-1.5 text-xs"><User className="w-3.5 h-3.5" /> Overview</TabsTrigger>
           <TabsTrigger value="training" className="gap-1.5 text-xs"><Dumbbell className="w-3.5 h-3.5" /> Training</TabsTrigger>
           <TabsTrigger value="nutrition" className="gap-1.5 text-xs"><Utensils className="w-3.5 h-3.5" /> Nutrition</TabsTrigger>
+          <TabsTrigger value="metrics" className="gap-1.5 text-xs"><BarChart3 className="w-3.5 h-3.5" /> Body Metrics</TabsTrigger>
           <TabsTrigger value="activity" className="gap-1.5 text-xs"><Activity className="w-3.5 h-3.5" /> Activity</TabsTrigger>
           <TabsTrigger value="notes" className="gap-1.5 text-xs"><StickyNote className="w-3.5 h-3.5" /> Notes</TabsTrigger>
         </TabsList>
