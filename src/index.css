@@ -71,9 +71,9 @@
     --apollo-slate: 222 12% 42%;
 
     /* Chart colors */
-    --chart-protein: 216 100% 70%;
-    --chart-carbs: 200 60% 50%;
-    --chart-fat: 260 50% 55%;
+    --chart-protein: 93 15% 38%;
+    --chart-carbs: 30 25% 44%;
+    --chart-fat: 40 25% 50%;
 
     /* Shadows */
     --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3), 0 1px 4px -1px hsl(0 0% 0% / 0.2);
