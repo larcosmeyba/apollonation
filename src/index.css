@@ -57,12 +57,12 @@
     --apollo-inactive: 222 12% 42%;
     --apollo-gray: 222 14% 42%;
     --apollo-white: 222 14% 91%;
-    --apollo-accent: 216 100% 70%;
+    --apollo-accent: 93 15% 38%;
 
     /* Legacy aliases */
-    --apollo-gold: 216 100% 70%;
-    --apollo-gold-light: 216 100% 76%;
-    --apollo-gold-dark: 216 100% 60%;
+    --apollo-gold: 93 15% 38%;
+    --apollo-gold-light: 93 15% 45%;
+    --apollo-gold-dark: 93 15% 30%;
     --apollo-bronze: 222 12% 42%;
     --apollo-sandstone: 222 14% 42%;
     --apollo-marble: 222 14% 91%;
