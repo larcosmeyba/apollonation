@@ -175,12 +175,12 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ${
                     isActive
-                      ? "bg-primary/15 text-primary font-medium"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-primary/15 font-medium"
+                      : "hover:bg-muted"
                   }`}
                 >
-                  <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
-                  <span className="flex-1 text-left truncate">{item.label}</span>
+                  <item.icon className={`w-[18px] h-[18px] flex-shrink-0 ${item.color}`} />
+                  <span className={`flex-1 text-left truncate ${isActive ? "text-white" : "text-muted-foreground hover:text-foreground"}`}>{item.label}</span>
                   {item.id === "messages" && unreadCount > 0 && (
                     <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                       {unreadCount}
