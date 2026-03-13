@@ -84,18 +84,18 @@ const CalendarMonthView = ({
                 onClick={() => handleDayClick(date, inMonth)}
                 className={`min-h-[90px] rounded-lg border p-1.5 transition-all cursor-pointer ${
                   !inMonth
-                    ? "opacity-30 border-border/50 bg-card/50 cursor-default"
+                    ? "opacity-30 border-[hsl(35,20%,70%)]/50 bg-[hsl(35,25%,88%)]/50 cursor-default"
                     : isSelected
-                    ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                    ? "border-[hsl(18,55%,45%)] bg-[hsl(18,55%,45%)]/10 ring-1 ring-[hsl(18,55%,45%)]/30"
                     : today
-                    ? "border-primary/50 bg-primary/5"
-                    : "border-border bg-card hover:border-muted-foreground/30"
-                } ${hasDraggedDay && inMonth ? "hover:border-primary/50 hover:bg-primary/5" : ""}`}
+                    ? "border-[hsl(18,55%,45%)]/50 bg-[hsl(18,55%,45%)]/5"
+                    : "border-[hsl(25,30%,65%)] bg-[hsl(35,35%,78%)] hover:border-[hsl(25,40%,35%)]/40"
+                } ${hasDraggedDay && inMonth ? "hover:border-[hsl(18,55%,45%)]/50 hover:bg-[hsl(18,55%,45%)]/5" : ""}`}
                 onDragOver={(e) => inMonth && e.preventDefault()}
                 onDrop={() => inMonth && onDrop(date)}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-xs font-medium ${today ? "text-primary" : ""}`}>
+                  <span className={`text-xs font-medium ${today ? "text-[hsl(18,55%,45%)]" : ""}`}>
                     {format(date, "d")}
                   </span>
                   {completed && (
@@ -109,10 +109,10 @@ const CalendarMonthView = ({
                   <div
                     draggable
                     onDragStart={(e) => { e.stopPropagation(); onDragStart(workout, date); }}
-                    className="mb-1 p-1 rounded bg-primary/10 border border-primary/20 cursor-grab active:cursor-grabbing"
+                    className="mb-1 p-1 rounded bg-[hsl(18,55%,45%)]/15 border border-[hsl(18,55%,45%)]/25 cursor-grab active:cursor-grabbing"
                   >
                     <div className="flex items-center gap-0.5">
-                      <Dumbbell className="w-2.5 h-2.5 text-primary flex-shrink-0" />
+                      <Dumbbell className="w-2.5 h-2.5 text-[hsl(18,55%,45%)] flex-shrink-0" />
                       <span className="text-[10px] font-medium truncate">
                         {workout.focus || workout.day_label || `D${workout.day_number}`}
                       </span>
@@ -121,9 +121,9 @@ const CalendarMonthView = ({
                 )}
 
                 {meals.length > 0 && inMonth && (
-                  <div className="p-1 rounded bg-primary/5 border border-primary/10">
+                  <div className="p-1 rounded bg-[hsl(80,25%,40%)]/10 border border-[hsl(80,25%,40%)]/20">
                     <div className="flex items-center gap-0.5">
-                      <Utensils className="w-2.5 h-2.5 text-primary flex-shrink-0" />
+                      <Utensils className="w-2.5 h-2.5 text-[hsl(80,25%,40%)] flex-shrink-0" />
                       <span className="text-[10px] font-medium">{meals.length}</span>
                     </div>
                   </div>
@@ -170,26 +170,26 @@ const CalendarMonthView = ({
                   !inMonth
                     ? "opacity-20 border-transparent"
                     : isSelected
-                    ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                    ? "border-[hsl(18,55%,45%)] bg-[hsl(18,55%,45%)]/10 ring-1 ring-[hsl(18,55%,45%)]/30"
                     : today
-                    ? "border-primary/50 bg-primary/5"
-                    : "border-border bg-card"
+                    ? "border-[hsl(18,55%,45%)]/50 bg-[hsl(18,55%,45%)]/5"
+                    : "border-[hsl(25,30%,65%)] bg-[hsl(35,35%,78%)]"
                 }`}
               >
-                <span className={`text-[10px] font-medium block text-center ${today ? "text-primary" : ""}`}>
+                <span className={`text-[10px] font-medium block text-center ${today ? "text-[hsl(18,55%,45%)]" : ""}`}>
                   {format(date, "d")}
                 </span>
 
                 {inMonth && (
                   <div className="flex flex-col items-center gap-0.5 mt-0.5">
                     {workout && (
-                      <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                        <Dumbbell className="w-2.5 h-2.5 text-primary" />
+                      <div className="w-4 h-4 rounded-full bg-[hsl(18,55%,45%)]/20 flex items-center justify-center">
+                        <Dumbbell className="w-2.5 h-2.5 text-[hsl(18,55%,45%)]" />
                       </div>
                     )}
                     {meals.length > 0 && (
-                      <div className="w-4 h-4 rounded-full bg-primary/15 flex items-center justify-center">
-                        <Utensils className="w-2.5 h-2.5 text-primary" />
+                      <div className="w-4 h-4 rounded-full bg-[hsl(80,25%,40%)]/15 flex items-center justify-center">
+                        <Utensils className="w-2.5 h-2.5 text-[hsl(80,25%,40%)]" />
                       </div>
                     )}
                     {completed && (
@@ -232,7 +232,7 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
   const totalCals = meals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0);
 
   return (
-    <div className="mt-3 rounded-lg border border-primary/30 bg-card p-4 animate-in slide-in-from-top-2 duration-200">
+    <div className="mt-3 rounded-lg border border-[hsl(18,55%,45%)]/30 bg-[hsl(35,35%,78%)] p-4 animate-in slide-in-from-top-2 duration-200">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <h3 className="font-heading text-sm font-semibold">
@@ -254,10 +254,10 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Workout section */}
-        <div className="rounded-md border border-primary/20 bg-primary/5 p-3">
+        <div className="rounded-md border border-[hsl(18,55%,45%)]/25 bg-[hsl(18,55%,45%)]/8 p-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <Dumbbell className="w-4 h-4 text-primary" />
-            <span className="text-xs font-semibold text-primary">Workout</span>
+            <Dumbbell className="w-4 h-4 text-[hsl(18,55%,45%)]" />
+            <span className="text-xs font-semibold text-[hsl(18,55%,45%)]">Workout</span>
           </div>
           {workout ? (
             <div>
@@ -268,7 +268,7 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
                 <ul className="mt-1.5 space-y-0.5">
                   {workout.training_plan_exercises.map((ex: any, i: number) => (
                     <li key={ex.id || i} className="text-xs text-muted-foreground flex items-baseline gap-1">
-                      <span className="text-[10px] text-primary/60">{i + 1}.</span>
+                      <span className="text-[10px] text-[hsl(18,55%,45%)]/60">{i + 1}.</span>
                       <span>{ex.exercise_name}</span>
                       {ex.sets && ex.reps && (
                         <span className="text-[10px] text-muted-foreground/60 ml-auto whitespace-nowrap">
@@ -288,10 +288,10 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
         </div>
 
         {/* Meals section */}
-        <div className="rounded-md border border-primary/20 bg-primary/5 p-3">
+        <div className="rounded-md border border-[hsl(80,25%,40%)]/25 bg-[hsl(80,25%,40%)]/8 p-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <Utensils className="w-4 h-4 text-primary" />
-            <span className="text-xs font-semibold text-primary">Meals</span>
+            <Utensils className="w-4 h-4 text-[hsl(80,25%,40%)]" />
+            <span className="text-xs font-semibold text-[hsl(80,25%,40%)]">Meals</span>
           </div>
           {meals.length > 0 ? (
             <div>
@@ -307,7 +307,7 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
                   </li>
                 ))}
               </ul>
-              <p className="text-xs font-medium mt-2 pt-1.5 border-t border-primary/10">
+              <p className="text-xs font-medium mt-2 pt-1.5 border-t border-[hsl(80,25%,40%)]/15">
                 Total: {totalCals} cal
               </p>
             </div>
