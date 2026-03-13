@@ -41,12 +41,12 @@ const DashboardSidebar = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <aside className="w-64 bg-[hsl(var(--apollo-charcoal-light))] border-r border-border min-h-screen flex flex-col">
+    <aside className="w-64 bg-card/50 backdrop-blur-sm border-r border-border min-h-screen flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border">
         <Link to="/dashboard" className="flex items-center gap-3">
           <img src={apolloLogo} alt="Apollo Nation" className="w-10 h-10 invert" />
-          <span className="font-heading text-lg tracking-wider">
+          <span className="font-heading text-lg tracking-wider text-foreground">
             APOLLO <span className="text-primary">NATION</span>
           </span>
         </Link>
@@ -55,11 +55,11 @@ const DashboardSidebar = () => {
       {/* User info */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
             <User className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm truncate">
+            <p className="font-medium text-sm truncate text-foreground">
               {profile?.display_name || "Member"}
             </p>
             <p className="text-xs text-primary uppercase tracking-wide">
@@ -78,9 +78,9 @@ const DashboardSidebar = () => {
             onClick={(e) => item.locked && e.preventDefault()}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
               isActive(item.href)
-                ? "bg-primary/20 text-primary"
+                ? "bg-primary/15 text-primary"
                 : item.locked
-                ? "text-muted-foreground/50 cursor-not-allowed"
+                ? "text-muted-foreground/40 cursor-not-allowed"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
@@ -106,7 +106,7 @@ const DashboardSidebar = () => {
             to="/admin"
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all mt-4 border border-primary/30 ${
               location.pathname === "/admin"
-                ? "bg-primary/20 text-primary"
+                ? "bg-primary/15 text-primary"
                 : "text-primary hover:bg-primary/10"
             }`}
           >

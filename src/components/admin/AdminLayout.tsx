@@ -67,7 +67,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* ─── TOP NAVIGATION BAR ─── */}
-      <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 lg:px-6 z-30 shrink-0">
+      <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 lg:px-6 z-30 shrink-0">
         {/* Left: hamburger (mobile) + logo */}
         <div className="flex items-center gap-3">
           <button
@@ -82,10 +82,10 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
           >
             <img src={apolloLogo} alt="Apollo Nation" className="w-8 h-8 invert" />
             <div className="hidden sm:block">
-              <span className="font-heading text-sm tracking-wider">
-                APOLLO <span className="text-apollo-gold">NATION</span>
+              <span className="font-heading text-sm tracking-wider text-foreground">
+                APOLLO <span className="text-primary">NATION</span>
               </span>
-              <span className="text-[9px] uppercase tracking-widest text-apollo-gold/70 block leading-none">
+              <span className="text-[9px] uppercase tracking-widest text-primary/70 block leading-none">
                 Coach Panel
               </span>
             </div>
@@ -108,7 +108,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
           >
             <MessageSquare className="w-5 h-5 text-muted-foreground" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 bg-apollo-gold text-primary-foreground text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -119,11 +119,11 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
               <button className="flex items-center gap-2 ml-2 p-1.5 rounded-md hover:bg-muted transition-colors">
                 <Avatar className="w-7 h-7">
                   <AvatarImage src={avatarUrl ?? undefined} />
-                  <AvatarFallback className="bg-apollo-gold/20 text-apollo-gold text-xs">
+                  <AvatarFallback className="bg-primary/15 text-primary text-xs">
                     {profile?.display_name?.charAt(0) || "C"}
                   </AvatarFallback>
                 </Avatar>
-                <span className="hidden md:block text-sm font-medium max-w-[120px] truncate">
+                <span className="hidden md:block text-sm font-medium max-w-[120px] truncate text-foreground">
                   {profile?.display_name || "Coach"}
                 </span>
                 <ChevronDown className="w-3.5 h-3.5 text-muted-foreground hidden md:block" />
@@ -152,14 +152,14 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
         {/* ─── MOBILE SIDEBAR OVERLAY ─── */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+            className="fixed inset-0 bg-black/60 z-20 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
         {/* ─── LEFT SIDEBAR ─── */}
         <aside
-          className={`fixed lg:relative inset-y-0 left-0 top-14 z-20 w-60 bg-card border-r border-border flex flex-col transition-transform duration-200 lg:translate-x-0 ${
+          className={`fixed lg:relative inset-y-0 left-0 top-14 z-20 w-60 bg-card/90 backdrop-blur-sm border-r border-border flex flex-col transition-transform duration-200 lg:translate-x-0 ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -175,14 +175,14 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ${
                     isActive
-                      ? "bg-apollo-gold/15 text-apollo-gold font-medium"
+                      ? "bg-primary/15 text-primary font-medium"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
                   <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
                   <span className="flex-1 text-left truncate">{item.label}</span>
                   {item.id === "messages" && unreadCount > 0 && (
-                    <span className="bg-apollo-gold text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                    <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                       {unreadCount}
                     </span>
                   )}
