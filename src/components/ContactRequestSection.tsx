@@ -78,12 +78,12 @@ const ContactRequestSection = () => {
     return (
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-lg mx-auto text-center rounded-xl border border-border bg-card p-12">
+          <div className="max-w-lg mx-auto text-center rounded-xl border border-white/15 bg-card p-12">
             <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
-              <Send className="w-6 h-6 text-foreground/70" />
+              <Send className="w-6 h-6 text-card-foreground/70" />
             </div>
-            <h3 className="font-heading text-2xl mb-3 text-foreground">We Got Your Message</h3>
-            <p className="text-foreground/70">Thanks for reaching out! We'll get back to you shortly.</p>
+            <h3 className="font-heading text-2xl mb-3 text-card-foreground">We Got Your Message</h3>
+            <p className="text-card-foreground/70">Thanks for reaching out! We'll get back to you shortly.</p>
           </div>
         </div>
       </section>
@@ -95,19 +95,19 @@ const ContactRequestSection = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.2em] mb-6 block">Get In Touch</span>
-            <h2 className="font-heading text-3xl md:text-4xl mb-4 text-foreground">
-              Ready to <span className="text-foreground/70">Start?</span>
+            <span className="landing-text-muted font-medium text-[10px] uppercase tracking-[0.2em] mb-6 block">Get In Touch</span>
+            <h2 className="font-heading text-3xl md:text-4xl mb-4 landing-text">
+              Ready to <span className="landing-text-muted">Start?</span>
             </h2>
-            <p className="text-foreground/70 max-w-md mx-auto text-sm">
+            <p className="landing-text-muted max-w-md mx-auto text-sm">
               Request a call or send us an email. We'll help you find the right plan.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-card p-8 space-y-5">
+          <form onSubmit={handleSubmit} className="rounded-xl border border-white/15 bg-card p-8 space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="contact-name" className="text-xs uppercase tracking-wider text-foreground/60">Name *</Label>
+                <Label htmlFor="contact-name" className="text-xs uppercase tracking-wider text-card-foreground/60">Name *</Label>
                 <Input
                   id="contact-name"
                   type="text"
@@ -116,11 +116,11 @@ const ContactRequestSection = () => {
                   onChange={(e) => setName(e.target.value)}
                   maxLength={100}
                   required
-                  className="bg-muted border-border h-11"
+                  className="bg-muted border-border text-card-foreground placeholder:text-card-foreground/40 h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="contact-email" className="text-xs uppercase tracking-wider text-foreground/60">Email *</Label>
+                <Label htmlFor="contact-email" className="text-xs uppercase tracking-wider text-card-foreground/60">Email *</Label>
                 <Input
                   id="contact-email"
                   type="email"
@@ -129,13 +129,13 @@ const ContactRequestSection = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   maxLength={255}
                   required
-                  className="bg-muted border-border h-11"
+                  className="bg-muted border-border text-card-foreground placeholder:text-card-foreground/40 h-11"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact-phone" className="text-xs uppercase tracking-wider text-foreground/60">Phone (optional)</Label>
+              <Label htmlFor="contact-phone" className="text-xs uppercase tracking-wider text-card-foreground/60">Phone (optional)</Label>
               <Input
                 id="contact-phone"
                 type="tel"
@@ -143,20 +143,20 @@ const ContactRequestSection = () => {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 maxLength={20}
-                className="bg-muted border-border h-11"
+                className="bg-muted border-border text-card-foreground placeholder:text-card-foreground/40 h-11"
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-foreground/60">Preferred Contact Method</Label>
+              <Label className="text-xs uppercase tracking-wider text-card-foreground/60">Preferred Contact Method</Label>
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setPreferredContact("email")}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border transition-all ${
                     preferredContact === "email"
-                      ? "border-foreground/30 bg-foreground/5 text-foreground"
-                      : "border-border bg-muted text-foreground/60 hover:border-foreground/20"
+                      ? "border-white/30 bg-white/10 text-card-foreground"
+                      : "border-border bg-muted text-card-foreground/60 hover:border-white/20"
                   }`}
                 >
                   <Mail className="w-4 h-4" /> Email
@@ -166,8 +166,8 @@ const ContactRequestSection = () => {
                   onClick={() => setPreferredContact("call")}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border transition-all ${
                     preferredContact === "call"
-                      ? "border-foreground/30 bg-foreground/5 text-foreground"
-                      : "border-border bg-muted text-foreground/60 hover:border-foreground/20"
+                      ? "border-white/30 bg-white/10 text-card-foreground"
+                      : "border-border bg-muted text-card-foreground/60 hover:border-white/20"
                   }`}
                 >
                   <Phone className="w-4 h-4" /> Call
@@ -176,7 +176,7 @@ const ContactRequestSection = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact-message" className="text-xs uppercase tracking-wider text-foreground/60">Message (optional)</Label>
+              <Label htmlFor="contact-message" className="text-xs uppercase tracking-wider text-card-foreground/60">Message (optional)</Label>
               <Textarea
                 id="contact-message"
                 placeholder="Tell us about your fitness goals..."
@@ -184,10 +184,10 @@ const ContactRequestSection = () => {
                 onChange={(e) => setMessage(e.target.value)}
                 maxLength={1000}
                 rows={4}
-                className="bg-muted border-border resize-none"
+                className="bg-muted border-border text-card-foreground placeholder:text-card-foreground/40 resize-none"
               />
               {message.length > 0 && (
-                <p className="text-[10px] text-foreground/50 text-right">{message.length}/1000</p>
+                <p className="text-[10px] text-card-foreground/50 text-right">{message.length}/1000</p>
               )}
             </div>
 

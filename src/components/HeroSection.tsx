@@ -21,16 +21,16 @@ const HeroSection = () => {
         decoding="async"
         className={`absolute inset-0 w-full h-full object-cover object-[50%_20%] transition-transform duration-[2000ms] ease-out ${isVisible ? 'scale-100' : 'scale-110'}`}
       />
-      <div className="absolute inset-0 bg-background/70" />
-      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background to-transparent" />
+      <div className="absolute inset-0 bg-white/60" />
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-white to-transparent" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <div 
-            className={`inline-flex items-center gap-2 px-5 py-2 border border-foreground/20 bg-foreground/10 backdrop-blur-sm mb-8 rounded-full transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`inline-flex items-center gap-2 px-5 py-2 border border-gray-900/20 bg-gray-900/5 backdrop-blur-sm mb-8 rounded-full transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse flex-shrink-0" />
-            <span className="text-[10px] text-foreground font-medium tracking-[0.2em] uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-gray-900 animate-pulse flex-shrink-0" />
+            <span className="text-[10px] text-gray-900 font-medium tracking-[0.2em] uppercase">
               Elite Fitness Coaching
             </span>
           </div>
@@ -38,12 +38,12 @@ const HeroSection = () => {
           <h1 
             className={`font-heading text-4xl sm:text-5xl md:text-6xl lg:text-8xl leading-[1.05] mb-8 tracking-[0.02em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            <span className="block text-foreground">Forge Your</span>
-            <span className="block text-foreground/80 mt-2">Legend</span>
+            <span className="block text-gray-900">Forge Your</span>
+            <span className="block text-gray-600 mt-2">Legend</span>
           </h1>
 
           <p 
-            className={`text-lg md:text-xl text-foreground/80 max-w-xl mx-auto mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`text-lg md:text-xl text-gray-600 max-w-xl mx-auto mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             Elite training programs, personalized coaching, and custom nutrition plans—
             designed for those who refuse to be ordinary.
@@ -59,14 +59,14 @@ const HeroSection = () => {
               </Button>
             </Link>
             <a href="#features">
-              <Button variant="apollo-outline" size="lg" className="min-w-[200px] h-14 text-base rounded-full">
+              <Button variant="apollo-outline" size="lg" className="min-w-[200px] h-14 text-base rounded-full border-gray-900/30 text-gray-900 hover:bg-gray-900/5">
                 Explore Coaching
               </Button>
             </a>
           </div>
 
           <div 
-            className={`grid grid-cols-3 gap-6 mt-16 pt-8 border-t border-foreground/20 max-w-lg mx-auto transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`grid grid-cols-3 gap-6 mt-16 pt-8 border-t border-gray-900/15 max-w-lg mx-auto transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             {[
               { value: "Training", label: "Structured programs tailored to your goals" },
@@ -74,10 +74,10 @@ const HeroSection = () => {
               { value: "Support", label: "Premium accountability & tracking" },
             ].map((stat) => (
               <div key={stat.value}>
-                <div className="font-heading text-lg md:text-xl text-foreground mb-1 tracking-wide">
+                <div className="font-heading text-lg md:text-xl text-gray-900 mb-1 tracking-wide">
                   {stat.value}
                 </div>
-                <div className="text-[10px] text-foreground/70 leading-relaxed">
+                <div className="text-[10px] text-gray-500 leading-relaxed">
                   {stat.label}
                 </div>
               </div>
@@ -86,13 +86,13 @@ const HeroSection = () => {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/80 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-white via-white/80 to-transparent" />
       
       <div 
         className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-40' : 'opacity-0'}`}
       >
-        <span className="text-[10px] text-foreground/40 uppercase tracking-widest">Scroll</span>
-        <div className="w-px h-8 bg-gradient-to-b from-foreground/30 to-transparent animate-pulse" />
+        <span className="text-[10px] text-gray-400 uppercase tracking-widest">Scroll</span>
+        <div className="w-px h-8 bg-gradient-to-b from-gray-400 to-transparent animate-pulse" />
       </div>
     </header>
   );
