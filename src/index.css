@@ -25,8 +25,8 @@
     --primary: 0 0% 95%;
     --primary-foreground: 0 0% 0%;
 
-    /* Secondary — White surface for box consistency */
-    --secondary: 0 0% 100%;
+    /* Secondary — Cream surface for box consistency */
+    --secondary: 40 30% 96%;
     --secondary-foreground: 0 0% 0%;
 
     /* Muted — Near-white surface with black text */
