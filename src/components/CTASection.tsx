@@ -20,7 +20,7 @@ const CTASection = () => {
 
           <div className="flex flex-col items-center gap-6">
             <Link to="/auth">
-              <Button variant="apollo" size="lg" className="group min-w-[220px] h-14 text-base rounded-full">
+              <Button variant="apollo" size="lg" className="group min-w-[220px] h-14 text-base">
                 Start Free Trial
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
               </Button>

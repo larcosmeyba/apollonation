@@ -50,7 +50,7 @@ const TestimonialsSection = () => {
               
               <div className="flex gap-0.5 mb-6">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} size={12} className="text-foreground/50 fill-foreground/50" />
+                  <Star key={i} size={12} className="text-[hsl(var(--apollo-star))] fill-[hsl(var(--apollo-star))]" />
                 ))}
               </div>
 
