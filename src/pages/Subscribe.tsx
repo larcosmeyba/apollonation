@@ -12,14 +12,13 @@ const tiers = [
   {
     name: "Essential",
     price: "20",
-    description: "Build the foundation",
+    description: "Begin your wellness journey",
     features: [
       "On-demand workout library",
-      "Curated recipe collection",
-      "Daily step tracker",
-      "Progress tracking dashboard",
+      "Nutrition recipes collection",
+      "Progress tracking",
       "Community support",
-      "Web & mobile access",
+      "Web & mobile app access"
     ],
     tierKey: "basic" as const,
     featured: false,
@@ -27,15 +26,14 @@ const tiers = [
   {
     name: "Premier",
     price: "59",
-    description: "Train with purpose",
+    description: "For dedicated practitioners",
     features: [
       "Everything in Essential",
-      "Custom training plan by Coach Marcos",
-      "Personalized nutrition plan",
-      "AI-powered macro tracking",
-      "AI food photo scanner",
-      "Exercise swap suggestions",
-      "Priority support",
+      "Advanced training programs",
+      "Personalized workout plans",
+      "Nutrition guidance",
+      "Live sessions access",
+      "Priority support"
     ],
     tierKey: "pro" as const,
     featured: true,
@@ -46,16 +44,16 @@ const tiers = [
     description: "The complete experience",
     features: [
       "Everything in Premier",
-      "1-on-1 messaging with Coach Marcos",
-      "Weekly meal plan refresh",
-      "AI grocery list generator",
-      "Custom meal planning & swaps",
-      "Early access to new content",
-      "VIP community access",
+      "AI-powered macro tracking",
+      "Personalized nutrition plans",
+      "One-on-one coaching",
+      "Custom meal planning",
+      "Early access to content",
+      "VIP community"
     ],
     tierKey: "elite" as const,
     featured: false,
-  },
+  }
 ];
 
 const Subscribe = () => {

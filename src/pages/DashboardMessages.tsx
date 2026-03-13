@@ -27,7 +27,7 @@ const DashboardMessages = () => {
     return (
       <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
         {/* Coach name header */}
-        <div className="flex items-center gap-3 p-4 border-b border-border/20 flex-shrink-0" style={{ background: 'rgba(14,18,30,0.95)', backdropFilter: 'blur(24px)' }}>
+        <div className="flex items-center gap-3 p-4 border-b border-border bg-card/95 backdrop-blur-lg flex-shrink-0">
           <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
             <span className="text-sm font-medium text-primary">M</span>
           </div>

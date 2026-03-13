@@ -203,7 +203,7 @@ const DashboardTraining = () => {
         <TrainingScheduleAdjust />
 
         {/* Horizontal Calendar Strip */}
-        <div className="card-glass p-3">
+        <div className="rounded-xl border border-border bg-card p-3">
           <div className="flex items-center justify-between mb-2">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
               <ChevronLeft className="w-4 h-4" />
@@ -255,7 +255,7 @@ const DashboardTraining = () => {
 
         {/* No plan state */}
         {!planData ? (
-          <div className="card-glass p-8 text-center">
+          <div className="rounded-xl border border-border bg-card p-8 text-center">
             <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
             <h3 className="font-heading text-lg mb-2">No Training Program Yet</h3>
             <p className="text-muted-foreground text-sm mb-4">
@@ -269,7 +269,7 @@ const DashboardTraining = () => {
           <>
             {/* Today's Workout — Exercise List with Videos */}
             {todayWorkout ? (
-              <div className="card-glass overflow-hidden">
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <div className="p-4 pb-3 border-b border-border/50">
                   <div className="flex items-center justify-between">
                     <div>
@@ -341,7 +341,7 @@ const DashboardTraining = () => {
                 </div>
               </div>
             ) : (
-              <div className="card-glass p-8 text-center">
+              <div className="rounded-xl border border-border bg-card p-8 text-center">
                 <p className="font-heading text-lg mb-2">Rest Day</p>
                 <p className="text-sm text-muted-foreground">Recovery is part of the process. Come back stronger.</p>
               </div>
@@ -351,7 +351,7 @@ const DashboardTraining = () => {
 
         {/* Extra Activities */}
         {customActivities.length > 0 && (
-          <div className="card-glass p-5">
+          <div className="rounded-xl border border-border bg-card p-5">
             <h3 className="section-label mb-3">Today's Activities</h3>
             <div className="space-y-2">
               {customActivities.map((activity: any) => (
@@ -375,7 +375,7 @@ const DashboardTraining = () => {
         {/* Quick Links */}
         <div className="grid grid-cols-1 gap-3">
           <Link to="/dashboard/workouts">
-            <div className="card-glass p-4 hover:border-primary/20 transition-all text-center">
+            <div className="rounded-xl border border-border bg-card p-4 hover:border-foreground/20 transition-all text-center">
               <Dumbbell className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
               <p className="text-xs font-medium">On Demand</p>
             </div>
