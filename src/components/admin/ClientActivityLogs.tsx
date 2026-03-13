@@ -57,6 +57,7 @@ const ClientActivityLogs = ({ userId }: Props) => {
   const [detailDayId, setDetailDayId] = useState<string | null>(null);
   const [detailDate, setDetailDate] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoPreviewTitle, setPhotoPreviewTitle] = useState("Photo");
 
   // ── Workout session logs ──
   const { data: sessions, isLoading: loadingSessions } = useQuery({
