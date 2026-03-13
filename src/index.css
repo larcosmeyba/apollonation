@@ -13,17 +13,17 @@
     --background: 220 15% 6%;
     --foreground: 35 15% 88%;
 
-    /* Card surfaces — Dark Stone Glass */
-    --card: 220 12% 12%;
+    /* Card surfaces — Dark Graphite */
+    --card: 220 12% 10%;
     --card-foreground: 35 15% 88%;
 
     /* Popover — Dark Stone */
     --popover: 220 12% 12%;
     --popover-foreground: 35 15% 88%;
 
-    /* Primary — Warm Sandstone accent */
-    --primary: 35 30% 65%;
-    --primary-foreground: 220 15% 6%;
+    /* Primary — Clean White */
+    --primary: 0 0% 100%;
+    --primary-foreground: 60 7% 5%;
 
     /* Secondary — Darker stone surface */
     --secondary: 220 10% 15%;
@@ -41,10 +41,10 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Subtle warm edge */
-    --border: 30 8% 20%;
+    /* Borders — Graphite edge */
+    --border: 220 10% 18%;
     --input: 220 10% 16%;
-    --ring: 35 30% 50%;
+    --ring: 0 0% 60%;
 
     --radius: 0.5rem;
 
@@ -52,12 +52,13 @@
     --apollo-black: 220 15% 4%;
     --apollo-charcoal: 220 12% 8%;
     --apollo-charcoal-light: 220 12% 10%;
-    --apollo-graphite: 220 10% 14%;
-    --apollo-divider: 30 8% 18%;
-    --apollo-inactive: 35 5% 40%;
-    --apollo-gray: 35 5% 55%;
-    --apollo-white: 35 15% 88%;
+    --apollo-graphite: 220 10% 10%;
+    --apollo-divider: 220 10% 18%;
+    --apollo-inactive: 0 0% 40%;
+    --apollo-gray: 0 0% 55%;
+    --apollo-white: 0 0% 95%;
     --apollo-accent: 80 20% 30%;
+    --apollo-star: 45 90% 61%;
 
     /* Earth tone tokens */
     --earth-terracotta: 18 55% 45%;
@@ -66,15 +67,15 @@
     --earth-sand: 35 30% 65%;
     --earth-clay: 20 30% 55%;
 
-    /* Legacy aliases — map to earth tones */
-    --apollo-gold: 35 30% 65%;
-    --apollo-gold-light: 35 25% 55%;
-    --apollo-gold-dark: 35 20% 45%;
+    /* Legacy aliases */
+    --apollo-gold: 45 90% 61%;
+    --apollo-gold-light: 45 80% 70%;
+    --apollo-gold-dark: 45 70% 45%;
     --apollo-bronze: 25 30% 45%;
     --apollo-sandstone: 35 20% 55%;
-    --apollo-marble: 35 10% 25%;
-    --apollo-ivory: 35 15% 80%;
-    --apollo-taupe: 30 10% 40%;
+    --apollo-marble: 220 10% 18%;
+    --apollo-ivory: 0 0% 90%;
+    --apollo-taupe: 220 5% 40%;
     --apollo-slate: 220 8% 35%;
 
     /* Chart colors — Earth tones */
@@ -82,19 +83,19 @@
     --chart-carbs: 80 20% 45%;
     --chart-fat: 25 25% 40%;
 
-    /* Shadows — Warm depth */
-    --shadow-card: 0 2px 16px -2px hsl(0 0% 0% / 0.25), 0 1px 4px -1px hsl(0 0% 0% / 0.15);
-    --shadow-elevated: 0 8px 30px -6px hsl(0 0% 0% / 0.35), 0 2px 8px -2px hsl(0 0% 0% / 0.2);
+    /* Shadows — Deep elevation */
+    --shadow-card: 0 12px 30px rgba(0, 0, 0, 0.45);
+    --shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
 
     /* Sidebar */
     --sidebar-background: 220 15% 6%;
-    --sidebar-foreground: 35 15% 85%;
-    --sidebar-primary: 35 30% 65%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 0 0% 100%;
     --sidebar-primary-foreground: 220 15% 6%;
-    --sidebar-accent: 220 10% 14%;
-    --sidebar-accent-foreground: 35 15% 85%;
-    --sidebar-border: 30 8% 18%;
-    --sidebar-ring: 35 30% 65%;
+    --sidebar-accent: 220 10% 12%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 220 10% 18%;
+    --sidebar-ring: 0 0% 60%;
   }
 
   .dark {
