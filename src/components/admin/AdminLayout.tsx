@@ -42,19 +42,19 @@ interface AdminLayoutProps {
 }
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "clients", label: "Clients", icon: Users },
-  { id: "messages", label: "Messages", icon: MessageSquare },
-  { id: "broadcast", label: "Broadcast", icon: Megaphone },
-  { id: "programs", label: "Programs", icon: BookOpen },
-  { id: "workouts", label: "On-Demand Classes", icon: Dumbbell },
-  { id: "video-editor", label: "Video Builder", icon: Film },
-  { id: "exercises", label: "Exercise Library", icon: Activity },
-  { id: "recipes", label: "Recipes", icon: Utensils },
-  { id: "group-coaching", label: "Group Coaching", icon: UsersRound },
-  { id: "marketing", label: "Marketing", icon: Palette },
-  { id: "contacts", label: "Contact Requests", icon: Inbox },
-  { id: "profile", label: "Coach Profile", icon: User },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "text-[hsl(210,100%,52%)]" },
+  { id: "clients", label: "Clients", icon: Users, color: "text-[hsl(142,71%,45%)]" },
+  { id: "messages", label: "Messages", icon: MessageSquare, color: "text-[hsl(160,84%,39%)]" },
+  { id: "broadcast", label: "Broadcast", icon: Megaphone, color: "text-[hsl(25,95%,53%)]" },
+  { id: "programs", label: "Programs", icon: BookOpen, color: "text-[hsl(280,65%,60%)]" },
+  { id: "workouts", label: "On-Demand Classes", icon: Dumbbell, color: "text-[hsl(0,72%,51%)]" },
+  { id: "video-editor", label: "Video Builder", icon: Film, color: "text-[hsl(340,75%,55%)]" },
+  { id: "exercises", label: "Exercise Library", icon: Activity, color: "text-[hsl(45,93%,47%)]" },
+  { id: "recipes", label: "Recipes", icon: Utensils, color: "text-[hsl(30,80%,55%)]" },
+  { id: "group-coaching", label: "Group Coaching", icon: UsersRound, color: "text-[hsl(200,80%,50%)]" },
+  { id: "marketing", label: "Marketing", icon: Palette, color: "text-[hsl(320,70%,55%)]" },
+  { id: "contacts", label: "Contact Requests", icon: Inbox, color: "text-[hsl(180,60%,45%)]" },
+  { id: "profile", label: "Coach Profile", icon: User, color: "text-[hsl(220,60%,60%)]" },
 ];
 
 const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => {
@@ -175,12 +175,12 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ${
                     isActive
-                      ? "bg-primary/15 text-primary font-medium"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-primary/15 font-medium"
+                      : "hover:bg-muted"
                   }`}
                 >
-                  <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
-                  <span className="flex-1 text-left truncate">{item.label}</span>
+                  <item.icon className={`w-[18px] h-[18px] flex-shrink-0 ${item.color}`} />
+                  <span className={`flex-1 text-left truncate ${isActive ? "text-white" : "text-muted-foreground hover:text-foreground"}`}>{item.label}</span>
                   {item.id === "messages" && unreadCount > 0 && (
                     <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                       {unreadCount}
