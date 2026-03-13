@@ -133,9 +133,9 @@ const CalendarWeekView = ({
                   <div
                     draggable
                     onDragStart={() => onDragStart(workout, date)}
-                    className="flex items-center gap-2 p-2 rounded bg-primary/10 border border-primary/20 cursor-grab active:cursor-grabbing flex-1 min-w-0"
+                    className="flex items-center gap-2 p-2 rounded bg-[hsl(18,55%,45%)]/15 border border-[hsl(18,55%,45%)]/25 cursor-grab active:cursor-grabbing flex-1 min-w-0"
                   >
-                    <Dumbbell className="w-4 h-4 text-primary flex-shrink-0" />
+                    <Dumbbell className="w-4 h-4 text-[hsl(18,55%,45%)] flex-shrink-0" />
                     <div className="min-w-0">
                       <span className="text-xs font-medium block truncate">
                         {workout.focus || workout.day_label || `Day ${workout.day_number}`}
