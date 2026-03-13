@@ -95,7 +95,7 @@ const CalendarMonthView = ({
                 onDrop={() => inMonth && onDrop(date)}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-xs font-medium ${today ? "text-primary" : ""}`}>
+                  <span className={`text-xs font-medium ${today ? "text-[hsl(18,55%,45%)]" : ""}`}>
                     {format(date, "d")}
                   </span>
                   {completed && (
