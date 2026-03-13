@@ -58,7 +58,7 @@ const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.experience.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-foreground/60 hover:text-foreground transition-colors duration-500 text-sm font-light">
+                   <a href={link.href} className="text-white/60 hover:text-white transition-colors duration-500 text-sm font-light">
                     {link.label}
                   </a>
                 </li>
