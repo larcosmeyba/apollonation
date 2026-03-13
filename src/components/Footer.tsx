@@ -67,7 +67,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-heading text-xs uppercase tracking-[0.2em] text-foreground mb-6">Support</h4>
+            <h4 className="font-heading text-xs uppercase tracking-[0.2em] text-white mb-6">Support</h4>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
