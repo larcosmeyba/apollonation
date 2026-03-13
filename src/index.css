@@ -31,7 +31,7 @@
 
     /* Muted — Subtle dark surface */
     --muted: 0 0% 10%;
-    --muted-foreground: 30 10% 65%;
+    --muted-foreground: 0 0% 70%;
 
     /* Accent — Muted Olive */
     --accent: 80 20% 30%;
