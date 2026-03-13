@@ -47,7 +47,7 @@ const Navbar = () => {
               <>
                 {isAdmin && (
                   <Link to="/admin">
-                    <Button variant="ghost" size="sm" className="text-foreground/60 gap-2">
+                    <Button variant="ghost" size="sm" className="text-white/60 gap-2">
                       <Shield className="w-4 h-4" /> Admin
                     </Button>
                   </Link>
