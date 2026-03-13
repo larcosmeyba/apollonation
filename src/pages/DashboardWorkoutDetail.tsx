@@ -649,10 +649,16 @@ const DashboardWorkoutDetail = () => {
         )}
       </div>
 
-      {/* Workout Complete Dialog */}
-      <Dialog open={showComplete} onOpenChange={setShowComplete}>
+      {/* Workout Complete Dialog with Watch Screenshot Upload */}
+      <Dialog open={showComplete} onOpenChange={(open) => {
+        if (!open) {
+          setShowComplete(false);
+          setWatchScreenshot(null);
+          setWatchPreviewUrl(null);
+        }
+      }}>
         <DialogContent className="max-w-sm text-center border-border overflow-hidden">
-          <div className="py-8 space-y-5">
+          <div className="py-6 space-y-5">
             <div className="mx-auto w-20 h-20 rounded-full bg-foreground flex items-center justify-center animate-[bounce_1s_ease-in-out_2]">
               <Trophy className="w-10 h-10 text-background" />
             </div>
@@ -665,17 +671,108 @@ const DashboardWorkoutDetail = () => {
               <p className="text-muted-foreground text-sm">
                 You just crushed <span className="text-foreground font-medium">{dayData?.day_label || `Day ${dayData?.day_number}`}</span>!
               </p>
-              <p className="text-xs text-muted-foreground/70">
-                Every rep counts. Stay consistent.
-              </p>
             </div>
-            <div className="flex gap-3 justify-center pt-2">
-              <Button variant="apollo" onClick={() => { setShowComplete(false); navigate("/dashboard/training"); }}>
-                Back to Train
-              </Button>
-              <Button variant="outline" onClick={() => { setShowComplete(false); navigate("/dashboard"); }}>
-                Go Home
-              </Button>
+
+            {/* Apple Watch Screenshot Upload */}
+            <div className="mx-4 p-4 rounded-xl border border-border bg-muted/30 space-y-3">
+              <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                <Watch className="w-4 h-4 text-primary" />
+                <span>Upload Watch Screenshot</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Share your Apple Watch heart rate & calories burned screenshot so your coach can track your effort!
+              </p>
+
+              {watchPreviewUrl ? (
+                <div className="relative">
+                  <img
+                    src={watchPreviewUrl}
+                    alt="Watch screenshot preview"
+                    className="w-full max-h-48 object-contain rounded-lg border border-border"
+                  />
+                  <button
+                    onClick={() => { setWatchScreenshot(null); setWatchPreviewUrl(null); }}
+                    className="absolute top-2 right-2 w-6 h-6 rounded-full bg-background/80 flex items-center justify-center text-muted-foreground hover:text-foreground"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-dashed border-border hover:border-foreground/30 cursor-pointer transition-colors">
+                  <ImageIcon className="w-8 h-8 text-muted-foreground/40" />
+                  <span className="text-xs text-muted-foreground">Tap to upload screenshot</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 10 * 1024 * 1024) {
+                          toast({ title: "File too large", description: "Max 10MB", variant: "destructive" });
+                          return;
+                        }
+                        setWatchScreenshot(file);
+                        setWatchPreviewUrl(URL.createObjectURL(file));
+                      }
+                    }}
+                  />
+                </label>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2 px-4 pt-2">
+              {watchScreenshot && (
+                <Button
+                  variant="apollo"
+                  className="w-full gap-2"
+                  disabled={uploadingScreenshot}
+                  onClick={async () => {
+                    if (!user || !dayId || !watchScreenshot) return;
+                    setUploadingScreenshot(true);
+                    try {
+                      const ext = watchScreenshot.name.split(".").pop() || "jpg";
+                      const filePath = `${user.id}/${dayId}_${dateParam}.${ext}`;
+                      const { error: uploadError } = await supabase.storage
+                        .from("workout-screenshots")
+                        .upload(filePath, watchScreenshot, { upsert: true });
+                      if (uploadError) throw uploadError;
+
+                      await (supabase as any)
+                        .from("workout_session_logs")
+                        .update({ watch_screenshot_url: filePath })
+                        .eq("user_id", user.id)
+                        .eq("day_id", dayId)
+                        .eq("log_date", dateParam);
+
+                      toast({ title: "Screenshot uploaded!", description: "Your coach will review your effort 💪" });
+                      queryClient.invalidateQueries({ queryKey: ["workout-session-log"] });
+                      setShowComplete(false);
+                      setWatchScreenshot(null);
+                      setWatchPreviewUrl(null);
+                      navigate("/dashboard/training");
+                    } catch (err: any) {
+                      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+                    } finally {
+                      setUploadingScreenshot(false);
+                    }
+                  }}
+                >
+                  {uploadingScreenshot ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                  ) : (
+                    <><Upload className="w-4 h-4" /> Save & Continue</>
+                  )}
+                </Button>
+              )}
+              <div className="flex gap-3 justify-center">
+                <Button variant={watchScreenshot ? "outline" : "apollo"} onClick={() => { setShowComplete(false); navigate("/dashboard/training"); }}>
+                  {watchScreenshot ? "Skip" : "Back to Train"}
+                </Button>
+                <Button variant="outline" onClick={() => { setShowComplete(false); navigate("/dashboard"); }}>
+                  Go Home
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
