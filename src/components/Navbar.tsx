@@ -18,13 +18,13 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/90 border-b border-border/30">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/90 border-b border-white/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center gap-3">
             <img src={apolloLogo} alt="Apollo Nation Logo" className="w-10 h-10 invert brightness-0 invert opacity-95" />
-            <span className="font-heading text-lg tracking-[0.15em] text-foreground">
-              APOLLO <span className="text-foreground/70">NATION</span>
+            <span className="font-heading text-lg tracking-[0.15em] text-white">
+              APOLLO <span className="text-white/70">NATION</span>
             </span>
           </Link>
 
@@ -81,7 +81,7 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-border/30">
+        <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-white/10">
           <div className="container mx-auto px-4 py-8 space-y-4">
             {navLinks.map((link) => (
               <a
@@ -93,7 +93,7 @@ const Navbar = () => {
                 {link.label}
               </a>
             ))}
-            <div className="pt-6 space-y-3 border-t border-border/30">
+            <div className="pt-6 space-y-3 border-t border-white/10">
               {user ? (
                 <>
                   {isAdmin && (

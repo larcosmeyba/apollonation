@@ -49,14 +49,14 @@ const VideosSection = () => {
     <section className="py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
+          <span className="text-white/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
             On-Demand Library
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.05em] text-foreground">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.05em] text-white">
             Workouts Ready
-            <span className="text-foreground/70 block mt-2">When You Are</span>
+            <span className="text-white/70 block mt-2">When You Are</span>
           </h2>
-          <p className="text-foreground/70 text-base font-light leading-relaxed">
+          <p className="text-white/70 text-base font-light leading-relaxed">
             Professional workout videos designed to push your limits.
           </p>
         </div>
@@ -77,10 +77,10 @@ const VideosSection = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 p-4">
-                <h3 className="font-heading text-lg mb-2 text-foreground">
+                <h3 className="font-heading text-lg mb-2 text-white">
                   {video.title}
                 </h3>
-                <div className="flex items-center gap-3 text-xs text-foreground/70">
+                <div className="flex items-center gap-3 text-xs text-white/70">
                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{video.duration}</span>
                   <span className="flex items-center gap-1"><Flame className="w-3 h-3" />{video.calories} cal</span>
                 </div>

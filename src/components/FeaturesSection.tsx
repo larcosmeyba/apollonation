@@ -36,18 +36,18 @@ const features = [
 const FeaturesSection = () => {
   return (
     <section id="features" className="py-20 relative">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       
       <div className="container mx-auto px-4">
         <div className="text-center max-w-2xl mx-auto mb-20">
-          <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
+          <span className="text-white/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
             The Experience
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-white">
             Everything You Need
-            <span className="text-foreground/70 block mt-2">To Transform</span>
+            <span className="text-white/70 block mt-2">To Transform</span>
           </h2>
-          <p className="text-foreground/70 text-base font-light leading-relaxed">
+          <p className="text-white/70 text-base font-light leading-relaxed">
             A complete wellness ecosystem designed to elevate both body and mind.
           </p>
         </div>
@@ -56,9 +56,9 @@ const FeaturesSection = () => {
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="group p-8 border border-border hover:border-foreground/20 transition-all duration-700 bg-card/80 hover:bg-card rounded-xl"
+              className="group p-8 border border-border hover:border-white/20 transition-all duration-700 bg-card/80 hover:bg-card rounded-xl"
             >
-              <div className="w-11 h-11 flex items-center justify-center mb-6 border border-border group-hover:border-foreground/30 transition-all duration-500 rounded-full">
+              <div className="w-11 h-11 flex items-center justify-center mb-6 border border-border group-hover:border-white/30 transition-all duration-500 rounded-full">
                 <feature.icon className="w-5 h-5 text-foreground/70 group-hover:text-foreground transition-colors" strokeWidth={1.5} />
               </div>
               <h3 className="font-heading text-base mb-3 tracking-[0.08em] text-foreground group-hover:text-foreground transition-colors duration-500">

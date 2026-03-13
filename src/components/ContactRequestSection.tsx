@@ -95,11 +95,11 @@ const ContactRequestSection = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.2em] mb-6 block">Get In Touch</span>
-            <h2 className="font-heading text-3xl md:text-4xl mb-4 text-foreground">
-              Ready to <span className="text-foreground/70">Start?</span>
+            <span className="text-white/70 font-medium text-[10px] uppercase tracking-[0.2em] mb-6 block">Get In Touch</span>
+            <h2 className="font-heading text-3xl md:text-4xl mb-4 text-white">
+              Ready to <span className="text-white/70">Start?</span>
             </h2>
-            <p className="text-foreground/70 max-w-md mx-auto text-sm">
+            <p className="text-white/70 max-w-md mx-auto text-sm">
               Request a call or send us an email. We'll help you find the right plan.
             </p>
           </div>

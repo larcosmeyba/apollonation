@@ -27,10 +27,10 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <div 
-            className={`inline-flex items-center gap-2 px-5 py-2 border border-foreground/20 bg-foreground/10 backdrop-blur-sm mb-8 rounded-full transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            className={`inline-flex items-center gap-2 px-5 py-2 border border-white/20 bg-white/10 backdrop-blur-sm mb-8 rounded-full transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse flex-shrink-0" />
-            <span className="text-[10px] text-foreground font-medium tracking-[0.2em] uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse flex-shrink-0" />
+            <span className="text-[10px] text-white font-medium tracking-[0.2em] uppercase">
               Elite Fitness Coaching
             </span>
           </div>
@@ -38,8 +38,8 @@ const HeroSection = () => {
           <h1 
             className={`font-heading text-4xl sm:text-5xl md:text-6xl lg:text-8xl leading-[1.05] mb-8 tracking-[0.02em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            <span className="block text-foreground">Forge Your</span>
-            <span className="block text-foreground/80 mt-2">Legend</span>
+            <span className="block text-white">Forge Your</span>
+            <span className="block text-white/80 mt-2">Legend</span>
           </h1>
 
           <p 
@@ -74,10 +74,10 @@ const HeroSection = () => {
               { value: "Support", label: "Premium accountability & tracking" },
             ].map((stat) => (
               <div key={stat.value}>
-                <div className="font-heading text-lg md:text-xl text-foreground mb-1 tracking-wide">
+                <div className="font-heading text-lg md:text-xl text-white mb-1 tracking-wide">
                   {stat.value}
                 </div>
-                <div className="text-[10px] text-foreground/70 leading-relaxed">
+                <div className="text-[10px] text-white/70 leading-relaxed">
                   {stat.label}
                 </div>
               </div>
@@ -91,8 +91,8 @@ const HeroSection = () => {
       <div 
         className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-40' : 'opacity-0'}`}
       >
-        <span className="text-[10px] text-foreground/40 uppercase tracking-widest">Scroll</span>
-        <div className="w-px h-8 bg-gradient-to-b from-foreground/30 to-transparent animate-pulse" />
+        <span className="text-[10px] text-white/40 uppercase tracking-widest">Scroll</span>
+        <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent animate-pulse" />
       </div>
     </header>
   );

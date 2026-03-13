@@ -24,14 +24,14 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="border-t border-border/50 bg-background/80 backdrop-blur-sm">
+    <footer className="border-t border-white/10 bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <img src={apolloLogo} alt="Apollo Nation Logo" className="w-9 h-9 invert brightness-0 invert opacity-90" />
-              <span className="font-heading text-base tracking-[0.15em] text-foreground">
-                APOLLO <span className="text-foreground/70">NATION</span>
+              <span className="font-heading text-base tracking-[0.15em] text-white">
+                APOLLO <span className="text-white/70">NATION</span>
               </span>
             </div>
             <p className="text-white/70 text-sm font-light leading-relaxed mb-6 max-w-xs">
@@ -58,7 +58,7 @@ const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.experience.map((link) => (
                 <li key={link.label}>
-                   <a href={link.href} className="text-white/60 hover:text-white transition-colors duration-500 text-sm font-light">
+                  <a href={link.href} className="text-white/60 hover:text-white transition-colors duration-500 text-sm font-light">
                     {link.label}
                   </a>
                 </li>
@@ -86,7 +86,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-16 pt-6 border-t border-border/30 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="mt-16 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-white/40 text-xs font-light">
             © {currentYear} Apollo Nation. All rights reserved.
           </p>

@@ -88,14 +88,14 @@ const PricingSection = () => {
     <section id="pricing" className="py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-20">
-          <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
+          <span className="text-white/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
             Membership
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-white">
             Choose Your
-            <span className="text-foreground/70 block mt-2">Path</span>
+            <span className="text-white/70 block mt-2">Path</span>
           </h2>
-          <p className="text-foreground/70 text-base font-light leading-relaxed">
+          <p className="text-white/70 text-base font-light leading-relaxed">
             Flexible plans designed for every stage of your journey.
           </p>
         </div>
@@ -106,12 +106,12 @@ const PricingSection = () => {
               key={tier.name}
               className={`relative p-6 lg:p-8 border transition-all duration-500 rounded-xl ${
                 tier.featured
-                  ? "border-foreground/20 bg-card/80"
-                  : "border-border bg-card/60 hover:border-foreground/10"
+                  ? "border-white/20 bg-card/80"
+                  : "border-border bg-card/60 hover:border-white/10"
               }`}
             >
               {tier.featured && (
-                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-5 py-1 bg-foreground rounded-b-lg">
+                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-5 py-1 bg-white rounded-b-lg">
                   <span className="text-[9px] font-semibold text-background uppercase tracking-[0.2em]">
                     Most Popular
                   </span>

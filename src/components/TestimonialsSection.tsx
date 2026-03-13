@@ -24,18 +24,18 @@ const testimonials = [
 const TestimonialsSection = () => {
   return (
     <section id="testimonials" className="py-20 relative">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       
       <div className="container mx-auto px-4">
         <div className="text-center max-w-2xl mx-auto mb-20">
-          <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
+          <span className="text-white/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
             Testimonials
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-white">
             Stories of
-            <span className="text-foreground/70 block mt-2">Transformation</span>
+            <span className="text-white/70 block mt-2">Transformation</span>
           </h2>
-          <p className="text-foreground/70 text-base font-light leading-relaxed">
+          <p className="text-white/70 text-base font-light leading-relaxed">
             Real experiences from members who committed to their journey.
           </p>
         </div>
@@ -44,7 +44,7 @@ const TestimonialsSection = () => {
           {testimonials.map((testimonial) => (
             <div
               key={testimonial.name}
-              className="relative p-8 border border-border bg-card/80 hover:border-foreground/15 transition-all duration-500 rounded-xl"
+              className="relative p-8 border border-border bg-card/80 hover:border-white/15 transition-all duration-500 rounded-xl"
             >
               <Quote className="absolute top-6 right-6 w-8 h-8 text-foreground/10" strokeWidth={1} />
               
