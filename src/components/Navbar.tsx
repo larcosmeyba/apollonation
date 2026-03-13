@@ -87,7 +87,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="block text-foreground/70 hover:text-foreground transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
+                className="block text-white/70 hover:text-white transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
                 onClick={() => setIsOpen(false)}
               >
                 {link.label}
