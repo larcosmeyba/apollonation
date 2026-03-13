@@ -224,8 +224,8 @@
   /* Apollo Button Variants */
   .btn-apollo-primary {
     @apply relative overflow-hidden font-medium px-8 py-4 rounded transition-all duration-300;
-    background: rgba(106,163,255,0.14);
-    border: 1px solid rgba(106,163,255,0.45);
+    background: rgba(95,111,82,0.18);
+    border: 1px solid rgba(95,111,82,0.50);
     color: hsl(222 14% 91%);
     font-family: 'Inter', sans-serif;
     font-weight: 500;
@@ -235,8 +235,8 @@
   }
 
   .btn-apollo-primary:hover {
-    background: rgba(106,163,255,0.22);
-    box-shadow: 0 0 30px -4px rgba(106,163,255,0.3);
+    background: rgba(95,111,82,0.28);
+    box-shadow: 0 0 30px -4px rgba(95,111,82,0.3);
   }
 
   .btn-apollo-outline {
