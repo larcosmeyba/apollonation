@@ -28,7 +28,7 @@ const CTASection = () => {
         loading="lazy"
       />
       <div className="absolute inset-0 bg-background/70" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(222_100%_68%/0.06)_0%,_transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(95,111,82,0.06)_0%,_transparent_70%)]" />
       <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
 
       <div className="container mx-auto px-4 relative z-10">

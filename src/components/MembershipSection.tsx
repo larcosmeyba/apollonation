@@ -87,8 +87,8 @@ const MembershipSection = () => {
                 boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(106,163,255,0.2)';
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 30px -5px rgba(106,163,255,0.15), 0 20px 60px rgba(0,0,0,0.45)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(95,111,82,0.25)';
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 30px -5px rgba(95,111,82,0.15), 0 20px 60px rgba(0,0,0,0.45)';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)';

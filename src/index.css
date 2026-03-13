@@ -21,9 +21,9 @@
     --popover: 228 30% 13%;
     --popover-foreground: 222 14% 91%;
 
-    /* Primary — Cosmic Blue #6AA3FF */
-    --primary: 216 100% 70%;
-    --primary-foreground: 222 38% 7%;
+    /* Primary — Matte Olive #5F6F52 */
+    --primary: 93 15% 38%;
+    --primary-foreground: 40 25% 87%;
 
     /* Secondary — Muted navy */
     --secondary: 228 25% 16%;
@@ -33,9 +33,9 @@
     --muted: 228 20% 14%;
     --muted-foreground: 222 14% 42%;
 
-    /* Accent — Cosmic Blue */
-    --accent: 216 100% 70%;
-    --accent-foreground: 222 38% 7%;
+    /* Accent — Matte Olive */
+    --accent: 93 15% 38%;
+    --accent-foreground: 40 25% 87%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
@@ -44,7 +44,7 @@
     /* Borders — Very subtle */
     --border: 228 15% 16%;
     --input: 228 25% 16%;
-    --ring: 216 100% 70%;
+    --ring: 93 15% 38%;
 
     --radius: 0.5rem;
 
@@ -57,12 +57,12 @@
     --apollo-inactive: 222 12% 42%;
     --apollo-gray: 222 14% 42%;
     --apollo-white: 222 14% 91%;
-    --apollo-accent: 216 100% 70%;
+    --apollo-accent: 93 15% 38%;
 
     /* Legacy aliases */
-    --apollo-gold: 216 100% 70%;
-    --apollo-gold-light: 216 100% 76%;
-    --apollo-gold-dark: 216 100% 60%;
+    --apollo-gold: 93 15% 38%;
+    --apollo-gold-light: 93 15% 45%;
+    --apollo-gold-dark: 93 15% 30%;
     --apollo-bronze: 222 12% 42%;
     --apollo-sandstone: 222 14% 42%;
     --apollo-marble: 222 14% 91%;
@@ -71,24 +71,24 @@
     --apollo-slate: 222 12% 42%;
 
     /* Chart colors */
-    --chart-protein: 216 100% 70%;
-    --chart-carbs: 200 60% 50%;
-    --chart-fat: 260 50% 55%;
+    --chart-protein: 93 15% 38%;
+    --chart-carbs: 30 25% 44%;
+    --chart-fat: 40 25% 50%;
 
     /* Shadows */
     --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3), 0 1px 4px -1px hsl(0 0% 0% / 0.2);
     --shadow-elevated: 0 20px 60px -8px hsl(0 0% 0% / 0.45), 0 2px 8px -2px hsl(0 0% 0% / 0.3);
-    --shadow-glow: 0 0 30px -5px hsl(216 100% 70% / 0.15);
+    --shadow-glow: 0 0 30px -5px hsl(93 15% 38% / 0.15);
 
     /* Sidebar */
     --sidebar-background: 222 38% 7%;
     --sidebar-foreground: 222 14% 91%;
-    --sidebar-primary: 216 100% 70%;
-    --sidebar-primary-foreground: 222 38% 7%;
+    --sidebar-primary: 93 15% 38%;
+    --sidebar-primary-foreground: 40 25% 87%;
     --sidebar-accent: 228 25% 16%;
     --sidebar-accent-foreground: 222 14% 91%;
     --sidebar-border: 228 15% 16%;
-    --sidebar-ring: 216 100% 70%;
+    --sidebar-ring: 93 15% 38%;
   }
 
   .dark {
@@ -224,8 +224,8 @@
   /* Apollo Button Variants */
   .btn-apollo-primary {
     @apply relative overflow-hidden font-medium px-8 py-4 rounded transition-all duration-300;
-    background: rgba(106,163,255,0.14);
-    border: 1px solid rgba(106,163,255,0.45);
+    background: rgba(95,111,82,0.18);
+    border: 1px solid rgba(95,111,82,0.50);
     color: hsl(222 14% 91%);
     font-family: 'Inter', sans-serif;
     font-weight: 500;
@@ -235,8 +235,8 @@
   }
 
   .btn-apollo-primary:hover {
-    background: rgba(106,163,255,0.22);
-    box-shadow: 0 0 30px -4px rgba(106,163,255,0.3);
+    background: rgba(95,111,82,0.28);
+    box-shadow: 0 0 30px -4px rgba(95,111,82,0.3);
   }
 
   .btn-apollo-outline {
@@ -251,8 +251,8 @@
   }
 
   .btn-apollo-outline:hover {
-    border-color: rgba(106,163,255,0.4);
-    background: rgba(106,163,255,0.08);
+    border-color: rgba(95,111,82,0.45);
+    background: rgba(95,111,82,0.08);
   }
 
   /* Card styles */
@@ -275,12 +275,12 @@
     background: rgba(24,28,44,0.85);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(106,163,255,0.12);
-    box-shadow: 0 0 30px -5px rgba(106,163,255,0.12);
+    border: 1px solid rgba(95,111,82,0.12);
+    box-shadow: 0 0 30px -5px rgba(95,111,82,0.12);
   }
   .card-apollo-featured:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 40px -8px rgba(106,163,255,0.2);
+    box-shadow: 0 0 40px -8px rgba(95,111,82,0.2);
   }
 
   /* Text gradient — cosmic blue */
@@ -324,20 +324,20 @@
   /* Cosmic glow button */
   .btn-cosmic {
     @apply relative px-10 py-4 font-medium rounded-full transition-all duration-500;
-    background: rgba(106,163,255,0.14);
-    border: 1px solid rgba(106,163,255,0.45);
+    background: rgba(95,111,82,0.18);
+    border: 1px solid rgba(95,111,82,0.50);
     color: hsl(222 14% 91%);
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     font-size: 0.8rem;
-    box-shadow: 0 0 25px -3px rgba(106,163,255,0.25), 0 0 60px -10px rgba(106,163,255,0.12);
+    box-shadow: 0 0 25px -3px rgba(95,111,82,0.25), 0 0 60px -10px rgba(95,111,82,0.12);
   }
 
   .btn-cosmic:hover {
-    background: rgba(106,163,255,0.22);
-    box-shadow: 0 0 35px -2px rgba(106,163,255,0.35), 0 0 80px -10px rgba(106,163,255,0.2);
+    background: rgba(95,111,82,0.28);
+    box-shadow: 0 0 35px -2px rgba(95,111,82,0.35), 0 0 80px -10px rgba(95,111,82,0.2);
     transform: translateY(-1px);
   }
 }
