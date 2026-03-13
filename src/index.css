@@ -11,7 +11,7 @@
   :root {
     /* Primary Background — Matte Black #0B0B0B */
     --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
+    --foreground: 40 20% 92%;
 
     /* Card surfaces — Luxury Cream */
     --card: 40 30% 96%;
@@ -21,8 +21,8 @@
     --popover: 40 30% 96%;
     --popover-foreground: 0 0% 0%;
 
-    /* Primary — White buttons / active elements */
-    --primary: 0 0% 95%;
+    /* Primary — Cream buttons / active elements */
+    --primary: 40 25% 93%;
     --primary-foreground: 0 0% 0%;
 
     /* Secondary — Cream surface for box consistency */
@@ -56,17 +56,17 @@
     --apollo-divider: 0 0% 16%;
     --apollo-inactive: 0 0% 48%;
     --apollo-gray: 0 0% 75%;
-    --apollo-white: 0 0% 95%;
+    --apollo-white: 40 25% 93%;
     --apollo-accent: 210 30% 17%;
 
     /* Legacy aliases — map old gold tokens to new monochrome */
-    --apollo-gold: 0 0% 95%;
+    --apollo-gold: 40 25% 93%;
     --apollo-gold-light: 0 0% 85%;
     --apollo-gold-dark: 0 0% 70%;
     --apollo-bronze: 0 0% 60%;
     --apollo-sandstone: 0 0% 75%;
-    --apollo-marble: 0 0% 96%;
-    --apollo-ivory: 0 0% 95%;
+    --apollo-marble: 40 30% 96%;
+    --apollo-ivory: 40 25% 93%;
     --apollo-taupe: 0 0% 48%;
     --apollo-slate: 0 0% 50%;
 
