@@ -71,7 +71,7 @@ const Navbar = () => {
           </div>
 
           <button
-            className="md:hidden text-foreground p-2"
+            className="md:hidden text-white p-2"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
           >
