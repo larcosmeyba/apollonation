@@ -307,7 +307,7 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
                   </li>
                 ))}
               </ul>
-              <p className="text-xs font-medium mt-2 pt-1.5 border-t border-primary/10">
+              <p className="text-xs font-medium mt-2 pt-1.5 border-t border-[hsl(80,25%,40%)]/15">
                 Total: {totalCals} cal
               </p>
             </div>

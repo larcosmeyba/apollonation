@@ -59,6 +59,13 @@
     --apollo-white: 40 25% 93%;
     --apollo-accent: 210 30% 17%;
 
+    /* Earth tone tokens for calendar */
+    --earth-terracotta: 18 55% 45%;
+    --earth-sienna: 25 40% 35%;
+    --earth-olive: 80 25% 40%;
+    --earth-sand: 35 35% 78%;
+    --earth-clay: 20 30% 70%;
+
     /* Legacy aliases — map old gold tokens to new monochrome */
     --apollo-gold: 40 25% 93%;
     --apollo-gold-light: 0 0% 85%;

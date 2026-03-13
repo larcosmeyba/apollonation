@@ -276,7 +276,7 @@ const DashboardCalendar = () => {
             </div>
             <span>Completed</span>
           </div>
-          <span className="hidden md:inline text-primary/60">Drag workouts to reschedule</span>
+          <span className="hidden md:inline text-[hsl(18,55%,45%)]/60">Drag workouts to reschedule</span>
         </div>
       </div>
     </DashboardLayout>

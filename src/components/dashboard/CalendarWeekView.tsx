@@ -148,8 +148,8 @@ const CalendarWeekView = ({
                 )}
 
                 {meals.length > 0 && (
-                  <div className="flex items-center gap-2 p-2 rounded bg-primary/5 border border-primary/10 flex-1 min-w-0">
-                    <Utensils className="w-4 h-4 text-primary flex-shrink-0" />
+                  <div className="flex items-center gap-2 p-2 rounded bg-[hsl(80,25%,40%)]/10 border border-[hsl(80,25%,40%)]/20 flex-1 min-w-0">
+                    <Utensils className="w-4 h-4 text-[hsl(80,25%,40%)] flex-shrink-0" />
                     <div className="min-w-0">
                       <span className="text-xs font-medium block">{meals.length} meals</span>
                       <span className="text-[11px] text-muted-foreground">
