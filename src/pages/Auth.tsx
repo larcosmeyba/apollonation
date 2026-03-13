@@ -181,7 +181,7 @@ const Auth = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-card border-border h-12"
+                  className="bg-muted border-border h-12 text-foreground"
               />
             </div>
 
