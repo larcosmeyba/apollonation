@@ -1273,6 +1273,7 @@ export type Database = {
           log_date: string
           notes: string | null
           user_id: string
+          watch_screenshot_url: string | null
         }
         Insert: {
           completed_at?: string | null
@@ -1282,6 +1283,7 @@ export type Database = {
           log_date?: string
           notes?: string | null
           user_id: string
+          watch_screenshot_url?: string | null
         }
         Update: {
           completed_at?: string | null
@@ -1291,6 +1293,7 @@ export type Database = {
           log_date?: string
           notes?: string | null
           user_id?: string
+          watch_screenshot_url?: string | null
         }
         Relationships: [
           {
