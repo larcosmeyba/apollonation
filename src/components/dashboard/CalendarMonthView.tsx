@@ -109,10 +109,10 @@ const CalendarMonthView = ({
                   <div
                     draggable
                     onDragStart={(e) => { e.stopPropagation(); onDragStart(workout, date); }}
-                    className="mb-1 p-1 rounded bg-primary/10 border border-primary/20 cursor-grab active:cursor-grabbing"
+                    className="mb-1 p-1 rounded bg-[hsl(18,55%,45%)]/15 border border-[hsl(18,55%,45%)]/25 cursor-grab active:cursor-grabbing"
                   >
                     <div className="flex items-center gap-0.5">
-                      <Dumbbell className="w-2.5 h-2.5 text-primary flex-shrink-0" />
+                      <Dumbbell className="w-2.5 h-2.5 text-[hsl(18,55%,45%)] flex-shrink-0" />
                       <span className="text-[10px] font-medium truncate">
                         {workout.focus || workout.day_label || `D${workout.day_number}`}
                       </span>
