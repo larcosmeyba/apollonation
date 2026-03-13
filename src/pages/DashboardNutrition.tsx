@@ -20,14 +20,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
-import { Link } from "react-router-dom";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { format } from "date-fns";
 
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"];
 const MEAL_TYPE_LABELS: Record<string, string> = {
