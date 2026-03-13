@@ -33,9 +33,9 @@
     --muted: 228 20% 14%;
     --muted-foreground: 222 14% 42%;
 
-    /* Accent — Cosmic Blue */
-    --accent: 216 100% 70%;
-    --accent-foreground: 222 38% 7%;
+    /* Accent — Matte Olive */
+    --accent: 93 15% 38%;
+    --accent-foreground: 40 25% 87%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
