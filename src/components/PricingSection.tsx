@@ -88,14 +88,14 @@ const PricingSection = () => {
     <section id="pricing" className="py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-20">
-          <span className="landing-text-muted font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
+          <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
             Membership
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] landing-text">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground">
             Choose Your
-            <span className="landing-text-muted block mt-2">Path</span>
+            <span className="text-foreground/70 block mt-2">Path</span>
           </h2>
-          <p className="landing-text-muted text-base font-light leading-relaxed">
+          <p className="text-foreground/70 text-base font-light leading-relaxed">
             Flexible plans designed for every stage of your journey.
           </p>
         </div>
@@ -104,15 +104,15 @@ const PricingSection = () => {
           {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`relative p-6 lg:p-8 border transition-all duration-500 rounded-xl bg-card text-card-foreground ${
+              className={`relative p-6 lg:p-8 border transition-all duration-500 rounded-xl ${
                 tier.featured
-                  ? "border-white/25"
-                  : "border-white/15 hover:border-white/25"
+                  ? "border-foreground/20 bg-card/80"
+                  : "border-border bg-card/60 hover:border-foreground/10"
               }`}
             >
               {tier.featured && (
-                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-5 py-1 bg-card-foreground rounded-b-lg">
-                  <span className="text-[9px] font-semibold text-card uppercase tracking-[0.2em]">
+                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-5 py-1 bg-foreground rounded-b-lg">
+                  <span className="text-[9px] font-semibold text-background uppercase tracking-[0.2em]">
                     Most Popular
                   </span>
                 </div>
@@ -127,22 +127,22 @@ const PricingSection = () => {
               )}
 
               <div className="text-center mb-10 pt-4">
-                <h3 className="font-heading text-lg tracking-[0.1em] mb-3 text-card-foreground">{tier.name}</h3>
-                <p className="text-card-foreground/60 text-xs font-light mb-6">{tier.description}</p>
+                <h3 className="font-heading text-lg tracking-[0.1em] mb-3 text-foreground">{tier.name}</h3>
+                <p className="text-foreground/60 text-xs font-light mb-6">{tier.description}</p>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-card-foreground/70 text-lg font-light">$</span>
-                  <span className="font-heading text-4xl tracking-wide text-card-foreground">
+                  <span className="text-foreground/70 text-lg font-light">$</span>
+                  <span className="font-heading text-4xl tracking-wide text-foreground">
                     {tier.price}
                   </span>
-                  <span className="text-card-foreground/60 text-sm font-light">/mo</span>
+                  <span className="text-foreground/60 text-sm font-light">/mo</span>
                 </div>
               </div>
 
               <ul className="space-y-4 mb-10">
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
-                    <Check size={14} className="text-card-foreground/70 flex-shrink-0 mt-1" strokeWidth={1.5} />
-                    <span className="text-card-foreground/60 text-sm font-light">{feature}</span>
+                    <Check size={14} className="text-foreground/70 flex-shrink-0 mt-1" strokeWidth={1.5} />
+                    <span className="text-foreground/60 text-sm font-light">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -162,7 +162,7 @@ const PricingSection = () => {
         </div>
 
         <div className="text-center mt-16">
-          <p className="landing-text-muted text-xs font-light tracking-wide opacity-60">
+          <p className="text-foreground/40 text-xs font-light tracking-wide">
             30-day satisfaction guarantee · Cancel anytime · Instant access
           </p>
         </div>

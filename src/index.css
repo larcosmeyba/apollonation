@@ -143,23 +143,6 @@
 }
 
 @layer components {
-  /* Landing page light theme scope */
-  .landing-light {
-    --landing-bg: 0 0% 100%;
-    --landing-fg: 220 15% 10%;
-    --landing-fg-muted: 220 10% 40%;
-    background-color: hsl(var(--landing-bg));
-    color: hsl(var(--landing-fg));
-  }
-
-  .landing-light .landing-text {
-    color: hsl(var(--landing-fg));
-  }
-
-  .landing-light .landing-text-muted {
-    color: hsl(var(--landing-fg-muted));
-  }
-
   /* Apollo Button Variants */
   .btn-apollo-primary {
     @apply relative overflow-hidden bg-primary text-primary-foreground font-medium px-8 py-4 rounded transition-all duration-300;

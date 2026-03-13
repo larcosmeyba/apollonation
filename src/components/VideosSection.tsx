@@ -1,4 +1,4 @@
-import { Clock, Flame } from "lucide-react";
+import { Clock, Flame, Dumbbell } from "lucide-react";
 import marcos5 from "@/assets/marcos-5.jpg";
 import marcos6 from "@/assets/marcos-6.jpg";
 import marcos7 from "@/assets/marcos-7.jpg";
@@ -49,14 +49,14 @@ const VideosSection = () => {
     <section className="py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="landing-text-muted font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
+          <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
             On-Demand Library
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.05em] landing-text">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.05em] text-foreground">
             Workouts Ready
-            <span className="landing-text-muted block mt-2">When You Are</span>
+            <span className="text-foreground/70 block mt-2">When You Are</span>
           </h2>
-          <p className="landing-text-muted text-base font-light leading-relaxed">
+          <p className="text-foreground/70 text-base font-light leading-relaxed">
             Professional workout videos designed to push your limits.
           </p>
         </div>
@@ -65,7 +65,7 @@ const VideosSection = () => {
           {videos.slice(1).map((video, index) => (
             <div
               key={index}
-              className="relative overflow-hidden border border-white/15 rounded-xl bg-card"
+              className="relative overflow-hidden border border-border rounded-xl"
             >
               <img
                 src={video.thumbnail}
@@ -74,13 +74,13 @@ const VideosSection = () => {
                 decoding="async"
                 className="w-full h-48 md:h-56 object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 p-4">
-                <h3 className="font-heading text-lg mb-2 text-card-foreground">
+                <h3 className="font-heading text-lg mb-2 text-foreground">
                   {video.title}
                 </h3>
-                <div className="flex items-center gap-3 text-xs text-card-foreground/70">
+                <div className="flex items-center gap-3 text-xs text-foreground/70">
                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{video.duration}</span>
                   <span className="flex items-center gap-1"><Flame className="w-3 h-3" />{video.calories} cal</span>
                 </div>

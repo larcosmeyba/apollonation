@@ -11,7 +11,7 @@ import SEOHead from "@/components/SEOHead";
 
 const Index = () => {
   return (
-    <main className="min-h-screen overflow-x-hidden w-full landing-light">
+    <main className="min-h-screen overflow-x-hidden w-full">
       <SEOHead
         path="/"
         description="Transform your body with Coach Marcos at Apollo Nation. Elite personal training programs, HD workout videos, custom nutrition plans, and 1-on-1 coaching. Join today."
