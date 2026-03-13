@@ -32,7 +32,7 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <h1 
-            className={`font-heading text-5xl sm:text-6xl md:text-7xl lg:text-9xl leading-[1.05] mb-10 tracking-[0.14em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05] mb-10 tracking-[0.14em] transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             <span className="block text-foreground">APOLLO</span>
             <span className="block text-muted-foreground mt-2">NATION</span>
