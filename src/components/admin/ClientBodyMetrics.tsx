@@ -149,10 +149,10 @@ const ClientBodyMetrics = ({ userId }: { userId: string }) => {
 
       {/* Chart */}
       {chartData.length > 1 && (
-        <div className="card-apollo p-4">
+        <div className="rounded-2xl border border-border bg-[hsl(220,15%,4%)] p-4" style={{ boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(255,255,255,0.04)' }}>
           <ChartContainer config={chartConfig} className="h-[250px] w-full">
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 15%)" />
               <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <ChartTooltip content={<ChartTooltipContent />} />
