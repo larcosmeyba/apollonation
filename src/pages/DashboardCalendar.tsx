@@ -263,11 +263,11 @@ const DashboardCalendar = () => {
         {/* Legend */}
         <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-primary/20 border border-primary/30" />
+            <div className="w-3 h-3 rounded bg-[hsl(18,55%,45%)]/20 border border-[hsl(18,55%,45%)]/30" />
             <span>Workout</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-primary/10 border border-primary/20" />
+            <div className="w-3 h-3 rounded bg-[hsl(80,25%,40%)]/10 border border-[hsl(80,25%,40%)]/20" />
             <span>Meals logged</span>
           </div>
           <div className="flex items-center gap-1.5">
