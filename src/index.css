@@ -42,7 +42,7 @@
     --destructive-foreground: 0 0% 98%;
 
     /* Borders — White outline */
-    --border: 0 0% 18%;
+    --border: 0 0% 30%;
     --input: 0 0% 12%;
     --ring: 0 0% 60%;
 
@@ -84,8 +84,8 @@
     --chart-fat: 0 0% 40%;
 
     /* Shadows — Deep elevation */
-    --shadow-card: 0 12px 30px rgba(0, 0, 0, 0.45);
-    --shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-card: 0 0 15px rgba(255, 255, 255, 0.06), 0 0 30px rgba(255, 255, 255, 0.03);
+    --shadow-elevated: 0 0 20px rgba(255, 255, 255, 0.1), 0 0 50px rgba(255, 255, 255, 0.05);
 
     /* Sidebar */
     --sidebar-background: 0 0% 0%;
@@ -174,23 +174,24 @@
   /* Card styles — Dark Glass */
   .card-apollo {
     @apply rounded-2xl bg-card p-8 transition-all duration-300;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: var(--shadow-card);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.06), 0 0 30px rgba(255, 255, 255, 0.03);
   }
   .card-apollo:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-elevated);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), 0 0 50px rgba(255, 255, 255, 0.05);
   }
 
   .card-apollo-featured {
     @apply rounded-2xl bg-card p-10 transition-all duration-300;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: var(--shadow-elevated);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.08), 0 0 40px rgba(255, 255, 255, 0.04);
   }
   .card-apollo-featured:hover {
     transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.12), 0 0 60px rgba(255, 255, 255, 0.06);
   }
 
   /* Text gradient — Clean silver */
