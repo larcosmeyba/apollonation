@@ -19,6 +19,7 @@ interface SessionLog {
   log_date: string;
   completed_at: string | null;
   notes: string | null;
+  watch_screenshot_url: string | null;
 }
 
 interface SetLog {
