@@ -88,13 +88,13 @@
     --shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
 
     /* Sidebar */
-    --sidebar-background: 220 15% 6%;
-    --sidebar-foreground: 0 0% 90%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 92%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 220 15% 6%;
-    --sidebar-accent: 220 10% 12%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 220 10% 18%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 0 0% 18%;
     --sidebar-ring: 0 0% 60%;
   }
 
