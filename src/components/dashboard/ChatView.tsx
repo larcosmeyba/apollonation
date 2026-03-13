@@ -176,14 +176,14 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
                 <div
                   className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
                     isMine
-                      ? "bg-blue-600 text-white rounded-br-sm"
-                      : "bg-muted rounded-bl-sm"
+                      ? "bg-primary text-primary-foreground rounded-br-sm"
+                      : "bg-muted text-foreground rounded-bl-sm"
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{renderMessageContent(msg.content)}</p>
                   <p
                     className={`text-[10px] mt-1 ${
-                      isMine ? "text-white/70" : "text-muted-foreground"
+                      isMine ? "text-primary-foreground/70" : "text-muted-foreground"
                     }`}
                   >
                     {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
@@ -203,7 +203,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="min-h-[44px] max-h-32 resize-none bg-background text-foreground border-foreground/30 placeholder:text-foreground/40"
+            className="min-h-[44px] max-h-32 resize-none bg-muted border-border text-foreground placeholder:text-muted-foreground"
             rows={1}
           />
           <Button
@@ -211,7 +211,6 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
             size="icon"
             onClick={handleSend}
             disabled={!newMessage.trim() || sendMessage.isPending}
-            className="bg-blue-600 hover:bg-blue-700 text-white border-0"
           >
             <Send className="w-4 h-4" />
           </Button>

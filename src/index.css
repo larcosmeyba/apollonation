@@ -2,99 +2,99 @@
 @tailwind components;
 @tailwind utilities;
 
-/* APOLLO NATION — Dark Editorial Design System
-   Theme: Monochrome Black + White, photography for color
-   Palette: Matte Black, Charcoal, Soft White, Cool Gray
+/* APOLLO NATION — Dark Luxury Editorial Design System
+   Theme: Deep Stone + Earth Tones + Greek Sculpture
+   Palette: Obsidian Black, Dark Stone, Muted Olive, Warm Sandstone accents
 */
 
 @layer base {
   :root {
-    /* Primary Background — Matte Black #0B0B0B */
-    --background: 0 0% 4%;
-    --foreground: 40 20% 92%;
+    /* Primary Background — Deep Obsidian */
+    --background: 220 15% 6%;
+    --foreground: 35 15% 88%;
 
-    /* Card surfaces — Warm Tan/Mocha */
-    --card: 28 22% 82%;
-    --card-foreground: 0 0% 5%;
+    /* Card surfaces — Dark Stone Glass */
+    --card: 220 12% 12%;
+    --card-foreground: 35 15% 88%;
 
-    /* Popover — Match tan system */
-    --popover: 28 22% 82%;
-    --popover-foreground: 0 0% 0%;
+    /* Popover — Dark Stone */
+    --popover: 220 12% 12%;
+    --popover-foreground: 35 15% 88%;
 
-    /* Primary — Cream buttons / active elements */
-    --primary: 40 25% 93%;
-    --primary-foreground: 0 0% 0%;
+    /* Primary — Warm Sandstone accent */
+    --primary: 35 30% 65%;
+    --primary-foreground: 220 15% 6%;
 
-    /* Secondary — Tan surface */
-    --secondary: 28 22% 82%;
-    --secondary-foreground: 0 0% 0%;
+    /* Secondary — Darker stone surface */
+    --secondary: 220 10% 15%;
+    --secondary-foreground: 35 15% 85%;
 
-    /* Muted — Deeper warm brown */
-    --muted: 28 18% 76%;
-    --muted-foreground: 0 0% 0%;
+    /* Muted — Subtle dark surface */
+    --muted: 220 10% 16%;
+    --muted-foreground: 35 10% 60%;
 
-    /* Accent — Deep Graphite Blue #1E2A38 (very subtle) */
-    --accent: 210 30% 17%;
-    --accent-foreground: 0 0% 95%;
+    /* Accent — Muted Olive */
+    --accent: 80 20% 30%;
+    --accent-foreground: 35 15% 88%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — Subtle dark border for clean white boxes */
-    --border: 0 0% 80%;
-    --input: 28 18% 76%;
-    --ring: 0 0% 30%;
+    /* Borders — Subtle warm edge */
+    --border: 30 8% 20%;
+    --input: 220 10% 16%;
+    --ring: 35 30% 50%;
 
     --radius: 0.5rem;
 
-    /* Apollo custom tokens — Monochrome */
-    --apollo-black: 0 0% 4%;
-    --apollo-charcoal: 0 0% 9%;
-    --apollo-charcoal-light: 0 0% 9%;
-    --apollo-graphite: 0 0% 12%;
-    --apollo-divider: 0 0% 16%;
-    --apollo-inactive: 0 0% 48%;
-    --apollo-gray: 0 0% 75%;
-    --apollo-white: 40 25% 93%;
-    --apollo-accent: 210 30% 17%;
+    /* Apollo custom tokens */
+    --apollo-black: 220 15% 4%;
+    --apollo-charcoal: 220 12% 8%;
+    --apollo-charcoal-light: 220 12% 10%;
+    --apollo-graphite: 220 10% 14%;
+    --apollo-divider: 30 8% 18%;
+    --apollo-inactive: 35 5% 40%;
+    --apollo-gray: 35 5% 55%;
+    --apollo-white: 35 15% 88%;
+    --apollo-accent: 80 20% 30%;
 
-    /* Earth tone tokens for calendar */
+    /* Earth tone tokens */
     --earth-terracotta: 18 55% 45%;
     --earth-sienna: 25 40% 35%;
     --earth-olive: 80 25% 40%;
-    --earth-sand: 35 35% 78%;
-    --earth-clay: 20 30% 70%;
+    --earth-sand: 35 30% 65%;
+    --earth-clay: 20 30% 55%;
 
-    /* Legacy aliases — map old gold tokens to new monochrome */
-    --apollo-gold: 40 25% 93%;
-    --apollo-gold-light: 0 0% 85%;
-    --apollo-gold-dark: 0 0% 70%;
-    --apollo-bronze: 0 0% 60%;
-    --apollo-sandstone: 0 0% 75%;
-    --apollo-marble: 28 22% 82%;
-    --apollo-ivory: 28 20% 78%;
-    --apollo-taupe: 0 0% 48%;
-    --apollo-slate: 0 0% 50%;
+    /* Legacy aliases — map to earth tones */
+    --apollo-gold: 35 30% 65%;
+    --apollo-gold-light: 35 25% 55%;
+    --apollo-gold-dark: 35 20% 45%;
+    --apollo-bronze: 25 30% 45%;
+    --apollo-sandstone: 35 20% 55%;
+    --apollo-marble: 35 10% 25%;
+    --apollo-ivory: 35 15% 80%;
+    --apollo-taupe: 30 10% 40%;
+    --apollo-slate: 220 8% 35%;
 
-    /* Chart colors — Muted neutral */
-    --chart-protein: 0 0% 54%;
-    --chart-carbs: 210 12% 43%;
-    --chart-fat: 0 0% 24%;
+    /* Chart colors — Earth tones */
+    --chart-protein: 35 30% 55%;
+    --chart-carbs: 80 20% 45%;
+    --chart-fat: 25 25% 40%;
 
-    /* Shadows — Clean elevation */
-    --shadow-card: 0 2px 16px -2px hsl(0 0% 0% / 0.08), 0 1px 4px -1px hsl(0 0% 0% / 0.04);
-    --shadow-elevated: 0 8px 30px -6px hsl(0 0% 0% / 0.12), 0 2px 8px -2px hsl(0 0% 0% / 0.06);
+    /* Shadows — Warm depth */
+    --shadow-card: 0 2px 16px -2px hsl(0 0% 0% / 0.25), 0 1px 4px -1px hsl(0 0% 0% / 0.15);
+    --shadow-elevated: 0 8px 30px -6px hsl(0 0% 0% / 0.35), 0 2px 8px -2px hsl(0 0% 0% / 0.2);
 
     /* Sidebar */
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 0 0% 95%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 16%;
-    --sidebar-ring: 0 0% 95%;
+    --sidebar-background: 220 15% 6%;
+    --sidebar-foreground: 35 15% 85%;
+    --sidebar-primary: 35 30% 65%;
+    --sidebar-primary-foreground: 220 15% 6%;
+    --sidebar-accent: 220 10% 14%;
+    --sidebar-accent-foreground: 35 15% 85%;
+    --sidebar-border: 30 8% 18%;
+    --sidebar-ring: 35 30% 65%;
   }
 
   .dark {
@@ -122,11 +122,6 @@
     overflow-x: hidden;
     width: 100%;
     max-width: 100vw;
-    background-image: url('/images/marble-bg.jpeg');
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -148,9 +143,9 @@
 }
 
 @layer components {
-  /* Apollo Button Variants — White primary, transparent outline */
+  /* Apollo Button Variants */
   .btn-apollo-primary {
-    @apply relative overflow-hidden bg-foreground text-background font-medium px-8 py-4 rounded transition-all duration-300;
+    @apply relative overflow-hidden bg-primary text-primary-foreground font-medium px-8 py-4 rounded transition-all duration-300;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     letter-spacing: 0.1em;
@@ -163,7 +158,7 @@
   }
 
   .btn-apollo-outline {
-    @apply border border-foreground/60 text-foreground bg-transparent px-8 py-4 rounded transition-all duration-300;
+    @apply border border-foreground/40 text-foreground bg-transparent px-8 py-4 rounded transition-all duration-300;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     letter-spacing: 0.1em;
@@ -172,10 +167,10 @@
   }
 
   .btn-apollo-outline:hover {
-    @apply bg-foreground text-background;
+    @apply bg-foreground/10;
   }
 
-  /* Card styles — White surface + black border */
+  /* Card styles — Dark Glass */
   .card-apollo {
     @apply rounded-2xl border border-border bg-card p-8 transition-all duration-300;
     box-shadow: var(--shadow-card);
@@ -183,36 +178,22 @@
   .card-apollo:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--apollo-gold) / 0.2);
   }
 
   .card-apollo-featured {
     @apply rounded-2xl border border-border bg-card p-10 transition-all duration-300;
     box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--apollo-gold) / 0.15);
   }
   .card-apollo-featured:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px -8px hsl(0 0% 0% / 0.16);
+    border-color: hsl(var(--apollo-gold) / 0.3);
   }
 
-  /* Force black text inside all box/card surfaces */
-  .bg-card,
-  .card-apollo,
-  .card-apollo-featured {
-    color: hsl(var(--card-foreground));
-  }
-
-  .bg-card .text-foreground,
-  .bg-card .text-muted-foreground,
-  .card-apollo .text-foreground,
-  .card-apollo .text-muted-foreground,
-  .card-apollo-featured .text-foreground,
-  .card-apollo-featured .text-muted-foreground {
-    color: hsl(var(--card-foreground)) !important;
-  }
-
-  /* Text gradient — subtle white fade */
+  /* Text gradient — Warm sandstone */
   .text-gradient-gold {
-    background: linear-gradient(135deg, hsl(0 0% 95%), hsl(0 0% 70%));
+    background: linear-gradient(135deg, hsl(35 30% 70%), hsl(25 25% 50%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -220,17 +201,18 @@
 
   /* Section backgrounds */
   .bg-apollo-gradient {
-    background: linear-gradient(180deg, hsl(0 0% 4%), hsl(0 0% 2%));
+    background: linear-gradient(180deg, hsl(220 15% 6%), hsl(220 15% 4%));
   }
 
-  /* Animated underline — thin, clean */
+  /* Animated underline */
   .underline-apollo {
     @apply relative;
   }
 
   .underline-apollo::after {
     content: '';
-    @apply absolute bottom-0 left-0 h-px w-0 bg-foreground transition-all duration-500;
+    @apply absolute bottom-0 left-0 h-px w-0 transition-all duration-500;
+    background: hsl(var(--apollo-gold));
   }
 
   .underline-apollo:hover::after {
@@ -239,7 +221,8 @@
 
   /* Divider line */
   .divider-gold {
-    @apply h-px bg-gradient-to-r from-transparent via-border to-transparent;
+    @apply h-px bg-gradient-to-r from-transparent to-transparent;
+    background-image: linear-gradient(to right, transparent, hsl(var(--border)), transparent);
   }
 
   /* Section label */

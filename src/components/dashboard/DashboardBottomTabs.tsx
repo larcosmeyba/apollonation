@@ -26,13 +26,13 @@ const DashboardBottomTabs = () => {
               key={tab.href}
               to={tab.href}
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors relative ${
-                active ? "text-foreground" : "text-foreground/50"
+                active ? "text-primary" : "text-muted-foreground"
               }`}
             >
               <div className="relative">
                 <tab.icon className="w-5 h-5" />
                 {tab.label === "Inbox" && unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-1 py-0 rounded-full min-w-[16px] text-center leading-4">
+                   <span className="absolute -top-1.5 -right-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-1 py-0 rounded-full min-w-[16px] text-center leading-4">
                     {unreadCount}
                   </span>
                 )}
