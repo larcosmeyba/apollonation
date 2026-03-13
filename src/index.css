@@ -35,7 +35,7 @@
 
     /* Accent — Muted Olive */
     --accent: 80 20% 30%;
-    --accent-foreground: 30 20% 92%;
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
