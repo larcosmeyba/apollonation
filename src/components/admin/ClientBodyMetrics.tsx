@@ -31,10 +31,10 @@ interface BodyMetric {
 }
 
 const chartConfig: ChartConfig = {
-  weight: { label: "Weight (lbs)", color: "hsl(var(--primary))" },
-  bodyFat: { label: "Body Fat %", color: "hsl(38 92% 50%)" },
-  muscle: { label: "Muscle Mass (lbs)", color: "hsl(142 71% 45%)" },
-  bone: { label: "Bone Density", color: "hsl(280 65% 60%)" },
+  weight: { label: "Weight (lbs)", color: "hsl(0 0% 100%)" },
+  bodyFat: { label: "Body Fat %", color: "hsl(0 0% 60%)" },
+  muscle: { label: "Muscle Mass (lbs)", color: "hsl(210 100% 52%)" },
+  bone: { label: "Bone Density", color: "hsl(0 0% 40%)" },
 };
 
 const ClientBodyMetrics = ({ userId }: { userId: string }) => {
@@ -149,10 +149,10 @@ const ClientBodyMetrics = ({ userId }: { userId: string }) => {
 
       {/* Chart */}
       {chartData.length > 1 && (
-        <div className="card-apollo p-4">
+        <div className="rounded-2xl border border-border bg-[hsl(220,15%,4%)] p-4" style={{ boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(255,255,255,0.04)' }}>
           <ChartContainer config={chartConfig} className="h-[250px] w-full">
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 15%)" />
               <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <ChartTooltip content={<ChartTooltipContent />} />
@@ -162,9 +162,9 @@ const ClientBodyMetrics = ({ userId }: { userId: string }) => {
             </LineChart>
           </ChartContainer>
           <div className="flex items-center justify-center gap-4 mt-2 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-primary inline-block rounded" /> Weight</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block rounded" style={{ background: "hsl(38 92% 50%)" }} /> Body Fat</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block rounded" style={{ background: "hsl(142 71% 45%)" }} /> Muscle</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-white inline-block rounded" /> Weight</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block rounded" style={{ background: "hsl(0 0% 60%)" }} /> Body Fat</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 inline-block rounded" style={{ background: "hsl(210 100% 52%)" }} /> Muscle</span>
           </div>
         </div>
       )}
