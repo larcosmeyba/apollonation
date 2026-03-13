@@ -263,20 +263,20 @@ const DashboardCalendar = () => {
         {/* Legend */}
         <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-[hsl(18,55%,45%)]/20 border border-[hsl(18,55%,45%)]/30" />
+            <div className="w-3 h-3 rounded bg-primary/20 border border-primary/30" />
             <span>Workout</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-[hsl(80,25%,40%)]/10 border border-[hsl(80,25%,40%)]/20" />
+            <div className="w-3 h-3 rounded bg-accent/10 border border-accent/20" />
             <span>Meals logged</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center">
-              <Check className="w-2.5 h-2.5 text-green-500" />
+            <div className="w-4 h-4 rounded-full bg-accent/20 flex items-center justify-center">
+              <Check className="w-2.5 h-2.5 text-accent" />
             </div>
             <span>Completed</span>
           </div>
-          <span className="hidden md:inline text-[hsl(18,55%,45%)]/60">Drag workouts to reschedule</span>
+          <span className="hidden md:inline text-primary/60">Drag workouts to reschedule</span>
         </div>
       </div>
     </DashboardLayout>
