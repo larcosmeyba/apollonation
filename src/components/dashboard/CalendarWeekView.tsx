@@ -78,9 +78,9 @@ const CalendarWeekView = ({
               )}
 
               {meals.length > 0 && (
-                <div className="p-1.5 rounded bg-primary/5 border border-primary/10">
+                <div className="p-1.5 rounded bg-[hsl(80,25%,40%)]/10 border border-[hsl(80,25%,40%)]/20">
                   <div className="flex items-center gap-1">
-                    <Utensils className="w-3 h-3 text-primary flex-shrink-0" />
+                    <Utensils className="w-3 h-3 text-[hsl(80,25%,40%)] flex-shrink-0" />
                     <span className="text-[11px] font-medium">{meals.length} meals</span>
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
