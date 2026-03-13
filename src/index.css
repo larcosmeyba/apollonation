@@ -58,21 +58,21 @@
     --apollo-gray: 0 0% 55%;
     --apollo-white: 0 0% 95%;
     --apollo-accent: 80 20% 30%;
-    --apollo-star: 45 90% 61%;
+    --apollo-star: 0 0% 95%;
 
-    /* Earth tone tokens */
-    --earth-terracotta: 18 55% 45%;
-    --earth-sienna: 25 40% 35%;
-    --earth-olive: 80 25% 40%;
-    --earth-sand: 35 30% 65%;
-    --earth-clay: 20 30% 55%;
+    /* Earth tone tokens — now clean neutrals */
+    --earth-terracotta: 0 0% 70%;
+    --earth-sienna: 0 0% 55%;
+    --earth-olive: 0 0% 60%;
+    --earth-sand: 0 0% 75%;
+    --earth-clay: 0 0% 65%;
 
-    /* Legacy aliases */
-    --apollo-gold: 45 90% 61%;
-    --apollo-gold-light: 45 80% 70%;
-    --apollo-gold-dark: 45 70% 45%;
-    --apollo-bronze: 25 30% 45%;
-    --apollo-sandstone: 35 20% 55%;
+    /* Legacy aliases — clean white/silver */
+    --apollo-gold: 0 0% 90%;
+    --apollo-gold-light: 0 0% 95%;
+    --apollo-gold-dark: 0 0% 70%;
+    --apollo-bronze: 0 0% 60%;
+    --apollo-sandstone: 0 0% 55%;
     --apollo-marble: 220 10% 18%;
     --apollo-ivory: 0 0% 90%;
     --apollo-taupe: 220 5% 40%;
