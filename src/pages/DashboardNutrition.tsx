@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
+import { getMealImage } from "@/utils/mealImages";
 
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"];
 const MEAL_TYPE_LABELS: Record<string, string> = {
@@ -620,7 +621,16 @@ const DashboardNutrition = () => {
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-start gap-3">
+                                    {/* Food Photo */}
+                                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                                      <img
+                                        src={getMealImage(meal.meal_name, meal.meal_type)}
+                                        alt={meal.meal_name}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                      />
+                                    </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</p>
                                       <p className="font-medium text-sm">{meal.meal_name}</p>
