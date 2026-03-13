@@ -232,7 +232,7 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
   const totalCals = meals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0);
 
   return (
-    <div className="mt-3 rounded-lg border border-primary/30 bg-card p-4 animate-in slide-in-from-top-2 duration-200">
+    <div className="mt-3 rounded-lg border border-[hsl(18,55%,45%)]/30 bg-[hsl(35,35%,78%)] p-4 animate-in slide-in-from-top-2 duration-200">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <h3 className="font-heading text-sm font-semibold">
