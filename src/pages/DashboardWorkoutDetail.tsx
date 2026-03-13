@@ -255,6 +255,9 @@ const DashboardWorkoutDetail = () => {
   const [alternatives, setAlternatives] = useState<any[]>([]);
   const [loadingSwap, setLoadingSwap] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
+  const [watchScreenshot, setWatchScreenshot] = useState<File | null>(null);
+  const [watchPreviewUrl, setWatchPreviewUrl] = useState<string | null>(null);
+  const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
 
   // Fetch day with exercises
   const { data: dayData } = useQuery({
