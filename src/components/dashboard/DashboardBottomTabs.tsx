@@ -26,7 +26,7 @@ const DashboardBottomTabs = () => {
               key={tab.href}
               to={tab.href}
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors relative ${
-                active ? "text-primary" : "text-muted-foreground"
+                active ? "text-foreground" : "text-foreground/50"
               }`}
             >
               <div className="relative">
