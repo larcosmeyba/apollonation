@@ -174,24 +174,24 @@
   /* Card styles — Dark Glass */
   .card-apollo {
     @apply rounded-2xl bg-card p-8 transition-all duration-300;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.06), 0 0 30px rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 4px 16px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.07);
   }
   .card-apollo:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), 0 0 50px rgba(255, 255, 255, 0.05);
+    transform: translateY(-6px);
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.12), inset 0 1px 0 rgba(255,255,255,0.12);
   }
 
   .card-apollo-featured {
     @apply rounded-2xl bg-card p-10 transition-all duration-300;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.08), 0 0 40px rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 4px 16px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.09);
   }
   .card-apollo-featured:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.45);
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.12), 0 0 60px rgba(255, 255, 255, 0.06);
+    transform: translateY(-6px);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.5), 0 0 25px rgba(255,255,255,0.08), 0 0 0 1px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.14);
   }
 
   /* Text gradient — Clean silver */
