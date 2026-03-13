@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { format, formatDistanceToNow } from "date-fns";
-import { Camera, Footprints, Dumbbell, Flame } from "lucide-react";
+import { Camera, Footprints, Dumbbell, Flame, Watch } from "lucide-react";
 
 interface Props {
   userId: string;
@@ -19,6 +19,7 @@ interface SessionLog {
   log_date: string;
   completed_at: string | null;
   notes: string | null;
+  watch_screenshot_url: string | null;
 }
 
 interface SetLog {
@@ -56,6 +57,7 @@ const ClientActivityLogs = ({ userId }: Props) => {
   const [detailDayId, setDetailDayId] = useState<string | null>(null);
   const [detailDate, setDetailDate] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoPreviewTitle, setPhotoPreviewTitle] = useState("Photo");
 
   // ── Workout session logs ──
   const { data: sessions, isLoading: loadingSessions } = useQuery({
@@ -173,12 +175,13 @@ const ClientActivityLogs = ({ userId }: Props) => {
     return acc;
   }, {} as Record<string, { calories: number; protein: number; carbs: number; fat: number; meals: number }>) || {};
 
-  const handlePhotoClick = async (photoUrl: string) => {
-    // Photo URL could be a storage path
+  const handlePhotoClick = async (photoUrl: string, title = "Food Photo") => {
+    setPhotoPreviewTitle(title);
     if (photoUrl.startsWith("http")) {
       setPhotoPreview(photoUrl);
     } else {
-      const { data } = await supabase.storage.from("food-photos").createSignedUrl(photoUrl, 300);
+      const bucket = title === "Watch Screenshot" ? "workout-screenshots" : "food-photos";
+      const { data } = await supabase.storage.from(bucket).createSignedUrl(photoUrl, 300);
       setPhotoPreview(data?.signedUrl || null);
     }
   };
@@ -203,14 +206,15 @@ const ClientActivityLogs = ({ userId }: Props) => {
                   <TableHead>Workout</TableHead>
                   <TableHead>Focus</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Watch</TableHead>
                   <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loadingSessions ? (
-                  <TableRow><TableCell colSpan={5} className="text-center py-8">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center py-8">Loading...</TableCell></TableRow>
                 ) : sessions?.length === 0 ? (
-                  <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No workout sessions logged yet.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No workout sessions logged yet.</TableCell></TableRow>
                 ) : sessions?.map(s => (
                   <TableRow key={s.id}>
                     <TableCell className="font-medium">{format(new Date(s.log_date), "MMM d, yyyy")}</TableCell>
@@ -220,6 +224,15 @@ const ClientActivityLogs = ({ userId }: Props) => {
                       <Badge variant={s.completed_at ? "default" : "secondary"}>
                         {s.completed_at ? "Completed" : "In Progress"}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {s.watch_screenshot_url ? (
+                        <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => handlePhotoClick(s.watch_screenshot_url!, "Watch Screenshot")}>
+                          <Watch className="w-3 h-3" /> View
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Button size="sm" variant="outline" onClick={() => { setDetailDayId(s.day_id); setDetailDate(s.log_date); }}>
@@ -265,7 +278,7 @@ const ClientActivityLogs = ({ userId }: Props) => {
                     </TableCell>
                     <TableCell>
                       {m.photo_url ? (
-                        <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => handlePhotoClick(m.photo_url!)}>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => handlePhotoClick(m.photo_url!, "Food Photo")}>
                           <Camera className="w-3 h-3" /> View
                         </Button>
                       ) : (
@@ -381,7 +394,7 @@ const ClientActivityLogs = ({ userId }: Props) => {
       <Dialog open={!!photoPreview} onOpenChange={(o) => { if (!o) setPhotoPreview(null); }}>
         <DialogContent className="max-w-sm p-2">
           <DialogHeader>
-            <DialogTitle>Food Photo</DialogTitle>
+            <DialogTitle>{photoPreviewTitle}</DialogTitle>
           </DialogHeader>
           {photoPreview && (
             <img src={photoPreview} alt="Food log photo" className="w-full rounded-lg object-contain max-h-[70vh]" />
