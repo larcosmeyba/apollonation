@@ -67,15 +67,15 @@
     --earth-sand: 35 30% 65%;
     --earth-clay: 20 30% 55%;
 
-    /* Legacy aliases — map to earth tones */
-    --apollo-gold: 35 30% 65%;
-    --apollo-gold-light: 35 25% 55%;
-    --apollo-gold-dark: 35 20% 45%;
+    /* Legacy aliases */
+    --apollo-gold: 45 90% 61%;
+    --apollo-gold-light: 45 80% 70%;
+    --apollo-gold-dark: 45 70% 45%;
     --apollo-bronze: 25 30% 45%;
     --apollo-sandstone: 35 20% 55%;
-    --apollo-marble: 35 10% 25%;
-    --apollo-ivory: 35 15% 80%;
-    --apollo-taupe: 30 10% 40%;
+    --apollo-marble: 220 10% 18%;
+    --apollo-ivory: 0 0% 90%;
+    --apollo-taupe: 220 5% 40%;
     --apollo-slate: 220 8% 35%;
 
     /* Chart colors — Earth tones */
