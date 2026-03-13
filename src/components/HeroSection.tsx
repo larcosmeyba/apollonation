@@ -27,7 +27,7 @@ const HeroSection = () => {
       {/* Layer 3 — Marble texture overlay */}
       <div className="absolute inset-0" style={{ backgroundImage: "url('/images/marble-texture.jpeg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.06, mixBlendMode: 'overlay' as const }} />
       {/* Cosmic radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(106,163,255,0.06)_0%,_transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(95,111,82,0.06)_0%,_transparent_70%)]" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">

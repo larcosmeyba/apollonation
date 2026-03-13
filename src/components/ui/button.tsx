@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-[rgba(106,163,255,0.14)] text-foreground border border-[rgba(106,163,255,0.45)] hover:bg-[rgba(106,163,255,0.22)] hover:shadow-[0_0_30px_-4px_rgba(106,163,255,0.3)]",
+        default: "bg-[rgba(95,111,82,0.18)] text-foreground border border-[rgba(95,111,82,0.50)] hover:bg-[rgba(95,111,82,0.28)] hover:shadow-[0_0_30px_-4px_rgba(95,111,82,0.3)]",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-[rgba(255,255,255,0.12)] text-foreground bg-transparent hover:bg-[rgba(106,163,255,0.08)] hover:border-[rgba(106,163,255,0.4)]",
+        outline: "border border-[rgba(255,255,255,0.12)] text-foreground bg-transparent hover:bg-[rgba(95,111,82,0.08)] hover:border-[rgba(95,111,82,0.45)]",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-foreground underline-offset-4 hover:underline tracking-normal",
-        apollo: "bg-[rgba(106,163,255,0.14)] text-foreground border border-[rgba(106,163,255,0.45)] font-semibold hover:bg-[rgba(106,163,255,0.22)] hover:shadow-[0_0_30px_-4px_rgba(106,163,255,0.3)]",
-        "apollo-outline": "border border-[rgba(255,255,255,0.12)] text-foreground bg-transparent hover:bg-[rgba(106,163,255,0.08)] hover:border-[rgba(106,163,255,0.4)]",
+        apollo: "bg-[rgba(95,111,82,0.18)] text-foreground border border-[rgba(95,111,82,0.50)] font-semibold hover:bg-[rgba(95,111,82,0.28)] hover:shadow-[0_0_30px_-4px_rgba(95,111,82,0.3)]",
+        "apollo-outline": "border border-[rgba(255,255,255,0.12)] text-foreground bg-transparent hover:bg-[rgba(95,111,82,0.08)] hover:border-[rgba(95,111,82,0.45)]",
       },
       size: {
         default: "h-11 px-8 py-3",
