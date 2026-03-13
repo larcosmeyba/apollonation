@@ -11,11 +11,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dumbbell, ChevronLeft, RefreshCw, Loader2,
   Play, Check, Trophy, Sparkles, StickyNote,
-  Clock, ArrowLeft,
+  Clock, ArrowLeft, Upload, Watch, Image as ImageIcon,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { format } from "date-fns";
 import { format } from "date-fns";
 
 // ── YouTube helpers ──────────────────────────────────────────────────
