@@ -11,7 +11,7 @@
   :root {
     /* Primary Background — Pure Black */
     --background: 0 0% 0%;
-    --foreground: 30 20% 92%;
+    --foreground: 0 0% 100%;
 
     /* Card surfaces — Matte Black */
     --card: 0 0% 6%;
