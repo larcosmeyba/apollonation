@@ -176,14 +176,14 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
                 <div
                   className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
                     isMine
-                      ? "bg-blue-600 text-white rounded-br-sm"
-                      : "bg-muted rounded-bl-sm"
+                      ? "bg-primary text-primary-foreground rounded-br-sm"
+                      : "bg-muted text-foreground rounded-bl-sm"
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{renderMessageContent(msg.content)}</p>
                   <p
                     className={`text-[10px] mt-1 ${
-                      isMine ? "text-white/70" : "text-muted-foreground"
+                      isMine ? "text-primary-foreground/70" : "text-muted-foreground"
                     }`}
                   >
                     {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
