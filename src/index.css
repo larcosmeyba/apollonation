@@ -49,11 +49,11 @@
     --radius: 0.5rem;
 
     /* Apollo custom tokens */
-    --apollo-black: 220 15% 4%;
-    --apollo-charcoal: 220 12% 8%;
-    --apollo-charcoal-light: 220 12% 10%;
-    --apollo-graphite: 220 10% 10%;
-    --apollo-divider: 220 10% 18%;
+    --apollo-black: 0 0% 0%;
+    --apollo-charcoal: 0 0% 4%;
+    --apollo-charcoal-light: 0 0% 6%;
+    --apollo-graphite: 0 0% 6%;
+    --apollo-divider: 0 0% 18%;
     --apollo-inactive: 0 0% 40%;
     --apollo-gray: 0 0% 55%;
     --apollo-white: 0 0% 95%;
