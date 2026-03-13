@@ -203,7 +203,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="min-h-[44px] max-h-32 resize-none bg-background text-foreground border-foreground/30 placeholder:text-foreground/40"
+            className="min-h-[44px] max-h-32 resize-none bg-muted border-border text-foreground placeholder:text-muted-foreground"
             rows={1}
           />
           <Button
@@ -211,7 +211,6 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
             size="icon"
             onClick={handleSend}
             disabled={!newMessage.trim() || sendMessage.isPending}
-            className="bg-blue-600 hover:bg-blue-700 text-white border-0"
           >
             <Send className="w-4 h-4" />
           </Button>
