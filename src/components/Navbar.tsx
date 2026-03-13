@@ -98,7 +98,7 @@ const Navbar = () => {
                 <>
                   {isAdmin && (
                     <Link to="/admin" onClick={() => setIsOpen(false)}>
-                      <Button variant="ghost" className="w-full text-foreground/60 gap-2">
+                      <Button variant="ghost" className="w-full text-white/60 gap-2">
                         <Shield className="w-4 h-4" /> Admin Panel
                       </Button>
                     </Link>
