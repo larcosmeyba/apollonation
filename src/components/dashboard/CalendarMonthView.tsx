@@ -183,13 +183,13 @@ const CalendarMonthView = ({
                 {inMonth && (
                   <div className="flex flex-col items-center gap-0.5 mt-0.5">
                     {workout && (
-                      <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                        <Dumbbell className="w-2.5 h-2.5 text-primary" />
+                      <div className="w-4 h-4 rounded-full bg-[hsl(18,55%,45%)]/20 flex items-center justify-center">
+                        <Dumbbell className="w-2.5 h-2.5 text-[hsl(18,55%,45%)]" />
                       </div>
                     )}
                     {meals.length > 0 && (
-                      <div className="w-4 h-4 rounded-full bg-primary/15 flex items-center justify-center">
-                        <Utensils className="w-2.5 h-2.5 text-primary" />
+                      <div className="w-4 h-4 rounded-full bg-[hsl(80,25%,40%)]/15 flex items-center justify-center">
+                        <Utensils className="w-2.5 h-2.5 text-[hsl(80,25%,40%)]" />
                       </div>
                     )}
                     {completed && (
