@@ -386,6 +386,11 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
           <ClientNutritionPlans userId={userId} />
         </TabsContent>
 
+        {/* ── BODY METRICS ── */}
+        <TabsContent value="metrics" className="mt-4">
+          <ClientBodyMetrics userId={userId} />
+        </TabsContent>
+
         {/* ── ACTIVITY ── */}
         <TabsContent value="activity" className="mt-4">
           <ClientActivityLogs userId={userId} />
