@@ -394,7 +394,7 @@ const ClientActivityLogs = ({ userId }: Props) => {
       <Dialog open={!!photoPreview} onOpenChange={(o) => { if (!o) setPhotoPreview(null); }}>
         <DialogContent className="max-w-sm p-2">
           <DialogHeader>
-            <DialogTitle>Food Photo</DialogTitle>
+            <DialogTitle>{photoPreviewTitle}</DialogTitle>
           </DialogHeader>
           {photoPreview && (
             <img src={photoPreview} alt="Food log photo" className="w-full rounded-lg object-contain max-h-[70vh]" />
