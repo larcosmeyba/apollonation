@@ -56,7 +56,7 @@
     --apollo-divider: 0 0% 16%;
     --apollo-inactive: 0 0% 48%;
     --apollo-gray: 0 0% 75%;
-    --apollo-white: 0 0% 95%;
+    --apollo-white: 40 25% 93%;
     --apollo-accent: 210 30% 17%;
 
     /* Legacy aliases — map old gold tokens to new monochrome */
