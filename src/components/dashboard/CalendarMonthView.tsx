@@ -254,10 +254,10 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Workout section */}
-        <div className="rounded-md border border-primary/20 bg-primary/5 p-3">
+        <div className="rounded-md border border-[hsl(18,55%,45%)]/25 bg-[hsl(18,55%,45%)]/8 p-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <Dumbbell className="w-4 h-4 text-primary" />
-            <span className="text-xs font-semibold text-primary">Workout</span>
+            <Dumbbell className="w-4 h-4 text-[hsl(18,55%,45%)]" />
+            <span className="text-xs font-semibold text-[hsl(18,55%,45%)]">Workout</span>
           </div>
           {workout ? (
             <div>
