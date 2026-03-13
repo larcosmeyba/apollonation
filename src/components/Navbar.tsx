@@ -59,7 +59,7 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="text-foreground/60 hover:text-foreground">
+                  <Button variant="ghost" size="sm" className="text-white/60 hover:text-white">
                     Sign In
                   </Button>
                 </Link>
