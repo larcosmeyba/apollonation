@@ -20,6 +20,8 @@ import {
   Bell,
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
+import { getMealImage } from "@/utils/mealImages";
+import { format, differenceInDays } from "date-fns";
 
 const MEAL_TYPE_LABELS: Record<string, string> = {
   breakfast: "🌅 Breakfast",
