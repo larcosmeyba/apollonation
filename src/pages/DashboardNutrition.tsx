@@ -629,7 +629,16 @@ const DashboardNutrition = () => {
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-start gap-3">
+                                    {/* Food Photo */}
+                                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                                      <img
+                                        src={getMealImage(meal.meal_name, meal.meal_type)}
+                                        alt={meal.meal_name}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                      />
+                                    </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</p>
                                       <p className="font-medium text-sm">{meal.meal_name}</p>
