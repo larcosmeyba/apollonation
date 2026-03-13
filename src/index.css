@@ -83,9 +83,9 @@
     --chart-carbs: 80 20% 45%;
     --chart-fat: 25 25% 40%;
 
-    /* Shadows — Warm depth */
-    --shadow-card: 0 2px 16px -2px hsl(0 0% 0% / 0.25), 0 1px 4px -1px hsl(0 0% 0% / 0.15);
-    --shadow-elevated: 0 8px 30px -6px hsl(0 0% 0% / 0.35), 0 2px 8px -2px hsl(0 0% 0% / 0.2);
+    /* Shadows — Deep elevation */
+    --shadow-card: 0 12px 30px rgba(0, 0, 0, 0.45);
+    --shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
 
     /* Sidebar */
     --sidebar-background: 220 15% 6%;
