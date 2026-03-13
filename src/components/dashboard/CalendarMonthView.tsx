@@ -121,9 +121,9 @@ const CalendarMonthView = ({
                 )}
 
                 {meals.length > 0 && inMonth && (
-                  <div className="p-1 rounded bg-primary/5 border border-primary/10">
+                  <div className="p-1 rounded bg-[hsl(80,25%,40%)]/10 border border-[hsl(80,25%,40%)]/20">
                     <div className="flex items-center gap-0.5">
-                      <Utensils className="w-2.5 h-2.5 text-primary flex-shrink-0" />
+                      <Utensils className="w-2.5 h-2.5 text-[hsl(80,25%,40%)] flex-shrink-0" />
                       <span className="text-[10px] font-medium">{meals.length}</span>
                     </div>
                   </div>
