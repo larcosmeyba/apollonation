@@ -176,7 +176,7 @@ const CalendarMonthView = ({
                     : "border-[hsl(25,30%,65%)] bg-[hsl(35,35%,78%)]"
                 }`}
               >
-                <span className={`text-[10px] font-medium block text-center ${today ? "text-primary" : ""}`}>
+                <span className={`text-[10px] font-medium block text-center ${today ? "text-[hsl(18,55%,45%)]" : ""}`}>
                   {format(date, "d")}
                 </span>
 
