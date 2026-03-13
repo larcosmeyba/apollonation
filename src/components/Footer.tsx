@@ -44,7 +44,7 @@ const Footer = () => {
                   href={social.href}
                   target={social.href.startsWith("http") ? "_blank" : undefined}
                   rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="w-9 h-9 border border-border flex items-center justify-center text-foreground/60 hover:border-foreground/30 hover:text-foreground transition-all duration-500 rounded-full"
+                  className="w-9 h-9 border border-white/20 flex items-center justify-center text-white/60 hover:border-white/30 hover:text-white transition-all duration-500 rounded-full"
                   aria-label={social.label}
                 >
                   <social.icon size={14} strokeWidth={1.5} />
