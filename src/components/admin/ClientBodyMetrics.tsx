@@ -31,10 +31,10 @@ interface BodyMetric {
 }
 
 const chartConfig: ChartConfig = {
-  weight: { label: "Weight (lbs)", color: "hsl(var(--primary))" },
-  bodyFat: { label: "Body Fat %", color: "hsl(38 92% 50%)" },
-  muscle: { label: "Muscle Mass (lbs)", color: "hsl(142 71% 45%)" },
-  bone: { label: "Bone Density", color: "hsl(280 65% 60%)" },
+  weight: { label: "Weight (lbs)", color: "hsl(0 0% 100%)" },
+  bodyFat: { label: "Body Fat %", color: "hsl(0 0% 60%)" },
+  muscle: { label: "Muscle Mass (lbs)", color: "hsl(210 100% 52%)" },
+  bone: { label: "Bone Density", color: "hsl(0 0% 40%)" },
 };
 
 const ClientBodyMetrics = ({ userId }: { userId: string }) => {
