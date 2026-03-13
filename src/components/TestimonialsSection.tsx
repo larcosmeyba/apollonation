@@ -24,18 +24,18 @@ const testimonials = [
 const TestimonialsSection = () => {
   return (
     <section id="testimonials" className="py-20 relative">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
       
       <div className="container mx-auto px-4">
         <div className="text-center max-w-2xl mx-auto mb-20">
-          <span className="text-foreground/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
+          <span className="landing-text-muted font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
             Testimonials
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-foreground">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] landing-text">
             Stories of
-            <span className="text-foreground/70 block mt-2">Transformation</span>
+            <span className="landing-text-muted block mt-2">Transformation</span>
           </h2>
-          <p className="text-foreground/70 text-base font-light leading-relaxed">
+          <p className="landing-text-muted text-base font-light leading-relaxed">
             Real experiences from members who committed to their journey.
           </p>
         </div>
@@ -44,29 +44,29 @@ const TestimonialsSection = () => {
           {testimonials.map((testimonial) => (
             <div
               key={testimonial.name}
-              className="relative p-8 border border-border bg-card/80 hover:border-foreground/15 transition-all duration-500 rounded-xl"
+              className="relative p-8 border border-white/15 bg-card text-card-foreground hover:border-white/25 transition-all duration-500 rounded-xl"
             >
-              <Quote className="absolute top-6 right-6 w-8 h-8 text-foreground/10" strokeWidth={1} />
+              <Quote className="absolute top-6 right-6 w-8 h-8 text-card-foreground/10" strokeWidth={1} />
               
               <div className="flex gap-0.5 mb-6">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} size={12} className="text-foreground/50 fill-foreground/50" />
+                  <Star key={i} size={12} className="text-card-foreground/50 fill-card-foreground/50" />
                 ))}
               </div>
 
-              <p className="text-foreground/70 mb-8 leading-relaxed font-light text-sm">
+              <p className="text-card-foreground/70 mb-8 leading-relaxed font-light text-sm">
                 "{testimonial.content}"
               </p>
 
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 border border-border flex items-center justify-center bg-muted rounded-full">
-                  <span className="font-heading text-foreground/70 text-sm tracking-wider">
+                <div className="w-10 h-10 border border-white/15 flex items-center justify-center bg-muted rounded-full">
+                  <span className="font-heading text-card-foreground/70 text-sm tracking-wider">
                     {testimonial.name[0]}
                   </span>
                 </div>
                 <div>
-                  <div className="font-medium text-foreground text-sm">{testimonial.name}</div>
-                  <div className="text-[10px] text-foreground/60 font-light">{testimonial.role}</div>
+                  <div className="font-medium text-card-foreground text-sm">{testimonial.name}</div>
+                  <div className="text-[10px] text-card-foreground/60 font-light">{testimonial.role}</div>
                 </div>
               </div>
             </div>
