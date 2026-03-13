@@ -61,7 +61,7 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <PhilosophySection />
-      <MembershipSection />
+      <PricingSection />
       <FounderSection />
       <TestimonialsSection />
       <ContactRequestSection />
