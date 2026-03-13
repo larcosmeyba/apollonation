@@ -268,7 +268,7 @@ const DayDetailPanel = ({ date, workout, meals, completed, onClose }: DayDetailP
                 <ul className="mt-1.5 space-y-0.5">
                   {workout.training_plan_exercises.map((ex: any, i: number) => (
                     <li key={ex.id || i} className="text-xs text-muted-foreground flex items-baseline gap-1">
-                      <span className="text-[10px] text-primary/60">{i + 1}.</span>
+                      <span className="text-[10px] text-[hsl(18,55%,45%)]/60">{i + 1}.</span>
                       <span>{ex.exercise_name}</span>
                       {ex.sets && ex.reps && (
                         <span className="text-[10px] text-muted-foreground/60 ml-auto whitespace-nowrap">
