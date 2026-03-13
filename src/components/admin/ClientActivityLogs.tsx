@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { format, formatDistanceToNow } from "date-fns";
-import { Camera, Footprints, Dumbbell, Flame } from "lucide-react";
+import { Camera, Footprints, Dumbbell, Flame, Watch } from "lucide-react";
 
 interface Props {
   userId: string;
