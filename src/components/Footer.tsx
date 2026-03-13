@@ -76,7 +76,7 @@ const Footer = () => {
                       {link.label}
                     </Link>
                   ) : (
-                    <a href={link.href} className="text-foreground/60 hover:text-foreground transition-colors duration-500 text-sm font-light">
+                    <a href={link.href} className="text-white/60 hover:text-white transition-colors duration-500 text-sm font-light">
                       {link.label}
                     </a>
                   )}
