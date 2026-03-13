@@ -13,24 +13,24 @@
     --background: 0 0% 4%;
     --foreground: 40 20% 92%;
 
-    /* Card surfaces — Warm Light Brown */
-    --card: 30 25% 90%;
+    /* Card surfaces — Warm Tan/Mocha */
+    --card: 28 22% 82%;
     --card-foreground: 0 0% 5%;
 
-    /* Popover — Match light brown system */
-    --popover: 30 25% 90%;
+    /* Popover — Match tan system */
+    --popover: 28 22% 82%;
     --popover-foreground: 0 0% 0%;
 
     /* Primary — Cream buttons / active elements */
     --primary: 40 25% 93%;
     --primary-foreground: 0 0% 0%;
 
-    /* Secondary — Light brown surface */
-    --secondary: 30 25% 90%;
+    /* Secondary — Tan surface */
+    --secondary: 28 22% 82%;
     --secondary-foreground: 0 0% 0%;
 
-    /* Muted — Slightly darker warm brown */
-    --muted: 30 20% 86%;
+    /* Muted — Deeper warm brown */
+    --muted: 28 18% 76%;
     --muted-foreground: 0 0% 0%;
 
     /* Accent — Deep Graphite Blue #1E2A38 (very subtle) */
@@ -43,7 +43,7 @@
 
     /* Borders — Subtle dark border for clean white boxes */
     --border: 0 0% 80%;
-    --input: 30 20% 86%;
+    --input: 28 18% 76%;
     --ring: 0 0% 30%;
 
     --radius: 0.5rem;
@@ -65,8 +65,8 @@
     --apollo-gold-dark: 0 0% 70%;
     --apollo-bronze: 0 0% 60%;
     --apollo-sandstone: 0 0% 75%;
-    --apollo-marble: 30 25% 90%;
-    --apollo-ivory: 30 22% 88%;
+    --apollo-marble: 28 22% 82%;
+    --apollo-ivory: 28 20% 78%;
     --apollo-taupe: 0 0% 48%;
     --apollo-slate: 0 0% 50%;
 
