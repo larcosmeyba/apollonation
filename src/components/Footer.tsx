@@ -87,7 +87,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-16 pt-6 border-t border-border/30 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-foreground/40 text-xs font-light">
+          <p className="text-white/40 text-xs font-light">
             © {currentYear} Apollo Nation. All rights reserved.
           </p>
         </div>

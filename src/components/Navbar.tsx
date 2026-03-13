@@ -110,7 +110,7 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-foreground/60">Sign In</Button>
+                    <Button variant="ghost" className="w-full text-white/60">Sign In</Button>
                   </Link>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
                     <Button variant="apollo" className="w-full">Join Now</Button>

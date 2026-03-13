@@ -162,7 +162,7 @@ const PricingSection = () => {
         </div>
 
         <div className="text-center mt-16">
-          <p className="text-foreground/40 text-xs font-light tracking-wide">
+          <p className="text-white/40 text-xs font-light tracking-wide">
             30-day satisfaction guarantee · Cancel anytime · Instant access
           </p>
         </div>
