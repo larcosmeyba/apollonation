@@ -206,14 +206,15 @@ const ClientActivityLogs = ({ userId }: Props) => {
                   <TableHead>Workout</TableHead>
                   <TableHead>Focus</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Watch</TableHead>
                   <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loadingSessions ? (
-                  <TableRow><TableCell colSpan={5} className="text-center py-8">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center py-8">Loading...</TableCell></TableRow>
                 ) : sessions?.length === 0 ? (
-                  <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No workout sessions logged yet.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No workout sessions logged yet.</TableCell></TableRow>
                 ) : sessions?.map(s => (
                   <TableRow key={s.id}>
                     <TableCell className="font-medium">{format(new Date(s.log_date), "MMM d, yyyy")}</TableCell>
@@ -223,6 +224,15 @@ const ClientActivityLogs = ({ userId }: Props) => {
                       <Badge variant={s.completed_at ? "default" : "secondary"}>
                         {s.completed_at ? "Completed" : "In Progress"}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {s.watch_screenshot_url ? (
+                        <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => handlePhotoClick(s.watch_screenshot_url!, "Watch Screenshot")}>
+                          <Watch className="w-3 h-3" /> View
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Button size="sm" variant="outline" onClick={() => { setDetailDayId(s.day_id); setDetailDate(s.log_date); }}>
