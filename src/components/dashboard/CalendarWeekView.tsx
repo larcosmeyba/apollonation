@@ -112,11 +112,11 @@ const CalendarWeekView = ({
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className={`text-sm font-semibold ${today ? "text-primary" : ""}`}>
+                  <span className={`text-sm font-semibold ${today ? "text-[hsl(18,55%,45%)]" : ""}`}>
                     {format(date, "EEE, MMM d")}
                   </span>
                   {today && (
-                    <Badge variant="outline" className="text-[10px] border-primary/40 text-primary px-1.5 py-0">
+                    <Badge variant="outline" className="text-[10px] border-[hsl(18,55%,45%)]/40 text-[hsl(18,55%,45%)] px-1.5 py-0">
                       Today
                     </Badge>
                   )}
