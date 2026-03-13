@@ -66,7 +66,7 @@ const HeroSection = () => {
           </div>
 
           <div 
-            className={`grid grid-cols-3 gap-6 mt-16 pt-8 border-t border-foreground/20 max-w-lg mx-auto transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`grid grid-cols-3 gap-6 mt-16 pt-8 border-t border-white/20 max-w-lg mx-auto transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
             {[
               { value: "Training", label: "Structured programs tailored to your goals" },
