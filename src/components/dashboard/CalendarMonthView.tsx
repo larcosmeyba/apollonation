@@ -170,10 +170,10 @@ const CalendarMonthView = ({
                   !inMonth
                     ? "opacity-20 border-transparent"
                     : isSelected
-                    ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                    ? "border-[hsl(18,55%,45%)] bg-[hsl(18,55%,45%)]/10 ring-1 ring-[hsl(18,55%,45%)]/30"
                     : today
-                    ? "border-primary/50 bg-primary/5"
-                    : "border-border bg-card"
+                    ? "border-[hsl(18,55%,45%)]/50 bg-[hsl(18,55%,45%)]/5"
+                    : "border-[hsl(25,30%,65%)] bg-[hsl(35,35%,78%)]"
                 }`}
               >
                 <span className={`text-[10px] font-medium block text-center ${today ? "text-primary" : ""}`}>
