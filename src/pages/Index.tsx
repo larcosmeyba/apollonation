@@ -1,17 +1,17 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import PhilosophySection from "@/components/PhilosophySection";
-import MembershipSection from "@/components/MembershipSection";
-import FounderSection from "@/components/FounderSection";
-import CTASection from "@/components/CTASection";
+import FeaturesSection from "@/components/FeaturesSection";
+import VideosSection from "@/components/VideosSection";
+import PricingSection from "@/components/PricingSection";
 import ContactRequestSection from "@/components/ContactRequestSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
 const Index = () => {
   return (
-    <main className="min-h-screen overflow-x-hidden w-full bg-apollo-homepage">
+    <main className="min-h-screen overflow-x-hidden w-full">
       <SEOHead
         path="/"
         description="Transform your body with Coach Marcos at Apollo Nation. Elite personal training programs, HD workout videos, custom nutrition plans, and 1-on-1 coaching. Join today."
@@ -60,12 +60,11 @@ const Index = () => {
       />
       <Navbar />
       <HeroSection />
-      <PhilosophySection />
-      <MembershipSection />
-      <FounderSection />
-      <TestimonialsSection />
+      <FeaturesSection />
       <ContactRequestSection />
-      <CTASection />
+      <VideosSection />
+      <PricingSection />
+      <TestimonialsSection />
       <Footer />
     </main>
   );
