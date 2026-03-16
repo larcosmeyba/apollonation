@@ -662,7 +662,7 @@ const DashboardNutrition = () => {
                                     </div>
                                     <div className="flex gap-1 flex-shrink-0">
                                       <Button variant="ghost" size="sm" onClick={() => openSwap(meal)} className="text-[10px] h-7 px-2 gap-1 text-muted-foreground hover:text-foreground">
-                                        <RefreshCw className="w-3 h-3" /> Swap
+                                        <RefreshCw className="w-3 h-3" /> Change
                                       </Button>
                                       <Button variant="ghost" size="sm" onClick={() => startEditMeal(meal)} className="text-[10px] h-7 px-2 gap-1 text-muted-foreground hover:text-foreground">
                                         <Edit2 className="w-3 h-3" />
