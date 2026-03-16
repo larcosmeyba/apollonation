@@ -59,7 +59,7 @@ const DashboardNutrition = () => {
   const [groceryList, setGroceryList] = useState<GroceryList | null>(null);
   const [groceryWeek, setGroceryWeek] = useState(1);
   const [swapMeal, setSwapMeal] = useState<any | null>(null);
-  const [swapSuggestion, setSwapSuggestion] = useState<MealSuggestion | null>(null);
+  const [swapSuggestions, setSwapSuggestions] = useState<MealSuggestion[]>([]);
   const [swapLoading, setSwapLoading] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [isLogDialogOpen, setIsLogDialogOpen] = useState(false);
