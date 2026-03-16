@@ -266,23 +266,23 @@ const DashboardNutrition = () => {
   });
 
   const openSwap = async (meal: any) => {
-    setSwapMeal(meal); setSwapSuggestion(null); setSwapLoading(true);
+    setSwapMeal(meal); setSwapSuggestions([]); setSwapLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("suggest-meal-swap", { body: { mealId: meal.id, planId: meal.plan_id } });
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
-      setSwapSuggestion(data.suggestion);
-    } catch (err: any) { toast({ title: "Could not generate alternative", description: err.message, variant: "destructive" }); setSwapMeal(null); }
+      setSwapSuggestions(data.suggestions || []);
+    } catch (err: any) { toast({ title: "Could not generate alternatives", description: err.message, variant: "destructive" }); setSwapMeal(null); }
     finally { setSwapLoading(false); }
   };
 
-  const acceptSwap = async () => {
-    if (!swapMeal || !swapSuggestion) return;
-    const { error } = await supabase.from("nutrition_plan_meals").update({ meal_name: swapSuggestion.meal_name, description: swapSuggestion.description, ingredients: swapSuggestion.ingredients, calories: swapSuggestion.calories, protein_grams: swapSuggestion.protein_grams, carbs_grams: swapSuggestion.carbs_grams, fat_grams: swapSuggestion.fat_grams }).eq("id", swapMeal.id);
+  const acceptSwap = async (suggestion: MealSuggestion) => {
+    if (!swapMeal) return;
+    const { error } = await supabase.from("nutrition_plan_meals").update({ meal_name: suggestion.meal_name, description: suggestion.description, ingredients: suggestion.ingredients, calories: suggestion.calories, protein_grams: suggestion.protein_grams, carbs_grams: suggestion.carbs_grams, fat_grams: suggestion.fat_grams }).eq("id", swapMeal.id);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Meal swapped!", description: `Replaced with ${swapSuggestion.meal_name}` });
+    toast({ title: "Meal swapped!", description: `Replaced with ${suggestion.meal_name}` });
     queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan?.id] });
-    setSwapMeal(null); setSwapSuggestion(null);
+    setSwapMeal(null); setSwapSuggestions([]);
   };
 
   const regenerateWeek = async () => {
