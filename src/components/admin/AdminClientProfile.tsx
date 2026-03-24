@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ChevronLeft, Snowflake, Archive, XCircle, RotateCcw, Pencil,
-  User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity, BarChart3
+  User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity, BarChart3, Eye,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientNotesPanel from "./ClientNotesPanel";
@@ -16,6 +16,7 @@ import ClientNutritionPlans from "./ClientNutritionPlans";
 import ClientActivityLogs from "./ClientActivityLogs";
 import ClientBodyMetrics from "./ClientBodyMetrics";
 import ClientQuickActions from "./ClientQuickActions";
+import AdminClientInsights from "./AdminClientInsights";
 
 interface Props {
   userId: string;
@@ -221,6 +222,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
           <TabsTrigger value="metrics" className="gap-1.5 text-xs"><BarChart3 className="w-3.5 h-3.5" /> Body Metrics</TabsTrigger>
           <TabsTrigger value="activity" className="gap-1.5 text-xs"><Activity className="w-3.5 h-3.5" /> Activity</TabsTrigger>
           <TabsTrigger value="notes" className="gap-1.5 text-xs"><StickyNote className="w-3.5 h-3.5" /> Notes</TabsTrigger>
+          <TabsTrigger value="insights" className="gap-1.5 text-xs"><Eye className="w-3.5 h-3.5" /> Insights</TabsTrigger>
         </TabsList>
 
         {/* ── OVERVIEW ── */}
@@ -399,6 +401,11 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
         {/* ── NOTES ── */}
         <TabsContent value="notes" className="mt-4">
           <ClientNotesPanel userId={userId} clientName={profile?.display_name || "Unknown"} />
+        </TabsContent>
+
+        {/* ── INSIGHTS (Recovery, Transformation, Challenges, Nutrition Compliance) ── */}
+        <TabsContent value="insights" className="mt-4">
+          <AdminClientInsights userId={userId} />
         </TabsContent>
       </Tabs>
     </div>

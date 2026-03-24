@@ -13,6 +13,7 @@ import AdminGroupCoaching from "@/components/admin/AdminGroupCoaching";
 import AdminMarketing from "@/components/admin/AdminMarketing";
 import OnDemandEditor from "@/components/admin/on-demand-editor/OnDemandEditor";
 import AdminPrograms from "@/components/admin/AdminPrograms";
+import AdminChallenges from "@/components/admin/AdminChallenges";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -41,6 +42,8 @@ const AdminDashboard = () => {
         return <OnDemandEditor />;
       case "programs":
         return <AdminPrograms />;
+      case "challenges":
+        return <AdminChallenges />;
       case "contacts":
         return <AdminContactRequests />;
       case "profile":

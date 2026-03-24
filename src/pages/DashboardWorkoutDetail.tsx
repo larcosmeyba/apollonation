@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -72,12 +73,48 @@ interface ExerciseRowProps {
   onSwap: () => void;
 }
 
+// ── Inline Rest Timer ──────────────────────────────────────────────
+const InlineRestTimer = ({ seconds }: { seconds: number }) => {
+  const [timeLeft, setTimeLeft] = useState(seconds);
+  const [running, setRunning] = useState(true);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (running && timeLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setTimeLeft((p) => (p <= 1 ? 0 : p - 1));
+      }, 1000);
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [running, timeLeft]);
+
+  useEffect(() => { setTimeLeft(seconds); setRunning(true); }, [seconds]);
+
+  const fmt = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+  const pct = ((seconds - timeLeft) / seconds) * 100;
+
+  return (
+    <div className="flex items-center gap-2 mt-1.5 px-1">
+      <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
+        <div className={`h-full rounded-full transition-all duration-1000 ${timeLeft === 0 ? "bg-green-500" : "bg-primary"}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className={`text-[10px] font-mono font-medium ${timeLeft === 0 ? "text-green-500" : "text-muted-foreground"}`}>
+        {timeLeft === 0 ? "GO!" : fmt(timeLeft)}
+      </span>
+      <button onClick={() => setRunning(!running)} className="text-[10px] text-muted-foreground hover:text-foreground">
+        {running ? "⏸" : "▶"}
+      </button>
+    </div>
+  );
+};
+
 const ExerciseRow = ({
   exercise, dayId, logDate, userId, setLogs, previousSetLogs,
   exerciseNote, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
 }: ExerciseRowProps) => {
   const [videoOpen, setVideoOpen] = useState(false);
   const [noteExpanded, setNoteExpanded] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
 
   const isCompleted = exerciseNote?.is_completed || false;
   const totalSets = exercise.sets || 3;
@@ -145,8 +182,10 @@ const ExerciseRow = ({
           )}
         </div>
 
+        {/* Coaching Cues */}
         {exercise.notes && (
           <div className="px-4 pb-1">
+            <p className="text-[10px] text-primary/80 uppercase tracking-wider mb-0.5">Coaching Cues</p>
             <p className="text-[11px] text-muted-foreground italic">{exercise.notes}</p>
           </div>
         )}
@@ -179,11 +218,17 @@ const ExerciseRow = ({
                     placeholder={prevLog?.reps_completed ? String(prevLog.reps_completed) : (exercise.reps || "—")}
                     className="h-8 text-xs text-center px-1"
                     value={log?.reps_completed ?? ""}
-                    onChange={(e) => onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null)}
+                    onChange={(e) => {
+                      onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
+                      if (e.target.value) setShowTimer(true);
+                    }}
                   />
                 </div>
               );
             })}
+            {showTimer && exercise.rest_seconds && (
+              <InlineRestTimer seconds={exercise.rest_seconds} />
+            )}
             {previousSetLogs.length > 0 && (
               <p className="text-[9px] text-muted-foreground/50 text-right pt-0.5">Placeholders = last session</p>
             )}

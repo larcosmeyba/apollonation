@@ -38,6 +38,7 @@ const DashboardSidebar = () => {
     { label: "Recipes", href: "/dashboard/recipes", icon: BookOpen, locked: false },
     { label: "Transformation", href: "/dashboard/transformation", icon: ImageIcon, locked: false },
     { label: "Recovery", href: "/dashboard/recovery", icon: Heart, locked: false },
+    { label: "Challenges", href: "/dashboard/challenges", icon: Dumbbell, locked: false },
     { label: "Macro Tracker", href: "/dashboard/macros", icon: Camera, locked: !isElite, tier: "Elite" },
     { label: "Profile", href: "/dashboard/profile", icon: User, locked: false },
   ];

@@ -53,6 +53,118 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_checkins: {
+        Row: {
+          challenge_id: string
+          checkin_date: string
+          created_at: string
+          id: string
+          notes: string | null
+          nutrition_logged: boolean | null
+          user_id: string
+          workout_completed: boolean | null
+        }
+        Insert: {
+          challenge_id: string
+          checkin_date?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          nutrition_logged?: boolean | null
+          user_id: string
+          workout_completed?: boolean | null
+        }
+        Update: {
+          challenge_id?: string
+          checkin_date?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          nutrition_logged?: boolean | null
+          user_id?: string
+          workout_completed?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_checkins_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_enrollments: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          enrolled_at: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          enrolled_at?: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          enrolled_at?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_enrollments_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          category: string
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          duration_days: number
+          id: string
+          is_active: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          id?: string
+          is_active?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          id?: string
+          is_active?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       client_notes: {
         Row: {
           admin_user_id: string

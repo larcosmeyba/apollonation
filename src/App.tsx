@@ -27,6 +27,7 @@ import ApolloSystem from "./pages/ApolloSystem";
 import PlanReady from "./pages/PlanReady";
 import DashboardTransformation from "./pages/DashboardTransformation";
 import DashboardRecovery from "./pages/DashboardRecovery";
+import DashboardChallenges from "./pages/DashboardChallenges";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 
@@ -64,6 +65,10 @@ const App = () => (
             <Route
               path="/dashboard/recovery"
               element={<ProtectedRoute><DashboardRecovery /></ProtectedRoute>}
+            />
+            <Route
+              path="/dashboard/challenges"
+              element={<ProtectedRoute><DashboardChallenges /></ProtectedRoute>}
             />
             <Route
               path="/dashboard"
