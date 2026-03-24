@@ -16,6 +16,7 @@ import ClientNutritionPlans from "./ClientNutritionPlans";
 import ClientActivityLogs from "./ClientActivityLogs";
 import ClientBodyMetrics from "./ClientBodyMetrics";
 import ClientQuickActions from "./ClientQuickActions";
+import AdminClientInsights from "./AdminClientInsights";
 
 interface Props {
   userId: string;
