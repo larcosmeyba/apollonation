@@ -30,15 +30,26 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-10">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-white/60 hover:text-white transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isInternal = link.href.startsWith("/") && !link.href.startsWith("/#");
+              return isInternal ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-white/60 hover:text-white transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-white/60 hover:text-white transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
+                >
+                  {link.label}
+                </a>
+              );
+            })}
           </div>
 
           <div className="hidden md:flex items-center gap-4">
