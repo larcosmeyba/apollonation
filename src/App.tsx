@@ -56,6 +56,15 @@ const App = () => (
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/system" element={<ApolloSystem />} />
+            <Route path="/plan-ready" element={<ProtectedRoute><PlanReady /></ProtectedRoute>} />
+            <Route
+              path="/dashboard/transformation"
+              element={<ProtectedRoute><DashboardTransformation /></ProtectedRoute>}
+            />
+            <Route
+              path="/dashboard/recovery"
+              element={<ProtectedRoute><DashboardRecovery /></ProtectedRoute>}
+            />
             <Route
               path="/dashboard"
               element={
