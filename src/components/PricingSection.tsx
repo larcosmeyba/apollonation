@@ -6,54 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { STRIPE_TIERS } from "@/config/stripe";
+import { TIER_FEATURES } from "@/config/tierFeatures";
 
-const tiers = [
-  {
-    name: "Essential",
-    price: "20",
-    description: "Begin your wellness journey",
-    features: [
-      "On-demand workout library",
-      "Nutrition recipes collection",
-      "Progress tracking",
-      "Community support",
-      "Web & mobile app access"
-    ],
-    featured: false,
-    tierKey: "basic" as const,
-  },
-  {
-    name: "Premier",
-    price: "59",
-    description: "For dedicated practitioners",
-    features: [
-      "Everything in Essential",
-      "Advanced training programs",
-      "Personalized workout plans",
-      "Nutrition guidance",
-      "Live sessions access",
-      "Priority support"
-    ],
-    featured: true,
-    tierKey: "pro" as const,
-  },
-  {
-    name: "Elite",
-    price: "99",
-    description: "The complete experience",
-    features: [
-      "Everything in Premier",
-      "AI-powered macro tracking",
-      "Personalized nutrition plans",
-      "One-on-one coaching",
-      "Custom meal planning",
-      "Early access to content",
-      "VIP community"
-    ],
-    featured: false,
-    tierKey: "elite" as const,
-  }
-];
+const tierKeys = ["basic", "pro", "elite"] as const;
 
 const PricingSection = () => {
   const { user, profile } = useAuth();
@@ -62,17 +17,12 @@ const PricingSection = () => {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
 
   const handleSubscribe = async (tierKey: string) => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+    if (!user) { navigate("/auth"); return; }
     const priceId = STRIPE_TIERS[tierKey as keyof typeof STRIPE_TIERS]?.price_id;
     if (!priceId) return;
     setLoadingTier(tierKey);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId },
-      });
+      const { data, error } = await supabase.functions.invoke("create-checkout", { body: { priceId } });
       if (error) throw error;
       if (data?.url) window.open(data.url, "_blank");
     } catch (err: any) {
@@ -92,8 +42,7 @@ const PricingSection = () => {
             Membership
           </span>
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-white">
-            Choose Your
-            <span className="text-white/70 block mt-2">Path</span>
+            Choose Your<span className="text-white/70 block mt-2">Path</span>
           </h2>
           <p className="text-white/70 text-base font-light leading-relaxed">
             Flexible plans designed for every stage of your journey.
@@ -101,64 +50,68 @@ const PricingSection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-          {tiers.map((tier) => (
-            <div
-              key={tier.name}
-              className={`relative p-6 lg:p-8 border transition-all duration-500 rounded-xl ${
-                tier.featured
-                  ? "border-white/20 bg-card/80"
-                  : "border-border bg-card/60 hover:border-white/10"
-              }`}
-            >
-              {tier.featured && (
-                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-5 py-1 bg-white rounded-b-lg">
-                  <span className="text-[9px] font-semibold text-background uppercase tracking-[0.2em]">
-                    Most Popular
-                  </span>
-                </div>
-              )}
+          {tierKeys.map((key) => {
+            const tier = STRIPE_TIERS[key];
+            const feat = TIER_FEATURES[key];
+            const featured = "featured" in feat && feat.featured;
 
-              {isCurrentTier(tier.tierKey) && (
-                <div className="absolute -top-px right-4 px-4 py-1 bg-accent rounded-b-lg">
-                  <span className="text-[9px] font-medium text-accent-foreground uppercase tracking-[0.2em]">
-                    Your Plan
-                  </span>
-                </div>
-              )}
-
-              <div className="text-center mb-10 pt-4">
-                <h3 className="font-heading text-lg tracking-[0.1em] mb-3 text-foreground">{tier.name}</h3>
-                <p className="text-foreground/60 text-xs font-light mb-6">{tier.description}</p>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-foreground/70 text-lg font-light">$</span>
-                  <span className="font-heading text-4xl tracking-wide text-foreground">
-                    {tier.price}
-                  </span>
-                  <span className="text-foreground/60 text-sm font-light">/mo</span>
-                </div>
-              </div>
-
-              <ul className="space-y-4 mb-10">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <Check size={14} className="text-foreground/70 flex-shrink-0 mt-1" strokeWidth={1.5} />
-                    <span className="text-foreground/60 text-sm font-light">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                variant={tier.featured ? "apollo" : "apollo-outline"}
-                size="lg"
-                className="w-full rounded-full"
-                disabled={isCurrentTier(tier.tierKey) || loadingTier === tier.tierKey}
-                onClick={() => handleSubscribe(tier.tierKey)}
+            return (
+              <div
+                key={key}
+                className={`relative p-6 lg:p-8 border transition-all duration-500 rounded-xl ${
+                  featured
+                    ? "border-white/20 bg-card/80"
+                    : "border-border bg-card/60 hover:border-white/10"
+                }`}
               >
-                {loadingTier === tier.tierKey && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                {isCurrentTier(tier.tierKey) ? "Current Plan" : "Get Started"}
-              </Button>
-            </div>
-          ))}
+                {featured && (
+                  <div className="absolute -top-px left-1/2 -translate-x-1/2 px-5 py-1 bg-white rounded-b-lg">
+                    <span className="text-[9px] font-semibold text-background uppercase tracking-[0.2em]">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+
+                {isCurrentTier(key) && (
+                  <div className="absolute -top-px right-4 px-4 py-1 bg-accent rounded-b-lg">
+                    <span className="text-[9px] font-medium text-accent-foreground uppercase tracking-[0.2em]">
+                      Your Plan
+                    </span>
+                  </div>
+                )}
+
+                <div className="text-center mb-10 pt-4">
+                  <h3 className="font-heading text-lg tracking-[0.1em] mb-3 text-foreground">{tier.name}</h3>
+                  <p className="text-foreground/60 text-xs font-light mb-6">{feat.description}</p>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-foreground/70 text-lg font-light">$</span>
+                    <span className="font-heading text-4xl tracking-wide text-foreground">{tier.price}</span>
+                    <span className="text-foreground/60 text-sm font-light">/mo</span>
+                  </div>
+                </div>
+
+                <ul className="space-y-4 mb-10">
+                  {feat.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3">
+                      <Check size={14} className="text-foreground/70 flex-shrink-0 mt-1" strokeWidth={1.5} />
+                      <span className="text-foreground/60 text-sm font-light">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Button
+                  variant={featured ? "apollo" : "apollo-outline"}
+                  size="lg"
+                  className="w-full rounded-full"
+                  disabled={isCurrentTier(key) || loadingTier === key}
+                  onClick={() => handleSubscribe(key)}
+                >
+                  {loadingTier === key && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  {isCurrentTier(key) ? "Current Plan" : feat.buttonLabel}
+                </Button>
+              </div>
+            );
+          })}
         </div>
 
         <div className="text-center mt-16">
