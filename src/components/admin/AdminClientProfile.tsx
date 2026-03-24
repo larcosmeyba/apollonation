@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ChevronLeft, Snowflake, Archive, XCircle, RotateCcw, Pencil,
-  User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity, BarChart3
+  User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity, BarChart3, Eye,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientNotesPanel from "./ClientNotesPanel";
