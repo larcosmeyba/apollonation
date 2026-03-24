@@ -27,6 +27,7 @@ import ApolloSystem from "./pages/ApolloSystem";
 import PlanReady from "./pages/PlanReady";
 import DashboardTransformation from "./pages/DashboardTransformation";
 import DashboardRecovery from "./pages/DashboardRecovery";
+import DashboardChallenges from "./pages/DashboardChallenges";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 
