@@ -181,8 +181,10 @@ const ExerciseRow = ({
           )}
         </div>
 
+        {/* Coaching Cues */}
         {exercise.notes && (
           <div className="px-4 pb-1">
+            <p className="text-[10px] text-primary/80 uppercase tracking-wider mb-0.5">Coaching Cues</p>
             <p className="text-[11px] text-muted-foreground italic">{exercise.notes}</p>
           </div>
         )}
