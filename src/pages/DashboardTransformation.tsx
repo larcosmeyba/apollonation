@@ -52,10 +52,6 @@ const DashboardTransformation = () => {
   const currentDate = dates[selectedDateIdx];
   const currentPhotos = currentDate ? dateGroups[currentDate] : [];
 
-  const getSignedUrl = async (path: string) => {
-    const { data } = await supabase.storage.from("progress-photos").createSignedUrl(path, 3600);
-    return data?.signedUrl || "";
-  };
 
   const handleUpload = async (file: File) => {
     if (!user || !file) return;
