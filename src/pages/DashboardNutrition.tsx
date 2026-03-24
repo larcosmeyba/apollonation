@@ -635,6 +635,43 @@ const DashboardNutrition = () => {
                                   </div>
                                 ) : (
                                   <div className="flex items-start gap-3">
+                                    {/* Mark as Eaten Checkbox */}
+                                    <div className="flex-shrink-0 pt-1">
+                                      <Checkbox
+                                        checked={macroEntries.some(e => e.notes === `meal:${meal.id}`)}
+                                        onCheckedChange={async (checked) => {
+                                          if (checked) {
+                                            await saveEntry({
+                                              meal_name: meal.meal_name,
+                                              calories: meal.calories || 0,
+                                              protein_grams: Number(meal.protein_grams) || 0,
+                                              carbs_grams: Number(meal.carbs_grams) || 0,
+                                              fat_grams: Number(meal.fat_grams) || 0,
+                                              ai_estimated: false,
+                                            });
+                                            // Update the notes to track source
+                                            const { data: latest } = await supabase
+                                              .from("macro_logs")
+                                              .select("id")
+                                              .eq("user_id", user!.id)
+                                              .eq("log_date", selectedDate)
+                                              .eq("meal_name", meal.meal_name)
+                                              .order("created_at", { ascending: false })
+                                              .limit(1);
+                                            if (latest?.[0]) {
+                                              await supabase.from("macro_logs").update({ notes: `meal:${meal.id}` }).eq("id", latest[0].id);
+                                              queryClient.invalidateQueries({ queryKey: ["macro-logs"] });
+                                            }
+                                          } else {
+                                            const entry = macroEntries.find(e => e.notes === `meal:${meal.id}`);
+                                            if (entry) {
+                                              await removeEntry(entry.id);
+                                            }
+                                          }
+                                        }}
+                                        className="data-[state=checked]:bg-primary"
+                                      />
+                                    </div>
                                     {/* Food Photo */}
                                     <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
                                       <img
@@ -646,7 +683,7 @@ const DashboardNutrition = () => {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</p>
-                                      <p className="font-medium text-sm">{meal.meal_name}</p>
+                                      <p className={`font-medium text-sm ${macroEntries.some(e => e.notes === `meal:${meal.id}`) ? "line-through text-muted-foreground" : ""}`}>{meal.meal_name}</p>
                                       {meal.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{meal.description}</p>}
                                       {Array.isArray(meal.ingredients) && meal.ingredients.length > 0 && (
                                         <ul className="mt-1.5 text-[10px] text-muted-foreground list-disc list-inside space-y-0">
