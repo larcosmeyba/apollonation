@@ -222,6 +222,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
           <TabsTrigger value="metrics" className="gap-1.5 text-xs"><BarChart3 className="w-3.5 h-3.5" /> Body Metrics</TabsTrigger>
           <TabsTrigger value="activity" className="gap-1.5 text-xs"><Activity className="w-3.5 h-3.5" /> Activity</TabsTrigger>
           <TabsTrigger value="notes" className="gap-1.5 text-xs"><StickyNote className="w-3.5 h-3.5" /> Notes</TabsTrigger>
+          <TabsTrigger value="insights" className="gap-1.5 text-xs"><Eye className="w-3.5 h-3.5" /> Insights</TabsTrigger>
         </TabsList>
 
         {/* ── OVERVIEW ── */}
