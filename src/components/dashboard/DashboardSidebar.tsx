@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
+import NotificationCenter from "./NotificationCenter";
 
 const DashboardSidebar = () => {
   const { profile, signOut } = useAuth();
