@@ -114,6 +114,7 @@ const ExerciseRow = ({
 }: ExerciseRowProps) => {
   const [videoOpen, setVideoOpen] = useState(false);
   const [noteExpanded, setNoteExpanded] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
 
   const isCompleted = exerciseNote?.is_completed || false;
   const totalSets = exercise.sets || 3;
