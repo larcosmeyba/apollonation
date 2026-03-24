@@ -24,6 +24,7 @@ import {
   Film,
   BookOpen,
   Eye,
+  Gift,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";

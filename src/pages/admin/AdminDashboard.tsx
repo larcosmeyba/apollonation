@@ -46,6 +46,10 @@ const AdminDashboard = () => {
         return <AdminPrograms />;
       case "challenges":
         return <AdminChallenges />;
+      case "notifications":
+        return <AdminNotifications />;
+      case "referrals":
+        return <AdminReferrals />;
       case "contacts":
         return <AdminContactRequests />;
       case "profile":
