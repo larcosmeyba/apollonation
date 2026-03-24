@@ -14,6 +14,8 @@ import AdminMarketing from "@/components/admin/AdminMarketing";
 import OnDemandEditor from "@/components/admin/on-demand-editor/OnDemandEditor";
 import AdminPrograms from "@/components/admin/AdminPrograms";
 import AdminChallenges from "@/components/admin/AdminChallenges";
+import AdminNotifications from "@/components/admin/AdminNotifications";
+import AdminReferrals from "@/components/admin/AdminReferrals";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
