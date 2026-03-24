@@ -115,7 +115,8 @@ const NotificationCenter = () => {
             notifications.map((n: any) => (
               <div
                 key={n.id}
-                className={`p-3 rounded-lg border transition-all ${
+                onClick={() => handleClick(n)}
+                className={`p-3 rounded-lg border transition-all cursor-pointer hover:bg-muted/30 ${
                   n.is_read ? "bg-muted/20 border-border/50" : "bg-card border-border"
                 }`}
               >
