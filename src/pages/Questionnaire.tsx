@@ -183,7 +183,7 @@ const Questionnaire = () => {
         title: "Questionnaire submitted!",
         description: "Your personalized programs are being generated. This may take a minute.",
       });
-      navigate("/dashboard");
+      navigate("/plan-ready");
 
       // Fire-and-forget: generate training + nutrition plans in background
       supabase.functions

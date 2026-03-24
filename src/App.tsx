@@ -24,6 +24,9 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import ApolloSystem from "./pages/ApolloSystem";
+import PlanReady from "./pages/PlanReady";
+import DashboardTransformation from "./pages/DashboardTransformation";
+import DashboardRecovery from "./pages/DashboardRecovery";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 
@@ -53,6 +56,15 @@ const App = () => (
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/system" element={<ApolloSystem />} />
+            <Route path="/plan-ready" element={<ProtectedRoute><PlanReady /></ProtectedRoute>} />
+            <Route
+              path="/dashboard/transformation"
+              element={<ProtectedRoute><DashboardTransformation /></ProtectedRoute>}
+            />
+            <Route
+              path="/dashboard/recovery"
+              element={<ProtectedRoute><DashboardRecovery /></ProtectedRoute>}
+            />
             <Route
               path="/dashboard"
               element={

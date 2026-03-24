@@ -854,6 +854,42 @@ export type Database = {
         }
         Relationships: []
       }
+      progress_photos: {
+        Row: {
+          body_fat_pct: number | null
+          created_at: string
+          id: string
+          notes: string | null
+          photo_date: string
+          photo_type: string
+          photo_url: string
+          user_id: string
+          weight_lbs: number | null
+        }
+        Insert: {
+          body_fat_pct?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_date?: string
+          photo_type: string
+          photo_url: string
+          user_id: string
+          weight_lbs?: number | null
+        }
+        Update: {
+          body_fat_pct?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_date?: string
+          photo_type?: string
+          photo_url?: string
+          user_id?: string
+          weight_lbs?: number | null
+        }
+        Relationships: []
+      }
       rate_limits: {
         Row: {
           action: string
@@ -929,6 +965,48 @@ export type Database = {
           servings?: number | null
           thumbnail_url?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      recovery_logs: {
+        Row: {
+          created_at: string
+          hydration_liters: number | null
+          id: string
+          log_date: string
+          mobility_minutes: number | null
+          notes: string | null
+          sleep_hours: number | null
+          soreness_areas: Json | null
+          soreness_rating: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hydration_liters?: number | null
+          id?: string
+          log_date?: string
+          mobility_minutes?: number | null
+          notes?: string | null
+          sleep_hours?: number | null
+          soreness_areas?: Json | null
+          soreness_rating?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hydration_liters?: number | null
+          id?: string
+          log_date?: string
+          mobility_minutes?: number | null
+          notes?: string | null
+          sleep_hours?: number | null
+          soreness_areas?: Json | null
+          soreness_rating?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

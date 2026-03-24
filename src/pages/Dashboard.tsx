@@ -15,6 +15,7 @@ import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
 import fitnessImage from "@/assets/fitness-gym.png";
 import ClientNotifications from "@/components/dashboard/ClientNotifications";
+import WeeklySummary from "@/components/dashboard/WeeklySummary";
 
 const MEAL_LABELS: Record<string, string> = {
   breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack",
@@ -190,6 +191,7 @@ const Dashboard = () => {
 
         {/* Notification Alerts */}
         <ClientNotifications />
+        <WeeklySummary />
 
         {/* Section 1 — Header */}
         <div className="flex items-start justify-between">
