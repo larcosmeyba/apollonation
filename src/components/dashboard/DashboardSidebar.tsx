@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
+import NotificationCenter from "./NotificationCenter";
 
 const DashboardSidebar = () => {
   const { profile, signOut } = useAuth();
@@ -121,8 +122,9 @@ const DashboardSidebar = () => {
         )}
       </nav>
 
-      {/* Sign out */}
-      <div className="p-4 border-t border-border">
+      {/* Notification + Sign out */}
+      <div className="p-4 border-t border-border flex items-center gap-2">
+        <NotificationCenter />
         <button
           onClick={signOut}
           className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
