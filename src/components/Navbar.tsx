@@ -12,6 +12,7 @@ const Navbar = () => {
   const { isAdmin } = useAdminStatus();
 
   const navLinks = [
+    { href: "/system", label: "The System" },
     { href: "/#features", label: "Programs" },
     { href: "/#pricing", label: "Membership" },
     { href: "/#testimonials", label: "Community" },
@@ -29,15 +30,26 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-10">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-white/60 hover:text-white transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isInternal = link.href.startsWith("/") && !link.href.startsWith("/#");
+              return isInternal ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-white/60 hover:text-white transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-white/60 hover:text-white transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
+                >
+                  {link.label}
+                </a>
+              );
+            })}
           </div>
 
           <div className="hidden md:flex items-center gap-4">
@@ -83,16 +95,28 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-white/10">
           <div className="container mx-auto px-4 py-8 space-y-4">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="block text-white/70 hover:text-white transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
-                onClick={() => setIsOpen(false)}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isInternal = link.href.startsWith("/") && !link.href.startsWith("/#");
+              return isInternal ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="block text-white/70 hover:text-white transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="block text-white/70 hover:text-white transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
             <div className="pt-6 space-y-3 border-t border-white/10">
               {user ? (
                 <>

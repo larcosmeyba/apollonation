@@ -6,6 +6,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart,
   Loader2, Lightbulb, DollarSign, Store, RefreshCw, Check, Sparkles,
@@ -20,6 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
+import FuelCalendar from "@/components/dashboard/FuelCalendar";
 
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"];
 const MEAL_TYPE_LABELS: Record<string, string> = {
@@ -164,9 +166,9 @@ const DashboardNutrition = () => {
   const dailyPercent = Math.min(Math.round((loggedTotals.calories / targets.calories) * 100), 100);
 
   // ── Meal logging helpers ──
-  const saveEntry = async (entry: { meal_name: string; calories: number; protein_grams: number; carbs_grams: number; fat_grams: number; ai_estimated: boolean }) => {
+  const saveEntry = async (entry: { meal_name: string; calories: number; protein_grams: number; carbs_grams: number; fat_grams: number; ai_estimated: boolean; notes?: string }, logDate?: string) => {
     if (!user) return;
-    const { error } = await supabase.from("macro_logs").insert({ user_id: user.id, log_date: selectedDate, ...entry });
+    const { error } = await supabase.from("macro_logs").insert({ user_id: user.id, log_date: logDate || selectedDate, ...entry });
     if (error) throw error;
     queryClient.invalidateQueries({ queryKey: ["macro-logs"] });
   };
@@ -416,8 +418,8 @@ const DashboardNutrition = () => {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <div>
-            <h1 className="font-heading text-2xl md:text-3xl tracking-wide mb-1">Nutrition</h1>
-            <p className="text-sm text-muted-foreground">Track your daily intake & meal plan</p>
+            <h1 className="font-heading text-2xl md:text-3xl tracking-wide mb-1">Fuel</h1>
+            <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
           </div>
 
           {/* ── Calories & Macros Tracker (like home screen) ── */}
@@ -634,6 +636,43 @@ const DashboardNutrition = () => {
                                   </div>
                                 ) : (
                                   <div className="flex items-start gap-3">
+                                    {/* Mark as Eaten Checkbox */}
+                                    <div className="flex-shrink-0 pt-1">
+                                      <Checkbox
+                                        checked={macroEntries.some(e => e.notes === `meal:${meal.id}`)}
+                                        onCheckedChange={async (checked) => {
+                                          if (checked) {
+                                            await saveEntry({
+                                              meal_name: meal.meal_name,
+                                              calories: meal.calories || 0,
+                                              protein_grams: Number(meal.protein_grams) || 0,
+                                              carbs_grams: Number(meal.carbs_grams) || 0,
+                                              fat_grams: Number(meal.fat_grams) || 0,
+                                              ai_estimated: false,
+                                            });
+                                            // Update the notes to track source
+                                            const { data: latest } = await supabase
+                                              .from("macro_logs")
+                                              .select("id")
+                                              .eq("user_id", user!.id)
+                                              .eq("log_date", selectedDate)
+                                              .eq("meal_name", meal.meal_name)
+                                              .order("created_at", { ascending: false })
+                                              .limit(1);
+                                            if (latest?.[0]) {
+                                              await supabase.from("macro_logs").update({ notes: `meal:${meal.id}` }).eq("id", latest[0].id);
+                                              queryClient.invalidateQueries({ queryKey: ["macro-logs"] });
+                                            }
+                                          } else {
+                                            const entry = macroEntries.find(e => e.notes === `meal:${meal.id}`);
+                                            if (entry) {
+                                              await removeEntry(entry.id);
+                                            }
+                                          }
+                                        }}
+                                        className="data-[state=checked]:bg-primary"
+                                      />
+                                    </div>
                                     {/* Food Photo */}
                                     <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
                                       <img
@@ -645,7 +684,7 @@ const DashboardNutrition = () => {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</p>
-                                      <p className="font-medium text-sm">{meal.meal_name}</p>
+                                      <p className={`font-medium text-sm ${macroEntries.some(e => e.notes === `meal:${meal.id}`) ? "line-through text-muted-foreground" : ""}`}>{meal.meal_name}</p>
                                       {meal.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{meal.description}</p>}
                                       {Array.isArray(meal.ingredients) && meal.ingredients.length > 0 && (
                                         <ul className="mt-1.5 text-[10px] text-muted-foreground list-disc list-inside space-y-0">
@@ -754,6 +793,9 @@ const DashboardNutrition = () => {
               </Tabs>
             </>
           )}
+
+          {/* ── Fuel Calendar — Tracking & Streaks ── */}
+          <FuelCalendar />
         </div>
       </DashboardLayout>
     </>

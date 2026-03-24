@@ -6,7 +6,7 @@ const tabs = [
   { label: "Today", href: "/dashboard", icon: LayoutDashboard, color: "text-[hsl(210,100%,52%)]" },
   { label: "Train", href: "/dashboard/training", icon: Dumbbell, color: "text-[hsl(0,72%,51%)]" },
   { label: "Inbox", href: "/dashboard/messages", icon: MessageSquare, color: "text-[hsl(142,71%,45%)]" },
-  { label: "Nutrition", href: "/dashboard/nutrition", icon: Apple, color: "text-[hsl(25,95%,53%)]" },
+  { label: "Fuel", href: "/dashboard/nutrition", icon: Apple, color: "text-[hsl(25,95%,53%)]" },
   { label: "On Demand", href: "/dashboard/workouts", icon: Play, color: "text-[hsl(280,65%,60%)]" },
 ];
 

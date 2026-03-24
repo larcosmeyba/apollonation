@@ -205,7 +205,7 @@ const DashboardNutritionCard = () => {
   return (
     <div className="card-apollo p-4">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="font-heading text-sm">Nutrition</h2>
+        <h2 className="font-heading text-sm">Fuel</h2>
       </div>
 
       <div className="flex items-center gap-3 mb-2">

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardStepTracker from "@/components/dashboard/DashboardStepTracker";
+import TodaysFocus from "@/components/dashboard/TodaysFocus";
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -314,6 +315,9 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Section 3B — Today's Focus */}
+        <TodaysFocus />
+
         {/* Section 4A — Calories & Macros Remaining Card */}
         <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
           <div className="flex items-center justify-between mb-4">
@@ -362,7 +366,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Utensils className="w-4 h-4 text-primary" />
-                <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Today's Meals</p>
+                <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Today's Fuel</p>
               </div>
               <Link to="/dashboard/nutrition">
                 <Button variant="ghost" size="sm" className="text-muted-foreground text-[10px] h-6 px-2">
