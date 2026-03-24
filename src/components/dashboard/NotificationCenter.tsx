@@ -55,12 +55,29 @@ const NotificationCenter = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "reminder": return <Bell className="w-3.5 h-3.5" />;
+      case "achievement": return <Trophy className="w-3.5 h-3.5" />;
+      case "alert": return <AlertTriangle className="w-3.5 h-3.5" />;
+      default: return <Info className="w-3.5 h-3.5" />;
+    }
+  };
+
   const getTypeColor = (type: string) => {
     switch (type) {
       case "reminder": return "bg-orange-500/15 text-orange-400";
       case "achievement": return "bg-green-500/15 text-green-400";
       case "alert": return "bg-destructive/15 text-destructive";
       default: return "bg-primary/15 text-primary";
+    }
+  };
+
+  const handleClick = (n: any) => {
+    if (!n.is_read) markRead.mutate(n.id);
+    if (n.action_url) {
+      setOpen(false);
+      navigate(n.action_url);
     }
   };
 
