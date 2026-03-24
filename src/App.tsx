@@ -52,6 +52,7 @@ const App = () => (
             <Route path="/questionnaire" element={<Questionnaire />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/system" element={<ApolloSystem />} />
             <Route
               path="/dashboard"
               element={
