@@ -47,7 +47,7 @@ const AdminDashboard = () => {
       case "challenges":
         return <AdminChallenges />;
       case "notifications":
-        return <AdminNotifications />;
+        return <AdminPushNotifications />;
       case "referrals":
         return <AdminReferrals />;
       case "contacts":
