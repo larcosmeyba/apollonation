@@ -165,9 +165,9 @@ const DashboardNutrition = () => {
   const dailyPercent = Math.min(Math.round((loggedTotals.calories / targets.calories) * 100), 100);
 
   // ── Meal logging helpers ──
-  const saveEntry = async (entry: { meal_name: string; calories: number; protein_grams: number; carbs_grams: number; fat_grams: number; ai_estimated: boolean }) => {
+  const saveEntry = async (entry: { meal_name: string; calories: number; protein_grams: number; carbs_grams: number; fat_grams: number; ai_estimated: boolean; notes?: string }, logDate?: string) => {
     if (!user) return;
-    const { error } = await supabase.from("macro_logs").insert({ user_id: user.id, log_date: selectedDate, ...entry });
+    const { error } = await supabase.from("macro_logs").insert({ user_id: user.id, log_date: logDate || selectedDate, ...entry });
     if (error) throw error;
     queryClient.invalidateQueries({ queryKey: ["macro-logs"] });
   };
