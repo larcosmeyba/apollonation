@@ -2,14 +2,16 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, Check, Trash2, X } from "lucide-react";
+import { Bell, Check, Trash2, Trophy, AlertTriangle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 const NotificationCenter = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const { data: notifications = [] } = useQuery({
@@ -53,12 +55,29 @@ const NotificationCenter = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "reminder": return <Bell className="w-3.5 h-3.5" />;
+      case "achievement": return <Trophy className="w-3.5 h-3.5" />;
+      case "alert": return <AlertTriangle className="w-3.5 h-3.5" />;
+      default: return <Info className="w-3.5 h-3.5" />;
+    }
+  };
+
   const getTypeColor = (type: string) => {
     switch (type) {
       case "reminder": return "bg-orange-500/15 text-orange-400";
       case "achievement": return "bg-green-500/15 text-green-400";
       case "alert": return "bg-destructive/15 text-destructive";
       default: return "bg-primary/15 text-primary";
+    }
+  };
+
+  const handleClick = (n: any) => {
+    if (!n.is_read) markRead.mutate(n.id);
+    if (n.action_url) {
+      setOpen(false);
+      navigate(n.action_url);
     }
   };
 
@@ -96,13 +115,14 @@ const NotificationCenter = () => {
             notifications.map((n: any) => (
               <div
                 key={n.id}
-                className={`p-3 rounded-lg border transition-all ${
+                onClick={() => handleClick(n)}
+                className={`p-3 rounded-lg border transition-all cursor-pointer hover:bg-muted/30 ${
                   n.is_read ? "bg-muted/20 border-border/50" : "bg-card border-border"
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getTypeColor(n.type)}`}>
-                    <Bell className="w-3.5 h-3.5" />
+                    {getTypeIcon(n.type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium ${n.is_read ? "text-muted-foreground" : "text-foreground"}`}>
