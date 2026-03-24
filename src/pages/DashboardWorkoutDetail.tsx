@@ -73,6 +73,41 @@ interface ExerciseRowProps {
   onSwap: () => void;
 }
 
+// ── Inline Rest Timer ──────────────────────────────────────────────
+const InlineRestTimer = ({ seconds }: { seconds: number }) => {
+  const [timeLeft, setTimeLeft] = useState(seconds);
+  const [running, setRunning] = useState(true);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (running && timeLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setTimeLeft((p) => (p <= 1 ? 0 : p - 1));
+      }, 1000);
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [running, timeLeft]);
+
+  useEffect(() => { setTimeLeft(seconds); setRunning(true); }, [seconds]);
+
+  const fmt = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+  const pct = ((seconds - timeLeft) / seconds) * 100;
+
+  return (
+    <div className="flex items-center gap-2 mt-1.5 px-1">
+      <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
+        <div className={`h-full rounded-full transition-all duration-1000 ${timeLeft === 0 ? "bg-green-500" : "bg-primary"}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className={`text-[10px] font-mono font-medium ${timeLeft === 0 ? "text-green-500" : "text-muted-foreground"}`}>
+        {timeLeft === 0 ? "GO!" : fmt(timeLeft)}
+      </span>
+      <button onClick={() => setRunning(!running)} className="text-[10px] text-muted-foreground hover:text-foreground">
+        {running ? "⏸" : "▶"}
+      </button>
+    </div>
+  );
+};
+
 const ExerciseRow = ({
   exercise, dayId, logDate, userId, setLogs, previousSetLogs,
   exerciseNote, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
