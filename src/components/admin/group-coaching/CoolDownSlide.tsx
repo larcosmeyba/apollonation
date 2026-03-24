@@ -1,4 +1,4 @@
-import apolloLogo from "@/assets/apollo-logo.png";
+import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 interface CoolDownSlideProps {
   appUrl?: string;

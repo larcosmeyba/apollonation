@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMessages } from "@/hooks/useMessages";
 
-import apolloLogo from "@/assets/apollo-logo.png";
+import apolloLogo from "@/assets/apollo-logo-sm.png";
 import {
   LayoutDashboard,
   MessageSquare,

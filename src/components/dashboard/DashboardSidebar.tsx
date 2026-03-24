@@ -18,7 +18,7 @@ import {
   ImageIcon,
 } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
-import apolloLogo from "@/assets/apollo-logo.png";
+import apolloLogo from "@/assets/apollo-logo-sm.png";
 import NotificationCenter from "./NotificationCenter";
 
 const DashboardSidebar = () => {

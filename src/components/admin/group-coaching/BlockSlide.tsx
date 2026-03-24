@@ -1,6 +1,6 @@
 import { Timer, Repeat } from "lucide-react";
 import type { SlideExercise } from "./types";
-import apolloLogo from "@/assets/apollo-logo.png";
+import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 interface BlockSlideProps {
   blockLabel: string;

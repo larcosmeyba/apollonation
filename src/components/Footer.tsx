@@ -1,6 +1,6 @@
 import { Instagram, Youtube, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
-import apolloLogo from "@/assets/apollo-logo.png";
+import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
