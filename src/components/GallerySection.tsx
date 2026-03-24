@@ -1,7 +1,7 @@
-import marcos4 from "@/assets/marcos-4.jpg";
+import marcos4 from "@/assets/marcos-4.webp";
 import marcos5 from "@/assets/marcos-5.jpg";
-import marcos7 from "@/assets/marcos-7.jpg";
-import marcos8 from "@/assets/marcos-8.jpg";
+import marcos7 from "@/assets/marcos-7.webp";
+import marcos8 from "@/assets/marcos-8.webp";
 
 const images = [
   { src: marcos4, alt: "Athletic training - sprint" },

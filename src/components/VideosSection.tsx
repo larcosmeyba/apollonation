@@ -1,9 +1,9 @@
 import { Clock, Flame, Dumbbell } from "lucide-react";
 import marcos5 from "@/assets/marcos-5.jpg";
-import marcos6 from "@/assets/marcos-6.jpg";
-import marcos7 from "@/assets/marcos-7.jpg";
-import marcos8 from "@/assets/marcos-8.jpg";
-import marcos9 from "@/assets/marcos-9.jpg";
+import marcos6 from "@/assets/marcos-6.webp";
+import marcos7 from "@/assets/marcos-7.webp";
+import marcos8 from "@/assets/marcos-8.webp";
+import marcos9 from "@/assets/marcos-9.webp";
 
 const videos = [
   {

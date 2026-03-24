@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import heroImage from "@/assets/marcos-4.jpg";
+import heroImage from "@/assets/marcos-4.webp";
 import { useEffect, useState } from "react";
 
 const HeroSection = () => {
