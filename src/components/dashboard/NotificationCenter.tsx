@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 const NotificationCenter = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const { data: notifications = [] } = useQuery({
