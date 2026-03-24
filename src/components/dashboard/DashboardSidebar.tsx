@@ -14,6 +14,8 @@ import {
   Camera,
   Calendar,
   BookOpen,
+  Heart,
+  ImageIcon,
 } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo.png";
