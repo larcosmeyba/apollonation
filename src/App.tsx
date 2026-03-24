@@ -92,7 +92,7 @@ const App = () => (
             <Route
               path="/dashboard/macros"
               element={
-                <ProtectedRoute requiredTier="elite">
+                <ProtectedRoute requiredTier="pro">
                   <DashboardMacros />
                 </ProtectedRoute>
               }
