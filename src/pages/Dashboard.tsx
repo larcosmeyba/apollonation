@@ -366,7 +366,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Utensils className="w-4 h-4 text-primary" />
-                <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Today's Meals</p>
+                <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Today's Fuel</p>
               </div>
               <Link to="/dashboard/nutrition">
                 <Button variant="ghost" size="sm" className="text-muted-foreground text-[10px] h-6 px-2">
