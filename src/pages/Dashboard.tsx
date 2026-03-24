@@ -315,6 +315,9 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Section 3B — Today's Focus */}
+        <TodaysFocus />
+
         {/* Section 4A — Calories & Macros Remaining Card */}
         <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
           <div className="flex items-center justify-between mb-4">
