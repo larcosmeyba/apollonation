@@ -122,7 +122,7 @@ const NotificationCenter = () => {
               >
                 <div className="flex items-start gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getTypeColor(n.type)}`}>
-                    <Bell className="w-3.5 h-3.5" />
+                    {getTypeIcon(n.type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium ${n.is_read ? "text-muted-foreground" : "text-foreground"}`}>
