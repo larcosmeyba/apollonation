@@ -402,6 +402,9 @@ const Dashboard = () => {
         {/* Section 5 — Steps (compact) */}
         <DashboardStepTracker />
 
+        {/* Section 6 — Referral Program */}
+        <ReferralProgram />
+
         {/* Section 7 — Coach Message Preview */}
         {latestConv && latestConv.unreadCount > 0 && (
           <Link to="/dashboard/messages" className="block">
