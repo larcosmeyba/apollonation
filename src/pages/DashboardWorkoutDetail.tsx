@@ -218,11 +218,17 @@ const ExerciseRow = ({
                     placeholder={prevLog?.reps_completed ? String(prevLog.reps_completed) : (exercise.reps || "—")}
                     className="h-8 text-xs text-center px-1"
                     value={log?.reps_completed ?? ""}
-                    onChange={(e) => onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null)}
+                    onChange={(e) => {
+                      onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
+                      if (e.target.value) setShowTimer(true);
+                    }}
                   />
                 </div>
               );
             })}
+            {showTimer && exercise.rest_seconds && (
+              <InlineRestTimer seconds={exercise.rest_seconds} />
+            )}
             {previousSetLogs.length > 0 && (
               <p className="text-[9px] text-muted-foreground/50 text-right pt-0.5">Placeholders = last session</p>
             )}
