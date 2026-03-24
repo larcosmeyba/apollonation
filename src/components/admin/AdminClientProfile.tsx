@@ -402,6 +402,11 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
         <TabsContent value="notes" className="mt-4">
           <ClientNotesPanel userId={userId} clientName={profile?.display_name || "Unknown"} />
         </TabsContent>
+
+        {/* ── INSIGHTS (Recovery, Transformation, Challenges, Nutrition Compliance) ── */}
+        <TabsContent value="insights" className="mt-4">
+          <AdminClientInsights userId={userId} />
+        </TabsContent>
       </Tabs>
     </div>
   );
