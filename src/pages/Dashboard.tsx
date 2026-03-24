@@ -191,6 +191,7 @@ const Dashboard = () => {
 
         {/* Notification Alerts */}
         <ClientNotifications />
+        <WeeklySummary />
 
         {/* Section 1 — Header */}
         <div className="flex items-start justify-between">
