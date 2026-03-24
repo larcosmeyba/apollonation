@@ -793,6 +793,9 @@ const DashboardNutrition = () => {
               </Tabs>
             </>
           )}
+
+          {/* ── Fuel Calendar — Tracking & Streaks ── */}
+          <FuelCalendar />
         </div>
       </DashboardLayout>
     </>
