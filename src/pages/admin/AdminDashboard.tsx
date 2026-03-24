@@ -42,6 +42,8 @@ const AdminDashboard = () => {
         return <OnDemandEditor />;
       case "programs":
         return <AdminPrograms />;
+      case "challenges":
+        return <AdminChallenges />;
       case "contacts":
         return <AdminContactRequests />;
       case "profile":
