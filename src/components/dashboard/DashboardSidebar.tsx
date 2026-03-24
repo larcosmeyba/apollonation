@@ -30,7 +30,7 @@ const DashboardSidebar = () => {
     { label: "Today", href: "/dashboard", icon: LayoutDashboard, locked: false },
     { label: "Train", href: "/dashboard/training", icon: Dumbbell, locked: false },
     { label: "Inbox", href: "/dashboard/messages", icon: MessageSquare, locked: false, badge: unreadCount > 0 ? unreadCount : undefined },
-    { label: "Nutrition", href: "/dashboard/nutrition", icon: Apple, locked: false },
+    { label: "Fuel", href: "/dashboard/nutrition", icon: Apple, locked: false },
     { label: "On Demand", href: "/dashboard/workouts", icon: Play, locked: false },
     { label: "Calendar", href: "/dashboard/calendar", icon: Calendar, locked: false },
     { label: "Recipes", href: "/dashboard/recipes", icon: BookOpen, locked: false },
