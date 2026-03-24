@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import apolloLogo from "@/assets/apollo-logo.png";
+import apolloLogo from "@/assets/apollo-logo-sm.png";
 import NotificationCenter from "./NotificationCenter";
 
 const DashboardMobileNav = () => {

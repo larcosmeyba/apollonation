@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { STRIPE_TIERS } from "@/config/stripe";
 import { TIER_FEATURES } from "@/config/tierFeatures";
-import apolloLogo from "@/assets/apollo-logo.png";
+import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 const tierKeys = ["basic", "pro", "elite"] as const;
 

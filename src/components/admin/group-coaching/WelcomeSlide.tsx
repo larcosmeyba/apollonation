@@ -3,7 +3,7 @@ import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ClassType } from "./types";
-import apolloLogo from "@/assets/apollo-logo.png";
+import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 const COMMON_EQUIPMENT = ["Dumbbells", "Resistance Bands", "Yoga Mat", "Bench", "Kettlebell", "Barbell", "Foam Roller", "Jump Rope"];
 

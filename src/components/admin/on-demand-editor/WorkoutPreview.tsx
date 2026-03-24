@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { WorkoutProject, WorkoutBlock } from "./types";
 import { Play, Pause, SkipForward, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import apolloLogo from "@/assets/apollo-logo.png";
+import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 interface Props {
   project: WorkoutProject;
