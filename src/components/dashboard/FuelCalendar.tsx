@@ -127,13 +127,22 @@ const FuelCalendar = () => {
       </Dialog>
 
       <div className="rounded-xl border border-border bg-card p-4 space-y-4">
-        {/* Streak + Weekly Score */}
+        {/* Streak + Weekly Score + Compliance */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Flame className="w-5 h-5 text-orange-500" />
+            <Flame className="w-5 h-5 text-primary" />
             <span className="font-heading text-sm">{streak} Day Streak</span>
           </div>
-          <span className="text-xs text-muted-foreground">{weekLogged}/7 this week</span>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+              weekLogged >= 6 ? "bg-green-500/15 text-green-400" :
+              weekLogged >= 4 ? "bg-primary/15 text-primary" :
+              "bg-destructive/15 text-destructive"
+            }`}>
+              {Math.round((weekLogged / 7) * 100)}% compliance
+            </span>
+            <span className="text-[10px] text-muted-foreground">{weekLogged}/7</span>
+          </div>
         </div>
 
         {/* Weekly overview */}

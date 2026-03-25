@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardStepTracker from "@/components/dashboard/DashboardStepTracker";
 import TodaysFocus from "@/components/dashboard/TodaysFocus";
+import FitnessStreak from "@/components/dashboard/FitnessStreak";
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -415,7 +416,10 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Section 5 — Steps (compact) */}
+        {/* Section 5 — Fitness Streak */}
+        <FitnessStreak />
+
+        {/* Section 5B — Steps (compact) */}
         <DashboardStepTracker />
 
 
