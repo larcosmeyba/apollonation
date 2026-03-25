@@ -24,19 +24,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import stockBack from "@/assets/stock-back.png";
 import stockArms from "@/assets/stock-arms.png";
-import TrainingScheduleAdjust from "@/components/dashboard/TrainingScheduleAdjust";
-import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
-import { Link } from "react-router-dom";
-import {
-  format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday,
-} from "date-fns";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 
 const getYouTubeVideoId = (url: string): string | null => {
   try {
