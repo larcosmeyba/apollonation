@@ -4,7 +4,7 @@ export const STRIPE_TIERS = {
     product_id: "prod_TwIIBeto2Gx7U2",
     price_id: "price_1SyPhqF9HbQtUkYZbh8Zj7sq",
     name: "Apollo Core",
-    price: 19.99,
+    price: 20.00,
   },
   pro: {
     product_id: "prod_TwIJWLZwxjtvKC",
