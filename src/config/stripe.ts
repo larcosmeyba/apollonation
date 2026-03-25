@@ -4,19 +4,19 @@ export const STRIPE_TIERS = {
     product_id: "prod_TwIIBeto2Gx7U2",
     price_id: "price_1SyPhqF9HbQtUkYZbh8Zj7sq",
     name: "Apollo Core",
-    price: 20.00,
+    price: 20,
   },
   pro: {
-    product_id: "prod_TwIJWLZwxjtvKC",
-    price_id: "price_1SyPjFF9HbQtUkYZIMD51tFz",
+    product_id: "prod_UDPmpVYjmr8FVL",
+    price_id: "price_1TEywfF9HbQtUkYZncLrWtCS",
     name: "Apollo Fuel",
-    price: 49.99,
+    price: 50,
   },
   elite: {
-    product_id: "prod_TwIKmegnVoo027",
-    price_id: "price_1SyPkIF9HbQtUkYZ5uth38pm",
+    product_id: "prod_UDPmkqN8R2ZaPc",
+    price_id: "price_1TEyx3F9HbQtUkYZVg3iZ18G",
     name: "Apollo Elite",
-    price: 99.99,
+    price: 100,
   },
 } as const;
 
