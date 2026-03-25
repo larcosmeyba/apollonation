@@ -324,49 +324,8 @@ const AdminGroupCoaching = () => {
           <h1 className="font-heading text-xl tracking-wider text-foreground">GROUP COACHING</h1>
           <p className="text-sm text-muted-foreground mt-1">Create and present workout slideshows for group classes</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setShowAiPanel(true)}>
-          <Sparkles className="w-4 h-4 mr-1" /> AI Generate
-        </Button>
       </div>
 
-      {/* AI Generate Panel */}
-      {showAiPanel && (
-        <Card className="bg-card border-border">
-          <CardContent className="p-6 space-y-4">
-            <h3 className="font-heading text-sm tracking-wider text-foreground">GENERATE WITH AI</h3>
-            <div className="flex gap-2">
-              {(["sculpt", "strength", "stretch"] as ClassType[]).map((ct) => {
-                const Icon = classIcons[ct];
-                return (
-                  <button
-                    key={ct}
-                    onClick={() => setAiClassType(ct)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition-colors ${
-                      aiClassType === ct ? "border-foreground/40 bg-muted text-foreground" : "border-border text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {ct.charAt(0).toUpperCase() + ct.slice(1)}
-                  </button>
-                );
-              })}
-            </div>
-            <Input
-              value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder="e.g. Upper body sculpt, 45 min, focus on shoulders and arms..."
-              className="text-sm"
-            />
-            <div className="flex items-center gap-2">
-              <Button onClick={handleAiGenerate} disabled={generating} className="bg-foreground text-background hover:opacity-90">
-                <Sparkles className="w-4 h-4 mr-1" />
-                {generating ? "Generating..." : "Generate Slideshow"}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => setShowAiPanel(false)}>Cancel</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Templates */}
       {templates.length > 0 && (
