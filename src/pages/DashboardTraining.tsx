@@ -22,6 +22,21 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import stockBack from "@/assets/stock-back.png";
+import stockArms from "@/assets/stock-arms.png";
+import TrainingScheduleAdjust from "@/components/dashboard/TrainingScheduleAdjust";
+import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
+import { Link } from "react-router-dom";
+import {
+  format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday,
+} from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 const getYouTubeVideoId = (url: string): string | null => {
   try {
@@ -341,9 +356,15 @@ const DashboardTraining = () => {
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-border bg-card p-8 text-center">
-                <p className="font-heading text-lg mb-2">Rest Day</p>
-                <p className="text-sm text-muted-foreground">Recovery is part of the process. Come back stronger.</p>
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="relative h-32 overflow-hidden">
+                  <img src={stockBack} alt="Rest day" className="w-full h-full object-cover" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-card via-card/70 to-transparent" />
+                </div>
+                <div className="text-center py-6 px-4 -mt-6 relative z-10">
+                  <p className="font-heading text-lg mb-2">Rest Day</p>
+                  <p className="text-sm text-muted-foreground">Recovery is part of the process. Come back stronger.</p>
+                </div>
               </div>
             )}
           </>
