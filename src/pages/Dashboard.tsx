@@ -7,6 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardStepTracker from "@/components/dashboard/DashboardStepTracker";
 import TodaysFocus from "@/components/dashboard/TodaysFocus";
 import FitnessStreak from "@/components/dashboard/FitnessStreak";
+import CoachInsights from "@/components/dashboard/CoachInsights";
+import Achievements from "@/components/dashboard/Achievements";
+import StrengthTracker from "@/components/dashboard/StrengthTracker";
+import ProgressDashboard from "@/components/dashboard/ProgressDashboard";
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -421,6 +425,18 @@ const Dashboard = () => {
 
         {/* Section 5B — Steps (compact) */}
         <DashboardStepTracker />
+
+        {/* Section 6 — Progress Dashboard */}
+        <ProgressDashboard />
+
+        {/* Section 6B — Strength Tracker */}
+        <StrengthTracker />
+
+        {/* Section 6C — Achievements */}
+        <Achievements />
+
+        {/* Section 6D — Coach Insights */}
+        <CoachInsights />
 
 
         {/* Section 7 — Coach Message Preview */}
