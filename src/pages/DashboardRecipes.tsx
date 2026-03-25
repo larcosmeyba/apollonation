@@ -55,8 +55,12 @@ const DashboardRecipes = () => {
 
   const filteredRecipes = recipes.filter((recipe) => {
     const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase());
+    if (selectedCategory === "All") return matchesSearch;
+    const catLower = selectedCategory.toLowerCase();
     const matchesCategory =
-      selectedCategory === "All" || recipe.category === selectedCategory;
+      recipe.category?.toLowerCase() === catLower ||
+      recipe.dietary_tags?.some((tag) => tag.toLowerCase() === catLower) ||
+      false;
     return matchesSearch && matchesCategory;
   });
 
