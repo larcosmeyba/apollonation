@@ -16,7 +16,7 @@ import { useProfileLookup } from "@/hooks/useProfileLookup";
 import fitnessImage from "@/assets/fitness-gym.png";
 import ClientNotifications from "@/components/dashboard/ClientNotifications";
 import WeeklySummary from "@/components/dashboard/WeeklySummary";
-import ReferralProgram from "@/components/dashboard/ReferralProgram";
+
 
 const MEAL_LABELS: Record<string, string> = {
   breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack",
@@ -308,7 +308,7 @@ const Dashboard = () => {
                   </p>
                 )}
 
-                <Link to="/dashboard/training" className="block">
+                <Link to={`/dashboard/training/workout?day=${todayWorkout?.id}&date=${format(selectedDate, "yyyy-MM-dd")}`} className="block">
                   <Button variant="apollo" className="w-full">
                     <Dumbbell className="w-4 h-4 mr-2" /> Start Workout
                   </Button>
@@ -402,8 +402,6 @@ const Dashboard = () => {
         {/* Section 5 — Steps (compact) */}
         <DashboardStepTracker />
 
-        {/* Section 6 — Referral Program */}
-        <ReferralProgram />
 
         {/* Section 7 — Coach Message Preview */}
         {latestConv && latestConv.unreadCount > 0 && (

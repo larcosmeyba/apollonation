@@ -56,7 +56,7 @@ const navItems = [
   { id: "marketing", label: "Marketing", icon: Palette, color: "text-[hsl(320,70%,55%)]" },
   { id: "challenges", label: "Challenges", icon: Activity, color: "text-[hsl(35,90%,55%)]" },
   { id: "notifications", label: "Notifications", icon: Bell, color: "text-[hsl(40,95%,55%)]" },
-  { id: "referrals", label: "Referrals", icon: Gift, color: "text-[hsl(150,60%,50%)]" },
+  
   { id: "contacts", label: "Contact Requests", icon: Inbox, color: "text-[hsl(180,60%,45%)]" },
   { id: "profile", label: "Coach Profile", icon: User, color: "text-[hsl(220,60%,60%)]" },
 ];

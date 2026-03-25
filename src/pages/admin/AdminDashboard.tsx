@@ -15,7 +15,7 @@ import OnDemandEditor from "@/components/admin/on-demand-editor/OnDemandEditor";
 import AdminPrograms from "@/components/admin/AdminPrograms";
 import AdminChallenges from "@/components/admin/AdminChallenges";
 import AdminPushNotifications from "@/components/admin/AdminPushNotifications";
-import AdminReferrals from "@/components/admin/AdminReferrals";
+
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -48,8 +48,6 @@ const AdminDashboard = () => {
         return <AdminChallenges />;
       case "notifications":
         return <AdminPushNotifications />;
-      case "referrals":
-        return <AdminReferrals />;
       case "contacts":
         return <AdminContactRequests />;
       case "profile":

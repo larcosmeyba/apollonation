@@ -373,14 +373,6 @@ const DashboardTraining = () => {
         )}
 
         {/* Quick Links */}
-        <div className="grid grid-cols-1 gap-3">
-          <Link to="/dashboard/workouts">
-            <div className="rounded-xl border border-border bg-card p-4 hover:border-foreground/20 transition-all text-center">
-              <Dumbbell className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-xs font-medium">On Demand</p>
-            </div>
-          </Link>
-        </div>
       </div>
 
       {/* Add Activity Dialog */}
