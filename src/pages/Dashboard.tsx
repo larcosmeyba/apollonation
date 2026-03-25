@@ -13,7 +13,23 @@ import { Badge } from "@/components/ui/badge";
 import { format, startOfWeek, addDays, isSameDay, isToday } from "date-fns";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
-import fitnessImage from "@/assets/fitness-gym.png";
+import stockBack from "@/assets/stock-back.png";
+import stockArms from "@/assets/stock-arms.png";
+import marcosAction1 from "@/assets/marcos-action-1.jpg";
+import marcosAction6 from "@/assets/marcos-action-6.jpg";
+import marcosAction7 from "@/assets/marcos-action-7.jpg";
+
+const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7];
+const REST_DAY_IMAGES = [stockBack, stockArms];
+
+const getWorkoutImage = (dateStr: string) => {
+  const hash = dateStr.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  return WORKOUT_IMAGES[hash % WORKOUT_IMAGES.length];
+};
+const getRestDayImage = (dateStr: string) => {
+  const hash = dateStr.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  return REST_DAY_IMAGES[hash % REST_DAY_IMAGES.length];
+};
 import ClientNotifications from "@/components/dashboard/ClientNotifications";
 import WeeklySummary from "@/components/dashboard/WeeklySummary";
 
@@ -250,7 +266,7 @@ const Dashboard = () => {
           {/* Workout Hero Image */}
           <div className="relative h-36 overflow-hidden">
             <img
-              src={fitnessImage}
+              src={isRestDay ? getRestDayImage(format(selectedDate, "yyyy-MM-dd")) : getWorkoutImage(format(selectedDate, "yyyy-MM-dd"))}
               alt="Today's workout"
               className="w-full h-full object-cover object-center"
               loading="lazy"
