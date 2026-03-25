@@ -1,9 +1,8 @@
-import { Clock, Flame, Dumbbell } from "lucide-react";
-import marcos5 from "@/assets/marcos-5.jpg";
-import marcos6 from "@/assets/marcos-6.webp";
-import marcos7 from "@/assets/marcos-7.webp";
-import marcos8 from "@/assets/marcos-8.webp";
-import marcos9 from "@/assets/marcos-9.webp";
+import { Clock, Flame } from "lucide-react";
+import marcosAction1 from "@/assets/marcos-action-1.jpg";
+import marcosAction6 from "@/assets/marcos-action-6.jpg";
+import marcosAction7 from "@/assets/marcos-action-7.jpg";
+import stockBack from "@/assets/stock-back.png";
 
 const videos = [
   {
@@ -11,36 +10,28 @@ const videos = [
     duration: "45 min",
     calories: "450",
     category: "Strength",
-    thumbnail: marcos5,
-    featured: true,
+    thumbnail: marcosAction1,
   },
   {
     title: "HIIT Inferno",
     duration: "30 min",
     calories: "380",
     category: "Cardio",
-    thumbnail: marcos6,
+    thumbnail: marcosAction6,
   },
   {
     title: "Core Destroyer",
     duration: "20 min",
     calories: "200",
     category: "Core",
-    thumbnail: marcos7,
+    thumbnail: marcosAction7,
   },
   {
     title: "Upper Body Sculpt",
     duration: "40 min",
     calories: "320",
     category: "Strength",
-    thumbnail: marcos8,
-  },
-  {
-    title: "Leg Day Domination",
-    duration: "50 min",
-    calories: "500",
-    category: "Strength",
-    thumbnail: marcos9,
+    thumbnail: stockBack,
   },
 ];
 
@@ -62,7 +53,7 @@ const VideosSection = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
-          {videos.slice(1).map((video, index) => (
+          {videos.map((video, index) => (
             <div
               key={index}
               className="relative overflow-hidden border border-border rounded-xl"

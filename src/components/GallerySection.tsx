@@ -1,13 +1,13 @@
-import marcos4 from "@/assets/marcos-4.webp";
-import marcos5 from "@/assets/marcos-5.jpg";
-import marcos7 from "@/assets/marcos-7.webp";
-import marcos8 from "@/assets/marcos-8.webp";
+import stockBack from "@/assets/stock-back.png";
+import stockStatue from "@/assets/stock-apollo-statue.png";
+import stockArms from "@/assets/stock-arms.png";
+import marcosAction6 from "@/assets/marcos-action-6.jpg";
 
 const images = [
-  { src: marcos4, alt: "Athletic training - sprint" },
-  { src: marcos5, alt: "Dynamic movement" },
-  { src: marcos7, alt: "Flexibility training" },
-  { src: marcos8, alt: "Core workout" },
+  { src: stockStatue, alt: "Apollo aesthetic" },
+  { src: marcosAction6, alt: "Athletic training" },
+  { src: stockBack, alt: "Strength training" },
+  { src: stockArms, alt: "Muscle definition" },
 ];
 
 const GallerySection = () => {
