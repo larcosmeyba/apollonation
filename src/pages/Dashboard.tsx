@@ -47,7 +47,7 @@ const MEAL_LABELS: Record<string, string> = {
 const Dashboard = () => {
   const { user, profile, subscription } = useAuth();
   const { toast } = useToast();
-  const { conversations, unreadCount } = useMessages();
+  
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const todayDate = format(new Date(), "EEEE, MMMM d");
