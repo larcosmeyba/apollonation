@@ -441,7 +441,7 @@ const Dashboard = () => {
         {/* Section 6C — Achievements */}
         <Achievements />
 
-        {/* Section 6D — Coach Insights */}
+        {/* Section 6D — Insights */}
         <CoachInsights />
 
 

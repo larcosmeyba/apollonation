@@ -35,7 +35,7 @@ const CoachInsights = () => {
     <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
       <div className="flex items-center gap-2 mb-4">
         <Lightbulb className="w-4 h-4 text-primary" />
-        <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Coach Insights</p>
+        <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Insights</p>
       </div>
 
       <div className="space-y-3">
