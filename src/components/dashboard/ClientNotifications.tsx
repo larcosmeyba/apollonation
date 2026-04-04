@@ -42,17 +42,7 @@ const ClientNotifications = () => {
     enabled: !!user,
   });
 
-  const alerts: { id: string; icon: typeof MessageSquare; message: string; link: string; action: string }[] = [];
-
-  if (unreadCount > 0) {
-    alerts.push({
-      id: "unread-messages",
-      icon: MessageSquare,
-      message: `You have ${unreadCount} unread message${unreadCount > 1 ? "s" : ""} from your coach`,
-      link: "/dashboard/messages",
-      action: "View Messages",
-    });
-  }
+  const alerts: { id: string; icon: typeof ClipboardList; message: string; link: string; action: string }[] = [];
 
   if (hasQuestionnaire === false) {
     alerts.push({
