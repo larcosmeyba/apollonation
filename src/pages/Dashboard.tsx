@@ -179,10 +179,6 @@ const Dashboard = () => {
 
   const calPct = Math.min(Math.round((loggedTotals.calories / targets.calories) * 100), 100);
 
-  // Coach message preview
-  const latestConv = conversations[0];
-  const partnerIds = latestConv ? [latestConv.partnerId] : [];
-  const { data: msgProfiles } = useProfileLookup(partnerIds);
 
   const isRestDay = !todayWorkout;
   const isViewingToday = isSameDay(selectedDate, new Date());
