@@ -97,11 +97,11 @@ const Index = () => {
       </header>
 
       {/* ═══ 2. WHAT APOLLO IS ═══ */}
-      <section className="py-20 md:py-28 border-t border-white/5">
+      <section className="py-12 md:py-16 border-t border-white/5">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">The Platform</span>
-            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-6">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">The Platform</span>
+            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
               Your Fitness System
             </h2>
             <p className="text-white/50 font-light leading-relaxed text-base max-w-lg mx-auto">
@@ -112,9 +112,9 @@ const Index = () => {
       </section>
 
       {/* ═══ 3. ON-DEMAND WORKOUTS ═══ */}
-      <section id="workouts" className="py-20 md:py-28 border-t border-white/5">
+      <section id="workouts" className="py-12 md:py-16 border-t border-white/5">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8">
             <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">Workouts</span>
             <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
               On-Demand Workout Library
@@ -157,10 +157,10 @@ const Index = () => {
       </section>
 
       {/* ═══ 4. STRUCTURED PROGRAMS ═══ */}
-      <section className="py-20 md:py-28 border-t border-white/5">
+      <section className="py-12 md:py-16 border-t border-white/5">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">Programs</span>
+          <div className="text-center mb-8">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">Programs</span>
             <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
               Structured Training Programs
             </h2>
@@ -197,10 +197,10 @@ const Index = () => {
       </section>
 
       {/* ═══ 5. NUTRITION SYSTEM ═══ */}
-      <section className="py-20 md:py-28 border-t border-white/5">
+      <section className="py-12 md:py-16 border-t border-white/5">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">Nutrition</span>
+          <div className="text-center mb-8">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">Nutrition</span>
             <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
               Fuel Your Training
             </h2>
@@ -240,11 +240,11 @@ const Index = () => {
       </section>
 
       {/* ═══ 6. APP EXPERIENCE ═══ */}
-      <section className="py-20 md:py-28 border-t border-white/5">
+      <section className="py-12 md:py-16 border-t border-white/5">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center mb-14">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">The App</span>
-            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
+          <div className="max-w-2xl mx-auto text-center mb-8">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">The App</span>
+            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-3">
               Train Anywhere
             </h2>
             <p className="text-white/50 font-light leading-relaxed">
@@ -252,21 +252,92 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-            {[
-              { icon: Play, label: "Workout Library", desc: "HD videos on demand" },
-              { icon: Calendar, label: "Programs", desc: "Structured plans" },
-              { icon: Apple, label: "Nutrition", desc: "Meals & macros" },
-              { icon: BarChart3, label: "Progress", desc: "Track your gains" },
-            ].map((item) => (
-              <div key={item.label} className="flex flex-col items-center gap-3 p-6 border border-white/10 rounded-2xl bg-card">
-                <div className="w-12 h-12 rounded-full border border-white/15 flex items-center justify-center">
-                  <item.icon className="w-5 h-5 text-white/60" strokeWidth={1.5} />
+          {/* Phone mockup */}
+          <div className="max-w-xs mx-auto">
+            <div className="border border-white/15 rounded-[2rem] bg-card overflow-hidden shadow-2xl shadow-black/50">
+              {/* Status bar */}
+              <div className="flex items-center justify-between px-5 pt-3 pb-2">
+                <span className="text-[9px] text-white/40 font-light">9:41</span>
+                <span className="text-[9px] text-white/40 font-light">Apollo Nation</span>
+                <div className="flex gap-1">
+                  <div className="w-3 h-1.5 rounded-sm bg-white/30" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
                 </div>
-                <span className="text-white/80 text-xs font-medium tracking-wide">{item.label}</span>
-                <span className="text-white/35 text-[10px] font-light">{item.desc}</span>
               </div>
-            ))}
+
+              {/* Screen content */}
+              <div className="px-4 pb-2 space-y-3">
+                {/* Today's workout card */}
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <span className="text-[9px] uppercase tracking-wider text-white/30 font-light">Today's Workout</span>
+                  <h4 className="text-sm text-white font-medium mt-1">Full Body Power</h4>
+                  <div className="flex items-center gap-2 mt-1.5 text-white/40 text-[10px]">
+                    <span>45 min</span><span>·</span><span>Intermediate</span>
+                  </div>
+                  <div className="mt-2 bg-white/10 rounded-full h-5 flex items-center justify-center">
+                    <span className="text-[10px] text-white/70 font-medium">Start Workout →</span>
+                  </div>
+                </div>
+
+                {/* Continue program */}
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <span className="text-[9px] uppercase tracking-wider text-white/30 font-light">Continue Program</span>
+                  <h4 className="text-xs text-white/80 font-medium mt-1">Beginner Strength — Week 2</h4>
+                  <div className="mt-2 w-full bg-white/10 rounded-full h-1.5">
+                    <div className="bg-white/50 h-1.5 rounded-full" style={{ width: "35%" }} />
+                  </div>
+                  <span className="text-[9px] text-white/30 mt-1 block">35% complete</span>
+                </div>
+
+                {/* Recommended */}
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <span className="text-[9px] uppercase tracking-wider text-white/30 font-light">Recommended</span>
+                  <div className="flex gap-2 mt-2">
+                    <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
+                      <span className="text-[10px] text-white/60">HIIT Inferno</span>
+                    </div>
+                    <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
+                      <span className="text-[10px] text-white/60">Core Burn</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Weekly progress */}
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <span className="text-[9px] uppercase tracking-wider text-white/30 font-light">Weekly Progress</span>
+                  <div className="flex items-end gap-1.5 mt-2 h-8">
+                    {[60, 100, 80, 0, 40, 0, 0].map((h, i) => (
+                      <div key={i} className="flex-1 flex flex-col justify-end">
+                        <div className={`rounded-sm ${h > 0 ? 'bg-white/30' : 'bg-white/10'}`} style={{ height: `${Math.max(h * 0.3, 3)}px` }} />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+                      <span key={i} className="text-[8px] text-white/20 flex-1 text-center">{d}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom navigation */}
+              <div className="border-t border-white/10 bg-card px-2 pb-4 pt-2">
+                <div className="flex justify-around">
+                  {[
+                    { label: "Home", active: true },
+                    { label: "Workouts", active: false },
+                    { label: "Programs", active: false },
+                    { label: "Nutrition", active: false },
+                    { label: "Profile", active: false },
+                  ].map((tab) => (
+                    <div key={tab.label} className="flex flex-col items-center gap-0.5">
+                      <div className={`w-1 h-1 rounded-full ${tab.active ? 'bg-white' : 'bg-transparent'}`} />
+                      <span className={`text-[9px] ${tab.active ? 'text-white font-medium' : 'text-white/30 font-light'}`}>{tab.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -275,13 +346,13 @@ const Index = () => {
       <TestimonialsSection />
 
       {/* ═══ 8. DOWNLOAD CTA ═══ */}
-      <section id="download" className="py-20 md:py-28 border-t border-white/5">
+      <section id="download" className="py-12 md:py-16 border-t border-white/5">
         <div className="container mx-auto px-4">
           <div className="max-w-xl mx-auto text-center">
             <h2 className="font-heading text-3xl md:text-5xl text-white mb-5 tracking-wide">
               Start Training Today
             </h2>
-            <p className="text-white/50 font-light leading-relaxed mb-10">
+            <p className="text-white/50 font-light leading-relaxed mb-6">
               Download Apollo Nation and start your next workout.
             </p>
 
