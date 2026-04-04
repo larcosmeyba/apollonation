@@ -5,6 +5,7 @@ import VideosSection from "@/components/VideosSection";
 import PricingSection from "@/components/PricingSection";
 import ContactRequestSection from "@/components/ContactRequestSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import { AlertTriangle } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -12,6 +13,14 @@ import SEOHead from "@/components/SEOHead";
 const Index = () => {
   return (
     <main className="min-h-screen overflow-x-hidden w-full">
+      <div className="bg-primary text-primary-foreground py-3 px-4 text-center relative z-50">
+        <div className="container mx-auto flex items-center justify-center gap-2 text-sm md:text-base">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+          <p className="font-medium">
+            🚀 We're launching on the App Store &amp; Google Play! The web app may be temporarily unavailable during this transition. Stay tuned!
+          </p>
+        </div>
+      </div>
       <SEOHead
         path="/"
         description="Transform your body with Coach Marcos at Apollo Nation. Elite personal training programs, HD workout videos, custom nutrition plans, and 1-on-1 coaching. Join today."

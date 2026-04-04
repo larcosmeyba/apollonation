@@ -37,6 +37,7 @@ const getRestDayImage = (dateStr: string) => {
 };
 import ClientNotifications from "@/components/dashboard/ClientNotifications";
 import WeeklySummary from "@/components/dashboard/WeeklySummary";
+import { AlertTriangle } from "lucide-react";
 
 
 const MEAL_LABELS: Record<string, string> = {
