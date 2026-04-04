@@ -16,8 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { format, startOfWeek, addDays, isSameDay, isToday } from "date-fns";
-import { useMessages } from "@/hooks/useMessages";
-import { useProfileLookup } from "@/hooks/useProfileLookup";
 import stockBack from "@/assets/stock-back.png";
 import stockArms from "@/assets/stock-arms.png";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
