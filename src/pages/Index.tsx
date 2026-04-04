@@ -97,11 +97,11 @@ const Index = () => {
       </header>
 
       {/* ═══ 2. WHAT APOLLO IS ═══ */}
-      <section className="py-20 md:py-28 border-t border-white/5">
+      <section className="py-12 md:py-16 border-t border-white/5">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">The Platform</span>
-            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-6">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">The Platform</span>
+            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
               Your Fitness System
             </h2>
             <p className="text-white/50 font-light leading-relaxed text-base max-w-lg mx-auto">
