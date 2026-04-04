@@ -37,19 +37,20 @@ const Index = () => {
       <Navbar />
 
       {/* ─── 1. HERO ─── */}
-      <header className="relative min-h-screen flex items-end overflow-hidden" role="banner">
+      <header className="relative min-h-[85vh] md:min-h-screen flex items-center justify-center overflow-hidden pt-16" role="banner">
         <img
           src={heroImage}
-          alt="Apollo Nation athlete"
+          alt="Apollo Nation athlete training"
           fetchPriority="high"
           decoding="async"
-          className={`absolute inset-0 w-full h-full object-cover object-[50%_20%] transition-transform duration-[2500ms] ease-out ${isVisible ? "scale-100" : "scale-110"}`}
+          className={`absolute inset-0 w-full h-full object-cover object-[50%_30%] transition-transform duration-[2500ms] ease-out ${isVisible ? "scale-100" : "scale-110"}`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
+        {/* Dark cinematic overlay */}
+        <div className="absolute inset-0 bg-background/65" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background to-transparent" />
 
-        <div className="container mx-auto px-4 relative z-10 pb-20 md:pb-28">
-          <div className="max-w-xl">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-2xl mx-auto text-center">
             <span
               className={`inline-block text-[10px] uppercase tracking-[0.3em] text-white/50 mb-5 font-light transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
@@ -57,20 +58,20 @@ const Index = () => {
             </span>
 
             <h1
-              className={`font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1] mb-5 tracking-[0.02em] transition-all duration-1000 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              className={`font-heading text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-[1.05] mb-5 tracking-[0.02em] transition-all duration-1000 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
               <span className="block text-white">Train Like</span>
               <span className="block text-white/60">a Legend</span>
             </h1>
 
             <p
-              className={`text-base md:text-lg text-white/60 max-w-sm mb-8 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              className={`text-sm md:text-lg text-white/60 max-w-md mx-auto mb-8 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
               On-demand workouts, structured training programs, and practical nutrition guidance designed to fit real life.
             </p>
 
             <div
-              className={`flex flex-col sm:flex-row items-start gap-3 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              className={`flex flex-col sm:flex-row items-center justify-center gap-3 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
               <Button
                 variant="apollo"
@@ -91,12 +92,6 @@ const Index = () => {
               </Button>
             </div>
           </div>
-        </div>
-
-        <div
-          className={`absolute bottom-6 left-1/2 -translate-x-1/2 transition-all duration-1000 delay-700 ${isVisible ? "opacity-20" : "opacity-0"}`}
-        >
-          <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent animate-pulse" />
         </div>
       </header>
 
