@@ -346,7 +346,7 @@ const Index = () => {
       <TestimonialsSection />
 
       {/* ═══ 8. DOWNLOAD CTA ═══ */}
-      <section id="download" className="py-20 md:py-28 border-t border-white/5">
+      <section id="download" className="py-12 md:py-16 border-t border-white/5">
         <div className="container mx-auto px-4">
           <div className="max-w-xl mx-auto text-center">
             <h2 className="font-heading text-3xl md:text-5xl text-white mb-5 tracking-wide">
