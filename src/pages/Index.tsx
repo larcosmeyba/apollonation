@@ -59,19 +59,18 @@ const Index = () => {
             <h1
               className={`font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1] mb-5 tracking-[0.02em] transition-all duration-1000 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
-              <span className="block text-white">Train</span>
-              <span className="block text-white">Without</span>
-              <span className="block text-white/60">Limits</span>
+              <span className="block text-white">Train Like</span>
+              <span className="block text-white/60">a Legend</span>
             </h1>
 
             <p
               className={`text-base md:text-lg text-white/60 max-w-sm mb-8 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
-              Premium workouts. Structured programs. Nutrition guidance. All in one app.
+              On-demand workouts, structured training programs, and practical nutrition guidance designed to fit real life.
             </p>
 
             <div
-              className={`transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              className={`flex flex-col sm:flex-row items-start gap-3 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
               <Button
                 variant="apollo"
@@ -81,6 +80,14 @@ const Index = () => {
               >
                 Download the App
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+              </Button>
+              <Button
+                variant="apollo-outline"
+                size="lg"
+                className="h-14 px-8 text-base rounded-full"
+                onClick={() => document.getElementById("pillars")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                Start Training
               </Button>
             </div>
           </div>
