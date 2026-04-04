@@ -111,14 +111,6 @@ const App = () => (
               }
             />
             <Route
-              path="/dashboard/messages"
-              element={
-                <ProtectedRoute>
-                  <DashboardMessages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/dashboard/nutrition"
               element={
                 <ProtectedRoute>
