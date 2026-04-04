@@ -7,7 +7,7 @@ import { useState } from "react";
 
 const ClientNotifications = () => {
   const { user, profile } = useAuth();
-  const { unreadCount } = useMessages();
+  
   const [dismissed, setDismissed] = useState<string[]>([]);
 
   // Check if questionnaire exists
