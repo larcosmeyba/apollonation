@@ -1,9 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useMessages } from "@/hooks/useMessages";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { MessageSquare, ClipboardList, Camera, Dumbbell, X } from "lucide-react";
+import { ClipboardList, Camera, Dumbbell, X } from "lucide-react";
 import { useState } from "react";
 
 const ClientNotifications = () => {
