@@ -16,7 +16,7 @@ interface SEOHeadProps {
 
 const SEOHead = ({
   title,
-  description = "Transform your body with Coach Marcos. Access 100+ HD workouts, personalized nutrition plans, and elite coaching at Apollo Nation.",
+  description = "On-demand workouts, structured training programs, and practical nutrition guidance. Train anytime, anywhere with Apollo Nation.",
   path = "/",
   image = DEFAULT_IMAGE,
   type = "website",

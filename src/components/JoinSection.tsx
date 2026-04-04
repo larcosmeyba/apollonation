@@ -24,7 +24,7 @@ const JoinSection = () => {
               <p className="text-muted-foreground text-base font-light leading-relaxed mb-8">
                 {user
                   ? "Head to your dashboard to continue your training journey."
-                  : "Sign in to access your workouts, nutrition plans, and personalized coaching."}
+                  : "Sign in to access your workouts, training programs, and nutrition tools."}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
