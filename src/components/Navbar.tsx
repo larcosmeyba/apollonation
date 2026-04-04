@@ -12,133 +12,122 @@ const Navbar = () => {
   const { isAdmin } = useAdminStatus();
 
   const navLinks = [
-    { href: "/system", label: "The System" },
-    { href: "/#features", label: "Programs" },
-    { href: "/#pricing", label: "Membership" },
-    { href: "/#testimonials", label: "Community" },
+    { href: "#pillars", label: "Platform" },
+    { href: "#download", label: "Download" },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/90 border-b border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-white/5">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-3">
-            <img src={apolloLogo} alt="Apollo Nation Logo" className="w-10 h-10 invert brightness-0 invert opacity-95" />
-            <span className="font-heading text-lg tracking-[0.15em] text-white">
-              APOLLO <span className="text-white/70">NATION</span>
+            <img src={apolloLogo} alt="Apollo Nation Logo" className="w-8 h-8 invert brightness-0 invert opacity-95" />
+            <span className="font-heading text-sm tracking-[0.2em] text-white">
+              APOLLO <span className="text-white/50">NATION</span>
             </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-10">
-            {navLinks.map((link) => {
-              const isInternal = link.href.startsWith("/") && !link.href.startsWith("/#");
-              return isInternal ? (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className="text-white/60 hover:text-white transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
-                >
-                  {link.label}
-                </Link>
-              ) : (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-white/60 hover:text-white transition-colors duration-500 font-light text-xs uppercase tracking-[0.2em]"
-                >
-                  {link.label}
-                </a>
-              );
-            })}
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-white/40 hover:text-white transition-colors duration-500 font-light text-[11px] uppercase tracking-[0.2em]"
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
             {loading ? (
-              <div className="w-20 h-9 bg-muted animate-pulse rounded" />
+              <div className="w-20 h-8 bg-muted animate-pulse rounded" />
             ) : user ? (
               <>
                 {isAdmin && (
                   <Link to="/admin">
-                    <Button variant="ghost" size="sm" className="text-white/60 gap-2">
-                      <Shield className="w-4 h-4" /> Admin
+                    <Button variant="ghost" size="sm" className="text-white/40 gap-2 text-xs">
+                      <Shield className="w-3.5 h-3.5" /> Admin
                     </Button>
                   </Link>
                 )}
                 <Link to="/dashboard">
-                  <Button variant="apollo" size="sm">Dashboard</Button>
+                  <Button variant="apollo" size="sm" className="rounded-full text-xs px-5">
+                    Dashboard
+                  </Button>
                 </Link>
               </>
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="text-white/60 hover:text-white">
+                  <Button variant="ghost" size="sm" className="text-white/50 hover:text-white text-xs">
                     Sign In
                   </Button>
                 </Link>
-                <Link to="/auth">
-                  <Button variant="apollo" size="sm">Join Now</Button>
-                </Link>
+                <Button
+                  variant="apollo"
+                  size="sm"
+                  className="rounded-full text-xs px-5"
+                  onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  Get the App
+                </Button>
               </>
             )}
           </div>
 
           <button
-            className="md:hidden text-white p-2"
+            className="md:hidden text-white/60 p-2"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
       {isOpen && (
-        <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-white/10">
-          <div className="container mx-auto px-4 py-8 space-y-4">
-            {navLinks.map((link) => {
-              const isInternal = link.href.startsWith("/") && !link.href.startsWith("/#");
-              return isInternal ? (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className="block text-white/70 hover:text-white transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ) : (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="block text-white/70 hover:text-white transition-colors py-3 font-light text-sm uppercase tracking-[0.15em]"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.label}
-                </a>
-              );
-            })}
-            <div className="pt-6 space-y-3 border-t border-white/10">
+        <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-white/5">
+          <div className="container mx-auto px-4 py-6 space-y-3">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="block text-white/50 hover:text-white transition-colors py-2 font-light text-sm uppercase tracking-[0.15em]"
+                onClick={() => setIsOpen(false)}
+              >
+                {link.label}
+              </a>
+            ))}
+            <div className="pt-4 space-y-3 border-t border-white/5">
               {user ? (
                 <>
                   {isAdmin && (
                     <Link to="/admin" onClick={() => setIsOpen(false)}>
-                      <Button variant="ghost" className="w-full text-white/60 gap-2">
-                        <Shield className="w-4 h-4" /> Admin Panel
+                      <Button variant="ghost" className="w-full text-white/40 gap-2 text-xs">
+                        <Shield className="w-3.5 h-3.5" /> Admin
                       </Button>
                     </Link>
                   )}
                   <Link to="/dashboard" onClick={() => setIsOpen(false)}>
-                    <Button variant="apollo" className="w-full">Dashboard</Button>
+                    <Button variant="apollo" className="w-full rounded-full">Dashboard</Button>
                   </Link>
                 </>
               ) : (
                 <>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full text-white/60">Sign In</Button>
+                    <Button variant="ghost" className="w-full text-white/50 text-xs">Sign In</Button>
                   </Link>
-                  <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="apollo" className="w-full">Join Now</Button>
-                  </Link>
+                  <Button
+                    variant="apollo"
+                    className="w-full rounded-full"
+                    onClick={() => {
+                      setIsOpen(false);
+                      document.getElementById("download")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                  >
+                    Get the App
+                  </Button>
                 </>
               )}
             </div>
