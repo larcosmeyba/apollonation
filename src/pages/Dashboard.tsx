@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Dumbbell, ChevronRight, Plus, MessageSquare, User, Footprints, Utensils } from "lucide-react";
+import { Dumbbell, ChevronRight, Plus, User, Footprints, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
