@@ -157,10 +157,10 @@ const Index = () => {
       </section>
 
       {/* ═══ 4. STRUCTURED PROGRAMS ═══ */}
-      <section className="py-20 md:py-28 border-t border-white/5">
+      <section className="py-12 md:py-16 border-t border-white/5">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">Programs</span>
+          <div className="text-center mb-8">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">Programs</span>
             <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
               Structured Training Programs
             </h2>
