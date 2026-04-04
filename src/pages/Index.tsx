@@ -352,7 +352,7 @@ const Index = () => {
             <h2 className="font-heading text-3xl md:text-5xl text-white mb-5 tracking-wide">
               Start Training Today
             </h2>
-            <p className="text-white/50 font-light leading-relaxed mb-10">
+            <p className="text-white/50 font-light leading-relaxed mb-6">
               Download Apollo Nation and start your next workout.
             </p>
 

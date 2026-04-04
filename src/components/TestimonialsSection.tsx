@@ -20,9 +20,9 @@ const testimonials = [
 
 const TestimonialsSection = () => {
   return (
-    <section id="testimonials" className="py-20 md:py-28 border-t border-white/5">
+    <section id="testimonials" className="py-12 md:py-16 border-t border-white/5">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-14">
+        <div className="text-center mb-8">
           <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">
             Community
           </span>
