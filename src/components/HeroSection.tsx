@@ -31,7 +31,7 @@ const HeroSection = () => {
           >
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse flex-shrink-0" />
             <span className="text-[10px] text-white font-medium tracking-[0.2em] uppercase">
-              Elite Fitness Coaching
+              On-Demand Fitness Platform
             </span>
           </div>
 
