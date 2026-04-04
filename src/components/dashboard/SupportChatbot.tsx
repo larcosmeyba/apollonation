@@ -79,20 +79,9 @@ const SupportChatbot = () => {
                 Have a question?
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Send your coach a direct message and they'll get back to you as soon as possible.
+                Submit a support ticket and we'll get back to you as soon as possible.
               </p>
             </div>
-            <Button
-              variant="apollo"
-              className="w-full"
-              onClick={() => {
-                setIsOpen(false);
-                navigate("/dashboard/messages");
-              }}
-            >
-              <Send className="w-4 h-4 mr-2" />
-              Send a Message
-            </Button>
 
             {/* Recent tickets */}
             {tickets.length > 0 && (

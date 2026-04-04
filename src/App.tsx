@@ -15,7 +15,7 @@ import DashboardWorkouts from "./pages/DashboardWorkouts";
 import DashboardRecipes from "./pages/DashboardRecipes";
 import DashboardMacros from "./pages/DashboardMacros";
 import DashboardProfile from "./pages/DashboardProfile";
-import DashboardMessages from "./pages/DashboardMessages";
+
 import DashboardNutrition from "./pages/DashboardNutrition";
 import DashboardTraining from "./pages/DashboardTraining";
 import DashboardWorkoutDetail from "./pages/DashboardWorkoutDetail";
@@ -107,14 +107,6 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/messages"
-              element={
-                <ProtectedRoute>
-                  <DashboardMessages />
                 </ProtectedRoute>
               }
             />

@@ -118,7 +118,7 @@ const Auth = () => {
           <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-sm">
             {isAdminMode
               ? "Coach Panel — Manage your clients, programs, and content."
-              : "Elite training programs, personalized coaching, and custom nutrition plans."}
+              : "On-demand workouts, structured programs, and practical nutrition tools."}
           </p>
         </div>
       </div>

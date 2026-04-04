@@ -8,7 +8,6 @@ import {
   LogOut,
   Lock,
   Shield,
-  MessageSquare,
   Apple,
   Play,
   Camera,
@@ -17,7 +16,6 @@ import {
   Heart,
   ImageIcon,
 } from "lucide-react";
-import { useMessages } from "@/hooks/useMessages";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 import NotificationCenter from "./NotificationCenter";
 
@@ -25,16 +23,14 @@ const DashboardSidebar = () => {
   const { profile, signOut } = useAuth();
   const { isAdmin } = useAdminStatus();
   const location = useLocation();
-  const { unreadCount } = useMessages();
 
   const isElite = profile?.subscription_tier === "elite";
 
   const navItems = [
-    { label: "Today", href: "/dashboard", icon: LayoutDashboard, locked: false },
-    { label: "Train", href: "/dashboard/training", icon: Dumbbell, locked: false },
-    { label: "Inbox", href: "/dashboard/messages", icon: MessageSquare, locked: false, badge: unreadCount > 0 ? unreadCount : undefined },
-    { label: "Fuel", href: "/dashboard/nutrition", icon: Apple, locked: false },
-    { label: "On Demand", href: "/dashboard/workouts", icon: Play, locked: false },
+    { label: "Home", href: "/dashboard", icon: LayoutDashboard, locked: false },
+    { label: "Workouts", href: "/dashboard/workouts", icon: Play, locked: false },
+    { label: "Programs", href: "/dashboard/training", icon: Dumbbell, locked: false },
+    { label: "Nutrition", href: "/dashboard/nutrition", icon: Apple, locked: false },
     { label: "Calendar", href: "/dashboard/calendar", icon: Calendar, locked: false },
     { label: "Recipes", href: "/dashboard/recipes", icon: BookOpen, locked: false },
     { label: "Transformation", href: "/dashboard/transformation", icon: ImageIcon, locked: false },
@@ -92,11 +88,6 @@ const DashboardSidebar = () => {
           >
             <item.icon className="w-5 h-5" />
             <span className="flex-1">{item.label}</span>
-            {(item as any).badge && (
-              <span className="bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
-                {(item as any).badge}
-              </span>
-            )}
             {item.locked && (
               <div className="flex items-center gap-1 text-xs">
                 <Lock className="w-3 h-3" />

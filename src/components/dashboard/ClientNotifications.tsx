@@ -1,14 +1,13 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useMessages } from "@/hooks/useMessages";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { MessageSquare, ClipboardList, Camera, Dumbbell, X } from "lucide-react";
+import { ClipboardList, Camera, Dumbbell, X } from "lucide-react";
 import { useState } from "react";
 
 const ClientNotifications = () => {
   const { user, profile } = useAuth();
-  const { unreadCount } = useMessages();
+  
   const [dismissed, setDismissed] = useState<string[]>([]);
 
   // Check if questionnaire exists
@@ -43,17 +42,7 @@ const ClientNotifications = () => {
     enabled: !!user,
   });
 
-  const alerts: { id: string; icon: typeof MessageSquare; message: string; link: string; action: string }[] = [];
-
-  if (unreadCount > 0) {
-    alerts.push({
-      id: "unread-messages",
-      icon: MessageSquare,
-      message: `You have ${unreadCount} unread message${unreadCount > 1 ? "s" : ""} from your coach`,
-      link: "/dashboard/messages",
-      action: "View Messages",
-    });
-  }
+  const alerts: { id: string; icon: typeof ClipboardList; message: string; link: string; action: string }[] = [];
 
   if (hasQuestionnaire === false) {
     alerts.push({

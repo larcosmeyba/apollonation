@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Dumbbell, ChevronRight, Plus, MessageSquare, User, Footprints, Utensils } from "lucide-react";
+import { Dumbbell, ChevronRight, Plus, User, Footprints, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,8 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { format, startOfWeek, addDays, isSameDay, isToday } from "date-fns";
-import { useMessages } from "@/hooks/useMessages";
-import { useProfileLookup } from "@/hooks/useProfileLookup";
 import stockBack from "@/assets/stock-back.png";
 import stockArms from "@/assets/stock-arms.png";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
@@ -47,7 +45,7 @@ const MEAL_LABELS: Record<string, string> = {
 const Dashboard = () => {
   const { user, profile, subscription } = useAuth();
   const { toast } = useToast();
-  const { conversations, unreadCount } = useMessages();
+  
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const todayDate = format(new Date(), "EEEE, MMMM d");
@@ -181,10 +179,6 @@ const Dashboard = () => {
 
   const calPct = Math.min(Math.round((loggedTotals.calories / targets.calories) * 100), 100);
 
-  // Coach message preview
-  const latestConv = conversations[0];
-  const partnerIds = latestConv ? [latestConv.partnerId] : [];
-  const { data: msgProfiles } = useProfileLookup(partnerIds);
 
   const isRestDay = !todayWorkout;
   const isViewingToday = isSameDay(selectedDate, new Date());
@@ -451,23 +445,6 @@ const Dashboard = () => {
         <CoachInsights />
 
 
-        {/* Section 7 — Coach Message Preview */}
-        {latestConv && latestConv.unreadCount > 0 && (
-          <Link to="/dashboard/messages" className="block">
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 hover:bg-primary/10 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-                  <MessageSquare className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium">New message from Coach</p>
-                  <p className="text-[11px] text-muted-foreground truncate">{latestConv.lastMessage.content}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-primary flex-shrink-0" />
-              </div>
-            </div>
-          </Link>
-        )}
       </div>
     </DashboardLayout>
   );
