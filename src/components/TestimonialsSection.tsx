@@ -3,71 +3,57 @@ import { Star, Quote } from "lucide-react";
 const testimonials = [
   {
     name: "Marcus J.",
-    role: "Elite Member",
-    content: "Apollo Nation transformed my approach to wellness. The attention to detail and quality of instruction is unmatched.",
-    rating: 5
+    content: "The workouts are legit. I follow the programs, track my meals, and the results came faster than I expected.",
+    rating: 5,
   },
   {
     name: "Sarah K.",
-    role: "Premier Member",
-    content: "The programs are perfectly structured. As a busy professional, I appreciate the flexibility and the results speak for themselves.",
-    rating: 5
+    content: "Finally an app that keeps it simple. Programs are structured, nutrition is easy to follow, and I can train on my own time.",
+    rating: 5,
   },
   {
     name: "David R.",
-    role: "Elite Member",
-    content: "The personalized coaching has been transformative. My coach understands exactly what I need to reach my goals.",
-    rating: 5
-  }
+    content: "I've tried every fitness app out there. Apollo Nation is the one I actually stuck with. Clean, focused, no BS.",
+    rating: 5,
+  },
 ];
 
 const TestimonialsSection = () => {
   return (
-    <section id="testimonials" className="py-20 relative">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      
+    <section id="testimonials" className="py-20 md:py-28 border-t border-white/5">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-2xl mx-auto mb-20">
-          <span className="text-white/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
-            Testimonials
+        <div className="text-center mb-16">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">
+            Community
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.03em] text-white">
-            Stories of
-            <span className="text-white/70 block mt-2">Transformation</span>
+          <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide">
+            Real Results
           </h2>
-          <p className="text-white/70 text-base font-light leading-relaxed">
-            Real experiences from members who committed to their journey.
-          </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-          {testimonials.map((testimonial) => (
+        <div className="grid md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+          {testimonials.map((t) => (
             <div
-              key={testimonial.name}
-              className="relative p-8 border border-border bg-card/80 hover:border-white/15 transition-all duration-500 rounded-xl"
+              key={t.name}
+              className="relative p-6 border border-white/10 bg-card rounded-2xl"
             >
-              <Quote className="absolute top-6 right-6 w-8 h-8 text-foreground/10" strokeWidth={1} />
-              
-              <div className="flex gap-0.5 mb-6">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} size={12} className="text-[hsl(var(--apollo-star))] fill-[hsl(var(--apollo-star))]" />
+              <Quote className="absolute top-5 right-5 w-6 h-6 text-white/5" strokeWidth={1} />
+
+              <div className="flex gap-0.5 mb-4">
+                {[...Array(t.rating)].map((_, i) => (
+                  <Star key={i} size={10} className="text-white/60 fill-white/60" />
                 ))}
               </div>
 
-              <p className="text-foreground/70 mb-8 leading-relaxed font-light text-sm">
-                "{testimonial.content}"
+              <p className="text-white/50 mb-6 leading-relaxed font-light text-sm">
+                "{t.content}"
               </p>
 
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 border border-border flex items-center justify-center bg-muted rounded-full">
-                  <span className="font-heading text-foreground/70 text-sm tracking-wider">
-                    {testimonial.name[0]}
-                  </span>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 border border-white/10 flex items-center justify-center bg-muted rounded-full">
+                  <span className="font-heading text-white/50 text-xs">{t.name[0]}</span>
                 </div>
-                <div>
-                  <div className="font-medium text-foreground text-sm">{testimonial.name}</div>
-                  <div className="text-[10px] text-foreground/60 font-light">{testimonial.role}</div>
-                </div>
+                <span className="text-white/70 text-sm font-light">{t.name}</span>
               </div>
             </div>
           ))}
