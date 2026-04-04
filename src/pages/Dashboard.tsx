@@ -445,23 +445,6 @@ const Dashboard = () => {
         <CoachInsights />
 
 
-        {/* Section 7 — Coach Message Preview */}
-        {latestConv && latestConv.unreadCount > 0 && (
-          <Link to="/dashboard/messages" className="block">
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 hover:bg-primary/10 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-                  <MessageSquare className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium">New message from Coach</p>
-                  <p className="text-[11px] text-muted-foreground truncate">{latestConv.lastMessage.content}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-primary flex-shrink-0" />
-              </div>
-            </div>
-          </Link>
-        )}
       </div>
     </DashboardLayout>
   );
