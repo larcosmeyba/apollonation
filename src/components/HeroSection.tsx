@@ -31,7 +31,7 @@ const HeroSection = () => {
           >
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse flex-shrink-0" />
             <span className="text-[10px] text-white font-medium tracking-[0.2em] uppercase">
-              Elite Fitness Coaching
+              On-Demand Fitness Platform
             </span>
           </div>
 
@@ -45,8 +45,8 @@ const HeroSection = () => {
           <p 
             className={`text-lg md:text-xl text-white/80 max-w-xl mx-auto mb-12 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            Elite training programs, personalized coaching, and custom nutrition plans—
-            designed for those who refuse to be ordinary.
+            On-demand workouts, structured training programs, and practical nutrition guidance
+            designed to fit real life.
           </p>
 
           <div 
@@ -60,7 +60,7 @@ const HeroSection = () => {
             </Link>
             <a href="#features">
               <Button variant="apollo-outline" size="lg" className="min-w-[200px] h-14 text-base rounded-full">
-                Explore Coaching
+                Start Training
               </Button>
             </a>
           </div>
