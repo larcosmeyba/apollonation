@@ -60,7 +60,7 @@ const HeroSection = () => {
             </Link>
             <a href="#features">
               <Button variant="apollo-outline" size="lg" className="min-w-[200px] h-14 text-base rounded-full">
-                Explore Coaching
+                Start Training
               </Button>
             </a>
           </div>

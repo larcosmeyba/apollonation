@@ -111,7 +111,7 @@ const Index = () => {
               Your Training, Your Schedule
             </h2>
             <p className="text-white/50 font-light leading-relaxed text-base">
-              Apollo Nation is an on-demand fitness platform with everything you need to train, eat right, and stay consistent — no personal trainer required. Just open the app and get to work.
+              Apollo Nation is an on-demand fitness platform with everything you need to train, eat right, and stay consistent. Just open the app and get to work.
             </p>
           </div>
         </div>
