@@ -211,7 +211,7 @@ const DashboardWorkouts = () => {
         {/* Search bar (toggleable) */}
         {showSearch && (
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
             <Input
               placeholder="Search workouts..."
               value={searchQuery}
