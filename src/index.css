@@ -33,9 +33,9 @@
     --muted: 220 10% 12%;
     --muted-foreground: 210 8% 78%;
 
-    /* Accent — Apollo Gold */
-    --accent: 40 55% 51%;
-    --accent-foreground: 0 0% 0%;
+    /* Accent — Apollo Bronze Gold */
+    --accent: 32 45% 38%;
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
