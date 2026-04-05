@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subDays } from "date-fns";
-import { Trophy, Dumbbell, Flame, Zap, Star, Target, Award } from "lucide-react";
+import { Trophy, Dumbbell, Flame, Zap, Star, Target, Award, Heart, Shield, Medal } from "lucide-react";
 
 interface AchievementDef {
   id: string;
@@ -22,10 +22,18 @@ interface Stats {
 const ACHIEVEMENTS: AchievementDef[] = [
   { id: "first-workout", title: "First Rep", description: "Complete your first workout", icon: Dumbbell, check: (s) => s.totalWorkouts >= 1 },
   { id: "five-workouts", title: "Getting Started", description: "Complete 5 workouts", icon: Zap, check: (s) => s.totalWorkouts >= 5 },
+  { id: "ten-workouts", title: "Double Digits", description: "Complete 10 workouts", icon: Shield, check: (s) => s.totalWorkouts >= 10 },
   { id: "thirty-workouts", title: "Iron Will", description: "Complete 30 workouts", icon: Star, check: (s) => s.totalWorkouts >= 30 },
+  { id: "fifty-workouts", title: "Half Century", description: "Complete 50 workouts", icon: Medal, check: (s) => s.totalWorkouts >= 50 },
+  { id: "hundred-workouts", title: "Centurion", description: "Complete 100 workouts", icon: Trophy, check: (s) => s.totalWorkouts >= 100 },
+  { id: "two-hundred-workouts", title: "Unstoppable", description: "Complete 200 workouts", icon: Award, check: (s) => s.totalWorkouts >= 200 },
+  { id: "streak-3", title: "3 Day Streak", description: "Stay active 3 consecutive days", icon: Flame, check: (s) => s.currentStreak >= 3 },
   { id: "streak-7", title: "7 Day Streak", description: "Stay active for 7 consecutive days", icon: Flame, check: (s) => s.currentStreak >= 7 },
+  { id: "streak-14", title: "2 Week Streak", description: "14 consecutive active days", icon: Heart, check: (s) => s.currentStreak >= 14 },
   { id: "streak-30", title: "30 Day Streak", description: "30 consecutive active days", icon: Award, check: (s) => s.currentStreak >= 30 },
+  { id: "fuel-10", title: "Fuel Up", description: "Log 10 meals", icon: Target, check: (s) => s.totalMealsLogged >= 10 },
   { id: "fuel-master", title: "Fuel Master", description: "Log 50 meals", icon: Target, check: (s) => s.totalMealsLogged >= 50 },
+  { id: "fuel-legend", title: "Nutrition Pro", description: "Log 100 meals", icon: Star, check: (s) => s.totalMealsLogged >= 100 },
   { id: "new-pr", title: "New PR!", description: "Set a new personal record", icon: Trophy, check: (s) => s.hasPR },
 ];
 

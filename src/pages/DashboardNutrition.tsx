@@ -548,59 +548,59 @@ const DashboardNutrition = () => {
           </div>
 
           {/* ── Macro Calculator ── */}
-          <div className="bg-white rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <div className="bg-card rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading text-base tracking-wide text-black">Your Macro Targets</h2>
-              <button onClick={() => setMacroEditing(!macroEditing)} className="p-1.5 rounded-full hover:bg-black/10 transition-colors">
-                <Pencil className="w-4 h-4 text-black/60" />
+              <h2 className="font-heading text-base tracking-wide text-foreground">Your Macro Targets</h2>
+              <button onClick={() => setMacroEditing(!macroEditing)} className="p-1.5 rounded-full hover:bg-foreground/10 transition-colors">
+                <Pencil className="w-4 h-4 text-foreground/60" />
               </button>
             </div>
 
             {calculatedMacros && !macroEditing ? (
               <div className="grid grid-cols-4 gap-2">
-                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
-                  <p className="text-lg font-heading text-black">{calculatedMacros.calories}</p>
-                  <p className="text-[10px] text-black/60 font-semibold uppercase">Calories</p>
+                <div className="bg-foreground/5 rounded-xl p-3 text-center border border-border">
+                  <p className="text-lg font-heading text-foreground">{calculatedMacros.calories}</p>
+                  <p className="text-[10px] text-foreground/60 font-semibold uppercase">Calories</p>
                 </div>
-                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
-                  <p className="text-lg font-heading text-black">{calculatedMacros.protein}g</p>
-                  <p className="text-[10px] text-black/60 font-semibold uppercase">Protein</p>
+                <div className="bg-foreground/5 rounded-xl p-3 text-center border border-border">
+                  <p className="text-lg font-heading text-foreground">{calculatedMacros.protein}g</p>
+                  <p className="text-[10px] text-foreground/60 font-semibold uppercase">Protein</p>
                 </div>
-                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
-                  <p className="text-lg font-heading text-black">{calculatedMacros.carbs}g</p>
-                  <p className="text-[10px] text-black/60 font-semibold uppercase">Carbs</p>
+                <div className="bg-foreground/5 rounded-xl p-3 text-center border border-border">
+                  <p className="text-lg font-heading text-foreground">{calculatedMacros.carbs}g</p>
+                  <p className="text-[10px] text-foreground/60 font-semibold uppercase">Carbs</p>
                 </div>
-                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
-                  <p className="text-lg font-heading text-black">{calculatedMacros.fat}g</p>
-                  <p className="text-[10px] text-black/60 font-semibold uppercase">Fat</p>
+                <div className="bg-foreground/5 rounded-xl p-3 text-center border border-border">
+                  <p className="text-lg font-heading text-foreground">{calculatedMacros.fat}g</p>
+                  <p className="text-[10px] text-foreground/60 font-semibold uppercase">Fat</p>
                 </div>
                 <div className="col-span-4 mt-2 flex gap-2 flex-wrap">
-                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium capitalize">{macroCalc.goal.replace("_", " ")}</span>
-                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium capitalize">{macroCalc.activity_level.replace("_", " ")}</span>
-                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium">{macroCalc.height_ft}'{macroCalc.height_in}" · {macroCalc.weight} lbs</span>
+                  <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium capitalize">{macroCalc.goal.replace("_", " ")}</span>
+                  <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium capitalize">{macroCalc.activity_level.replace("_", " ")}</span>
+                  <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium">{macroCalc.height_ft}'{macroCalc.height_in}" · {macroCalc.weight} lbs</span>
                 </div>
               </div>
             ) : (
               <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Height (ft)</label>
-                    <Input type="number" placeholder="5" value={macroCalc.height_ft} onChange={(e) => setMacroCalc(p => ({ ...p, height_ft: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Height (ft)</label>
+                    <Input type="number" placeholder="5" value={macroCalc.height_ft} onChange={(e) => setMacroCalc(p => ({ ...p, height_ft: e.target.value }))} className="bg-foreground/5 border-border text-foreground h-9 text-sm" />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Height (in)</label>
-                    <Input type="number" placeholder="8" value={macroCalc.height_in} onChange={(e) => setMacroCalc(p => ({ ...p, height_in: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Height (in)</label>
+                    <Input type="number" placeholder="8" value={macroCalc.height_in} onChange={(e) => setMacroCalc(p => ({ ...p, height_in: e.target.value }))} className="bg-foreground/5 border-border text-foreground h-9 text-sm" />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Weight (lbs)</label>
-                    <Input type="number" placeholder="160" value={macroCalc.weight} onChange={(e) => setMacroCalc(p => ({ ...p, weight: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Weight (lbs)</label>
+                    <Input type="number" placeholder="160" value={macroCalc.weight} onChange={(e) => setMacroCalc(p => ({ ...p, weight: e.target.value }))} className="bg-foreground/5 border-border text-foreground h-9 text-sm" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Sex</label>
+                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Sex</label>
                     <Select value={macroCalc.sex} onValueChange={(v) => setMacroCalc(p => ({ ...p, sex: v }))}>
-                      <SelectTrigger className="bg-black/5 border-black/10 text-black h-9 text-sm"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="bg-foreground/5 border-border text-foreground h-9 text-sm"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="male">Male</SelectItem>
                         <SelectItem value="female">Female</SelectItem>
@@ -608,15 +608,15 @@ const DashboardNutrition = () => {
                     </Select>
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Age</label>
-                    <Input type="number" placeholder="25" value={macroCalc.age} onChange={(e) => setMacroCalc(p => ({ ...p, age: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Age</label>
+                    <Input type="number" placeholder="25" value={macroCalc.age} onChange={(e) => setMacroCalc(p => ({ ...p, age: e.target.value }))} className="bg-foreground/5 border-border text-foreground h-9 text-sm" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Activity Level</label>
+                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Activity Level</label>
                     <Select value={macroCalc.activity_level} onValueChange={(v) => setMacroCalc(p => ({ ...p, activity_level: v }))}>
-                      <SelectTrigger className="bg-black/5 border-black/10 text-black h-9 text-sm"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="bg-foreground/5 border-border text-foreground h-9 text-sm"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="sedentary">Sedentary</SelectItem>
                         <SelectItem value="light">Light</SelectItem>
@@ -627,9 +627,9 @@ const DashboardNutrition = () => {
                     </Select>
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Goal</label>
+                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Goal</label>
                     <Select value={macroCalc.goal} onValueChange={(v) => setMacroCalc(p => ({ ...p, goal: v }))}>
-                      <SelectTrigger className="bg-black/5 border-black/10 text-black h-9 text-sm"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="bg-foreground/5 border-border text-foreground h-9 text-sm"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="maintain">Maintain Weight</SelectItem>
                         <SelectItem value="lose_fat">Lose Fat</SelectItem>
@@ -653,11 +653,11 @@ const DashboardNutrition = () => {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <div className="bg-card rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-heading text-lg tracking-wide text-black">Today's Nutrition</h2>
-              <button onClick={() => setIsLogDialogOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-black text-white text-sm font-bold hover:bg-black/80 transition-colors">
-                <Plus className="w-3.5 h-3.5 text-white" /> Log Meal
+              <h2 className="font-heading text-lg tracking-wide text-foreground">Today's Nutrition</h2>
+              <button onClick={() => setIsLogDialogOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-sm font-bold hover:bg-foreground/80 transition-colors">
+                <Plus className="w-3.5 h-3.5 text-background" /> Log Meal
               </button>
             </div>
 
@@ -666,12 +666,12 @@ const DashboardNutrition = () => {
               {/* Big calorie ring - GREEN */}
               <div className="relative w-24 h-24 flex-shrink-0">
                 <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e5e7eb" strokeWidth="3" />
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
                   <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#22c55e" strokeWidth="3" strokeDasharray={`${dailyPercent}, 100`} strokeLinecap="round" className="transition-all duration-700" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-heading text-black">{remaining.calories}</span>
-                  <span className="text-[9px] text-black/60">cal left</span>
+                  <span className="text-xl font-heading text-foreground">{remaining.calories}</span>
+                  <span className="text-[9px] text-foreground/60">cal left</span>
                 </div>
               </div>
 
@@ -680,63 +680,63 @@ const DashboardNutrition = () => {
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="relative w-14 h-14">
                     <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e5e7eb" strokeWidth="3.5" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
                       <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(217, 91%, 67%)" strokeWidth="3.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.protein / targets.protein) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xs font-semibold text-black">{loggedTotals.protein}g</span>
+                      <span className="text-xs font-semibold text-foreground">{loggedTotals.protein}g</span>
                     </div>
                   </div>
-                  <span className="text-[10px] text-black/70 font-medium">Protein</span>
-                  <span className="text-[9px] text-black/50">{remaining.protein > 0 ? `${remaining.protein}g left` : "Done"}</span>
+                  <span className="text-[10px] text-foreground/70 font-medium">Protein</span>
+                  <span className="text-[9px] text-foreground/50">{remaining.protein > 0 ? `${remaining.protein}g left` : "Done"}</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="relative w-14 h-14">
                     <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e5e7eb" strokeWidth="3.5" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
                       <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(40, 95%, 64%)" strokeWidth="3.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.carbs / targets.carbs) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xs font-semibold text-black">{loggedTotals.carbs}g</span>
+                      <span className="text-xs font-semibold text-foreground">{loggedTotals.carbs}g</span>
                     </div>
                   </div>
-                  <span className="text-[10px] text-black/70 font-medium">Carbs</span>
-                  <span className="text-[9px] text-black/50">{remaining.carbs > 0 ? `${remaining.carbs}g left` : "Done"}</span>
+                  <span className="text-[10px] text-foreground/70 font-medium">Carbs</span>
+                  <span className="text-[9px] text-foreground/50">{remaining.carbs > 0 ? `${remaining.carbs}g left` : "Done"}</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="relative w-14 h-14">
                     <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e5e7eb" strokeWidth="3.5" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
                       <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(350, 80%, 65%)" strokeWidth="3.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.fat / targets.fat) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xs font-semibold text-black">{loggedTotals.fat}g</span>
+                      <span className="text-xs font-semibold text-foreground">{loggedTotals.fat}g</span>
                     </div>
                   </div>
-                  <span className="text-[10px] text-black/70 font-medium">Fat</span>
-                  <span className="text-[9px] text-black/50">{remaining.fat > 0 ? `${remaining.fat}g left` : "Done"}</span>
+                  <span className="text-[10px] text-foreground/70 font-medium">Fat</span>
+                  <span className="text-[9px] text-foreground/50">{remaining.fat > 0 ? `${remaining.fat}g left` : "Done"}</span>
                 </div>
               </div>
             </div>
 
             {/* Logged meals today */}
             {macroEntries.length > 0 && (
-              <div className="mt-5 pt-5 border-t border-black/10 space-y-2">
-                <p className="text-[10px] text-black/50 uppercase tracking-wider font-semibold mb-2">Logged Today</p>
+              <div className="mt-5 pt-5 border-t border-border space-y-2">
+                <p className="text-[10px] text-foreground/50 uppercase tracking-wider font-semibold mb-2">Logged Today</p>
                 {macroEntries.slice(0, 5).map((entry) => (
-                  <div key={entry.id} className="flex items-center justify-between p-3 rounded-xl bg-black/5 border border-black/10">
+                  <div key={entry.id} className="flex items-center justify-between p-3 rounded-xl bg-foreground/5 border border-border">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-black truncate">{entry.meal_name}</p>
-                      <p className="text-[10px] text-black/60">
+                      <p className="text-sm font-medium text-foreground truncate">{entry.meal_name}</p>
+                      <p className="text-[10px] text-foreground/60">
                         {entry.calories} cal · P:{entry.protein_grams}g · C:{entry.carbs_grams}g · F:{entry.fat_grams}g
                       </p>
                     </div>
-                    <button onClick={() => removeEntry(entry.id)} className="p-1.5 text-black/40 hover:text-destructive transition-colors">
+                    <button onClick={() => removeEntry(entry.id)} className="p-1.5 text-foreground/40 hover:text-destructive transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
-                {macroEntries.length > 5 && <p className="text-[10px] text-black/50 text-center">+{macroEntries.length - 5} more</p>}
+                {macroEntries.length > 5 && <p className="text-[10px] text-foreground/50 text-center">+{macroEntries.length - 5} more</p>}
               </div>
             )}
           </div>
@@ -755,20 +755,20 @@ const DashboardNutrition = () => {
                   <Link
                     key={recipe.id}
                     to="/dashboard/recipes"
-                    className="flex-shrink-0 w-40 rounded-2xl border border-black/10 bg-white overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all"
+                    className="flex-shrink-0 w-40 rounded-2xl border border-border bg-card overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all"
                   >
                     {recipe.thumbnail_url ? (
                       <div className="aspect-square overflow-hidden">
                         <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" loading="lazy" />
                       </div>
                     ) : (
-                      <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                      <div className="aspect-square bg-muted flex items-center justify-center">
                         <Utensils className="w-6 h-6 text-black/20" />
                       </div>
                     )}
                     <div className="p-3">
-                      <p className="text-xs font-semibold text-black line-clamp-2 leading-tight">{recipe.title}</p>
-                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-black/60">
+                      <p className="text-xs font-semibold text-foreground line-clamp-2 leading-tight">{recipe.title}</p>
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-foreground/60">
                         {recipe.calories_per_serving && <span>{recipe.calories_per_serving} cal</span>}
                         {recipe.prep_time_minutes && (
                           <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{recipe.prep_time_minutes}m</span>
@@ -824,9 +824,9 @@ const DashboardNutrition = () => {
               </div>
 
               <Tabs defaultValue="meals" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4 bg-white border border-black/10">
-                  <TabsTrigger value="meals" className="gap-2 text-xs text-black data-[state=active]:bg-black data-[state=active]:text-white"><Utensils className="w-3.5 h-3.5" /> Meal Plan</TabsTrigger>
-                  <TabsTrigger value="grocery" className="gap-2 text-xs text-black data-[state=active]:bg-black data-[state=active]:text-white"><ShoppingCart className="w-3.5 h-3.5" /> Grocery List</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 mb-4 bg-card border border-border">
+                  <TabsTrigger value="meals" className="gap-2 text-xs text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background"><Utensils className="w-3.5 h-3.5" /> Meal Plan</TabsTrigger>
+                  <TabsTrigger value="grocery" className="gap-2 text-xs text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background"><ShoppingCart className="w-3.5 h-3.5" /> Grocery List</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="meals">
@@ -846,14 +846,14 @@ const DashboardNutrition = () => {
                       const dayMeals = getMealsForDay(dayNum);
                       const totals = getDayTotals(dayNum);
                       return (
-                        <div key={dayNum} className="bg-white rounded-2xl border border-black/10 overflow-hidden shadow-sm">
-                          <div className="flex items-center justify-between px-4 py-3 border-b border-black/10">
+                        <div key={dayNum} className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+                          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                             <div className="flex items-center gap-2">
-                              <span className="font-heading text-sm text-black">{dayLabel(dayNum)}</span>
-                              <span className="text-[10px] text-black/50">Day {dayNum}</span>
+                              <span className="font-heading text-sm text-foreground">{dayLabel(dayNum)}</span>
+                              <span className="text-[10px] text-foreground/50">Day {dayNum}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-[10px] text-black/60">
-                              <Badge variant="outline" className="font-normal text-[10px] py-0 border-black/20 text-black">{totals.calories} cal</Badge>
+                            <div className="flex items-center gap-2 text-[10px] text-foreground/60">
+                              <Badge variant="outline" className="font-normal text-[10px] py-0 border-border text-foreground">{totals.calories} cal</Badge>
                               <span>P{totals.protein}g</span>
                               <span>C{totals.carbs}g</span>
                               <span>F{totals.fat}g</span>
@@ -864,14 +864,14 @@ const DashboardNutrition = () => {
                             {dayMeals.length > 0 ? dayMeals.map((meal) => {
                               const isEaten = macroEntries.some(e => e.notes === `meal:${meal.id}`);
                               return (
-                              <div key={meal.id} className={`px-4 py-3 ${isEaten ? "bg-green-50" : ""}`}>
+                              <div key={meal.id} className={`px-4 py-3 ${isEaten ? "bg-green-500/10" : ""}`}>
                                 {editingMealId === meal.id ? (
                                   <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                      <span className="text-xs font-medium text-black/50">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</span>
+                                      <span className="text-xs font-medium text-foreground/50">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</span>
                                       <div className="flex gap-1">
-                                        <Button variant="ghost" size="sm" onClick={saveMealEdit} className="h-7 w-7 p-0 text-black"><Save className="w-3.5 h-3.5" /></Button>
-                                        <Button variant="ghost" size="sm" onClick={() => setEditingMealId(null)} className="h-7 w-7 p-0 text-black"><X className="w-3.5 h-3.5" /></Button>
+                                        <Button variant="ghost" size="sm" onClick={saveMealEdit} className="h-7 w-7 p-0 text-foreground"><Save className="w-3.5 h-3.5" /></Button>
+                                        <Button variant="ghost" size="sm" onClick={() => setEditingMealId(null)} className="h-7 w-7 p-0 text-foreground"><X className="w-3.5 h-3.5" /></Button>
                                       </div>
                                     </div>
                                     <Input value={editForm.meal_name} onChange={(e) => setEditForm({ ...editForm, meal_name: e.target.value })} placeholder="Meal name" className="h-8 text-sm" />
@@ -919,11 +919,11 @@ const DashboardNutrition = () => {
                                             }
                                           }
                                         }}
-                                        className={`${isEaten ? "data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" : "border-black/30"}`}
+                                        className={`${isEaten ? "data-[state=checked]:bg-green-500/100 data-[state=checked]:border-green-500" : "border-black/30"}`}
                                       />
                                     </div>
                                     {/* Food Photo */}
-                                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
                                       <img
                                         src={getMealImage(meal.meal_name, meal.meal_type)}
                                         alt={meal.meal_name}
@@ -932,16 +932,16 @@ const DashboardNutrition = () => {
                                       />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-[10px] text-black/50 uppercase tracking-wider mb-0.5">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</p>
-                                      <p className={`font-medium text-sm text-black ${isEaten ? "line-through text-green-600" : ""}`}>{meal.meal_name}</p>
-                                      {meal.description && <p className="text-xs text-black/60 mt-0.5 line-clamp-2">{meal.description}</p>}
+                                      <p className="text-[10px] text-foreground/50 uppercase tracking-wider mb-0.5">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</p>
+                                      <p className={`font-medium text-sm text-foreground ${isEaten ? "line-through text-green-600" : ""}`}>{meal.meal_name}</p>
+                                      {meal.description && <p className="text-xs text-foreground/60 mt-0.5 line-clamp-2">{meal.description}</p>}
                                       {Array.isArray(meal.ingredients) && meal.ingredients.length > 0 && (
-                                        <ul className="mt-1.5 text-[10px] text-black/50 list-disc list-inside space-y-0">
+                                        <ul className="mt-1.5 text-[10px] text-foreground/50 list-disc list-inside space-y-0">
                                           {(meal.ingredients as string[]).slice(0, 4).map((ing, i) => <li key={i}>{ing}</li>)}
                                           {(meal.ingredients as string[]).length > 4 && <li>+{(meal.ingredients as string[]).length - 4} more</li>}
                                         </ul>
                                       )}
-                                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-black/60">
+                                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-foreground/60">
                                         <span>{meal.calories} cal</span>
                                         <span>P: {meal.protein_grams}g</span>
                                         <span>C: {meal.carbs_grams}g</span>
@@ -949,10 +949,10 @@ const DashboardNutrition = () => {
                                       </div>
                                     </div>
                                     <div className="flex gap-1 flex-shrink-0">
-                                      <Button variant="ghost" size="sm" onClick={() => openSwap(meal)} className="text-[10px] h-7 px-2 gap-1 text-black/50 hover:text-black">
+                                      <Button variant="ghost" size="sm" onClick={() => openSwap(meal)} className="text-[10px] h-7 px-2 gap-1 text-foreground/50 hover:text-foreground">
                                         <RefreshCw className="w-3 h-3" /> Change
                                       </Button>
-                                      <Button variant="ghost" size="sm" onClick={() => startEditMeal(meal)} className="text-[10px] h-7 px-2 gap-1 text-black/50 hover:text-black">
+                                      <Button variant="ghost" size="sm" onClick={() => startEditMeal(meal)} className="text-[10px] h-7 px-2 gap-1 text-foreground/50 hover:text-foreground">
                                         <Edit2 className="w-3 h-3" />
                                       </Button>
                                     </div>
@@ -960,7 +960,7 @@ const DashboardNutrition = () => {
                                 )}
                               </div>
                             );}) : (
-                              <p className="px-4 py-6 text-center text-sm text-black/40">No meals for this day.</p>
+                              <p className="px-4 py-6 text-center text-sm text-foreground/40">No meals for this day.</p>
                             )}
                           </div>
                         </div>
@@ -971,11 +971,11 @@ const DashboardNutrition = () => {
 
                 <TabsContent value="grocery">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-white border border-black/10">
+                    <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" disabled={groceryWeek <= 1} onClick={() => setGroceryWeek(w => w - 1)} className="text-black"><ChevronLeft className="w-4 h-4" /></Button>
-                        <span className="font-heading text-sm text-black">Week {groceryWeek}</span>
-                        <Button variant="ghost" size="sm" disabled={groceryWeek >= (activePlan.duration_weeks || 4)} onClick={() => setGroceryWeek(w => w + 1)} className="text-black"><ChevronRight className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="sm" disabled={groceryWeek <= 1} onClick={() => setGroceryWeek(w => w - 1)} className="text-foreground"><ChevronLeft className="w-4 h-4" /></Button>
+                        <span className="font-heading text-sm text-foreground">Week {groceryWeek}</span>
+                        <Button variant="ghost" size="sm" disabled={groceryWeek >= (activePlan.duration_weeks || 4)} onClick={() => setGroceryWeek(w => w + 1)} className="text-foreground"><ChevronRight className="w-4 h-4" /></Button>
                       </div>
                       <Button variant="apollo" size="sm" onClick={() => groceryMutation.mutate({ planId: activePlan.id, week: groceryWeek })} disabled={groceryMutation.isPending} className="text-xs gap-1.5">
                         {groceryMutation.isPending ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating</> : <><ShoppingCart className="w-3.5 h-3.5" /> Generate</>}
@@ -985,27 +985,27 @@ const DashboardNutrition = () => {
                     {groceryList && (
                       <>
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-white border border-black/10 rounded-lg p-3 flex items-center gap-2">
-                            <Store className="w-4 h-4 text-black/50 flex-shrink-0" />
-                            <div><p className="text-[10px] text-black/50">Store</p><p className="text-sm font-medium text-black truncate">{groceryList.store}</p></div>
+                          <div className="bg-card border border-border rounded-lg p-3 flex items-center gap-2">
+                            <Store className="w-4 h-4 text-foreground/50 flex-shrink-0" />
+                            <div><p className="text-[10px] text-foreground/50">Store</p><p className="text-sm font-medium text-foreground truncate">{groceryList.store}</p></div>
                           </div>
-                          <div className={`rounded-lg border p-3 flex items-center gap-2 ${groceryList.budget_status === "over_budget" ? "bg-red-50 border-red-200" : "bg-white border-black/10"}`}>
-                            <DollarSign className="w-4 h-4 text-black/50 flex-shrink-0" />
-                            <div><p className="text-[10px] text-black/50">Est. Total</p><p className="text-sm font-medium text-black">${groceryList.estimated_total.toFixed(2)}<span className="text-[10px] text-black/50 ml-1">/ {groceryList.budget}</span></p></div>
+                          <div className={`rounded-lg border p-3 flex items-center gap-2 ${groceryList.budget_status === "over_budget" ? "bg-red-500/10 border-red-500/20" : "bg-card border-border"}`}>
+                            <DollarSign className="w-4 h-4 text-foreground/50 flex-shrink-0" />
+                            <div><p className="text-[10px] text-foreground/50">Est. Total</p><p className="text-sm font-medium text-foreground">${groceryList.estimated_total.toFixed(2)}<span className="text-[10px] text-foreground/50 ml-1">/ {groceryList.budget}</span></p></div>
                           </div>
                         </div>
 
                         {groceryList.categories.map((cat) => (
-                          <div key={cat.name} className="rounded-xl border border-black/10 bg-white overflow-hidden">
-                            <div className="px-4 py-2.5 border-b border-black/10"><h4 className="font-heading text-sm text-black">{cat.name}</h4></div>
+                          <div key={cat.name} className="rounded-xl border border-border bg-card overflow-hidden">
+                            <div className="px-4 py-2.5 border-b border-border"><h4 className="font-heading text-sm text-foreground">{cat.name}</h4></div>
                             <div className="divide-y divide-black/5">
                               {cat.items.map((item, i) => (
                                 <div key={i} className="flex items-center justify-between px-4 py-2">
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-black truncate">{item.name}</p>
-                                    <p className="text-[10px] text-black/50">{item.quantity}{item.note ? ` · ${item.note}` : ""}</p>
+                                    <p className="text-sm text-foreground truncate">{item.name}</p>
+                                    <p className="text-[10px] text-foreground/50">{item.quantity}{item.note ? ` · ${item.note}` : ""}</p>
                                   </div>
-                                  <span className="text-sm text-black/60 ml-2">${item.estimated_price.toFixed(2)}</span>
+                                  <span className="text-sm text-foreground/60 ml-2">${item.estimated_price.toFixed(2)}</span>
                                 </div>
                               ))}
                             </div>

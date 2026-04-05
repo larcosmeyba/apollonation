@@ -192,6 +192,14 @@ const DashboardProfile = () => {
     { icon: Trophy, label: "100 Workouts", tag: "100 WORKOUTS", unlocked: (totalStats?.workouts || 0) >= 100, desc: "Complete 100 workouts" },
     { icon: Zap, label: "3-Day Streak", tag: "3X DAYS", unlocked: (weeklyActivity?.activeDays || 0) >= 3, desc: "3 active days in a week" },
     { icon: Target, label: "7-Day Streak", tag: "7X DAYS", unlocked: (weeklyActivity?.activeDays || 0) >= 7, desc: "7 active days in a week" },
+    { icon: Star, label: "200 Workouts", tag: "200 WORKOUTS", unlocked: (totalStats?.workouts || 0) >= 200, desc: "Complete 200 workouts" },
+    { icon: Trophy, label: "500 Workouts", tag: "500 WORKOUTS", unlocked: (totalStats?.workouts || 0) >= 500, desc: "Complete 500 workouts" },
+    { icon: Zap, label: "5-Day Streak", tag: "5X DAYS", unlocked: (weeklyActivity?.activeDays || 0) >= 5, desc: "5 active days in a week" },
+    { icon: Heart, label: "First Favorite", tag: "1ST FAVE", unlocked: (totalStats?.favorites || 0) >= 1, desc: "Save your first workout" },
+    { icon: Shield, label: "10 Favorites", tag: "10 FAVES", unlocked: (totalStats?.favorites || 0) >= 10, desc: "Save 10 workouts" },
+    { icon: Target, label: "Month Strong", tag: "30 WORKOUTS", unlocked: (totalStats?.workouts || 0) >= 30, desc: "Complete 30 workouts" },
+    { icon: Award, label: "Centurion", tag: "CENTURION", unlocked: (totalStats?.workouts || 0) >= 100, desc: "Join the 100 club" },
+    { icon: Dumbbell, label: "10 Workouts", tag: "10 WORKOUTS", unlocked: (totalStats?.workouts || 0) >= 10, desc: "Complete 10 workouts" },
   ];
 
   const [showAllAchievements, setShowAllAchievements] = useState(false);
