@@ -606,10 +606,10 @@ const DashboardNutrition = () => {
                 </div>
               )}
 
-              {/* Weekly refresh banner */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/10 border border-accent/20">
-                <Sparkles className="w-4 h-4 text-accent flex-shrink-0" />
-                <p className="text-xs text-muted-foreground flex-1">Meals refresh every Monday. Want something different? Hit regenerate.</p>
+              {/* Weekly refresh banner - blue accent */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                <Sparkles className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                <p className="text-xs text-white flex-1">Meals refresh every Monday. Want something different? Hit regenerate.</p>
               </div>
 
               <Tabs defaultValue="meals" className="w-full">
