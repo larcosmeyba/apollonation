@@ -102,9 +102,9 @@ const Index = () => {
           className="absolute inset-0 w-full h-full object-cover object-[50%_30%] -z-[1]"
         />
 
-        {/* Cinematic dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
+        {/* Cinematic dark overlay — lighter to show athlete */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/30 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
