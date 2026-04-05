@@ -23,8 +23,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <DashboardMobileNav />
         </div>
 
-        {/* Page content */}
-        <main className="flex-1 p-4 lg:p-8 overflow-auto pb-24 lg:pb-8 min-h-0">{children}</main>
+        {/* Page content — generous padding, refined spacing */}
+        <main className="flex-1 px-5 py-6 lg:px-10 lg:py-8 overflow-auto pb-24 lg:pb-8 min-h-0">{children}</main>
 
         {/* Mobile bottom tabs */}
         <DashboardBottomTabs />

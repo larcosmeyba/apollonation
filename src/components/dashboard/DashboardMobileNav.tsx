@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 import NotificationCenter from "./NotificationCenter";
@@ -8,22 +7,26 @@ const DashboardMobileNav = () => {
   const { profile } = useAuth();
 
   return (
-    <header className="bg-background border-b border-border p-4">
+    <header className="bg-background/80 backdrop-blur-2xl border-b border-border/30 px-5 py-3">
       <div className="flex items-center justify-between">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <img src={apolloLogo} alt="Apollo Nation" className="w-8 h-8 invert" />
-          <span className="font-heading text-sm tracking-wider text-foreground">
-            APOLLO <span className="text-primary">NATION</span>
+        <Link to="/dashboard" className="flex items-center gap-2.5">
+          <img src={apolloLogo} alt="Apollo Nation" className="w-7 h-7 invert" />
+          <span className="font-heading text-xs tracking-[0.25em] text-foreground/90">
+            APOLLO
           </span>
         </Link>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <NotificationCenter />
           <Link
             to="/dashboard/profile"
-            className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center hover:bg-primary/25 transition-colors"
+            className="w-8 h-8 rounded-full bg-foreground/5 border border-border/50 flex items-center justify-center hover:bg-foreground/10 transition-colors"
           >
-            <User className="w-5 h-5 text-primary" />
+            {profile?.display_name ? (
+              <span className="text-[10px] font-medium text-foreground/70">{profile.display_name.charAt(0).toUpperCase()}</span>
+            ) : (
+              <span className="text-[10px] font-medium text-foreground/40">?</span>
+            )}
           </Link>
         </div>
       </div>
