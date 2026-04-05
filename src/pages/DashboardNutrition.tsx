@@ -246,10 +246,10 @@ const DashboardNutrition = () => {
 
   // ── Derived state ──
   const targets = {
-    calories: activePlan?.daily_calories || 2500,
-    protein: activePlan?.protein_grams || 180,
-    carbs: activePlan?.carbs_grams || 300,
-    fat: activePlan?.fat_grams || 70,
+    calories: activePlan?.daily_calories || calculatedMacros?.calories || 2500,
+    protein: activePlan?.protein_grams || calculatedMacros?.protein || 180,
+    carbs: activePlan?.carbs_grams || calculatedMacros?.carbs || 300,
+    fat: activePlan?.fat_grams || calculatedMacros?.fat || 70,
   };
 
   const loggedTotals = macroEntries.reduce(
