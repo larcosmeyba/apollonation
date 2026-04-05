@@ -429,7 +429,7 @@ const DashboardWorkouts = () => {
                     </p>
                     <DialogTitle className="text-xl font-bold text-foreground">{selectedWorkout.title}</DialogTitle>
                     {selectedWorkout.description && (
-                      <p className="text-foreground/60 text-sm mt-1">{selectedWorkout.description}</p>
+                      <p className="text-white text-sm mt-1">{selectedWorkout.description}</p>
                     )}
                   </DialogHeader>
 
