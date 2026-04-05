@@ -281,7 +281,7 @@ const Index = () => {
       <section id="nutrition" className="py-20 md:py-28 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <span className="section-label text-accent mb-3 block">Nutrition</span>
+            <span className="section-label mb-3 block">Nutrition</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
               Fuel Your Training
             </h2>
