@@ -441,81 +441,65 @@ const DashboardNutrition = () => {
             <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
           </div>
 
-          {/* ── Calories & Macros Tracker (like home screen) ── */}
-          <div className="rounded-xl border border-border bg-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-heading text-sm">Today's Calories & Macros</h2>
-              <Button variant="apollo-outline" size="sm" onClick={() => setIsLogDialogOpen(true)}>
-                <Plus className="w-3.5 h-3.5 mr-1.5" /> Log Meal
+          {/* ── Nutrition Summary Card ── */}
+          <div className="card-apollo">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="font-heading text-lg tracking-wide">Today's Nutrition</h2>
+              <Button variant="apollo" size="sm" onClick={() => setIsLogDialogOpen(true)} className="gap-1.5 rounded-full">
+                <Plus className="w-3.5 h-3.5" /> Log Meal
               </Button>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Remaining</p>
-                <p className="text-2xl font-heading">
-                  {remaining.calories}
-                  <span className="text-xs text-muted-foreground font-normal ml-1">Cal left</span>
-                </p>
-                <div className="space-y-1.5 mt-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold text-blue-400 w-3">P</span>
-                    <MacroBar current={loggedTotals.protein} target={targets.protein} color="bg-blue-400" />
-                    <span className="text-[10px] text-muted-foreground w-14 text-right">{remaining.protein}g left</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold text-amber-400 w-3">C</span>
-                    <MacroBar current={loggedTotals.carbs} target={targets.carbs} color="bg-amber-400" />
-                    <span className="text-[10px] text-muted-foreground w-14 text-right">{remaining.carbs}g left</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold text-rose-400 w-3">F</span>
-                    <MacroBar current={loggedTotals.fat} target={targets.fat} color="bg-rose-400" />
-                    <span className="text-[10px] text-muted-foreground w-14 text-right">{remaining.fat}g left</span>
-                  </div>
+            {/* Calorie hero + macro rings */}
+            <div className="flex items-center gap-6">
+              {/* Big calorie ring */}
+              <div className="relative w-24 h-24 flex-shrink-0">
+                <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--accent))" strokeWidth="3" strokeDasharray={`${dailyPercent}, 100`} strokeLinecap="round" className="transition-all duration-700" />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-xl font-heading text-foreground">{remaining.calories}</span>
+                  <span className="text-[9px] text-muted-foreground">cal left</span>
                 </div>
               </div>
 
-              {/* Circular % */}
-              <div className="relative w-18 h-18 flex-shrink-0">
-                <svg className="w-18 h-18 -rotate-90" viewBox="0 0 36 36" style={{ width: 72, height: 72 }}>
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray={`${dailyPercent}, 100`} strokeLinecap="round" />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-sm font-heading">{dailyPercent}%</span>
-                  <span className="text-[8px] text-muted-foreground">daily</span>
-                </div>
+              {/* Macro rings */}
+              <div className="flex flex-1 justify-around">
+                <MacroRing current={loggedTotals.protein} target={targets.protein} color="hsl(217, 91%, 67%)" label="Protein" />
+                <MacroRing current={loggedTotals.carbs} target={targets.carbs} color="hsl(40, 95%, 64%)" label="Carbs" />
+                <MacroRing current={loggedTotals.fat} target={targets.fat} color="hsl(350, 80%, 65%)" label="Fat" />
               </div>
             </div>
 
-            {/* Logged meals */}
+            {/* Logged meals today */}
             {macroEntries.length > 0 && (
-              <div className="mt-4 space-y-2">
+              <div className="mt-5 pt-5 border-t border-border/50 space-y-2">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-2">Logged Today</p>
                 {macroEntries.slice(0, 5).map((entry) => (
-                  <div key={entry.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
+                  <div key={entry.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/30">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{entry.meal_name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {entry.calories} cal · P:{entry.protein_grams} C:{entry.carbs_grams} F:{entry.fat_grams}
+                      <p className="text-sm font-medium text-foreground truncate">{entry.meal_name}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {entry.calories} cal · P:{entry.protein_grams}g · C:{entry.carbs_grams}g · F:{entry.fat_grams}g
                       </p>
                     </div>
-                    <button onClick={() => removeEntry(entry.id)} className="p-1 text-muted-foreground hover:text-destructive">
-                      <Trash2 className="w-3 h-3" />
+                    <button onClick={() => removeEntry(entry.id)} className="p-1.5 text-muted-foreground hover:text-destructive transition-colors">
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
-                {macroEntries.length > 5 && <p className="text-xs text-muted-foreground text-center">+{macroEntries.length - 5} more</p>}
+                {macroEntries.length > 5 && <p className="text-[10px] text-muted-foreground text-center">+{macroEntries.length - 5} more</p>}
               </div>
             )}
           </div>
 
-          {/* ── Horizontal Recipes Row ── */}
+          {/* ── Recipe Strip ── */}
           {recipes.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="font-heading text-lg tracking-wide">Recipes</h2>
-                <Link to="/dashboard/recipes" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/dashboard/recipes" className="text-xs text-accent hover:text-accent/80 transition-colors font-medium">
                   View All →
                 </Link>
               </div>
@@ -524,7 +508,7 @@ const DashboardNutrition = () => {
                   <Link
                     key={recipe.id}
                     to="/dashboard/recipes"
-                    className="flex-shrink-0 w-40 rounded-xl border border-border bg-card overflow-hidden hover:border-foreground/20 transition-all"
+                    className="flex-shrink-0 w-40 rounded-2xl border border-border bg-card overflow-hidden hover:border-accent/30 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all"
                   >
                     {recipe.thumbnail_url ? (
                       <div className="aspect-square overflow-hidden">
@@ -532,12 +516,12 @@ const DashboardNutrition = () => {
                       </div>
                     ) : (
                       <div className="aspect-square bg-muted flex items-center justify-center">
-                        <Utensils className="w-6 h-6 text-muted-foreground/20" />
+                        <Utensils className="w-6 h-6 text-muted-foreground/30" />
                       </div>
                     )}
-                    <div className="p-2.5">
-                      <p className="text-xs font-medium line-clamp-2 leading-tight">{recipe.title}</p>
-                      <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
+                    <div className="p-3">
+                      <p className="text-xs font-semibold text-foreground line-clamp-2 leading-tight">{recipe.title}</p>
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-muted-foreground">
                         {recipe.calories_per_serving && <span>{recipe.calories_per_serving} cal</span>}
                         {recipe.prep_time_minutes && (
                           <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{recipe.prep_time_minutes}m</span>
