@@ -156,7 +156,6 @@ const IPhoneMockup = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  // Scroll-triggered screen change
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -186,7 +185,6 @@ const IPhoneMockup = () => {
     return () => observer.disconnect();
   }, [activeIdx]);
 
-  // Also listen to scroll for finer control
   useEffect(() => {
     const handleScroll = () => {
       const section = sectionRef.current;
@@ -211,12 +209,10 @@ const IPhoneMockup = () => {
 
   return (
     <div ref={sectionRef} className="flex justify-center">
-      {/* Glow behind phone */}
       <div className="relative">
-        <div className="absolute -inset-10 bg-accent/8 rounded-full blur-3xl" />
-        <div className="absolute -inset-20 bg-accent/4 rounded-full blur-[80px]" />
+        <div className="absolute -inset-10 bg-white/5 rounded-full blur-3xl" />
+        <div className="absolute -inset-20 bg-white/3 rounded-full blur-[80px]" />
 
-        {/* Phone with 3D perspective + float animation */}
         <div
           className="relative animate-phone-float"
           style={{
@@ -224,19 +220,14 @@ const IPhoneMockup = () => {
             transformStyle: "preserve-3d",
           }}
         >
-          {/* Long shadow behind */}
           <div
             className="absolute -bottom-8 left-2 right-2 h-20 rounded-[2rem] bg-black/50 blur-3xl"
             style={{ transform: "translateZ(-40px)" }}
           />
-          {/* Soft shadow directly under */}
           <div className="absolute -bottom-4 left-1 right-1 h-10 rounded-[2rem] bg-black/40 blur-xl" />
 
-          {/* iPhone 15 Frame — larger */}
           <div className="w-[300px] md:w-[340px] rounded-[2.5rem] bg-gradient-to-b from-[#2A2E36] to-[#1a1d23] p-[3px] shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative">
-            {/* Inner bezel */}
             <div className="rounded-[2.3rem] bg-background overflow-hidden relative">
-              {/* Dynamic Island */}
               <div className="flex justify-center pt-2 pb-1 relative z-10">
                 <div className="w-[90px] h-[28px] bg-black rounded-full flex items-center justify-center gap-2">
                   <div className="w-[10px] h-[10px] rounded-full bg-[#1a1d23] ring-1 ring-[#2A2E36]" />
@@ -244,7 +235,6 @@ const IPhoneMockup = () => {
                 </div>
               </div>
 
-              {/* Status bar */}
               <div className="flex items-center justify-between px-6 pb-1">
                 <span className="text-[9px] text-muted-foreground font-medium">9:41</span>
                 <div className="flex gap-1 items-center">
@@ -260,17 +250,14 @@ const IPhoneMockup = () => {
                 </div>
               </div>
 
-              {/* Screen label */}
               <div className="px-5 pt-1 pb-2">
                 <h4 className="text-[13px] text-foreground font-bold">{screen.label}</h4>
               </div>
 
-              {/* Screen content with transition */}
               <div className={`transition-all duration-300 ease-out min-h-[320px] ${isTransitioning ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
                 {screen.content}
               </div>
 
-              {/* Bottom nav */}
               <div className="border-t border-border/50 px-2 pb-4 pt-2 mt-1">
                 <div className="flex justify-around">
                   {TABS.map((tab) => (
@@ -282,13 +269,11 @@ const IPhoneMockup = () => {
                     </div>
                   ))}
                 </div>
-                {/* Home indicator */}
                 <div className="flex justify-center mt-2">
                   <div className="w-[100px] h-[4px] bg-foreground/20 rounded-full" />
                 </div>
               </div>
 
-              {/* Glass reflection overlay */}
               <div
                 className="absolute inset-0 rounded-[2.3rem] pointer-events-none"
                 style={{
@@ -297,7 +282,6 @@ const IPhoneMockup = () => {
               />
             </div>
 
-            {/* Side buttons */}
             <div className="absolute -left-[2px] top-[80px] w-[3px] h-[28px] bg-[#2A2E36] rounded-l-sm" />
             <div className="absolute -left-[2px] top-[120px] w-[3px] h-[44px] bg-[#2A2E36] rounded-l-sm" />
             <div className="absolute -left-[2px] top-[172px] w-[3px] h-[44px] bg-[#2A2E36] rounded-l-sm" />
@@ -305,7 +289,7 @@ const IPhoneMockup = () => {
           </div>
         </div>
 
-        {/* Screen indicator dots */}
+        {/* Dots — now white */}
         <div className="flex justify-center gap-2 mt-8">
           {SCREENS.map((s, i) => (
             <button
@@ -317,7 +301,7 @@ const IPhoneMockup = () => {
                   setIsTransitioning(false);
                 }, 150);
               }}
-              className={`transition-all duration-300 rounded-full ${i === activeIdx ? "w-6 h-2 bg-accent" : "w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"}`}
+              className={`transition-all duration-300 rounded-full ${i === activeIdx ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/30 hover:bg-white/50"}`}
               aria-label={`View ${s.label}`}
             />
           ))}

@@ -374,6 +374,36 @@ export type Database = {
           },
         ]
       }
+      coach_applications: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          reason: string | null
+          social_media_following: string | null
+          social_media_handle: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          reason?: string | null
+          social_media_following?: string | null
+          social_media_handle?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          reason?: string | null
+          social_media_following?: string | null
+          social_media_handle?: string | null
+        }
+        Relationships: []
+      }
       coach_insights: {
         Row: {
           category: string

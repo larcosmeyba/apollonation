@@ -39,13 +39,6 @@ const WORKOUT_CATEGORIES = [
   { title: "Core", image: marcos7 },
 ];
 
-const PROGRAMS = [
-  { title: "Beginner Strength", duration: "4 weeks", schedule: "3x / week", level: "Beginner" },
-  { title: "Apollo Sculpt", duration: "6 weeks", schedule: "4x / week", level: "Intermediate" },
-  { title: "Full Body Power", duration: "8 weeks", schedule: "4x / week", level: "Intermediate" },
-  { title: "Athlete Conditioning", duration: "6 weeks", schedule: "5x / week", level: "Advanced" },
-];
-
 const APP_FEATURES = [
   "Workout library",
   "Progress tracking",
@@ -96,7 +89,6 @@ const Index = () => {
           className="absolute inset-0 w-full h-full object-cover object-[50%_30%] -z-[1]"
         />
 
-        {/* Lighter overlay so athlete is more visible */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/20 via-transparent to-background/20" />
 
@@ -105,11 +97,11 @@ const Index = () => {
             <h1
               className={`font-heading text-5xl sm:text-6xl md:text-7xl lg:text-[80px] leading-[1.1] mb-6 transition-all duration-1000 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
-              <span className="block text-foreground uppercase tracking-wider">Train With Structure</span>
+              <span className="block text-white uppercase tracking-wider font-bold">Train With Structure</span>
             </h1>
 
             <p
-              className={`text-lg md:text-xl text-foreground/80 max-w-xl mx-auto mb-10 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              className={`text-lg md:text-xl text-white max-w-xl mx-auto mb-10 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
               Apollo Nation is a modern training platform designed to help you build strength, discipline, and longevity.
             </p>
@@ -117,7 +109,11 @@ const Index = () => {
             <div
               className={`flex items-center justify-center transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
-              <Button variant="apollo" size="lg" className="group h-14 px-10 text-base rounded-full" onClick={scrollToDownload}>
+              <Button
+                size="lg"
+                className="group h-14 px-10 text-base rounded-full bg-white text-black hover:bg-white/90 border border-white font-semibold"
+                onClick={scrollToDownload}
+              >
                 Download the App
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
               </Button>
@@ -130,7 +126,7 @@ const Index = () => {
       <section id="pillars" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="section-label mb-3 block">The Platform</span>
+            <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">The Platform</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight">
               Everything You Need to Train
             </h2>
@@ -140,13 +136,13 @@ const Index = () => {
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="card-apollo text-center group cursor-default"
+                className="bg-white rounded-2xl p-6 text-center group cursor-default transition-all duration-300 hover:-translate-y-1 shadow-lg"
               >
-                <div className="w-16 h-16 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center mx-auto mb-6 group-hover:bg-accent/30 group-hover:shadow-[0_0_20px_hsla(var(--accent)/0.25)] transition-all duration-300">
-                  <f.icon className="w-7 h-7 text-accent" strokeWidth={1.5} />
+                <div className="w-16 h-16 rounded-full bg-black/5 border border-black/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-black/10 transition-all duration-300">
+                  <f.icon className="w-7 h-7 text-black" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-heading text-xl text-foreground mb-3">{f.title}</h3>
-                <p className="text-foreground/70 text-sm leading-relaxed">{f.desc}</p>
+                <h3 className="font-heading text-xl text-black mb-3">{f.title}</h3>
+                <p className="text-black/70 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -157,11 +153,11 @@ const Index = () => {
       <section id="workouts" className="py-16 md:py-24 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="section-label mb-3 block">Workouts</span>
+            <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">Workouts</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
               On-Demand Workout Library
             </h2>
-            <p className="text-foreground/70 max-w-lg mx-auto text-base">
+            <p className="text-white max-w-lg mx-auto text-base">
               Train anytime with guided workouts designed to challenge you and keep your training fresh.
             </p>
           </div>
@@ -170,7 +166,7 @@ const Index = () => {
             {WORKOUT_CATEGORIES.map((cat) => (
               <div
                 key={cat.title}
-                className="group relative rounded-2xl overflow-hidden aspect-[4/3] cursor-pointer"
+                className="group relative rounded-2xl overflow-hidden aspect-[4/3] cursor-pointer shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_50px_rgba(0,0,0,0.7)] transition-all duration-500"
               >
                 <img
                   src={cat.image}
@@ -178,14 +174,14 @@ const Index = () => {
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="w-12 h-12 rounded-full border border-foreground/30 flex items-center justify-center bg-background/40 backdrop-blur-sm">
-                    <Play className="w-5 h-5 text-foreground ml-0.5" fill="currentColor" />
+                  <div className="w-12 h-12 rounded-full border border-white/40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <Play className="w-5 h-5 text-white ml-0.5" fill="currentColor" />
                   </div>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <h3 className="font-heading text-lg text-foreground">{cat.title}</h3>
+                  <h3 className="font-heading text-lg text-white font-bold">{cat.title}</h3>
                 </div>
               </div>
             ))}
@@ -198,19 +194,23 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center max-w-6xl mx-auto">
             <div>
-              <span className="section-label mb-3 block">The App</span>
+              <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">The App</span>
               <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-6">
                 Your Training System<br />In One App
               </h2>
               <ul className="space-y-4 mb-8">
                 {APP_FEATURES.map((feat) => (
                   <li key={feat} className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
-                    <span className="text-foreground/70 text-base">{feat}</span>
+                    <div className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
+                    <span className="text-white text-base">{feat}</span>
                   </li>
                 ))}
               </ul>
-              <Button variant="apollo" size="lg" className="rounded-full h-14 px-10" onClick={scrollToDownload}>
+              <Button
+                size="lg"
+                className="rounded-full h-14 px-10 bg-white text-black hover:bg-white/90 border border-white font-semibold"
+                onClick={scrollToDownload}
+              >
                 Download the App
                 <ArrowRight className="ml-2" size={18} />
               </Button>
@@ -224,38 +224,13 @@ const Index = () => {
       <section id="programs" className="py-16 md:py-24 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="section-label mb-3 block">Programs</span>
+            <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">Programs</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
               Structured Training Programs
             </h2>
-            <p className="text-foreground/70 max-w-lg mx-auto text-base">
+            <p className="text-white max-w-lg mx-auto text-base">
               Follow proven training programs designed to help you build strength, improve endurance, and stay consistent.
             </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
-            {PROGRAMS.map((p) => (
-              <div
-                key={p.title}
-                className="card-apollo group cursor-default"
-              >
-                <div className="flex items-center gap-4 mb-5">
-                  <div className="w-14 h-14 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 group-hover:shadow-[0_0_16px_hsla(var(--accent)/0.2)] transition-all duration-300">
-                    <Dumbbell className="w-6 h-6 text-accent" strokeWidth={1.5} />
-                  </div>
-                  <div>
-                    <h3 className="font-heading text-lg text-foreground">{p.title}</h3>
-                    <span className="text-xs text-accent font-semibold border border-accent/30 rounded-full px-3 py-0.5 inline-block mt-1">
-                      {p.level}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-5 text-foreground/60 text-sm">
-                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-accent/70" />{p.duration}</span>
-                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-accent/70" />{p.schedule}</span>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -264,11 +239,11 @@ const Index = () => {
       <section id="nutrition" className="py-16 md:py-24 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="section-label mb-3 block">Nutrition</span>
+            <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">Nutrition</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
               Fuel Your Training
             </h2>
-            <p className="text-foreground/70 max-w-lg mx-auto text-base">
+            <p className="text-white max-w-lg mx-auto text-base">
               Simple nutrition tools to help you make better food choices, track macros, and stay consistent with your goals.
             </p>
           </div>
@@ -280,12 +255,12 @@ const Index = () => {
               { icon: RefreshCw, title: "Meal Swaps", desc: "Don't like a meal? Swap it for an alternative instantly." },
               { icon: ShoppingCart, title: "Grocery Lists", desc: "Auto-generated grocery lists from your meal plan." },
             ].map((f) => (
-              <div key={f.title} className="card-apollo text-center group cursor-default">
-                <div className="w-14 h-14 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/30 group-hover:shadow-[0_0_16px_hsla(var(--accent)/0.2)] transition-all duration-300">
-                  <f.icon className="w-6 h-6 text-accent" strokeWidth={1.5} />
+              <div key={f.title} className="bg-white rounded-2xl p-6 text-center group cursor-default transition-all duration-300 hover:-translate-y-1 shadow-lg">
+                <div className="w-14 h-14 rounded-full bg-black/5 border border-black/10 flex items-center justify-center mx-auto mb-5 group-hover:bg-black/10 transition-all duration-300">
+                  <f.icon className="w-6 h-6 text-black" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-heading text-base text-foreground mb-2">{f.title}</h3>
-                <p className="text-foreground/60 text-sm leading-relaxed">{f.desc}</p>
+                <h3 className="font-heading text-base text-black mb-2">{f.title}</h3>
+                <p className="text-black/70 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -296,30 +271,30 @@ const Index = () => {
       <section className="py-16 md:py-24 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="section-label mb-3 block">The Founder</span>
+            <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">The Founder</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-6">
               Built By a Coach Who Understands Training
             </h2>
-            <p className="text-foreground/70 text-base leading-relaxed mb-8">
-              Apollo Nation was created to bring structured, high-quality training to people who want real results without the chaos of traditional gyms. Every workout, program, and meal plan is built with purpose.
+            <p className="text-white text-base leading-relaxed mb-8">
+              Apollo Nation was founded by Marcos Leyba to create a budget-friendly way to help people get fit at home and achieve their nutrition goals. Every workout, program, and meal plan is built with purpose — structured training that delivers real results without the chaos of traditional gym culture.
             </p>
           </div>
         </div>
       </section>
 
       {/* ═══ 8. DOWNLOAD CTA ═══ */}
-      <section id="download" className="py-16 md:py-24 border-t border-border/30">
+      <section id="download" className="py-12 md:py-16 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground mb-4 leading-tight">
               Start Training Today
             </h2>
-            <p className="text-foreground/70 text-base leading-relaxed mb-8 max-w-md mx-auto">
+            <p className="text-white text-base leading-relaxed mb-6 max-w-md mx-auto">
               Download Apollo Nation and get access to structured workouts, training programs, and nutrition tools.
             </p>
 
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <a href="#" className="flex items-center gap-2.5 bg-foreground text-background px-5 py-3 rounded-xl hover:bg-foreground/90 transition-all hover:-translate-y-0.5">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <a href="#" className="flex items-center gap-2.5 bg-white text-black px-5 py-3 rounded-xl hover:bg-white/90 transition-all hover:-translate-y-0.5">
                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
                   <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                 </svg>
@@ -328,7 +303,7 @@ const Index = () => {
                   <div className="text-sm font-semibold -mt-0.5">App Store</div>
                 </div>
               </a>
-              <a href="#" className="flex items-center gap-2.5 bg-foreground text-background px-5 py-3 rounded-xl hover:bg-foreground/90 transition-all hover:-translate-y-0.5">
+              <a href="#" className="flex items-center gap-2.5 bg-white text-black px-5 py-3 rounded-xl hover:bg-white/90 transition-all hover:-translate-y-0.5">
                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
                   <path d="M3 20.5v-17c0-.59.34-1.11.84-1.35L13.69 12l-9.85 9.85c-.5-.24-.84-.76-.84-1.35zm13.81-5.38L6.05 21.34l8.49-8.49 2.27 2.27zm.91-.91L19.59 12l-1.87-2.21-2.27 2.27 2.27 2.15zM6.05 2.66l10.76 6.22-2.27 2.27-8.49-8.49z" />
                 </svg>
@@ -339,7 +314,7 @@ const Index = () => {
               </a>
             </div>
 
-            <p className="text-foreground/40 text-xs">Coming soon to iOS and Android</p>
+            <p className="text-white/60 text-xs">Coming soon to iOS and Android</p>
           </div>
         </div>
       </section>
