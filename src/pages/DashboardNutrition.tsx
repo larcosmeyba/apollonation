@@ -52,6 +52,24 @@ type MealSuggestion = {
   fat_grams: number;
 };
 
+const calculateMacros = (age: number, sex: string, heightInches: number, weightLbs: number, activityLevel: string, goal: string) => {
+  const weightKg = weightLbs * 0.453592;
+  const heightCm = heightInches * 2.54;
+  // Mifflin-St Jeor
+  let bmr = sex === "female"
+    ? 10 * weightKg + 6.25 * heightCm - 5 * age - 161
+    : 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
+  const multipliers: Record<string, number> = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 };
+  let tdee = bmr * (multipliers[activityLevel] || 1.55);
+  if (goal === "lose_fat") tdee -= 500;
+  else if (goal === "gain_weight" || goal === "gain_muscle") tdee += 350;
+  const calories = Math.round(tdee);
+  const protein = Math.round(weightLbs * (goal === "gain_muscle" ? 1.0 : 0.8));
+  const fat = Math.round((calories * 0.25) / 9);
+  const carbs = Math.round((calories - protein * 4 - fat * 9) / 4);
+  return { calories, protein, carbs, fat };
+};
+
 const DashboardNutrition = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
