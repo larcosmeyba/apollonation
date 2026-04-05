@@ -238,88 +238,69 @@ const Index = () => {
       </section>
 
       {/* ═══ 6. APP EXPERIENCE ═══ */}
-      <section className="py-12 md:py-16 border-t border-white/5">
+      <section className="py-10 md:py-14 border-t border-border/10">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center mb-8">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">The App</span>
-            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-3">
+          <div className="max-w-lg mx-auto text-center mb-6">
+            <span className="text-[9px] uppercase tracking-[0.35em] text-foreground/20 mb-2 block font-light">The App</span>
+            <h2 className="font-heading text-2xl md:text-3xl text-foreground tracking-wide mb-2">
               Train Anywhere
             </h2>
-            <p className="text-white/50 font-light leading-relaxed">
+            <p className="text-foreground/35 font-light leading-relaxed text-sm">
               Access Apollo Nation on your phone and train wherever life takes you.
             </p>
           </div>
 
           {/* Phone mockup */}
-          <div className="max-w-xs mx-auto">
-            <div className="border border-white/15 rounded-[2rem] bg-card overflow-hidden shadow-2xl shadow-black/50">
-              {/* Status bar */}
-              <div className="flex items-center justify-between px-5 pt-3 pb-2">
-                <span className="text-[9px] text-white/40 font-light">9:41</span>
-                <span className="text-[9px] text-white/40 font-light">Apollo Nation</span>
-                <div className="flex gap-1">
-                  <div className="w-3 h-1.5 rounded-sm bg-white/30" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
+          <div className="max-w-[260px] mx-auto">
+            <div className="border border-border/20 rounded-[1.75rem] bg-card/50 overflow-hidden">
+              <div className="flex items-center justify-between px-4 pt-2.5 pb-1.5">
+                <span className="text-[8px] text-foreground/20 font-light">9:41</span>
+                <span className="text-[8px] text-foreground/20 font-light">Apollo Nation</span>
+                <div className="flex gap-0.5">
+                  <div className="w-2.5 h-1 rounded-sm bg-foreground/15" />
+                  <div className="w-1 h-1 rounded-full bg-foreground/15" />
                 </div>
               </div>
 
-              {/* Screen content */}
-              <div className="px-4 pb-2 space-y-3">
-                {/* Today's workout card */}
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <span className="text-[9px] uppercase tracking-wider text-white/30 font-light">Today's Workout</span>
-                  <h4 className="text-sm text-white font-medium mt-1">Full Body Power</h4>
-                  <div className="flex items-center gap-2 mt-1.5 text-white/40 text-[10px]">
+              <div className="px-3 pb-1.5 space-y-2">
+                <div className="rounded-lg border border-border/15 bg-foreground/[0.03] p-2.5">
+                  <span className="text-[8px] uppercase tracking-wider text-foreground/20 font-light">Today's Workout</span>
+                  <h4 className="text-xs text-foreground/80 font-medium mt-0.5">Full Body Power</h4>
+                  <div className="flex items-center gap-1.5 mt-1 text-foreground/25 text-[9px]">
                     <span>45 min</span><span>·</span><span>Intermediate</span>
                   </div>
-                  <div className="mt-2 bg-white/10 rounded-full h-5 flex items-center justify-center">
-                    <span className="text-[10px] text-white/70 font-medium">Start Workout →</span>
+                  <div className="mt-1.5 bg-foreground/10 rounded-full h-4 flex items-center justify-center">
+                    <span className="text-[9px] text-foreground/50 font-medium">Start Workout →</span>
                   </div>
                 </div>
 
-                {/* Continue program */}
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <span className="text-[9px] uppercase tracking-wider text-white/30 font-light">Continue Program</span>
-                  <h4 className="text-xs text-white/80 font-medium mt-1">Beginner Strength — Week 2</h4>
-                  <div className="mt-2 w-full bg-white/10 rounded-full h-1.5">
-                    <div className="bg-white/50 h-1.5 rounded-full" style={{ width: "35%" }} />
+                <div className="rounded-lg border border-border/15 bg-foreground/[0.03] p-2.5">
+                  <span className="text-[8px] uppercase tracking-wider text-foreground/20 font-light">Continue Program</span>
+                  <h4 className="text-[10px] text-foreground/60 font-medium mt-0.5">Beginner Strength — Week 2</h4>
+                  <div className="mt-1.5 w-full bg-foreground/5 rounded-full h-1">
+                    <div className="bg-foreground/30 h-1 rounded-full" style={{ width: "35%" }} />
                   </div>
-                  <span className="text-[9px] text-white/30 mt-1 block">35% complete</span>
+                  <span className="text-[8px] text-foreground/15 mt-0.5 block">35% complete</span>
                 </div>
 
-                {/* Recommended */}
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <span className="text-[9px] uppercase tracking-wider text-white/30 font-light">Recommended</span>
-                  <div className="flex gap-2 mt-2">
-                    <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                      <span className="text-[10px] text-white/60">HIIT Inferno</span>
-                    </div>
-                    <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                      <span className="text-[10px] text-white/60">Core Burn</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Weekly progress */}
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <span className="text-[9px] uppercase tracking-wider text-white/30 font-light">Weekly Progress</span>
-                  <div className="flex items-end gap-1.5 mt-2 h-8">
+                <div className="rounded-lg border border-border/15 bg-foreground/[0.03] p-2.5">
+                  <span className="text-[8px] uppercase tracking-wider text-foreground/20 font-light">Weekly Progress</span>
+                  <div className="flex items-end gap-1 mt-1.5 h-6">
                     {[60, 100, 80, 0, 40, 0, 0].map((h, i) => (
                       <div key={i} className="flex-1 flex flex-col justify-end">
-                        <div className={`rounded-sm ${h > 0 ? 'bg-white/30' : 'bg-white/10'}`} style={{ height: `${Math.max(h * 0.3, 3)}px` }} />
+                        <div className={`rounded-[1px] ${h > 0 ? 'bg-foreground/20' : 'bg-foreground/5'}`} style={{ height: `${Math.max(h * 0.24, 2)}px` }} />
                       </div>
                     ))}
                   </div>
-                  <div className="flex justify-between mt-1">
+                  <div className="flex justify-between mt-0.5">
                     {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-                      <span key={i} className="text-[8px] text-white/20 flex-1 text-center">{d}</span>
+                      <span key={i} className="text-[7px] text-foreground/10 flex-1 text-center">{d}</span>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Bottom navigation */}
-              <div className="border-t border-white/10 bg-card px-2 pb-4 pt-2">
+              <div className="border-t border-border/10 px-2 pb-3 pt-1.5">
                 <div className="flex justify-around">
                   {[
                     { label: "Home", active: true },
@@ -329,8 +310,8 @@ const Index = () => {
                     { label: "Profile", active: false },
                   ].map((tab) => (
                     <div key={tab.label} className="flex flex-col items-center gap-0.5">
-                      <div className={`w-1 h-1 rounded-full ${tab.active ? 'bg-white' : 'bg-transparent'}`} />
-                      <span className={`text-[9px] ${tab.active ? 'text-white font-medium' : 'text-white/30 font-light'}`}>{tab.label}</span>
+                      <div className={`w-0.5 h-0.5 rounded-full ${tab.active ? 'bg-foreground' : 'bg-transparent'}`} />
+                      <span className={`text-[8px] ${tab.active ? 'text-foreground/70 font-medium' : 'text-foreground/15 font-light'}`}>{tab.label}</span>
                     </div>
                   ))}
                 </div>
@@ -344,45 +325,38 @@ const Index = () => {
       <TestimonialsSection />
 
       {/* ═══ 8. DOWNLOAD CTA ═══ */}
-      <section id="download" className="py-12 md:py-16 border-t border-white/5">
+      <section id="download" className="py-10 md:py-14 border-t border-border/10">
         <div className="container mx-auto px-4">
-          <div className="max-w-xl mx-auto text-center">
-            <h2 className="font-heading text-3xl md:text-5xl text-white mb-5 tracking-wide">
+          <div className="max-w-md mx-auto text-center">
+            <h2 className="font-heading text-2xl md:text-4xl text-foreground mb-3 tracking-wide">
               Start Training Today
             </h2>
-            <p className="text-white/50 font-light leading-relaxed mb-6">
+            <p className="text-foreground/35 font-light leading-relaxed mb-5 text-sm">
               Download Apollo Nation and start your next workout.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
-              <Button variant="apollo" size="lg" className="group h-14 px-8 text-base rounded-full" onClick={scrollToDownload}>
-                Download the App
-                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <a href="#" className="flex items-center gap-3 bg-white text-background px-5 py-3 rounded-xl hover:bg-white/90 transition-colors">
-                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+            <div className="flex items-center justify-center gap-3 mb-5">
+              <a href="#" className="flex items-center gap-2.5 bg-foreground text-background px-4 py-2.5 rounded-lg hover:bg-foreground/90 transition-colors">
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
                   <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                 </svg>
                 <div className="text-left">
-                  <div className="text-[9px] font-light opacity-70">Download on the</div>
-                  <div className="text-xs font-semibold -mt-0.5">App Store</div>
+                  <div className="text-[8px] font-light opacity-60">Download on the</div>
+                  <div className="text-[11px] font-semibold -mt-0.5">App Store</div>
                 </div>
               </a>
-              <a href="#" className="flex items-center gap-3 bg-white text-background px-5 py-3 rounded-xl hover:bg-white/90 transition-colors">
-                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+              <a href="#" className="flex items-center gap-2.5 bg-foreground text-background px-4 py-2.5 rounded-lg hover:bg-foreground/90 transition-colors">
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
                   <path d="M3 20.5v-17c0-.59.34-1.11.84-1.35L13.69 12l-9.85 9.85c-.5-.24-.84-.76-.84-1.35zm13.81-5.38L6.05 21.34l8.49-8.49 2.27 2.27zm.91-.91L19.59 12l-1.87-2.21-2.27 2.27 2.27 2.15zM6.05 2.66l10.76 6.22-2.27 2.27-8.49-8.49z" />
                 </svg>
                 <div className="text-left">
-                  <div className="text-[9px] font-light opacity-70">Get it on</div>
-                  <div className="text-xs font-semibold -mt-0.5">Google Play</div>
+                  <div className="text-[8px] font-light opacity-60">Get it on</div>
+                  <div className="text-[11px] font-semibold -mt-0.5">Google Play</div>
                 </div>
               </a>
             </div>
 
-            <p className="text-white/20 text-xs font-light">Coming soon to iOS and Android</p>
+            <p className="text-foreground/10 text-[10px] font-light">Coming soon to iOS and Android</p>
           </div>
         </div>
       </section>
