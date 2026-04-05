@@ -125,10 +125,10 @@ const DashboardRecipes = () => {
                   tabIndex={0}
                   onClick={() => setSelectedRecipe(recipe)}
                   onKeyDown={(e) => e.key === "Enter" && setSelectedRecipe(recipe)}
-                  className="bg-white rounded-2xl border border-black/10 group overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all cursor-pointer select-none"
+                  className="bg-card rounded-2xl border border-border group overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all cursor-pointer select-none"
                 >
                   {/* Thumbnail */}
-                  <div className="relative aspect-video overflow-hidden bg-gray-100">
+                  <div className="relative aspect-video overflow-hidden bg-muted">
                     {recipe.thumbnail_url ? (
                       <img
                         src={recipe.thumbnail_url}
@@ -138,7 +138,7 @@ const DashboardRecipes = () => {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ChefHat className="w-10 h-10 text-black/20" />
+                        <ChefHat className="w-10 h-10 text-foreground/20" />
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -149,7 +149,7 @@ const DashboardRecipes = () => {
                         e.stopPropagation();
                         toggleFavorite(recipe.id);
                       }}
-                      className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70 transition-colors"
+                      className="absolute top-3 right-3 w-8 h-8 rounded-full bg-foreground/50 flex items-center justify-center hover:bg-black/70 transition-colors"
                     >
                       <Heart
                         className={`w-4 h-4 ${
@@ -186,19 +186,19 @@ const DashboardRecipes = () => {
                   {/* Content - black text on white bg */}
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-black/60 uppercase tracking-wide font-bold">
+                      <span className="text-xs text-foreground/60 uppercase tracking-wide font-bold">
                         {recipe.category || "Recipe"}
                       </span>
                     </div>
-                    <h3 className="font-heading text-lg text-black">{recipe.title}</h3>
+                    <h3 className="font-heading text-lg text-foreground">{recipe.title}</h3>
                     {recipe.description && (
-                      <p className="text-sm text-black/60 mb-3 line-clamp-2">
+                      <p className="text-sm text-foreground/60 mb-3 line-clamp-2">
                         {recipe.description}
                       </p>
                     )}
 
                     {/* Macros */}
-                    <div className="flex items-center gap-3 text-xs text-black/70 font-medium mb-3">
+                    <div className="flex items-center gap-3 text-xs text-foreground/70 font-medium mb-3">
                       {recipe.protein_grams != null && <span>P: {recipe.protein_grams}g</span>}
                       {recipe.carbs_grams != null && <span>C: {recipe.carbs_grams}g</span>}
                       {recipe.fat_grams != null && <span>F: {recipe.fat_grams}g</span>}
@@ -208,7 +208,7 @@ const DashboardRecipes = () => {
                     {recipe.dietary_tags && (
                       <div className="flex flex-wrap gap-1">
                         {recipe.dietary_tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs bg-black/5 text-black/70 border-black/10">
+                          <Badge key={tag} variant="secondary" className="text-xs bg-foreground/5 text-foreground/70 border-border">
                             {tag}
                           </Badge>
                         ))}
