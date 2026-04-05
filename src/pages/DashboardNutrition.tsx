@@ -548,10 +548,10 @@ const DashboardNutrition = () => {
           </div>
 
           {/* ── Macro Calculator ── */}
-          <div className="bg-white rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <div className="bg-card rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading text-base tracking-wide text-black">Your Macro Targets</h2>
-              <button onClick={() => setMacroEditing(!macroEditing)} className="p-1.5 rounded-full hover:bg-black/10 transition-colors">
+              <h2 className="font-heading text-base tracking-wide text-foreground">Your Macro Targets</h2>
+              <button onClick={() => setMacroEditing(!macroEditing)} className="p-1.5 rounded-full hover:bg-foreground/10 transition-colors">
                 <Pencil className="w-4 h-4 text-black/60" />
               </button>
             </div>
