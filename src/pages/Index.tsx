@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import heroImage from "@/assets/marcos-hero.jpg";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
+import marcosAction7 from "@/assets/marcos-action-7.jpg";
 import marcos6 from "@/assets/marcos-6.jpg";
 import marcos7 from "@/assets/marcos-7.jpg";
 
@@ -34,10 +35,10 @@ const FEATURES = [
 
 const WORKOUT_CATEGORIES = [
   { title: "Strength", image: marcosAction1 },
-  { title: "Sculpt", image: marcosAction6 },
+  { title: "Sculpt", image: marcosAction7 },
   { title: "Mobility", image: marcos6 },
   { title: "Core", image: marcos7 },
-  { title: "Cardio", image: marcosAction1 },
+  { title: "Cardio", image: marcosAction6 },
   { title: "Stretch", image: marcos6 },
 ];
 
