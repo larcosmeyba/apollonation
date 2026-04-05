@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import SEOHead from "@/components/SEOHead";
+import IPhoneMockup from "@/components/IPhoneMockup";
 import { ArrowRight, Play, Clock, Flame, Dumbbell, Calendar, Target, Zap, Heart, BarChart3, UtensilsCrossed, ShoppingCart, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
