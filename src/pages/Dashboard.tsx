@@ -332,48 +332,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* 7. Fuel Your Training */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-heading text-base text-foreground">Fuel Your Training</h2>
-            <Link to="/dashboard/nutrition">
-              <span className="text-xs text-muted-foreground hover:text-foreground transition-colors">View All</span>
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            {[
-              { icon: Flame, label: "Macro Tracking", to: "/dashboard/macros" },
-              { icon: UtensilsCrossed, label: "Meal Plans", to: "/dashboard/nutrition" },
-              { icon: BookOpen, label: "Recipes", to: "/dashboard/recipes" },
-              { icon: ShoppingCart, label: "Grocery Lists", to: "/dashboard/nutrition" },
-            ].map((item) => (
-              <Link key={item.label} to={item.to} className="rounded-xl border border-border bg-card p-3.5 flex flex-col items-center gap-1.5 hover:border-accent/30 transition-colors group">
-                <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                  <item.icon className="w-4.5 h-4.5 text-accent" />
-                </div>
-                <span className="text-xs font-medium text-foreground">{item.label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* 8. Weekly Activity */}
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-heading text-base text-foreground">Weekly Activity</h2>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="text-center">
-              <p className="text-3xl font-heading text-foreground">{streakData?.current || 0}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Day Streak</p>
-            </div>
-            <div className="h-10 w-px bg-border" />
-            <div className="text-center">
-              <p className="text-3xl font-heading text-foreground">{streakData?.workoutsWeek || 0}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Workouts This Week</p>
-            </div>
-          </div>
-        </div>
 
       </div>
     </DashboardLayout>
