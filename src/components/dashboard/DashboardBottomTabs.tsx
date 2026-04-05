@@ -1,11 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Dumbbell, Flame, Play, User } from "lucide-react";
+import { Home, Play, Flame, User } from "lucide-react";
 
 const tabs = [
   { label: "Home", href: "/dashboard", icon: Home },
-  { label: "Train", href: "/dashboard/training", icon: Dumbbell },
-  { label: "Fuel", href: "/dashboard/nutrition", icon: Flame },
   { label: "On Demand", href: "/dashboard/workouts", icon: Play },
+  { label: "Fuel", href: "/dashboard/nutrition", icon: Flame },
   { label: "Profile", href: "/dashboard/profile", icon: User },
 ];
 

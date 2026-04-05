@@ -1,12 +1,12 @@
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { ChevronRight, Play, Flame, Dumbbell, Zap, Apple, UtensilsCrossed, ShoppingCart, BookOpen } from "lucide-react";
+import { Play, Flame, Dumbbell, Apple, UtensilsCrossed, ShoppingCart, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { format, subDays } from "date-fns";
+import { format, subDays, startOfWeek } from "date-fns";
 import stockBack from "@/assets/stock-back.png";
 import stockArms from "@/assets/stock-arms.png";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
@@ -14,11 +14,20 @@ import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
 
 const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7];
-const CATEGORY_IMAGES = [marcosAction1, stockBack, stockArms, marcosAction6, marcosAction7];
 
 const getWorkoutImage = (dateStr: string) => {
   const hash = dateStr.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   return WORKOUT_IMAGES[hash % WORKOUT_IMAGES.length];
+};
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  Cardio: marcosAction1,
+  Sculpt: stockBack,
+  Strength: stockArms,
+  HIIT: marcosAction6,
+  Stretch: marcosAction7,
+  Yoga: marcosAction1,
+  Senior: stockBack,
 };
 
 const Dashboard = () => {
@@ -68,15 +77,30 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
-  // Featured on-demand workouts
-  const { data: recentWorkouts = [] } = useQuery({
-    queryKey: ["recent-workouts-home"],
+  // New this week workouts
+  const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
+  const { data: newThisWeek = [] } = useQuery({
+    queryKey: ["new-this-week", weekStart],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("workouts")
+        .select("id, title, category, duration_minutes, calories_estimate, thumbnail_url, video_url")
+        .gte("created_at", weekStart)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      return data || [];
+    },
+  });
+
+  // All workouts for "All Classes"
+  const { data: allWorkouts = [] } = useQuery({
+    queryKey: ["all-workouts-home"],
     queryFn: async () => {
       const { data } = await supabase
         .from("workouts")
         .select("id, title, category, duration_minutes, calories_estimate, thumbnail_url, video_url")
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(12);
       return data || [];
     },
   });
@@ -107,19 +131,26 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
-  const categories = [
-    { name: "Strength", image: CATEGORY_IMAGES[0] },
-    { name: "Sculpt", image: CATEGORY_IMAGES[1] },
-    { name: "Core", image: CATEGORY_IMAGES[2] },
-    { name: "HIIT", image: CATEGORY_IMAGES[3] },
-    { name: "Recovery", image: CATEGORY_IMAGES[4] },
-  ];
-
+  const categories = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Senior"];
   const isRestDay = !todayWorkout;
+
+  const getYouTubeThumbnail = (url: string): string | null => {
+    try {
+      const match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]v=([a-zA-Z0-9_-]+)/) || url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
+      if (match) return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+      return null;
+    } catch { return null; }
+  };
+
+  const getThumb = (w: any, i: number) => {
+    if (w.thumbnail_url) return w.thumbnail_url;
+    if (w.video_url) return getYouTubeThumbnail(w.video_url);
+    return WORKOUT_IMAGES[i % WORKOUT_IMAGES.length];
+  };
 
   return (
     <DashboardLayout>
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="max-w-xl mx-auto space-y-5">
 
         {/* 1. Greeting */}
         <div className="flex items-center gap-3 pt-1">
@@ -143,7 +174,45 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* 2. Hero Workout Card */}
+        {/* 2. New This Week */}
+        {newThisWeek.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="font-heading text-base text-foreground">New This Week</h2>
+              <Link to="/dashboard/workouts">
+                <span className="text-xs text-muted-foreground hover:text-foreground transition-colors">View All</span>
+              </Link>
+            </div>
+            <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+              {newThisWeek.map((w, i) => (
+                <Link
+                  key={w.id}
+                  to="/dashboard/workouts"
+                  className="relative rounded-xl overflow-hidden flex-shrink-0 w-44 aspect-[4/3] group"
+                >
+                  <img
+                    src={getThumb(w, i) || WORKOUT_IMAGES[i % WORKOUT_IMAGES.length]}
+                    alt={w.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute top-2 right-2">
+                    <div className="w-6 h-6 rounded-full bg-white/10 backdrop-blur flex items-center justify-center">
+                      <Play className="w-2.5 h-2.5 text-white fill-white" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-2 left-2.5 right-2.5">
+                    <p className="text-xs font-semibold text-white truncate">{w.title}</p>
+                    <p className="text-[9px] text-white/60">{w.duration_minutes} min · {w.category}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. Hero Workout Card */}
         <div className="rounded-2xl overflow-hidden border border-border">
           <div className="relative aspect-[16/10]">
             <img
@@ -180,39 +249,39 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* 3. Choose Your Training */}
+        {/* 4. Choose How You Train */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-heading text-base text-foreground">Choose Your Training</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-heading text-base text-foreground">Choose How You Train</h2>
             <Link to="/dashboard/workouts">
               <span className="text-xs text-muted-foreground hover:text-foreground transition-colors">View All</span>
             </Link>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+          <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
             {categories.map((cat) => (
               <Link
-                key={cat.name}
-                to={`/dashboard/workouts`}
-                className="relative rounded-xl overflow-hidden flex-shrink-0 w-36 h-24 group"
+                key={cat}
+                to="/dashboard/workouts"
+                className="relative rounded-xl overflow-hidden flex-shrink-0 w-28 h-20 group"
               >
-                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={CATEGORY_IMAGES[cat]} alt={cat} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors" />
-                <span className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-white tracking-wide">
-                  {cat.name}
+                <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white tracking-wide">
+                  {cat}
                 </span>
               </Link>
             ))}
           </div>
         </div>
 
-        {/* 4. Your Coach */}
+        {/* 5. Your Coaches */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-heading text-base text-foreground">Your Coach</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-heading text-base text-foreground">Your Coaches</h2>
           </div>
           <div className="flex gap-4">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-border">
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="w-18 h-18 rounded-full overflow-hidden border-2 border-border" style={{ width: 72, height: 72 }}>
                 <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
               </div>
               <div className="text-center">
@@ -223,34 +292,35 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* 5. All Workouts */}
-        {recentWorkouts.length > 0 && (
+        {/* 6. All Classes */}
+        {allWorkouts.length > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-heading text-base text-foreground">All Workouts</h2>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="font-heading text-base text-foreground">All Classes</h2>
               <Link to="/dashboard/workouts">
                 <span className="text-xs text-muted-foreground hover:text-foreground transition-colors">View All</span>
               </Link>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {recentWorkouts.map((w, i) => (
+            <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+              {allWorkouts.map((w, i) => (
                 <Link
                   key={w.id}
                   to="/dashboard/workouts"
-                  className="relative rounded-xl overflow-hidden flex-shrink-0 w-60 aspect-[4/3] group"
+                  className="relative rounded-xl overflow-hidden flex-shrink-0 w-52 aspect-[4/3] group"
                 >
-                  {w.thumbnail_url ? (
-                    <img src={w.thumbnail_url} alt={w.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                  ) : (
-                    <img src={WORKOUT_IMAGES[i % WORKOUT_IMAGES.length]} alt={w.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                  )}
+                  <img
+                    src={getThumb(w, i) || WORKOUT_IMAGES[i % WORKOUT_IMAGES.length]}
+                    alt={w.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute top-3 right-3">
+                  <div className="absolute top-2.5 right-2.5">
                     <div className="w-7 h-7 rounded-full bg-white/10 backdrop-blur flex items-center justify-center">
                       <Play className="w-3 h-3 text-white fill-white" />
                     </div>
                   </div>
-                  <div className="absolute bottom-3 left-3 right-3">
+                  <div className="absolute bottom-2.5 left-3 right-3">
                     <p className="text-sm font-semibold text-white truncate">{w.title}</p>
                     <p className="text-[10px] text-white/60">
                       Marcos Leyba · {w.duration_minutes} min · {w.category}
@@ -262,24 +332,24 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* 6. Fuel Your Training */}
+        {/* 7. Fuel Your Training */}
         <div>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2">
             <h2 className="font-heading text-base text-foreground">Fuel Your Training</h2>
             <Link to="/dashboard/nutrition">
               <span className="text-xs text-muted-foreground hover:text-foreground transition-colors">View All</span>
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {[
               { icon: Flame, label: "Macro Tracking", to: "/dashboard/macros" },
               { icon: UtensilsCrossed, label: "Meal Plans", to: "/dashboard/nutrition" },
               { icon: BookOpen, label: "Recipes", to: "/dashboard/recipes" },
               { icon: ShoppingCart, label: "Grocery Lists", to: "/dashboard/nutrition" },
             ].map((item) => (
-              <Link key={item.label} to={item.to} className="rounded-xl border border-border bg-card p-4 flex flex-col items-center gap-2 hover:border-accent/30 transition-colors group">
-                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                  <item.icon className="w-5 h-5 text-accent" />
+              <Link key={item.label} to={item.to} className="rounded-xl border border-border bg-card p-3.5 flex flex-col items-center gap-1.5 hover:border-accent/30 transition-colors group">
+                <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                  <item.icon className="w-4.5 h-4.5 text-accent" />
                 </div>
                 <span className="text-xs font-medium text-foreground">{item.label}</span>
               </Link>
@@ -287,9 +357,9 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* 7. Weekly Activity */}
+        {/* 8. Weekly Activity */}
         <div className="rounded-xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2">
             <h2 className="font-heading text-base text-foreground">Weekly Activity</h2>
           </div>
           <div className="flex items-center gap-6">
