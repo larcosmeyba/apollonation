@@ -452,7 +452,7 @@ const DashboardWorkouts = () => {
                       <div className="space-y-2">
                         {workoutExercises.map((we: any, i: number) => (
                           <div key={we.id} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border">
-                            <span className="w-6 h-6 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-bold text-foreground/60 flex-shrink-0">
+                            <span className="w-6 h-6 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">
                               {i + 1}
                             </span>
                             <div className="flex-1">
