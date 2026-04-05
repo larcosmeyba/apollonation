@@ -39,9 +39,12 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     );
   }
 
-  // Archived and cancelled accounts redirect to dashboard
+  // Archived and cancelled accounts can still access subscribe page to reactivate
   if (profile?.account_status === "archived" || profile?.account_status === "cancelled") {
-    // Allow access — subscription handled via Apple App Store
+    if (location.pathname === "/subscribe") {
+      return <>{children}</>;
+    }
+    return <Navigate to="/subscribe" replace />;
   }
 
   // Now wait for subscription and questionnaire loading for active users
@@ -58,7 +61,10 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     return <>{children}</>;
   }
 
-  // Subscription handled via Apple App Store — no gate here
+  // Require active subscription to access dashboard
+  if (!subscription?.subscribed) {
+    return <Navigate to="/subscribe" replace />;
+  }
 
   // Pro/Elite users must complete questionnaire before accessing dashboard
   const tier = profile?.subscription_tier;
