@@ -599,7 +599,7 @@ const DashboardNutrition = () => {
                       const dayMeals = getMealsForDay(dayNum);
                       const totals = getDayTotals(dayNum);
                       return (
-                        <div key={dayNum} className="rounded-xl border border-border bg-card overflow-hidden">
+                        <div key={dayNum} className="card-apollo !p-0 overflow-hidden">
                           <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
                             <div className="flex items-center gap-2">
                               <span className="font-heading text-sm">{dayLabel(dayNum)}</span>
