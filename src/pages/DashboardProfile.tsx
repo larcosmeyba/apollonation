@@ -118,8 +118,8 @@ const DashboardProfile = () => {
             <div>
               <h1 className="font-heading text-2xl text-foreground">{profile?.display_name || "Member"}</h1>
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-xs text-green-400">Online</span>
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'hsl(142, 71%, 45%)' }} />
+                <span className="text-xs" style={{ color: 'hsl(142, 71%, 55%)' }}>Online</span>
               </div>
             </div>
           </div>
