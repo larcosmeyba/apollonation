@@ -196,42 +196,41 @@ const Index = () => {
       </section>
 
       {/* ═══ 5. NUTRITION SYSTEM ═══ */}
-      <section className="py-12 md:py-16 border-t border-white/5">
+      <section className="py-10 md:py-14 border-t border-border/10">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">Nutrition</span>
-            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
+          <div className="text-center mb-6">
+            <span className="text-[9px] uppercase tracking-[0.35em] text-foreground/20 mb-2 block font-light">Nutrition</span>
+            <h2 className="font-heading text-2xl md:text-3xl text-foreground tracking-wide mb-2">
               Fuel Your Training
             </h2>
-            <p className="text-white/50 font-light leading-relaxed max-w-md mx-auto">
+            <p className="text-foreground/35 font-light leading-relaxed max-w-sm mx-auto text-sm">
               Simple nutrition tools to help you make better food choices, track macros, and stay consistent with your goals.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto mb-6">
             {NUTRITION_FEATURES.map((f) => (
-              <div key={f.title} className="p-5 border border-white/10 rounded-2xl bg-card text-center">
-                <div className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center mx-auto mb-4">
-                  <f.icon className="w-4 h-4 text-white/60" strokeWidth={1.5} />
+              <div key={f.title} className="p-4 border border-border/20 rounded-xl bg-card/50 text-center">
+                <div className="w-9 h-9 rounded-full border border-border/20 flex items-center justify-center mx-auto mb-3">
+                  <f.icon className="w-3.5 h-3.5 text-foreground/30" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-heading text-sm text-white mb-2 tracking-wide">{f.title}</h3>
-                <p className="text-white/40 text-xs font-light leading-relaxed">{f.desc}</p>
+                <h3 className="font-heading text-xs text-foreground/80 mb-1.5 tracking-wide">{f.title}</h3>
+                <p className="text-foreground/25 text-[10px] font-light leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
 
-          {/* Restaurant Assistant */}
-          <div className="max-w-2xl mx-auto border border-white/10 rounded-2xl bg-card p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
-            <div className="w-14 h-14 rounded-full border border-white/15 flex items-center justify-center flex-shrink-0">
-              <MapPin className="w-6 h-6 text-white/60" strokeWidth={1.5} />
+          <div className="max-w-lg mx-auto border border-border/20 rounded-xl bg-card/50 p-5 flex flex-col md:flex-row items-center gap-4">
+            <div className="w-11 h-11 rounded-full border border-border/20 flex items-center justify-center flex-shrink-0">
+              <MapPin className="w-5 h-5 text-foreground/30" strokeWidth={1.5} />
             </div>
             <div className="text-center md:text-left">
-              <h3 className="font-heading text-base text-white mb-1 tracking-wide">Restaurant Assistant</h3>
-              <p className="text-white/50 text-sm font-light leading-relaxed">
+              <h3 className="font-heading text-sm text-foreground/80 mb-0.5 tracking-wide">Restaurant Assistant</h3>
+              <p className="text-foreground/30 text-xs font-light leading-relaxed">
                 Eating out? Get smarter meal suggestions when ordering from restaurants.
               </p>
             </div>
-            <span className="text-[10px] uppercase tracking-wider text-white/30 font-light border border-white/10 rounded-full px-3 py-1 flex-shrink-0">
+            <span className="text-[9px] uppercase tracking-wider text-foreground/15 font-light border border-border/15 rounded-full px-2.5 py-0.5 flex-shrink-0">
               Coming Soon
             </span>
           </div>
