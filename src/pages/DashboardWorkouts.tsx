@@ -435,7 +435,7 @@ const DashboardWorkouts = () => {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-card p-4 rounded-2xl text-center border border-border">
-                      <p className="text-[10px] text-foreground/40 font-bold uppercase">Duration</p>
+                      <p className="text-[10px] text-white font-bold uppercase">Duration</p>
                       <p className="text-lg font-bold text-foreground mt-1">{selectedWorkout.duration_minutes} min</p>
                     </div>
                     {selectedWorkout.calories_estimate && (
