@@ -56,7 +56,7 @@ const getYouTubeThumbnail = (url: string): string | null => {
   return null;
 };
 
-const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Recovery", "Core", "Stretch", "Yoga", "Senior"];
+const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch", "Senior"];
 
 const DashboardWorkouts = () => {
   const { user } = useAuth();
@@ -256,9 +256,8 @@ const DashboardWorkouts = () => {
 
             {/* Types — 2-column grid with image backgrounds */}
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4">
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Types</h2>
-                <span className="text-sm font-bold text-foreground">View All</span>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {TYPES.map((type) => (
@@ -278,21 +277,14 @@ const DashboardWorkouts = () => {
                     </span>
                   </button>
                 ))}
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className="rounded-2xl h-24 bg-card border border-border flex items-center justify-center hover:bg-foreground/5 transition-colors"
-                >
-                  <span className="text-sm font-bold text-foreground">View All</span>
-                </button>
               </div>
             </div>
 
             {/* Recently Added */}
             {recentlyAdded.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-4">
+                <div className="mb-4">
                   <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Recently Added</h2>
-                  <span className="text-sm font-bold text-foreground">View All</span>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                   {recentlyAdded.map((w, i) => (
@@ -306,9 +298,8 @@ const DashboardWorkouts = () => {
 
             {/* Instructors */}
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4">
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Instructors</h2>
-                <span className="text-sm font-bold text-foreground">View All</span>
               </div>
               <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                 <div className="flex flex-col items-center gap-2 flex-shrink-0">
@@ -323,9 +314,8 @@ const DashboardWorkouts = () => {
             {/* Featured */}
             {featuredWorkouts.length > 0 && workouts.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-4">
+                <div className="mb-4">
                   <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Featured</h2>
-                  <span className="text-sm font-bold text-foreground">View All</span>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                   {featuredWorkouts.map((w, i) => (
