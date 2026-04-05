@@ -134,7 +134,9 @@ const DashboardWorkouts = () => {
 
   const recentlyAdded = workouts.filter(w => w.created_at >= weekStart);
   const savedWorkouts = workouts.filter(w => favorites.includes(w.id));
-  const featuredWorkouts = workouts.filter(w => w.is_featured);
+  const featuredWorkouts = workouts.filter(w => w.is_featured).length > 0
+    ? workouts.filter(w => w.is_featured)
+    : [...workouts].sort(() => 0.5 - Math.random()).slice(0, 6);
 
   const getWorkoutThumbnail = (workout: Workout): string | null => {
     if (workout.thumbnail_url) return workout.thumbnail_url;
