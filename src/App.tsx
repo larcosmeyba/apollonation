@@ -8,7 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
-import Subscribe from "./pages/Subscribe";
+
 import Questionnaire from "./pages/Questionnaire";
 import Dashboard from "./pages/Dashboard";
 import DashboardWorkouts from "./pages/DashboardWorkouts";
