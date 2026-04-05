@@ -150,14 +150,14 @@ const Index = () => {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
             {FEATURES.map((f) => (
               <div
                 key={f.title}
                 className="card-apollo text-center group cursor-default"
               >
-                <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-6 group-hover:bg-accent/20 transition-colors">
-                  <f.icon className="w-6 h-6 text-accent" strokeWidth={1.5} />
+                <div className="w-16 h-16 rounded-2xl bg-accent/15 border border-accent/25 flex items-center justify-center mx-auto mb-6 group-hover:bg-accent/25 transition-colors">
+                  <f.icon className="w-7 h-7 text-accent" strokeWidth={1.5} />
                 </div>
                 <h3 className="font-heading text-xl text-foreground mb-3">{f.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
