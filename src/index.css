@@ -190,6 +190,15 @@
     50% { transform: translateY(-8px); }
   }
 
+  @keyframes phone-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .animate-phone-float {
+    animation: phone-float 4s ease-in-out infinite;
+  }
+
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
