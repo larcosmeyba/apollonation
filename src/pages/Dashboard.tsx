@@ -222,28 +222,11 @@ const Dashboard = () => {
         <WeeklySummary />
 
         {/* Section 1 — Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] mb-1">{todayDate}</p>
-            <h1 className="font-heading text-2xl md:text-3xl tracking-wide">
-              Hello, {profile?.display_name || "Warrior"}
-            </h1>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
-                {profile?.subscription_tier || "Basic"} Member
-              </Badge>
-              {!subscription?.subscribed && (
-                <Link to="/#pricing">
-                  <Button variant="link" size="sm" className="text-primary text-[10px] h-5 px-0">Upgrade</Button>
-                </Link>
-              )}
-            </div>
-          </div>
-          <Link to="/dashboard/profile">
-            <div className="w-11 h-11 rounded-full bg-primary/15 flex items-center justify-center border border-primary/20 hover:border-primary/40 transition-colors">
-              <User className="w-5 h-5 text-primary" />
-            </div>
-          </Link>
+        <div>
+          <p className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em] mb-1">{todayDate}</p>
+          <h1 className="font-heading text-xl md:text-2xl tracking-wide text-foreground/90">
+            {profile?.display_name || "Warrior"}
+          </h1>
         </div>
 
         {/* Section 2 — Weekly Calendar Strip */}
