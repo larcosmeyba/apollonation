@@ -113,7 +113,7 @@ const DashboardProfile = () => {
           <div className="flex items-center gap-4">
             <div className="relative">
               <ProfileAvatarUpload />
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-background" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-background" style={{ backgroundColor: 'hsl(142, 71%, 45%)' }} />
             </div>
             <div>
               <h1 className="font-heading text-2xl text-foreground">{profile?.display_name || "Member"}</h1>
