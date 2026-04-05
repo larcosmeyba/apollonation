@@ -18,8 +18,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ['Cinzel', 'serif'],
-        body: ['Inter', 'sans-serif'],
+        heading: ['Playfair Display', 'serif'],
+        body: ['DM Sans', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -67,24 +67,15 @@ export default {
         },
         apollo: {
           black: "hsl(var(--apollo-black))",
-          charcoal: "hsl(var(--apollo-charcoal))",
-          "charcoal-light": "hsl(var(--apollo-charcoal-light))",
           graphite: "hsl(var(--apollo-graphite))",
-          divider: "hsl(var(--apollo-divider))",
-          inactive: "hsl(var(--apollo-inactive))",
-          gray: "hsl(var(--apollo-gray))",
-          white: "hsl(var(--apollo-white))",
-          accent: "hsl(var(--apollo-accent))",
-          // Legacy aliases
+          "graphite-light": "hsl(var(--apollo-graphite-light))",
+          border: "hsl(var(--apollo-border))",
           gold: "hsl(var(--apollo-gold))",
           "gold-light": "hsl(var(--apollo-gold-light))",
           "gold-dark": "hsl(var(--apollo-gold-dark))",
-          bronze: "hsl(var(--apollo-bronze))",
-          sandstone: "hsl(var(--apollo-sandstone))",
-          marble: "hsl(var(--apollo-marble))",
-          ivory: "hsl(var(--apollo-ivory))",
-          taupe: "hsl(var(--apollo-taupe))",
-          slate: "hsl(var(--apollo-slate))",
+          white: "hsl(var(--apollo-white))",
+          "soft-gray": "hsl(var(--apollo-soft-gray))",
+          divider: "hsl(var(--apollo-divider))",
         },
       },
       borderRadius: {
