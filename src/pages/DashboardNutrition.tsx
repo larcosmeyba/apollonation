@@ -536,30 +536,28 @@ const DashboardNutrition = () => {
 
           {/* ── Meal Plan Section ── */}
           {!activePlan ? (
-            <Card className="bg-card border-border">
-              <CardContent className="py-12 text-center">
-                {!hasQuestionnaire ? (
-                  <>
-                    <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                      <AlertCircle className="w-7 h-7 text-muted-foreground" />
-                    </div>
-                    <h3 className="font-heading text-lg mb-2">Complete Your Profile First</h3>
-                    <p className="text-muted-foreground text-sm mb-1">Complete your questionnaire to receive a personalized meal plan.</p>
-                    <p className="text-xs text-muted-foreground mb-6">Your meals will automatically refresh every week once set up.</p>
-                    <Link to="/questionnaire"><Button variant="apollo" className="gap-2"><ClipboardList className="w-4 h-4" /> Complete Questionnaire</Button></Link>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                      <Utensils className="w-7 h-7 text-muted-foreground" />
-                    </div>
-                    <h3 className="font-heading text-lg mb-2">Plan Being Prepared</h3>
-                    <p className="text-muted-foreground text-sm mb-1">Coach Marcos is setting up your nutrition plan. Check back soon!</p>
-                    <p className="text-xs text-muted-foreground">Once ready, meals refresh automatically every Monday.</p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+            <div className="card-apollo py-12 text-center">
+              {!hasQuestionnaire ? (
+                <>
+                  <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
+                    <AlertCircle className="w-7 h-7 text-accent" />
+                  </div>
+                  <h3 className="font-heading text-lg text-foreground mb-2">Complete Your Profile First</h3>
+                  <p className="text-muted-foreground text-sm mb-1">Complete your questionnaire to receive a personalized meal plan.</p>
+                  <p className="text-[10px] text-muted-foreground mb-6">Your meals will automatically refresh every week once set up.</p>
+                  <Link to="/questionnaire"><Button variant="apollo" className="gap-2 rounded-full"><ClipboardList className="w-4 h-4" /> Complete Questionnaire</Button></Link>
+                </>
+              ) : (
+                <>
+                  <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
+                    <Utensils className="w-7 h-7 text-accent" />
+                  </div>
+                  <h3 className="font-heading text-lg text-foreground mb-2">Plan Being Prepared</h3>
+                  <p className="text-muted-foreground text-sm mb-1">Your nutrition plan is being set up. Check back soon!</p>
+                  <p className="text-[10px] text-muted-foreground">Once ready, meals refresh automatically every Monday.</p>
+                </>
+              )}
+            </div>
           ) : (
             <>
               {plans && plans.length > 1 && (
