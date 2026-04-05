@@ -256,9 +256,8 @@ const DashboardWorkouts = () => {
 
             {/* Types — 2-column grid with image backgrounds */}
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4">
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Types</h2>
-                <span className="text-sm font-bold text-foreground">View All</span>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {TYPES.map((type) => (
