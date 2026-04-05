@@ -35,7 +35,7 @@ const About = () => {
         {/* The Coach */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Meet the Coach
+            Meet the Founder
           </h2>
           <p className="text-sm text-foreground leading-relaxed">
             Marcos Leyba is a certified fitness coach and the founder of Apollo Nation. With years of experience in personal training, group coaching, and program design, Marcos has helped hundreds of clients transform their bodies and build sustainable fitness habits.
@@ -52,10 +52,8 @@ const About = () => {
           </h2>
           <div className="space-y-3">
             {[
-              { title: "On-Demand Workouts", desc: "New classes added weekly — Strength, HIIT, Sculpt, Cardio, Yoga, and more." },
-              { title: "Structured Programs", desc: "Multi-week training plans designed for real progression and results." },
+              { title: "On-Demand Workouts", desc: "New classes added weekly — Strength, HIIT, Sculpt, Cardio, and more." },
               { title: "Nutrition Guidance", desc: "Personalized meal plans, macro tracking, and grocery lists tailored to your goals." },
-              { title: "Coach Access", desc: "Direct connection to your coach for guidance, accountability, and support." },
             ].map((item) => (
               <div key={item.title} className="p-4 rounded-2xl bg-card border border-border">
                 <h3 className="text-sm font-bold text-foreground">{item.title}</h3>
@@ -65,19 +63,6 @@ const About = () => {
           </div>
         </div>
 
-        {/* Values */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            What We Stand For
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            {["Structure Over Chaos", "Consistency Over Perfection", "Coaching Over Content", "Community Over Competition"].map((value) => (
-              <div key={value} className="p-4 rounded-2xl bg-card border border-border text-center">
-                <p className="text-xs font-bold text-foreground">{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </DashboardLayout>
   );
