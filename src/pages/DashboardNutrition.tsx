@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,8 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart,
   Loader2, Lightbulb, DollarSign, Store, RefreshCw, Check, Sparkles,
-  ClipboardList, AlertCircle, Plus, Trash2, Upload, Clock,
+  ClipboardList, AlertCircle, Plus, Trash2, Upload, Clock, Pencil,
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,6 +52,24 @@ type MealSuggestion = {
   fat_grams: number;
 };
 
+const calculateMacros = (age: number, sex: string, heightInches: number, weightLbs: number, activityLevel: string, goal: string) => {
+  const weightKg = weightLbs * 0.453592;
+  const heightCm = heightInches * 2.54;
+  // Mifflin-St Jeor
+  let bmr = sex === "female"
+    ? 10 * weightKg + 6.25 * heightCm - 5 * age - 161
+    : 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
+  const multipliers: Record<string, number> = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 };
+  let tdee = bmr * (multipliers[activityLevel] || 1.55);
+  if (goal === "lose_fat") tdee -= 500;
+  else if (goal === "gain_weight" || goal === "gain_muscle") tdee += 350;
+  const calories = Math.round(tdee);
+  const protein = Math.round(weightLbs * (goal === "gain_muscle" ? 1.0 : 0.8));
+  const fat = Math.round((calories * 0.25) / 9);
+  const carbs = Math.round((calories - protein * 4 - fat * 9) / 4);
+  return { calories, protein, carbs, fat };
+};
+
 const DashboardNutrition = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
@@ -76,6 +95,12 @@ const DashboardNutrition = () => {
   const [manualEntry, setManualEntry] = useState({
     meal_name: "", calories: "", protein: "", carbs: "", fat: "",
   });
+  const [macroCalc, setMacroCalc] = useState({
+    height_ft: "", height_in: "", weight: "", sex: "male", age: "", activity_level: "moderate", goal: "maintain",
+  });
+  const [calculatedMacros, setCalculatedMacros] = useState<{ calories: number; protein: number; carbs: number; fat: number } | null>(null);
+  const [macroEditing, setMacroEditing] = useState(false);
+  const [macroSaving, setMacroSaving] = useState(false);
 
   const selectedDate = format(new Date(), "yyyy-MM-dd");
   const isElite = profile?.subscription_tier === "elite";
@@ -138,12 +163,93 @@ const DashboardNutrition = () => {
     },
   });
 
+  // ── Nutrition Profile (macro calculator saved data) ──
+  const { data: nutritionProfile } = useQuery({
+    queryKey: ["nutrition-profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase.from("client_nutrition_profiles").select("*").eq("user_id", user.id).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Load saved profile into calculator
+  useEffect(() => {
+    if (nutritionProfile && !macroEditing && calculatedMacros === null) {
+      const totalInches = nutritionProfile.height_inches || 0;
+      const ft = Math.floor(totalInches / 12);
+      const inches = totalInches % 12;
+      setMacroCalc({
+        height_ft: ft.toString(),
+        height_in: inches.toString(),
+        weight: nutritionProfile.weight_lbs?.toString() || "",
+        sex: (nutritionProfile.dietary_preferences?.[0] === "female" ? "female" : "male"),
+        age: nutritionProfile.age?.toString() || "",
+        activity_level: nutritionProfile.activity_level || "moderate",
+        goal: nutritionProfile.goals || "maintain",
+      });
+      const calcMacros = calculateMacros(
+        nutritionProfile.age || 25,
+        nutritionProfile.dietary_preferences?.[0] === "female" ? "female" : "male",
+        nutritionProfile.height_inches || 68,
+        Number(nutritionProfile.weight_lbs) || 150,
+        nutritionProfile.activity_level || "moderate",
+        nutritionProfile.goals || "maintain"
+      );
+      setCalculatedMacros(calcMacros);
+    }
+  }, [nutritionProfile]);
+
+  const handleCalcMacros = () => {
+    const heightInches = (parseInt(macroCalc.height_ft) || 0) * 12 + (parseInt(macroCalc.height_in) || 0);
+    const result = calculateMacros(
+      parseInt(macroCalc.age) || 25,
+      macroCalc.sex,
+      heightInches,
+      parseInt(macroCalc.weight) || 150,
+      macroCalc.activity_level,
+      macroCalc.goal
+    );
+    setCalculatedMacros(result);
+  };
+
+  const handleSaveMacroProfile = async () => {
+    if (!user) return;
+    setMacroSaving(true);
+    const heightInches = (parseInt(macroCalc.height_ft) || 0) * 12 + (parseInt(macroCalc.height_in) || 0);
+    const payload = {
+      user_id: user.id,
+      age: parseInt(macroCalc.age) || null,
+      height_inches: heightInches || null,
+      weight_lbs: parseInt(macroCalc.weight) || null,
+      activity_level: macroCalc.activity_level,
+      goals: macroCalc.goal,
+      dietary_preferences: [macroCalc.sex],
+    };
+    try {
+      if (nutritionProfile) {
+        await supabase.from("client_nutrition_profiles").update(payload).eq("id", nutritionProfile.id);
+      } else {
+        await supabase.from("client_nutrition_profiles").insert(payload);
+      }
+      queryClient.invalidateQueries({ queryKey: ["nutrition-profile"] });
+      setMacroEditing(false);
+      toast({ title: "Macro profile saved!" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setMacroSaving(false);
+    }
+  };
+
   // ── Derived state ──
   const targets = {
-    calories: activePlan?.daily_calories || 2500,
-    protein: activePlan?.protein_grams || 180,
-    carbs: activePlan?.carbs_grams || 300,
-    fat: activePlan?.fat_grams || 70,
+    calories: activePlan?.daily_calories || calculatedMacros?.calories || 2500,
+    protein: activePlan?.protein_grams || calculatedMacros?.protein || 180,
+    carbs: activePlan?.carbs_grams || calculatedMacros?.carbs || 300,
+    fat: activePlan?.fat_grams || calculatedMacros?.fat || 70,
   };
 
   const loggedTotals = macroEntries.reduce(
@@ -441,7 +547,112 @@ const DashboardNutrition = () => {
             <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
           </div>
 
-          {/* ── Nutrition Summary Card ── */}
+          {/* ── Macro Calculator ── */}
+          <div className="bg-white rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-base tracking-wide text-black">Your Macro Targets</h2>
+              <button onClick={() => setMacroEditing(!macroEditing)} className="p-1.5 rounded-full hover:bg-black/10 transition-colors">
+                <Pencil className="w-4 h-4 text-black/60" />
+              </button>
+            </div>
+
+            {calculatedMacros && !macroEditing ? (
+              <div className="grid grid-cols-4 gap-2">
+                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
+                  <p className="text-lg font-heading text-black">{calculatedMacros.calories}</p>
+                  <p className="text-[10px] text-black/60 font-semibold uppercase">Calories</p>
+                </div>
+                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
+                  <p className="text-lg font-heading text-black">{calculatedMacros.protein}g</p>
+                  <p className="text-[10px] text-black/60 font-semibold uppercase">Protein</p>
+                </div>
+                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
+                  <p className="text-lg font-heading text-black">{calculatedMacros.carbs}g</p>
+                  <p className="text-[10px] text-black/60 font-semibold uppercase">Carbs</p>
+                </div>
+                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
+                  <p className="text-lg font-heading text-black">{calculatedMacros.fat}g</p>
+                  <p className="text-[10px] text-black/60 font-semibold uppercase">Fat</p>
+                </div>
+                <div className="col-span-4 mt-2 flex gap-2 flex-wrap">
+                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium capitalize">{macroCalc.goal.replace("_", " ")}</span>
+                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium capitalize">{macroCalc.activity_level.replace("_", " ")}</span>
+                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium">{macroCalc.height_ft}'{macroCalc.height_in}" · {macroCalc.weight} lbs</span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Height (ft)</label>
+                    <Input type="number" placeholder="5" value={macroCalc.height_ft} onChange={(e) => setMacroCalc(p => ({ ...p, height_ft: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Height (in)</label>
+                    <Input type="number" placeholder="8" value={macroCalc.height_in} onChange={(e) => setMacroCalc(p => ({ ...p, height_in: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Weight (lbs)</label>
+                    <Input type="number" placeholder="160" value={macroCalc.weight} onChange={(e) => setMacroCalc(p => ({ ...p, weight: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Sex</label>
+                    <Select value={macroCalc.sex} onValueChange={(v) => setMacroCalc(p => ({ ...p, sex: v }))}>
+                      <SelectTrigger className="bg-black/5 border-black/10 text-black h-9 text-sm"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Age</label>
+                    <Input type="number" placeholder="25" value={macroCalc.age} onChange={(e) => setMacroCalc(p => ({ ...p, age: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Activity Level</label>
+                    <Select value={macroCalc.activity_level} onValueChange={(v) => setMacroCalc(p => ({ ...p, activity_level: v }))}>
+                      <SelectTrigger className="bg-black/5 border-black/10 text-black h-9 text-sm"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sedentary">Sedentary</SelectItem>
+                        <SelectItem value="light">Light</SelectItem>
+                        <SelectItem value="moderate">Moderate</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="very_active">Very Active</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Goal</label>
+                    <Select value={macroCalc.goal} onValueChange={(v) => setMacroCalc(p => ({ ...p, goal: v }))}>
+                      <SelectTrigger className="bg-black/5 border-black/10 text-black h-9 text-sm"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="maintain">Maintain Weight</SelectItem>
+                        <SelectItem value="lose_fat">Lose Fat</SelectItem>
+                        <SelectItem value="gain_weight">Gain Weight</SelectItem>
+                        <SelectItem value="gain_muscle">Gain Muscle</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button onClick={() => { handleCalcMacros(); }} className="flex-1 bg-black text-white hover:bg-black/80 font-bold text-sm h-9">
+                    Calculate
+                  </Button>
+                  {calculatedMacros && (
+                    <Button onClick={handleSaveMacroProfile} disabled={macroSaving} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-sm h-9">
+                      {macroSaving ? "Saving..." : "Save"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="bg-white rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-heading text-lg tracking-wide text-black">Today's Nutrition</h2>
