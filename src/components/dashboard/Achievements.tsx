@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subDays } from "date-fns";
-import { Trophy, Dumbbell, Flame, Zap, Star, Target, Award } from "lucide-react";
+import { Trophy, Dumbbell, Flame, Zap, Star, Target, Award, Heart, Shield, Medal } from "lucide-react";
 
 interface AchievementDef {
   id: string;
