@@ -23,7 +23,7 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type Workout = Tables<"workouts">;
 
-const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7];
+const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7, marcos2, marcos3, marcos5, marcos8];
 
 const TYPE_IMAGES: Record<string, string> = {
   Strength: stockArms,
