@@ -24,6 +24,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import ApolloSystem from "./pages/ApolloSystem";
+import About from "./pages/About";
+import FAQ from "./pages/FAQ";
 import PlanReady from "./pages/PlanReady";
 import DashboardTransformation from "./pages/DashboardTransformation";
 import DashboardRecovery from "./pages/DashboardRecovery";
