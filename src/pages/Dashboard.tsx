@@ -183,21 +183,21 @@ const Dashboard = () => {
   const isRestDay = !todayWorkout;
   const isViewingToday = isSameDay(selectedDate, new Date());
 
-  const MacroRing = ({ current, target, label, size = 48 }: { current: number; target: number; label: string; size?: number }) => {
+  const MacroRing = ({ current, target, label, size = 44 }: { current: number; target: number; label: string; size?: number }) => {
     const pct = Math.min(Math.round((current / target) * 100), 100);
     const rem = Math.max(0, target - current);
     return (
-      <div className="flex flex-col items-center gap-1">
+      <div className="flex flex-col items-center gap-0.5">
         <div className="relative" style={{ width: size, height: size }}>
           <svg className="-rotate-90" viewBox="0 0 36 36" width={size} height={size}>
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray={`${pct}, 100`} strokeLinecap="round" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--border))" strokeWidth="3" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--foreground))" strokeWidth="3" strokeDasharray={`${pct}, 100`} strokeLinecap="round" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xs font-heading">{rem}</span>
+            <span className="text-[10px] font-heading text-foreground/80">{rem}</span>
           </div>
         </div>
-        <span className="text-[10px] text-muted-foreground">{label}</span>
+        <span className="text-[8px] text-muted-foreground/40 font-light">{label}</span>
       </div>
     );
   };
