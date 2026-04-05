@@ -156,36 +156,36 @@ const Index = () => {
       </section>
 
       {/* ═══ 4. STRUCTURED PROGRAMS ═══ */}
-      <section className="py-12 md:py-16 border-t border-white/5">
+      <section className="py-10 md:py-14 border-t border-border/10">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">Programs</span>
-            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
+          <div className="text-center mb-6">
+            <span className="text-[9px] uppercase tracking-[0.35em] text-foreground/20 mb-2 block font-light">Programs</span>
+            <h2 className="font-heading text-2xl md:text-3xl text-foreground tracking-wide mb-2">
               Structured Training Programs
             </h2>
-            <p className="text-white/50 font-light leading-relaxed max-w-md mx-auto">
+            <p className="text-foreground/35 font-light leading-relaxed max-w-sm mx-auto text-sm">
               Follow proven training programs designed to help you build strength, improve endurance, and stay consistent.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl mx-auto">
             {PROGRAMS.map((p) => (
               <div
                 key={p.title}
-                className="p-5 border border-white/10 rounded-2xl bg-card hover:border-white/20 transition-all duration-500"
+                className="p-4 border border-border/20 rounded-xl bg-card/50 hover:border-border/40 transition-all duration-500"
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center flex-shrink-0">
-                    <Dumbbell className="w-4 h-4 text-white/60" strokeWidth={1.5} />
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-8 h-8 rounded-full border border-border/20 flex items-center justify-center flex-shrink-0">
+                    <Dumbbell className="w-3.5 h-3.5 text-foreground/30" strokeWidth={1.5} />
                   </div>
-                  <h3 className="font-heading text-sm text-white tracking-wide">{p.title}</h3>
+                  <h3 className="font-heading text-xs text-foreground/80 tracking-wide">{p.title}</h3>
                 </div>
-                <div className="flex items-center gap-4 text-white/40 text-xs font-light">
+                <div className="flex items-center gap-3 text-foreground/25 text-[10px] font-light">
                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{p.duration}</span>
                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{p.schedule}</span>
                 </div>
-                <div className="mt-3">
-                  <span className="text-[10px] uppercase tracking-wider text-white/30 font-light border border-white/10 rounded-full px-2.5 py-0.5">
+                <div className="mt-2.5">
+                  <span className="text-[9px] uppercase tracking-wider text-foreground/15 font-light border border-border/15 rounded-full px-2 py-0.5">
                     {p.level}
                   </span>
                 </div>
