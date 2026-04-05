@@ -144,7 +144,7 @@ const Index = () => {
       <section id="pillars" className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <span className="section-label text-accent mb-3 block">The Platform</span>
+            <span className="section-label mb-3 block">The Platform</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight">
               Everything You Need to Train
             </h2>
