@@ -440,7 +440,7 @@ const DashboardWorkouts = () => {
                     </div>
                     {selectedWorkout.calories_estimate && (
                       <div className="bg-card p-4 rounded-2xl text-center border border-border">
-                        <p className="text-[10px] text-foreground/40 font-bold uppercase">Calories</p>
+                        <p className="text-[10px] text-white font-bold uppercase">Calories</p>
                         <p className="text-lg font-bold text-foreground mt-1">{selectedWorkout.calories_estimate}</p>
                       </div>
                     )}
