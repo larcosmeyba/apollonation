@@ -145,6 +145,45 @@ const DashboardNutrition = () => {
     },
   });
 
+  // ── Nutrition Profile (macro calculator saved data) ──
+  const { data: nutritionProfile } = useQuery({
+    queryKey: ["nutrition-profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase.from("client_nutrition_profiles").select("*").eq("user_id", user.id).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Load saved profile into calculator
+  const profileLoaded = !!nutritionProfile;
+  if (nutritionProfile && !macroEditing && calculatedMacros === null && profileLoaded) {
+    const totalInches = nutritionProfile.height_inches || 0;
+    const ft = Math.floor(totalInches / 12);
+    const inches = totalInches % 12;
+    setMacroCalc({
+      height_ft: ft.toString(),
+      height_in: inches.toString(),
+      weight: nutritionProfile.weight_lbs?.toString() || "",
+      sex: (nutritionProfile.dietary_preferences?.[0] === "female" ? "female" : "male"),
+      age: nutritionProfile.age?.toString() || "",
+      activity_level: nutritionProfile.activity_level || "moderate",
+      goal: nutritionProfile.goals || "maintain",
+    });
+    // Recalculate
+    const calcMacros = calculateMacros(
+      nutritionProfile.age || 25,
+      nutritionProfile.dietary_preferences?.[0] === "female" ? "female" : "male",
+      nutritionProfile.height_inches || 68,
+      Number(nutritionProfile.weight_lbs) || 150,
+      nutritionProfile.activity_level || "moderate",
+      nutritionProfile.goals || "maintain"
+    );
+    setCalculatedMacros(calcMacros);
+  }
+
   // ── Derived state ──
   const targets = {
     calories: activePlan?.daily_calories || 2500,
