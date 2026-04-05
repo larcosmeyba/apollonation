@@ -35,10 +35,10 @@ const FEATURES = [
 
 const WORKOUT_CATEGORIES = [
   { title: "Strength", image: marcosAction1 },
-  { title: "Sculpt", image: marcosAction6 },
+  { title: "Sculpt", image: marcosAction7 },
   { title: "Mobility", image: marcos6 },
   { title: "Core", image: marcos7 },
-  { title: "Cardio", image: marcosAction1 },
+  { title: "Cardio", image: marcosAction6 },
   { title: "Stretch", image: marcos6 },
 ];
 
