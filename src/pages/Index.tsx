@@ -171,7 +171,7 @@ const Index = () => {
       <section id="workouts" className="py-20 md:py-28 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <span className="section-label text-accent mb-3 block">Workouts</span>
+            <span className="section-label mb-3 block">Workouts</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
               On-Demand Workout Library
             </h2>
