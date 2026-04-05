@@ -571,8 +571,8 @@ const DashboardNutrition = () => {
               )}
 
               {/* Weekly refresh banner */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/10 border border-accent/20">
-                <Sparkles className="w-4 h-4 text-foreground flex-shrink-0" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/10 border border-accent/20">
+                <Sparkles className="w-4 h-4 text-accent flex-shrink-0" />
                 <p className="text-xs text-muted-foreground flex-1">Meals refresh every Monday. Want something different? Hit regenerate.</p>
               </div>
 
