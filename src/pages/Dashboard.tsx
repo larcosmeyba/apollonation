@@ -230,7 +230,7 @@ const Dashboard = () => {
         </div>
 
         {/* Section 2 — Weekly Calendar Strip */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 -mx-1 px-1">
+        <div className="flex items-center gap-0.5 overflow-x-auto pb-1">
           {weekDates.map((date) => {
             const isSelected = isSameDay(date, selectedDate);
             const isTodayDate = isToday(date);
@@ -238,16 +238,16 @@ const Dashboard = () => {
               <button
                 key={date.toISOString()}
                 onClick={() => setSelectedDate(date)}
-                className={`flex flex-col items-center justify-center min-w-[44px] py-2 px-1 rounded-xl transition-all ${
+                className={`flex flex-col items-center justify-center min-w-[42px] py-2 px-1 rounded-lg transition-all ${
                   isSelected
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-foreground text-background"
                     : isTodayDate
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted"
+                    ? "bg-foreground/5 text-foreground"
+                    : "text-muted-foreground/40 hover:bg-foreground/5"
                 }`}
               >
-                <span className="text-[10px] font-medium uppercase">{format(date, "EEE")}</span>
-                <span className={`text-base font-heading ${isSelected ? "text-primary-foreground" : ""}`}>
+                <span className="text-[9px] font-light uppercase tracking-wider">{format(date, "EEE")}</span>
+                <span className={`text-sm font-heading ${isSelected ? "text-background" : ""}`}>
                   {format(date, "d")}
                 </span>
               </button>
