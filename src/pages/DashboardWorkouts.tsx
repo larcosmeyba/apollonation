@@ -56,7 +56,7 @@ const getYouTubeThumbnail = (url: string): string | null => {
   return null;
 };
 
-const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Recovery", "Core", "Stretch", "Yoga", "Senior"];
+const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch", "Senior"];
 
 const DashboardWorkouts = () => {
   const { user } = useAuth();
