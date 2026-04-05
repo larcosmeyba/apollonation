@@ -125,10 +125,10 @@ const DashboardRecipes = () => {
                   tabIndex={0}
                   onClick={() => setSelectedRecipe(recipe)}
                   onKeyDown={(e) => e.key === "Enter" && setSelectedRecipe(recipe)}
-                  className="card-apollo group overflow-hidden hover:border-primary/50 transition-all cursor-pointer select-none"
+                  className="bg-white rounded-2xl border border-black/10 group overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all cursor-pointer select-none"
                 >
                   {/* Thumbnail */}
-                  <div className="relative aspect-video overflow-hidden bg-muted">
+                  <div className="relative aspect-video overflow-hidden bg-gray-100">
                     {recipe.thumbnail_url ? (
                       <img
                         src={recipe.thumbnail_url}
@@ -138,7 +138,7 @@ const DashboardRecipes = () => {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ChefHat className="w-10 h-10 text-muted-foreground/30" />
+                        <ChefHat className="w-10 h-10 text-black/20" />
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -160,22 +160,22 @@ const DashboardRecipes = () => {
                       />
                     </button>
 
-                    {/* Meta info */}
+                    {/* Meta info - stays white over photo */}
                     <div className="absolute bottom-3 left-3 right-3 flex items-center gap-3">
                       {(recipe.prep_time_minutes || recipe.cook_time_minutes) && (
-                        <span className="flex items-center gap-1 text-xs text-white/90">
+                        <span className="flex items-center gap-1 text-xs text-white font-medium">
                           <Clock className="w-3 h-3" />
                           {(recipe.prep_time_minutes || 0) + (recipe.cook_time_minutes || 0)} min
                         </span>
                       )}
                       {recipe.servings && (
-                        <span className="flex items-center gap-1 text-xs text-white/90">
+                        <span className="flex items-center gap-1 text-xs text-white font-medium">
                           <Users className="w-3 h-3" />
                           {recipe.servings} servings
                         </span>
                       )}
                       {recipe.calories_per_serving && (
-                        <span className="flex items-center gap-1 text-xs text-white/90">
+                        <span className="flex items-center gap-1 text-xs text-white font-medium">
                           <Flame className="w-3 h-3" />
                           {recipe.calories_per_serving} cal
                         </span>
@@ -183,22 +183,22 @@ const DashboardRecipes = () => {
                     </div>
                   </div>
 
-                  {/* Content */}
+                  {/* Content - black text on white bg */}
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-primary uppercase tracking-wide">
+                      <span className="text-xs text-black/60 uppercase tracking-wide font-bold">
                         {recipe.category || "Recipe"}
                       </span>
                     </div>
-                    <h3 className="font-heading text-lg mb-2">{recipe.title}</h3>
+                    <h3 className="font-heading text-lg text-black">{recipe.title}</h3>
                     {recipe.description && (
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      <p className="text-sm text-black/60 mb-3 line-clamp-2">
                         {recipe.description}
                       </p>
                     )}
 
                     {/* Macros */}
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                    <div className="flex items-center gap-3 text-xs text-black/70 font-medium mb-3">
                       {recipe.protein_grams != null && <span>P: {recipe.protein_grams}g</span>}
                       {recipe.carbs_grams != null && <span>C: {recipe.carbs_grams}g</span>}
                       {recipe.fat_grams != null && <span>F: {recipe.fat_grams}g</span>}
@@ -208,7 +208,7 @@ const DashboardRecipes = () => {
                     {recipe.dietary_tags && (
                       <div className="flex flex-wrap gap-1">
                         {recipe.dietary_tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
+                          <Badge key={tag} variant="secondary" className="text-xs bg-black/5 text-black/70 border-black/10">
                             {tag}
                           </Badge>
                         ))}
