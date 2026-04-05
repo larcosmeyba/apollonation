@@ -461,7 +461,7 @@ const DashboardWorkouts = () => {
                                 <span>{we.sets}×{we.reps}</span>
                                 {we.rest_seconds && <span>Rest: {we.rest_seconds}s</span>}
                                 {we.exercises?.muscle_group && (
-                                  <Badge variant="secondary" className="text-[9px] py-0 bg-foreground/5 text-foreground/40 border-0">{we.exercises.muscle_group}</Badge>
+                                  <Badge variant="secondary" className="text-[9px] py-0 bg-foreground/5 text-white border-0">{we.exercises.muscle_group}</Badge>
                                 )}
                               </div>
                             </div>
