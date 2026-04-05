@@ -622,7 +622,7 @@ const DashboardNutrition = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <Button variant="ghost" size="sm" disabled={currentWeek <= 1} onClick={() => setCurrentWeek(w => w - 1)}><ChevronLeft className="w-4 h-4" /></Button>
-                      <span className="font-heading text-base">Week {currentWeek}</span>
+                      <span className="font-heading text-base text-white">Week {currentWeek}</span>
                       <Button variant="ghost" size="sm" disabled={currentWeek >= (activePlan.duration_weeks || 4)} onClick={() => setCurrentWeek(w => w + 1)}><ChevronRight className="w-4 h-4" /></Button>
                     </div>
                     <Button variant="apollo-outline" size="sm" onClick={regenerateWeek} disabled={regenerating} className="gap-1.5 text-xs">
