@@ -213,8 +213,8 @@ const IPhoneMockup = () => {
     <div ref={sectionRef} className="flex justify-center">
       {/* Glow behind phone */}
       <div className="relative">
-        <div className="absolute -inset-8 bg-accent/5 rounded-full blur-3xl" />
-        <div className="absolute -inset-16 bg-accent/3 rounded-full blur-[60px]" />
+        <div className="absolute -inset-10 bg-accent/8 rounded-full blur-3xl" />
+        <div className="absolute -inset-20 bg-accent/4 rounded-full blur-[80px]" />
 
         {/* Phone with 3D perspective + float animation */}
         <div
@@ -226,14 +226,14 @@ const IPhoneMockup = () => {
         >
           {/* Long shadow behind */}
           <div
-            className="absolute -bottom-6 left-4 right-4 h-16 rounded-[2rem] bg-black/40 blur-2xl"
+            className="absolute -bottom-8 left-2 right-2 h-20 rounded-[2rem] bg-black/50 blur-3xl"
             style={{ transform: "translateZ(-40px)" }}
           />
           {/* Soft shadow directly under */}
-          <div className="absolute -bottom-3 left-2 right-2 h-8 rounded-[2rem] bg-black/30 blur-xl" />
+          <div className="absolute -bottom-4 left-1 right-1 h-10 rounded-[2rem] bg-black/40 blur-xl" />
 
-          {/* iPhone 15 Frame */}
-          <div className="w-[280px] md:w-[300px] rounded-[2.5rem] bg-gradient-to-b from-[#2A2E36] to-[#1a1d23] p-[3px] shadow-2xl relative">
+          {/* iPhone 15 Frame — larger */}
+          <div className="w-[300px] md:w-[340px] rounded-[2.5rem] bg-gradient-to-b from-[#2A2E36] to-[#1a1d23] p-[3px] shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative">
             {/* Inner bezel */}
             <div className="rounded-[2.3rem] bg-background overflow-hidden relative">
               {/* Dynamic Island */}
