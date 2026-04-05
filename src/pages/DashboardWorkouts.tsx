@@ -228,18 +228,18 @@ const DashboardWorkouts = () => {
             <button
               onClick={() => setActiveTab("explore")}
               className={`flex-1 pb-3 text-sm font-bold text-center transition-colors relative ${
-                activeTab === "explore" ? "text-foreground" : "text-foreground/40"
+              activeTab === "explore" ? "text-white" : "text-white/40"
               }`}
             >
               Explore
               {activeTab === "explore" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
               )}
             </button>
             <button
               onClick={() => setActiveTab("collections")}
               className={`flex-1 pb-3 text-sm font-bold text-center transition-colors relative ${
-                activeTab === "collections" ? "text-foreground" : "text-foreground/40"
+                activeTab === "collections" ? "text-white" : "text-white/40"
               }`}
             >
               Collections
