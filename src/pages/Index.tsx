@@ -97,14 +97,14 @@ const Index = () => {
       </header>
 
       {/* ═══ 2. WHAT APOLLO IS ═══ */}
-      <section className="py-12 md:py-16 border-t border-white/5">
+      <section className="py-10 md:py-14 border-t border-border/10">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block font-light">The Platform</span>
-            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
+          <div className="max-w-lg mx-auto text-center">
+            <span className="text-[9px] uppercase tracking-[0.35em] text-foreground/20 mb-2 block font-light">The Platform</span>
+            <h2 className="font-heading text-2xl md:text-3xl text-foreground tracking-wide mb-3">
               Your Fitness System
             </h2>
-            <p className="text-white/50 font-light leading-relaxed text-base max-w-lg mx-auto">
+            <p className="text-foreground/35 font-light leading-relaxed text-sm max-w-md mx-auto">
               Apollo Nation combines on-demand workouts, structured training programs, and practical nutrition tools to help you stay consistent wherever you train.
             </p>
           </div>
