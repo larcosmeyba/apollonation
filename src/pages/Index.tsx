@@ -250,26 +250,26 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+          <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
             {PROGRAMS.map((p) => (
               <div
                 key={p.title}
                 className="card-apollo group cursor-default"
               >
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors">
-                    <Dumbbell className="w-5 h-5 text-accent" strokeWidth={1.5} />
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="w-14 h-14 rounded-2xl bg-accent/15 border border-accent/25 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/25 transition-colors">
+                    <Dumbbell className="w-6 h-6 text-accent" strokeWidth={1.5} />
                   </div>
-                  <h3 className="font-heading text-lg text-foreground">{p.title}</h3>
+                  <div>
+                    <h3 className="font-heading text-lg text-foreground">{p.title}</h3>
+                    <span className="text-xs text-accent font-semibold border border-accent/25 rounded-full px-3 py-0.5 inline-block mt-1">
+                      {p.level}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 text-muted-foreground text-sm">
-                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{p.duration}</span>
-                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{p.schedule}</span>
-                </div>
-                <div className="mt-4">
-                  <span className="text-xs text-accent border border-accent/20 rounded-full px-3 py-1">
-                    {p.level}
-                  </span>
+                <div className="flex items-center gap-5 text-muted-foreground text-sm">
+                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-accent/60" />{p.duration}</span>
+                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-accent/60" />{p.schedule}</span>
                 </div>
               </div>
             ))}
