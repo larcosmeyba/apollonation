@@ -535,7 +535,7 @@ const DashboardNutrition = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="font-heading text-lg tracking-wide">Recipes</h2>
-                <Link to="/dashboard/recipes" className="text-xs text-accent hover:text-accent/80 transition-colors font-medium">
+                <Link to="/dashboard/recipes" className="text-xs text-white hover:text-white/80 transition-colors font-bold">
                   View All →
                 </Link>
               </div>
@@ -544,20 +544,20 @@ const DashboardNutrition = () => {
                   <Link
                     key={recipe.id}
                     to="/dashboard/recipes"
-                    className="flex-shrink-0 w-40 rounded-2xl border border-border bg-card overflow-hidden hover:border-accent/30 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all"
+                    className="flex-shrink-0 w-40 rounded-2xl border border-black/10 bg-white overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all"
                   >
                     {recipe.thumbnail_url ? (
                       <div className="aspect-square overflow-hidden">
                         <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" loading="lazy" />
                       </div>
                     ) : (
-                      <div className="aspect-square bg-muted flex items-center justify-center">
-                        <Utensils className="w-6 h-6 text-muted-foreground/30" />
+                      <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                        <Utensils className="w-6 h-6 text-black/20" />
                       </div>
                     )}
                     <div className="p-3">
-                      <p className="text-xs font-semibold text-foreground line-clamp-2 leading-tight">{recipe.title}</p>
-                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-muted-foreground">
+                      <p className="text-xs font-semibold text-black line-clamp-2 leading-tight">{recipe.title}</p>
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-black/60">
                         {recipe.calories_per_serving && <span>{recipe.calories_per_serving} cal</span>}
                         {recipe.prep_time_minutes && (
                           <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{recipe.prep_time_minutes}m</span>
