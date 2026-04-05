@@ -20,20 +20,37 @@ interface Stats {
 }
 
 const ACHIEVEMENTS: AchievementDef[] = [
+  // Workout milestones
   { id: "first-workout", title: "First Rep", description: "Complete your first workout", icon: Dumbbell, check: (s) => s.totalWorkouts >= 1 },
   { id: "five-workouts", title: "Getting Started", description: "Complete 5 workouts", icon: Zap, check: (s) => s.totalWorkouts >= 5 },
   { id: "ten-workouts", title: "Double Digits", description: "Complete 10 workouts", icon: Shield, check: (s) => s.totalWorkouts >= 10 },
+  { id: "twentyfive-workouts", title: "Quarter Century", description: "Complete 25 workouts", icon: Star, check: (s) => s.totalWorkouts >= 25 },
   { id: "thirty-workouts", title: "Iron Will", description: "Complete 30 workouts", icon: Star, check: (s) => s.totalWorkouts >= 30 },
   { id: "fifty-workouts", title: "Half Century", description: "Complete 50 workouts", icon: Medal, check: (s) => s.totalWorkouts >= 50 },
+  { id: "seventyfive-workouts", title: "Beast Mode", description: "Complete 75 workouts", icon: Flame, check: (s) => s.totalWorkouts >= 75 },
   { id: "hundred-workouts", title: "Centurion", description: "Complete 100 workouts", icon: Trophy, check: (s) => s.totalWorkouts >= 100 },
+  { id: "one-fifty-workouts", title: "Elite Athlete", description: "Complete 150 workouts", icon: Award, check: (s) => s.totalWorkouts >= 150 },
   { id: "two-hundred-workouts", title: "Unstoppable", description: "Complete 200 workouts", icon: Award, check: (s) => s.totalWorkouts >= 200 },
+  { id: "three-hundred-workouts", title: "Spartan", description: "Complete 300 workouts", icon: Shield, check: (s) => s.totalWorkouts >= 300 },
+  { id: "five-hundred-workouts", title: "Legend", description: "Complete 500 workouts", icon: Trophy, check: (s) => s.totalWorkouts >= 500 },
+  // Streak milestones
   { id: "streak-3", title: "3 Day Streak", description: "Stay active 3 consecutive days", icon: Flame, check: (s) => s.currentStreak >= 3 },
+  { id: "streak-5", title: "5 Day Streak", description: "Stay active 5 consecutive days", icon: Flame, check: (s) => s.currentStreak >= 5 },
   { id: "streak-7", title: "7 Day Streak", description: "Stay active for 7 consecutive days", icon: Flame, check: (s) => s.currentStreak >= 7 },
   { id: "streak-14", title: "2 Week Streak", description: "14 consecutive active days", icon: Heart, check: (s) => s.currentStreak >= 14 },
+  { id: "streak-21", title: "3 Week Streak", description: "21 consecutive active days", icon: Heart, check: (s) => s.currentStreak >= 21 },
   { id: "streak-30", title: "30 Day Streak", description: "30 consecutive active days", icon: Award, check: (s) => s.currentStreak >= 30 },
+  { id: "streak-60", title: "60 Day Streak", description: "60 consecutive active days", icon: Trophy, check: (s) => s.currentStreak >= 60 },
+  { id: "streak-90", title: "90 Day Streak", description: "90 consecutive active days — true dedication", icon: Trophy, check: (s) => s.currentStreak >= 90 },
+  // Nutrition milestones
+  { id: "fuel-1", title: "First Fuel", description: "Log your first meal", icon: Target, check: (s) => s.totalMealsLogged >= 1 },
   { id: "fuel-10", title: "Fuel Up", description: "Log 10 meals", icon: Target, check: (s) => s.totalMealsLogged >= 10 },
-  { id: "fuel-master", title: "Fuel Master", description: "Log 50 meals", icon: Target, check: (s) => s.totalMealsLogged >= 50 },
+  { id: "fuel-25", title: "Tracking Pro", description: "Log 25 meals", icon: Target, check: (s) => s.totalMealsLogged >= 25 },
+  { id: "fuel-master", title: "Fuel Master", description: "Log 50 meals", icon: Star, check: (s) => s.totalMealsLogged >= 50 },
   { id: "fuel-legend", title: "Nutrition Pro", description: "Log 100 meals", icon: Star, check: (s) => s.totalMealsLogged >= 100 },
+  { id: "fuel-elite", title: "Nutrition Elite", description: "Log 250 meals", icon: Medal, check: (s) => s.totalMealsLogged >= 250 },
+  { id: "fuel-god", title: "Macro God", description: "Log 500 meals", icon: Trophy, check: (s) => s.totalMealsLogged >= 500 },
+  // PR
   { id: "new-pr", title: "New PR!", description: "Set a new personal record", icon: Trophy, check: (s) => s.hasPR },
 ];
 
