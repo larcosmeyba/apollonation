@@ -9,29 +9,29 @@
 
 @layer base {
   :root {
-    /* Primary Background — White */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 8%;
+    /* Primary Background — Pure Black */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    /* Card surfaces — Light Gray */
-    --card: 0 0% 97%;
-    --card-foreground: 0 0% 8%;
+    /* Card surfaces — Graphite #15181D */
+    --card: 220 14% 10%;
+    --card-foreground: 0 0% 100%;
 
     /* Popover */
-    --popover: 0 0% 97%;
-    --popover-foreground: 0 0% 8%;
+    --popover: 220 14% 10%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Primary — Dark */
-    --primary: 0 0% 8%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary — White */
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
 
-    /* Secondary */
-    --secondary: 0 0% 94%;
-    --secondary-foreground: 0 0% 8%;
+    /* Secondary — Dark graphite */
+    --secondary: 220 14% 10%;
+    --secondary-foreground: 0 0% 100%;
 
-    /* Muted */
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 40%;
+    /* Muted — brighter secondary text */
+    --muted: 220 10% 12%;
+    --muted-foreground: 0 0% 100%;
 
     /* Accent — Apollo Bronze Gold */
     --accent: 32 45% 38%;
@@ -41,24 +41,24 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — visible dark lines */
-    --border: 0 0% 78%;
-    --input: 0 0% 88%;
+    /* Borders — #2A2E36 */
+    --border: 220 12% 18%;
+    --input: 220 14% 12%;
     --ring: 32 45% 38%;
 
     --radius: 1rem;
 
     /* Apollo custom tokens */
-    --apollo-black: 0 0% 8%;
-    --apollo-graphite: 0 0% 94%;
-    --apollo-graphite-light: 0 0% 90%;
-    --apollo-border: 0 0% 78%;
+    --apollo-black: 0 0% 0%;
+    --apollo-graphite: 220 14% 10%;
+    --apollo-graphite-light: 220 12% 14%;
+    --apollo-border: 220 12% 18%;
     --apollo-gold: 32 45% 38%;
     --apollo-gold-light: 35 50% 48%;
     --apollo-gold-dark: 30 40% 28%;
     --apollo-white: 0 0% 100%;
-    --apollo-soft-gray: 0 0% 40%;
-    --apollo-divider: 0 0% 85%;
+    --apollo-soft-gray: 210 8% 78%;
+    --apollo-divider: 220 10% 15%;
 
     /* Chart colors */
     --chart-protein: 40 55% 51%;
@@ -66,17 +66,17 @@
     --chart-fat: 0 0% 40%;
 
     /* Shadows */
-    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
-    --shadow-elevated: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.4);
+    --shadow-elevated: 0 16px 50px rgba(0, 0, 0, 0.6);
 
     /* Sidebar */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 20%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 92%;
     --sidebar-primary: 32 45% 38%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 94%;
-    --sidebar-accent-foreground: 0 0% 20%;
-    --sidebar-border: 0 0% 78%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 220 14% 10%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 220 12% 18%;
     --sidebar-ring: 32 45% 38%;
   }
 
