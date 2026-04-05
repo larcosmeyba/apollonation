@@ -15,11 +15,15 @@ import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
 import stockBack from "@/assets/stock-back.png";
 import stockArms from "@/assets/stock-arms.png";
+import marcos2 from "@/assets/marcos-2.jpg";
+import marcos3 from "@/assets/marcos-3.jpg";
+import marcos5 from "@/assets/marcos-5.jpg";
+import marcos8 from "@/assets/marcos-8.jpg";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Workout = Tables<"workouts">;
 
-const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7];
+const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7, marcos2, marcos3, marcos5, marcos8];
 
 const TYPE_IMAGES: Record<string, string> = {
   Strength: stockArms,
@@ -27,10 +31,10 @@ const TYPE_IMAGES: Record<string, string> = {
   Sculpt: stockBack,
   Cardio: marcosAction1,
   Recovery: marcosAction7,
-  Core: marcosAction6,
-  Stretch: marcosAction7,
-  Yoga: marcosAction1,
-  Senior: stockBack,
+  Core: marcos2,
+  Stretch: marcos3,
+  Yoga: marcos5,
+  Senior: marcos8,
 };
 
 const getYouTubeVideoId = (url: string): string | null => {
@@ -130,7 +134,9 @@ const DashboardWorkouts = () => {
 
   const recentlyAdded = workouts.filter(w => w.created_at >= weekStart);
   const savedWorkouts = workouts.filter(w => favorites.includes(w.id));
-  const featuredWorkouts = workouts.filter(w => w.is_featured);
+  const featuredWorkouts = workouts.filter(w => w.is_featured).length > 0
+    ? workouts.filter(w => w.is_featured)
+    : [...workouts].sort(() => 0.5 - Math.random()).slice(0, 6);
 
   const getWorkoutThumbnail = (workout: Workout): string | null => {
     if (workout.thumbnail_url) return workout.thumbnail_url;
@@ -205,7 +211,7 @@ const DashboardWorkouts = () => {
         {/* Search bar (toggleable) */}
         {showSearch && (
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
             <Input
               placeholder="Search workouts..."
               value={searchQuery}
@@ -222,23 +228,23 @@ const DashboardWorkouts = () => {
             <button
               onClick={() => setActiveTab("explore")}
               className={`flex-1 pb-3 text-sm font-bold text-center transition-colors relative ${
-                activeTab === "explore" ? "text-foreground" : "text-foreground/40"
+              activeTab === "explore" ? "text-white" : "text-white/40"
               }`}
             >
               Explore
               {activeTab === "explore" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
               )}
             </button>
             <button
               onClick={() => setActiveTab("collections")}
               className={`flex-1 pb-3 text-sm font-bold text-center transition-colors relative ${
-                activeTab === "collections" ? "text-foreground" : "text-foreground/40"
+                activeTab === "collections" ? "text-white" : "text-white/40"
               }`}
             >
               Collections
               {activeTab === "collections" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
               )}
             </button>
           </div>
@@ -306,7 +312,7 @@ const DashboardWorkouts = () => {
               </div>
               <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                 <div className="flex flex-col items-center gap-2 flex-shrink-0">
-                  <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-foreground/30 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_25px_rgba(255,255,255,0.25),0_0_50px_rgba(255,255,255,0.1)]">
                     <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
                   </div>
                   <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
@@ -315,7 +321,7 @@ const DashboardWorkouts = () => {
             </div>
 
             {/* Featured */}
-            {featuredWorkouts.length > 0 && (
+            {featuredWorkouts.length > 0 && workouts.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Featured</h2>
@@ -337,7 +343,7 @@ const DashboardWorkouts = () => {
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>All Classes</h2>
               </div>
               {isLoading ? (
-                <p className="text-foreground/30 text-sm py-8 text-center animate-pulse">Loading...</p>
+                <p className="text-white/50 text-sm py-8 text-center animate-pulse">Loading...</p>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                   {workouts.map((w, i) => (
@@ -364,7 +370,7 @@ const DashboardWorkouts = () => {
               </div>
             )}
             {filteredWorkouts.length === 0 ? (
-              <p className="text-foreground/40 text-sm py-12 text-center">No workouts found.</p>
+              <p className="text-white/50 text-sm py-12 text-center">No workouts found.</p>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {filteredWorkouts.map((w, i) => (
@@ -382,7 +388,7 @@ const DashboardWorkouts = () => {
               <div className="text-center py-20">
                 <Bookmark className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
                 <p className="text-foreground text-sm font-bold">No saved workouts yet</p>
-                <p className="text-foreground/50 text-xs mt-1">Tap the bookmark icon on any workout to save it</p>
+                <p className="text-white text-xs mt-1">Tap the bookmark icon on any workout to save it</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
@@ -418,23 +424,23 @@ const DashboardWorkouts = () => {
               <ScrollArea className="max-h-[60vh]">
                 <div className="p-5 space-y-4">
                   <DialogHeader>
-                    <p className="text-[10px] text-foreground/40 uppercase tracking-[0.15em] font-bold mb-1">
+                    <p className="text-[10px] text-white uppercase tracking-[0.15em] font-bold mb-1">
                       {selectedWorkout.category}
                     </p>
                     <DialogTitle className="text-xl font-bold text-foreground">{selectedWorkout.title}</DialogTitle>
                     {selectedWorkout.description && (
-                      <p className="text-foreground/60 text-sm mt-1">{selectedWorkout.description}</p>
+                      <p className="text-white text-sm mt-1">{selectedWorkout.description}</p>
                     )}
                   </DialogHeader>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-card p-4 rounded-2xl text-center border border-border">
-                      <p className="text-[10px] text-foreground/40 font-bold uppercase">Duration</p>
+                      <p className="text-[10px] text-white font-bold uppercase">Duration</p>
                       <p className="text-lg font-bold text-foreground mt-1">{selectedWorkout.duration_minutes} min</p>
                     </div>
                     {selectedWorkout.calories_estimate && (
                       <div className="bg-card p-4 rounded-2xl text-center border border-border">
-                        <p className="text-[10px] text-foreground/40 font-bold uppercase">Calories</p>
+                        <p className="text-[10px] text-white font-bold uppercase">Calories</p>
                         <p className="text-lg font-bold text-foreground mt-1">{selectedWorkout.calories_estimate}</p>
                       </div>
                     )}
@@ -446,16 +452,16 @@ const DashboardWorkouts = () => {
                       <div className="space-y-2">
                         {workoutExercises.map((we: any, i: number) => (
                           <div key={we.id} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border">
-                            <span className="w-6 h-6 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-bold text-foreground/60 flex-shrink-0">
+                            <span className="w-6 h-6 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">
                               {i + 1}
                             </span>
                             <div className="flex-1">
                               <p className="text-sm font-bold text-foreground">{we.exercises?.title || "Exercise"}</p>
-                              <div className="flex items-center gap-3 mt-0.5 text-[10px] text-foreground/50 font-medium">
+                              <div className="flex items-center gap-3 mt-0.5 text-[10px] text-white font-medium">
                                 <span>{we.sets}×{we.reps}</span>
                                 {we.rest_seconds && <span>Rest: {we.rest_seconds}s</span>}
                                 {we.exercises?.muscle_group && (
-                                  <Badge variant="secondary" className="text-[9px] py-0 bg-foreground/5 text-foreground/40 border-0">{we.exercises.muscle_group}</Badge>
+                                  <Badge variant="secondary" className="text-[9px] py-0 bg-foreground/5 text-white border-0">{we.exercises.muscle_group}</Badge>
                                 )}
                               </div>
                             </div>
