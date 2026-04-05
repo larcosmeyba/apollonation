@@ -58,10 +58,7 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     return <>{children}</>;
   }
 
-  // Require active subscription to access dashboard
-  if (!subscription?.subscribed) {
-    return <Navigate to="/subscribe" replace />;
-  }
+  // Subscription handled via Apple App Store — no gate here
 
   // Pro/Elite users must complete questionnaire before accessing dashboard
   const tier = profile?.subscription_tier;
