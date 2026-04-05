@@ -3,29 +3,39 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Play, Clock, Flame, Search, Dumbbell, Heart, Bookmark } from "lucide-react";
+import { Play, Search, Bookmark, Plus, Dumbbell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { format, startOfWeek } from "date-fns";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
+import marcosAction6 from "@/assets/marcos-action-6.jpg";
+import marcosAction7 from "@/assets/marcos-action-7.jpg";
+import stockBack from "@/assets/stock-back.png";
+import stockArms from "@/assets/stock-arms.png";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Workout = Tables<"workouts">;
 
+const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7];
+
+const TYPE_IMAGES: Record<string, string> = {
+  Strength: stockArms,
+  HIIT: marcosAction6,
+  Sculpt: stockBack,
+  Cardio: marcosAction1,
+  Recovery: marcosAction7,
+  Core: marcosAction6,
+  Stretch: marcosAction7,
+  Yoga: marcosAction1,
+  Senior: stockBack,
+};
+
 const getYouTubeVideoId = (url: string): string | null => {
   try {
-    const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-    if (shortMatch) return shortMatch[1];
-    const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
-    if (watchMatch) return watchMatch[1];
-    const shortsMatch = url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
-    if (shortsMatch) return shortsMatch[1];
-    const embedMatch = url.match(/\/embed\/([a-zA-Z0-9_-]+)/);
-    if (embedMatch) return embedMatch[1];
-    return null;
+    const match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]v=([a-zA-Z0-9_-]+)/) || url.match(/\/shorts\/([a-zA-Z0-9_-]+)/) || url.match(/\/embed\/([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : null;
   } catch { return null; }
 };
 
@@ -45,9 +55,11 @@ const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Recovery", "Core", "Stre
 
 const DashboardWorkouts = () => {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<"explore" | "collections">("explore");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
 
   const { data: workouts = [], isLoading } = useQuery({
     queryKey: ["client-workouts"],
@@ -100,6 +112,7 @@ const DashboardWorkouts = () => {
 
   const recentlyAdded = workouts.filter(w => w.created_at >= weekStart);
   const savedWorkouts = workouts.filter(w => favorites.includes(w.id));
+  const featuredWorkouts = workouts.filter(w => w.is_featured);
 
   const getWorkoutThumbnail = (workout: Workout): string | null => {
     if (workout.thumbnail_url) return workout.thumbnail_url;
@@ -107,173 +120,252 @@ const DashboardWorkouts = () => {
     return null;
   };
 
-  const WorkoutCard = ({ workout }: { workout: Workout }) => {
-    const thumb = getWorkoutThumbnail(workout);
+  const WorkoutCard = ({ workout, index = 0 }: { workout: Workout; index?: number }) => {
+    const thumb = getWorkoutThumbnail(workout) || WORKOUT_IMAGES[index % WORKOUT_IMAGES.length];
     return (
       <button
         onClick={() => setSelectedWorkout(workout)}
-        className="group relative overflow-hidden rounded-xl border border-border/15 bg-foreground/[0.02] text-left transition-all hover:border-foreground/15 w-full"
+        className="group relative overflow-hidden rounded-2xl text-left transition-all w-full"
       >
-        <div className="relative overflow-hidden aspect-video">
-          {thumb ? (
-            <img src={thumb} alt={workout.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
-          ) : (
-            <div className="w-full h-full bg-foreground/[0.03] flex items-center justify-center">
-              <Dumbbell className="w-8 h-8 text-foreground/10" />
+        <div className="relative overflow-hidden aspect-[4/3]">
+          <img
+            src={thumb}
+            alt={workout.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute top-3 right-3">
+            <div className="w-8 h-8 rounded-full bg-foreground/20 backdrop-blur-sm flex items-center justify-center">
+              <Plus className="w-4 h-4 text-foreground" />
             </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
-          {workout.video_url && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="rounded-full bg-foreground/80 flex items-center justify-center w-10 h-10">
-                <Play className="text-background ml-0.5 w-4 h-4" fill="currentColor" />
-              </div>
-            </div>
-          )}
-          <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center gap-2">
-            <span className="flex items-center gap-1 text-[9px] text-foreground/60">
-              <Clock className="w-2.5 h-2.5" />{workout.duration_minutes}m
-            </span>
-            {workout.calories_estimate && (
-              <span className="flex items-center gap-1 text-[9px] text-foreground/60">
-                <Flame className="w-2.5 h-2.5" />{workout.calories_estimate}
-              </span>
-            )}
           </div>
-        </div>
-        <div className="p-2.5">
-          <p className="text-[8px] text-foreground/25 uppercase tracking-[0.15em] mb-0.5">{workout.category}</p>
-          <h3 className="font-heading leading-tight text-foreground/80 text-[13px]">{workout.title}</h3>
+          <div className="absolute bottom-3 left-3 right-3">
+            <h3 className="text-sm font-bold text-foreground uppercase leading-tight truncate">
+              {workout.title}
+            </h3>
+            <p className="text-[11px] font-medium text-foreground/60 mt-0.5">
+              Marcos Leyba &nbsp;/&nbsp; {workout.duration_minutes} min &nbsp;/&nbsp; Train: {workout.category}
+            </p>
+          </div>
         </div>
       </button>
     );
   };
 
-  const ExploreView = () => (
-    <div className="space-y-5">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/20" />
-        <Input
-          placeholder="Search workouts..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-foreground/[0.03] border-border/20 text-sm"
-        />
-      </div>
-
-      {/* Types */}
-      <div>
-        <h3 className="font-heading text-sm text-foreground/70 mb-2">Types</h3>
-        <div className="flex flex-wrap gap-1.5">
-          {TYPES.map((type) => (
-            <button
-              key={type}
-              onClick={() => setSelectedCategory(selectedCategory === type ? null : type)}
-              className={`px-3 py-1.5 rounded-full text-[10px] font-medium transition-all whitespace-nowrap tracking-wider ${
-                selectedCategory === type
-                  ? "bg-foreground text-background"
-                  : "bg-foreground/[0.03] border border-border/15 text-foreground/40 hover:text-foreground/60"
-              }`}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Recently Added */}
-      {recentlyAdded.length > 0 && !searchQuery && !selectedCategory && (
-        <div>
-          <h3 className="font-heading text-sm text-foreground/70 mb-2">Recently Added</h3>
-          <div className="grid grid-cols-2 gap-2.5">
-            {recentlyAdded.slice(0, 4).map((w) => (
-              <WorkoutCard key={w.id} workout={w} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Instructors */}
-      {!searchQuery && !selectedCategory && (
-        <div>
-          <h3 className="font-heading text-sm text-foreground/70 mb-2">Instructors</h3>
-          <div className="flex gap-3">
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-border">
-                <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
-              </div>
-              <p className="text-[11px] font-medium text-foreground/70">Marcos Leyba</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* All workouts / filtered */}
-      <div>
-        <h3 className="font-heading text-sm text-foreground/70 mb-2">
-          {selectedCategory || (searchQuery ? "Results" : "All Classes")}
-        </h3>
-        {isLoading ? (
-          <p className="text-foreground/30 text-sm py-8 text-center animate-pulse">Loading...</p>
-        ) : filteredWorkouts.length === 0 ? (
-          <p className="text-foreground/30 text-sm py-8 text-center">No workouts found.</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-2.5">
-            {filteredWorkouts.map((w) => (
-              <WorkoutCard key={w.id} workout={w} />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const CollectionsView = () => (
-    <div className="space-y-5">
-      {savedWorkouts.length === 0 ? (
-        <div className="text-center py-16">
-          <Bookmark className="w-10 h-10 text-foreground/10 mx-auto mb-3" />
-          <p className="text-foreground/40 text-sm">No saved workouts yet</p>
-          <p className="text-foreground/20 text-xs mt-1">Save workouts to build your collection</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-2.5">
-          {savedWorkouts.map((w) => (
-            <WorkoutCard key={w.id} workout={w} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto space-y-4">
+      <div className="max-w-xl mx-auto space-y-6">
+
         {/* Header */}
-        <div>
-          <h1 className="font-heading text-2xl tracking-wide">On Demand</h1>
-          <p className="text-xs text-foreground/30 mt-0.5">{workouts.length} workouts ready when you are</p>
+        <div className="flex items-center justify-between pt-2">
+          <h1 className="text-3xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            On Demand
+          </h1>
+          <button
+            onClick={() => setShowSearch(!showSearch)}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-foreground/5 transition-colors"
+          >
+            <Search className="w-5 h-5 text-foreground" />
+          </button>
         </div>
 
+        {/* Search bar (toggleable) */}
+        {showSearch && (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+            <Input
+              placeholder="Search workouts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-card border-border text-sm text-foreground"
+              autoFocus
+            />
+          </div>
+        )}
+
         {/* Tabs */}
-        <Tabs defaultValue="explore" className="w-full">
-          <TabsList className="w-full bg-foreground/[0.03] border border-border/15">
-            <TabsTrigger value="explore" className="flex-1 text-xs">Explore</TabsTrigger>
-            <TabsTrigger value="collections" className="flex-1 text-xs">Collections</TabsTrigger>
-          </TabsList>
-          <TabsContent value="explore">
-            <ExploreView />
-          </TabsContent>
-          <TabsContent value="collections">
-            <CollectionsView />
-          </TabsContent>
-        </Tabs>
+        <div className="border-b border-border">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab("explore")}
+              className={`flex-1 pb-3 text-sm font-bold text-center transition-colors relative ${
+                activeTab === "explore" ? "text-foreground" : "text-foreground/40"
+              }`}
+            >
+              Explore
+              {activeTab === "explore" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab("collections")}
+              className={`flex-1 pb-3 text-sm font-bold text-center transition-colors relative ${
+                activeTab === "collections" ? "text-foreground" : "text-foreground/40"
+              }`}
+            >
+              Collections
+              {activeTab === "collections" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Explore Tab */}
+        {activeTab === "explore" && !searchQuery && !selectedCategory && (
+          <div className="space-y-8">
+
+            {/* Types — 2-column grid with image backgrounds */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Types</h2>
+                <span className="text-sm font-semibold text-foreground/60">View All</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {TYPES.map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setSelectedCategory(type)}
+                    className="relative rounded-2xl overflow-hidden h-24 group text-left"
+                  >
+                    <img
+                      src={TYPE_IMAGES[type]}
+                      alt={type}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors" />
+                    <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground">
+                      {type}
+                    </span>
+                  </button>
+                ))}
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="rounded-2xl h-24 bg-card border border-border flex items-center justify-center hover:bg-foreground/5 transition-colors"
+                >
+                  <span className="text-sm font-bold text-foreground/60">View All</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Recently Added */}
+            {recentlyAdded.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Recently Added</h2>
+                  <span className="text-sm font-semibold text-foreground/60">View All</span>
+                </div>
+                <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                  {recentlyAdded.map((w, i) => (
+                    <div key={w.id} className="flex-shrink-0 w-[70%]">
+                      <WorkoutCard workout={w} index={i} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Instructors */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Instructors</h2>
+                <span className="text-sm font-semibold text-foreground/60">View All</span>
+              </div>
+              <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-border">
+                    <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Featured */}
+            {featuredWorkouts.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Featured</h2>
+                  <span className="text-sm font-semibold text-foreground/60">View All</span>
+                </div>
+                <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                  {featuredWorkouts.map((w, i) => (
+                    <div key={w.id} className="flex-shrink-0 w-[70%]">
+                      <WorkoutCard workout={w} index={i} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* All Classes */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>All Classes</h2>
+              </div>
+              {isLoading ? (
+                <p className="text-foreground/30 text-sm py-8 text-center animate-pulse">Loading...</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {workouts.map((w, i) => (
+                    <WorkoutCard key={w.id} workout={w} index={i} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Explore Tab — filtered/search results */}
+        {activeTab === "explore" && (searchQuery || selectedCategory) && (
+          <div className="space-y-6">
+            {selectedCategory && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="text-xs font-bold text-accent"
+                >
+                  ← Back
+                </button>
+                <span className="text-lg font-bold text-foreground">{selectedCategory}</span>
+              </div>
+            )}
+            {filteredWorkouts.length === 0 ? (
+              <p className="text-foreground/40 text-sm py-12 text-center">No workouts found.</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {filteredWorkouts.map((w, i) => (
+                  <WorkoutCard key={w.id} workout={w} index={i} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Collections Tab */}
+        {activeTab === "collections" && (
+          <div className="space-y-6">
+            {savedWorkouts.length === 0 ? (
+              <div className="text-center py-20">
+                <Bookmark className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
+                <p className="text-foreground/50 text-sm font-bold">No saved workouts yet</p>
+                <p className="text-foreground/30 text-xs mt-1">Tap the + icon on any workout to save it</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {savedWorkouts.map((w, i) => (
+                  <WorkoutCard key={w.id} workout={w} index={i} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Detail Modal */}
       <Dialog open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border/20">
+        <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
           {selectedWorkout && (
             <>
               {selectedWorkout.video_url ? (
@@ -294,44 +386,44 @@ const DashboardWorkouts = () => {
               <ScrollArea className="max-h-[60vh]">
                 <div className="p-5 space-y-4">
                   <DialogHeader>
-                    <p className="text-[9px] text-foreground/25 uppercase tracking-[0.15em] mb-0.5">
+                    <p className="text-[10px] text-foreground/40 uppercase tracking-[0.15em] font-bold mb-1">
                       {selectedWorkout.category}
                     </p>
-                    <DialogTitle className="font-heading text-xl text-foreground/90">{selectedWorkout.title}</DialogTitle>
+                    <DialogTitle className="text-xl font-bold text-foreground">{selectedWorkout.title}</DialogTitle>
                     {selectedWorkout.description && (
-                      <p className="text-foreground/40 text-xs mt-1">{selectedWorkout.description}</p>
+                      <p className="text-foreground/60 text-sm mt-1">{selectedWorkout.description}</p>
                     )}
                   </DialogHeader>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-foreground/[0.03] p-3 rounded-lg text-center border border-border/10">
-                      <p className="text-[9px] text-foreground/25">Duration</p>
-                      <p className="font-heading text-sm text-foreground/70">{selectedWorkout.duration_minutes} min</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-card p-4 rounded-2xl text-center border border-border">
+                      <p className="text-[10px] text-foreground/40 font-bold uppercase">Duration</p>
+                      <p className="text-lg font-bold text-foreground mt-1">{selectedWorkout.duration_minutes} min</p>
                     </div>
                     {selectedWorkout.calories_estimate && (
-                      <div className="bg-foreground/[0.03] p-3 rounded-lg text-center border border-border/10">
-                        <p className="text-[9px] text-foreground/25">Calories</p>
-                        <p className="font-heading text-sm text-foreground/70">{selectedWorkout.calories_estimate}</p>
+                      <div className="bg-card p-4 rounded-2xl text-center border border-border">
+                        <p className="text-[10px] text-foreground/40 font-bold uppercase">Calories</p>
+                        <p className="text-lg font-bold text-foreground mt-1">{selectedWorkout.calories_estimate}</p>
                       </div>
                     )}
                   </div>
 
                   {workoutExercises.length > 0 && (
                     <div>
-                      <h3 className="font-heading text-sm mb-2 text-foreground/60">Exercises</h3>
-                      <div className="space-y-1.5">
+                      <h3 className="text-sm font-bold text-foreground mb-3">Exercises</h3>
+                      <div className="space-y-2">
                         {workoutExercises.map((we: any, i: number) => (
-                          <div key={we.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-foreground/[0.02] border border-border/10">
-                            <span className="w-5 h-5 rounded-full bg-foreground/5 flex items-center justify-center text-[9px] text-foreground/30 flex-shrink-0">
+                          <div key={we.id} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border">
+                            <span className="w-6 h-6 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-bold text-foreground/60 flex-shrink-0">
                               {i + 1}
                             </span>
                             <div className="flex-1">
-                              <p className="text-xs font-medium text-foreground/70">{we.exercises?.title || "Exercise"}</p>
-                              <div className="flex items-center gap-3 mt-0.5 text-[9px] text-foreground/25">
+                              <p className="text-sm font-bold text-foreground">{we.exercises?.title || "Exercise"}</p>
+                              <div className="flex items-center gap-3 mt-0.5 text-[10px] text-foreground/50 font-medium">
                                 <span>{we.sets}×{we.reps}</span>
                                 {we.rest_seconds && <span>Rest: {we.rest_seconds}s</span>}
                                 {we.exercises?.muscle_group && (
-                                  <Badge variant="secondary" className="text-[8px] py-0 bg-foreground/5 text-foreground/30 border-0">{we.exercises.muscle_group}</Badge>
+                                  <Badge variant="secondary" className="text-[9px] py-0 bg-foreground/5 text-foreground/40 border-0">{we.exercises.muscle_group}</Badge>
                                 )}
                               </div>
                             </div>
