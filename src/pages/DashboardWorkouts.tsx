@@ -343,7 +343,7 @@ const DashboardWorkouts = () => {
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>All Classes</h2>
               </div>
               {isLoading ? (
-                <p className="text-foreground/30 text-sm py-8 text-center animate-pulse">Loading...</p>
+                <p className="text-white/50 text-sm py-8 text-center animate-pulse">Loading...</p>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                   {workouts.map((w, i) => (
