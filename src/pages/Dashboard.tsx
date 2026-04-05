@@ -204,7 +204,7 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-5">
 
         {/* App Store Launch Alert */}
         <div className="bg-foreground/[0.03] border border-border/30 rounded-xl p-4 flex items-start gap-3">
