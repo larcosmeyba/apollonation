@@ -783,9 +783,9 @@ const DashboardNutrition = () => {
                     )}
 
                     {!groceryList && !groceryMutation.isPending && (
-                      <div className="rounded-xl border border-border bg-card py-12 text-center">
-                        <ShoppingCart className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
-                        <h3 className="font-heading text-base mb-1">Generate Your Grocery List</h3>
+                      <div className="card-apollo py-12 text-center">
+                        <ShoppingCart className="w-8 h-8 text-accent/30 mx-auto mb-3" />
+                        <h3 className="font-heading text-base text-foreground mb-1">Generate Your Grocery List</h3>
                         <p className="text-muted-foreground text-xs max-w-xs mx-auto">Select a week and generate a shopping list based on your meals, budget, and store.</p>
                       </div>
                     )}
