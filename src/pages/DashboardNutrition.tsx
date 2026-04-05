@@ -613,9 +613,9 @@ const DashboardNutrition = () => {
               </div>
 
               <Tabs defaultValue="meals" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="meals" className="gap-2 text-xs"><Utensils className="w-3.5 h-3.5" /> Meal Plan</TabsTrigger>
-                  <TabsTrigger value="grocery" className="gap-2 text-xs"><ShoppingCart className="w-3.5 h-3.5" /> Grocery List</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 mb-4 bg-white border border-black/10">
+                  <TabsTrigger value="meals" className="gap-2 text-xs text-black data-[state=active]:bg-black data-[state=active]:text-white"><Utensils className="w-3.5 h-3.5" /> Meal Plan</TabsTrigger>
+                  <TabsTrigger value="grocery" className="gap-2 text-xs text-black data-[state=active]:bg-black data-[state=active]:text-white"><ShoppingCart className="w-3.5 h-3.5" /> Grocery List</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="meals">
