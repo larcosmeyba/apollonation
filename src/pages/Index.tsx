@@ -81,29 +81,43 @@ const Index = () => {
       <Navbar />
 
       {/* ═══ 1. HERO ═══ */}
-      <header className="relative min-h-[85vh] md:min-h-screen flex items-center justify-center overflow-hidden pt-16" role="banner">
+      <header className="relative h-screen flex items-center justify-center overflow-hidden" role="banner">
+        {/* Video background with slow zoom */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={heroImage}
+          className={`absolute inset-0 w-full h-full object-cover object-[50%_30%] transition-transform duration-[2500ms] ease-out ${isVisible ? "scale-100 animate-hero-zoom" : "scale-110"}`}
+        >
+          <source src="/hero-video.mp4" type="video/mp4" />
+        </video>
+        {/* Image fallback (shows via poster or if video fails) */}
         <img
           src={heroImage}
           alt="Apollo Nation athlete training"
           fetchPriority="high"
           decoding="async"
-          className={`absolute inset-0 w-full h-full object-cover object-[50%_30%] transition-transform duration-[2500ms] ease-out ${isVisible ? "scale-100" : "scale-110"}`}
+          className="absolute inset-0 w-full h-full object-cover object-[50%_30%] -z-[1]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
+
+        {/* Cinematic dark overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1
               className={`font-heading text-5xl sm:text-6xl md:text-7xl lg:text-[80px] leading-[1.1] mb-6 transition-all duration-1000 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
-              <span className="block text-foreground">Train With Structure.</span>
-              <span className="block text-gradient-gold mt-2">Build Real Strength.</span>
+              <span className="block text-foreground uppercase tracking-wider">Train With Structure</span>
             </h1>
 
             <p
               className={`text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-10 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
-              Apollo Nation is a modern fitness platform built to help you build strength, discipline, and longevity through structured training.
+              Apollo Nation is a modern training platform designed to help you build strength, discipline, and longevity.
             </p>
 
             <div
@@ -122,6 +136,14 @@ const Index = () => {
                 Explore Workouts
               </Button>
             </div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-500 ${isVisible ? "opacity-100" : "opacity-0"}`}>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">Scroll</span>
+          <div className="w-5 h-8 rounded-full border border-muted-foreground/30 flex justify-center pt-1.5">
+            <div className="w-1 h-2 bg-accent rounded-full animate-scroll-dot" />
           </div>
         </div>
       </header>
