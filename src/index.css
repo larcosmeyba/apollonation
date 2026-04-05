@@ -29,9 +29,9 @@
     --secondary: 220 14% 10%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Muted — brighter secondary text #C7CCD1 */
+    /* Muted — brighter secondary text */
     --muted: 220 10% 12%;
-    --muted-foreground: 210 8% 78%;
+    --muted-foreground: 210 8% 85%;
 
     /* Accent — Apollo Bronze Gold */
     --accent: 32 45% 38%;
