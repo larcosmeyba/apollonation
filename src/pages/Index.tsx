@@ -193,9 +193,9 @@ const Index = () => {
       </section>
 
       {/* ═══ 4. APP EXPERIENCE ═══ */}
-      <section className="py-20 md:py-28 border-t border-border/30">
+      <section className="py-24 md:py-36 border-t border-border/30">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-16 items-center max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center max-w-6xl mx-auto">
             {/* Left — Text */}
             <div>
               <span className="section-label text-accent mb-3 block">The App</span>
@@ -216,79 +216,8 @@ const Index = () => {
               </Button>
             </div>
 
-            {/* Right — Phone Mockup */}
-            <div className="flex justify-center">
-              <div className="w-[280px] border border-border rounded-[2rem] bg-card overflow-hidden shadow-2xl">
-                <div className="flex items-center justify-between px-5 pt-3 pb-2">
-                  <span className="text-[9px] text-muted-foreground">9:41</span>
-                  <span className="text-[9px] text-muted-foreground font-medium">Apollo Nation</span>
-                  <div className="flex gap-0.5">
-                    <div className="w-3 h-1.5 rounded-sm bg-muted" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-muted" />
-                  </div>
-                </div>
-
-                <div className="px-4 pb-2 space-y-3">
-                  <div className="rounded-xl border border-border bg-card p-4">
-                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Today's Workout</span>
-                    <h4 className="text-sm text-foreground font-semibold mt-1">Full Body Power</h4>
-                    <div className="flex items-center gap-2 mt-1.5 text-muted-foreground text-[10px]">
-                      <span>45 min</span><span>·</span><span>Intermediate</span>
-                    </div>
-                    <div className="mt-2.5 bg-accent rounded-full h-8 flex items-center justify-center">
-                      <span className="text-[11px] text-accent-foreground font-semibold">Start Workout →</span>
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-border bg-card p-4">
-                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Continue Program</span>
-                    <h4 className="text-xs text-foreground font-medium mt-1">Beginner Strength — Week 2</h4>
-                    <div className="mt-2 w-full bg-muted rounded-full h-1.5">
-                      <div className="bg-accent h-1.5 rounded-full" style={{ width: "35%" }} />
-                    </div>
-                    <span className="text-[9px] text-muted-foreground mt-1 block">35% complete</span>
-                  </div>
-
-                  <div className="rounded-xl border border-border bg-card p-4">
-                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Weekly Progress</span>
-                    <div className="flex items-end gap-1.5 mt-2 h-8">
-                      {[60, 100, 80, 0, 40, 0, 0].map((h, i) => (
-                        <div key={i} className="flex-1 flex flex-col justify-end">
-                          <div
-                            className={`rounded-sm ${h > 0 ? "bg-accent/60" : "bg-muted"}`}
-                            style={{ height: `${Math.max(h * 0.32, 3)}px` }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex justify-between mt-1">
-                      {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                        <span key={i} className="text-[8px] text-muted-foreground flex-1 text-center">{d}</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-border px-3 pb-3 pt-2">
-                  <div className="flex justify-around">
-                    {[
-                      { label: "Home", active: true },
-                      { label: "Workouts", active: false },
-                      { label: "Programs", active: false },
-                      { label: "Nutrition", active: false },
-                      { label: "Profile", active: false },
-                    ].map((tab) => (
-                      <div key={tab.label} className="flex flex-col items-center gap-0.5">
-                        <div className={`w-1 h-1 rounded-full ${tab.active ? "bg-accent" : "bg-transparent"}`} />
-                        <span className={`text-[8px] ${tab.active ? "text-accent font-medium" : "text-muted-foreground"}`}>
-                          {tab.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Right — Premium iPhone Mockup */}
+            <IPhoneMockup />
           </div>
         </div>
       </section>
