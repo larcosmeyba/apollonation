@@ -20,7 +20,7 @@ const DashboardMobileNav = () => {
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="px-6 pt-8 pb-6 border-b border-border">
-                <h2 className="font-heading text-xl font-bold text-foreground">Apollo Nation</h2>
+                <h2 className="font-heading text-xl font-bold text-foreground">Apollo Nation<sup className="text-[8px] ml-0.5">™</sup></h2>
               </div>
 
               {/* Menu Links */}
