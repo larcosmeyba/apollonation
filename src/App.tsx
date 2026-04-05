@@ -26,6 +26,7 @@ import TermsOfService from "./pages/TermsOfService";
 import ApolloSystem from "./pages/ApolloSystem";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
+import ApplyCoach from "./pages/ApplyCoach";
 import PlanReady from "./pages/PlanReady";
 import DashboardTransformation from "./pages/DashboardTransformation";
 import DashboardRecovery from "./pages/DashboardRecovery";
