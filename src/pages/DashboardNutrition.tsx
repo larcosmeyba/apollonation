@@ -760,11 +760,11 @@ const DashboardNutrition = () => {
 
                 <TabsContent value="grocery">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
+                    <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-white border border-black/10">
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" disabled={groceryWeek <= 1} onClick={() => setGroceryWeek(w => w - 1)}><ChevronLeft className="w-4 h-4" /></Button>
-                        <span className="font-heading text-sm">Week {groceryWeek}</span>
-                        <Button variant="ghost" size="sm" disabled={groceryWeek >= (activePlan.duration_weeks || 4)} onClick={() => setGroceryWeek(w => w + 1)}><ChevronRight className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="sm" disabled={groceryWeek <= 1} onClick={() => setGroceryWeek(w => w - 1)} className="text-black"><ChevronLeft className="w-4 h-4" /></Button>
+                        <span className="font-heading text-sm text-black">Week {groceryWeek}</span>
+                        <Button variant="ghost" size="sm" disabled={groceryWeek >= (activePlan.duration_weeks || 4)} onClick={() => setGroceryWeek(w => w + 1)} className="text-black"><ChevronRight className="w-4 h-4" /></Button>
                       </div>
                       <Button variant="apollo" size="sm" onClick={() => groceryMutation.mutate({ planId: activePlan.id, week: groceryWeek })} disabled={groceryMutation.isPending} className="text-xs gap-1.5">
                         {groceryMutation.isPending ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating</> : <><ShoppingCart className="w-3.5 h-3.5" /> Generate</>}
@@ -774,27 +774,27 @@ const DashboardNutrition = () => {
                     {groceryList && (
                       <>
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-card border border-border rounded-lg p-3 flex items-center gap-2">
-                            <Store className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <div><p className="text-[10px] text-muted-foreground">Store</p><p className="text-sm font-medium truncate">{groceryList.store}</p></div>
+                          <div className="bg-white border border-black/10 rounded-lg p-3 flex items-center gap-2">
+                            <Store className="w-4 h-4 text-black/50 flex-shrink-0" />
+                            <div><p className="text-[10px] text-black/50">Store</p><p className="text-sm font-medium text-black truncate">{groceryList.store}</p></div>
                           </div>
-                          <div className={`rounded-lg border p-3 flex items-center gap-2 ${groceryList.budget_status === "over_budget" ? "bg-destructive/10 border-destructive/30" : "bg-card border-border"}`}>
-                            <DollarSign className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <div><p className="text-[10px] text-muted-foreground">Est. Total</p><p className="text-sm font-medium">${groceryList.estimated_total.toFixed(2)}<span className="text-[10px] text-muted-foreground ml-1">/ {groceryList.budget}</span></p></div>
+                          <div className={`rounded-lg border p-3 flex items-center gap-2 ${groceryList.budget_status === "over_budget" ? "bg-red-50 border-red-200" : "bg-white border-black/10"}`}>
+                            <DollarSign className="w-4 h-4 text-black/50 flex-shrink-0" />
+                            <div><p className="text-[10px] text-black/50">Est. Total</p><p className="text-sm font-medium text-black">${groceryList.estimated_total.toFixed(2)}<span className="text-[10px] text-black/50 ml-1">/ {groceryList.budget}</span></p></div>
                           </div>
                         </div>
 
                         {groceryList.categories.map((cat) => (
-                          <div key={cat.name} className="rounded-xl border border-border bg-card overflow-hidden">
-                            <div className="px-4 py-2.5 border-b border-border/50"><h4 className="font-heading text-sm">{cat.name}</h4></div>
-                            <div className="divide-y divide-border/30">
+                          <div key={cat.name} className="rounded-xl border border-black/10 bg-white overflow-hidden">
+                            <div className="px-4 py-2.5 border-b border-black/10"><h4 className="font-heading text-sm text-black">{cat.name}</h4></div>
+                            <div className="divide-y divide-black/5">
                               {cat.items.map((item, i) => (
                                 <div key={i} className="flex items-center justify-between px-4 py-2">
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-sm truncate">{item.name}</p>
-                                    <p className="text-[10px] text-muted-foreground">{item.quantity}{item.note ? ` · ${item.note}` : ""}</p>
+                                    <p className="text-sm text-black truncate">{item.name}</p>
+                                    <p className="text-[10px] text-black/50">{item.quantity}{item.note ? ` · ${item.note}` : ""}</p>
                                   </div>
-                                  <span className="text-sm text-muted-foreground ml-2">${item.estimated_price.toFixed(2)}</span>
+                                  <span className="text-sm text-black/60 ml-2">${item.estimated_price.toFixed(2)}</span>
                                 </div>
                               ))}
                             </div>
