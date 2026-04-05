@@ -457,7 +457,7 @@ const DashboardWorkouts = () => {
                             </span>
                             <div className="flex-1">
                               <p className="text-sm font-bold text-foreground">{we.exercises?.title || "Exercise"}</p>
-                              <div className="flex items-center gap-3 mt-0.5 text-[10px] text-foreground/50 font-medium">
+                              <div className="flex items-center gap-3 mt-0.5 text-[10px] text-white font-medium">
                                 <span>{we.sets}×{we.reps}</span>
                                 {we.rest_seconds && <span>Rest: {we.rest_seconds}s</span>}
                                 {we.exercises?.muscle_group && (
