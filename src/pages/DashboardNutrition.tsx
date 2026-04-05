@@ -558,26 +558,26 @@ const DashboardNutrition = () => {
 
             {calculatedMacros && !macroEditing ? (
               <div className="grid grid-cols-4 gap-2">
-                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
-                  <p className="text-lg font-heading text-black">{calculatedMacros.calories}</p>
-                  <p className="text-[10px] text-black/60 font-semibold uppercase">Calories</p>
+                <div className="bg-foreground/5 rounded-xl p-3 text-center border border-border">
+                  <p className="text-lg font-heading text-foreground">{calculatedMacros.calories}</p>
+                  <p className="text-[10px] text-foreground/60 font-semibold uppercase">Calories</p>
                 </div>
-                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
-                  <p className="text-lg font-heading text-black">{calculatedMacros.protein}g</p>
-                  <p className="text-[10px] text-black/60 font-semibold uppercase">Protein</p>
+                <div className="bg-foreground/5 rounded-xl p-3 text-center border border-border">
+                  <p className="text-lg font-heading text-foreground">{calculatedMacros.protein}g</p>
+                  <p className="text-[10px] text-foreground/60 font-semibold uppercase">Protein</p>
                 </div>
-                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
-                  <p className="text-lg font-heading text-black">{calculatedMacros.carbs}g</p>
-                  <p className="text-[10px] text-black/60 font-semibold uppercase">Carbs</p>
+                <div className="bg-foreground/5 rounded-xl p-3 text-center border border-border">
+                  <p className="text-lg font-heading text-foreground">{calculatedMacros.carbs}g</p>
+                  <p className="text-[10px] text-foreground/60 font-semibold uppercase">Carbs</p>
                 </div>
-                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
-                  <p className="text-lg font-heading text-black">{calculatedMacros.fat}g</p>
-                  <p className="text-[10px] text-black/60 font-semibold uppercase">Fat</p>
+                <div className="bg-foreground/5 rounded-xl p-3 text-center border border-border">
+                  <p className="text-lg font-heading text-foreground">{calculatedMacros.fat}g</p>
+                  <p className="text-[10px] text-foreground/60 font-semibold uppercase">Fat</p>
                 </div>
                 <div className="col-span-4 mt-2 flex gap-2 flex-wrap">
-                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium capitalize">{macroCalc.goal.replace("_", " ")}</span>
-                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium capitalize">{macroCalc.activity_level.replace("_", " ")}</span>
-                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium">{macroCalc.height_ft}'{macroCalc.height_in}" · {macroCalc.weight} lbs</span>
+                  <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium capitalize">{macroCalc.goal.replace("_", " ")}</span>
+                  <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium capitalize">{macroCalc.activity_level.replace("_", " ")}</span>
+                  <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium">{macroCalc.height_ft}'{macroCalc.height_in}" · {macroCalc.weight} lbs</span>
                 </div>
               </div>
             ) : (
