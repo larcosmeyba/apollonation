@@ -680,15 +680,15 @@ const DashboardNutrition = () => {
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="relative w-14 h-14">
                     <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e5e7eb" strokeWidth="3.5" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
                       <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(217, 91%, 67%)" strokeWidth="3.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.protein / targets.protein) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xs font-semibold text-black">{loggedTotals.protein}g</span>
+                      <span className="text-xs font-semibold text-foreground">{loggedTotals.protein}g</span>
                     </div>
                   </div>
-                  <span className="text-[10px] text-black/70 font-medium">Protein</span>
-                  <span className="text-[9px] text-black/50">{remaining.protein > 0 ? `${remaining.protein}g left` : "Done"}</span>
+                  <span className="text-[10px] text-foreground/70 font-medium">Protein</span>
+                  <span className="text-[9px] text-foreground/50">{remaining.protein > 0 ? `${remaining.protein}g left` : "Done"}</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="relative w-14 h-14">
