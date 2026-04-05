@@ -63,19 +63,6 @@ const About = () => {
           </div>
         </div>
 
-        {/* Values */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            What We Stand For
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            {["Structure Over Chaos", "Consistency Over Perfection", "Coaching Over Content", "Community Over Competition"].map((value) => (
-              <div key={value} className="p-4 rounded-2xl bg-card border border-border text-center">
-                <p className="text-xs font-bold text-foreground">{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </DashboardLayout>
   );
