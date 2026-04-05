@@ -300,6 +300,25 @@ const DashboardNutrition = () => {
     finally { setRegenerating(false); }
   };
 
+  const MacroRing = ({ current, target, color, label }: { current: number; target: number; color: string; label: string }) => {
+    const pct = Math.min(Math.round((current / target) * 100), 100);
+    return (
+      <div className="flex flex-col items-center gap-1.5">
+        <div className="relative w-14 h-14">
+          <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={color} strokeWidth="3.5" strokeDasharray={`${pct}, 100`} strokeLinecap="round" className="transition-all duration-700" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-xs font-semibold text-foreground">{current}g</span>
+          </div>
+        </div>
+        <span className="text-[10px] text-muted-foreground font-medium">{label}</span>
+        <span className="text-[9px] text-muted-foreground">{target - current > 0 ? `${target - current}g left` : "Done"}</span>
+      </div>
+    );
+  };
+
   const MacroBar = ({ current, target, color }: { current: number; target: number; color: string }) => (
     <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
       <div className={`h-full rounded-full transition-all duration-500 ${color}`} style={{ width: `${Math.min((current / target) * 100, 100)}%` }} />
