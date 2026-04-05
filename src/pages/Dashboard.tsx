@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Play, Flame, Dumbbell, Apple, UtensilsCrossed, ShoppingCart, BookOpen } from "lucide-react";
+import { Play, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,7 +41,6 @@ const Dashboard = () => {
     return "Good Evening,";
   }, []);
 
-  // Fetch today's workout
   const { data: todayWorkout } = useQuery({
     queryKey: ["today-workout", user?.id, todayStr],
     queryFn: async () => {
@@ -77,7 +76,6 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
-  // New this week workouts
   const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
   const { data: newThisWeek = [] } = useQuery({
     queryKey: ["new-this-week", weekStart],
@@ -92,7 +90,6 @@ const Dashboard = () => {
     },
   });
 
-  // All workouts for "All Classes"
   const { data: allWorkouts = [] } = useQuery({
     queryKey: ["all-workouts-home"],
     queryFn: async () => {
@@ -103,32 +100,6 @@ const Dashboard = () => {
         .limit(12);
       return data || [];
     },
-  });
-
-  // Streak data
-  const { data: streakData } = useQuery({
-    queryKey: ["home-streak", user?.id],
-    queryFn: async () => {
-      if (!user) return { current: 0, workoutsWeek: 0 };
-      const since = format(subDays(new Date(), 30), "yyyy-MM-dd");
-      const { data: sessions } = await supabase
-        .from("workout_session_logs")
-        .select("log_date")
-        .eq("user_id", user.id)
-        .gte("log_date", since);
-      const workoutDates = new Set((sessions || []).map((d: any) => d.log_date));
-      let current = 0;
-      const today = new Date();
-      for (let i = 0; i < 30; i++) {
-        const d = format(subDays(today, i), "yyyy-MM-dd");
-        if (i === 0 && !workoutDates.has(d)) continue;
-        if (workoutDates.has(d)) current++;
-        else if (i > 0) break;
-      }
-      const last7 = Array.from({ length: 7 }, (_, i) => format(subDays(today, 6 - i), "yyyy-MM-dd"));
-      return { current, workoutsWeek: last7.filter(d => workoutDates.has(d)).length };
-    },
-    enabled: !!user,
   });
 
   const categories = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Senior"];
@@ -150,45 +121,42 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-xl mx-auto space-y-5">
+      <div className="max-w-xl mx-auto space-y-8">
 
-        {/* 1. Greeting */}
-        <div className="flex items-center gap-3 pt-1">
+        {/* Greeting */}
+        <div className="flex items-center gap-4 pt-2">
           <Link
             to="/dashboard/profile"
-            className="w-11 h-11 rounded-full bg-card border border-border flex items-center justify-center flex-shrink-0"
+            className="w-14 h-14 rounded-full bg-foreground flex items-center justify-center flex-shrink-0"
           >
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
             ) : (
-              <span className="text-sm font-bold text-foreground">
+              <span className="text-lg font-bold text-background">
                 {(profile?.display_name || "M").charAt(0).toUpperCase()}
               </span>
             )}
           </Link>
           <div>
-            <p className="text-sm text-muted-foreground">{greeting}</p>
-            <h1 className="font-heading text-xl text-foreground">
+            <p className="text-sm font-semibold text-foreground">{greeting}</p>
+            <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               {profile?.display_name || "Warrior"}
             </h1>
           </div>
         </div>
 
-        {/* 2. New This Week */}
-        {newThisWeek.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="font-heading text-base text-foreground">New This Week</h2>
-              <Link to="/dashboard/workouts">
-                <span className="text-xs text-muted-foreground hover:text-foreground transition-colors">View All</span>
-              </Link>
-            </div>
-            <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+        {/* NEW THIS WEEK */}
+        <div>
+          <h2 className="text-lg font-bold text-foreground uppercase tracking-wide mb-4" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            New This Week
+          </h2>
+          {newThisWeek.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {newThisWeek.map((w, i) => (
                 <Link
                   key={w.id}
                   to="/dashboard/workouts"
-                  className="relative rounded-xl overflow-hidden flex-shrink-0 w-44 aspect-[4/3] group"
+                  className="relative rounded-2xl overflow-hidden flex-shrink-0 w-[85%] aspect-[16/10] group"
                 >
                   <img
                     src={getThumb(w, i) || WORKOUT_IMAGES[i % WORKOUT_IMAGES.length]}
@@ -196,77 +164,94 @@ const Dashboard = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute top-2 right-2">
-                    <div className="w-6 h-6 rounded-full bg-white/10 backdrop-blur flex items-center justify-center">
-                      <Play className="w-2.5 h-2.5 text-white fill-white" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  {/* Save button */}
+                  <div className="absolute top-3 right-3">
+                    <div className="w-8 h-8 rounded-full bg-foreground/20 backdrop-blur-sm flex items-center justify-center">
+                      <Plus className="w-4 h-4 text-foreground" />
                     </div>
                   </div>
-                  <div className="absolute bottom-2 left-2.5 right-2.5">
-                    <p className="text-xs font-semibold text-white truncate">{w.title}</p>
-                    <p className="text-[9px] text-white/60">{w.duration_minutes} min · {w.category}</p>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-base font-bold text-foreground uppercase leading-tight truncate">
+                      {w.title}
+                    </h3>
+                    <p className="text-xs font-medium text-foreground/70 mt-1">
+                      Marcos Leyba &nbsp;/&nbsp; {w.duration_minutes} min &nbsp;/&nbsp; Train: {w.category}
+                    </p>
+                    <Link to="/dashboard/workouts">
+                      <Button
+                        variant="outline"
+                        className="mt-3 rounded-full border-foreground/40 text-foreground bg-transparent hover:bg-foreground/10 text-xs font-bold uppercase tracking-wider px-6 h-9"
+                      >
+                        <Play className="w-3 h-3 mr-2 fill-current" />
+                        Start
+                      </Button>
+                    </Link>
                   </div>
                 </Link>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* 3. Hero Workout Card */}
-        <div className="rounded-2xl overflow-hidden border border-border">
-          <div className="relative aspect-[16/10]">
-            <img
-              src={getWorkoutImage(todayStr)}
-              alt="Today's training"
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            <div className="absolute bottom-4 left-5 right-5">
-              {!isRestDay && todayWorkout?.weekNumber && (
-                <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] mb-1">
-                  Week {todayWorkout.weekNumber} · Day {todayWorkout.day_number}
-                </p>
-              )}
-              <h2 className="font-heading text-xl text-white mb-0.5">
-                {isRestDay
-                  ? "Recovery & Mobility"
-                  : todayWorkout?.focus || todayWorkout?.day_label || "Today's Training"
-                }
-              </h2>
-              {!isRestDay && (
-                <p className="text-xs text-white/50 mb-3">
-                  {todayWorkout?.exercises?.length || 0} exercises · Marcos Leyba
-                </p>
-              )}
-              <Link to={isRestDay ? "/dashboard/recovery" : `/dashboard/training/workout?day=${todayWorkout?.id}&date=${todayStr}`}>
-                <Button className="bg-white text-black hover:bg-white/90 rounded-full px-6 text-sm font-semibold h-10">
-                  <Play className="w-4 h-4 mr-2 fill-current" />
-                  {isRestDay ? "Start Recovery" : "Start Workout"}
-                </Button>
-              </Link>
+          ) : (
+            /* Fallback hero card when no new workouts */
+            <div className="rounded-2xl overflow-hidden">
+              <div className="relative aspect-[16/10]">
+                <img
+                  src={getWorkoutImage(todayStr)}
+                  alt="Today's training"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="absolute top-3 right-3">
+                  <div className="w-8 h-8 rounded-full bg-foreground/20 backdrop-blur-sm flex items-center justify-center">
+                    <Plus className="w-4 h-4 text-foreground" />
+                  </div>
+                </div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <h3 className="text-base font-bold text-foreground uppercase leading-tight">
+                    {isRestDay
+                      ? "Recovery & Mobility"
+                      : todayWorkout?.focus || todayWorkout?.day_label || "Today's Training"
+                    }
+                  </h3>
+                  <p className="text-xs font-medium text-foreground/70 mt-1">
+                    Marcos Leyba &nbsp;/&nbsp; {todayWorkout?.exercises?.length || 0} exercises
+                  </p>
+                  <Link to={isRestDay ? "/dashboard/recovery" : `/dashboard/training/workout?day=${todayWorkout?.id}&date=${todayStr}`}>
+                    <Button
+                      variant="outline"
+                      className="mt-3 rounded-full border-foreground/40 text-foreground bg-transparent hover:bg-foreground/10 text-xs font-bold uppercase tracking-wider px-6 h-9"
+                    >
+                      <Play className="w-3 h-3 mr-2 fill-current" />
+                      Start
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* 4. Choose How You Train */}
+        {/* Choose How You Train */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-heading text-base text-foreground">Choose How You Train</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Choose How You Train
+            </h2>
             <Link to="/dashboard/workouts">
-              <span className="text-xs text-muted-foreground hover:text-foreground transition-colors">View All</span>
+              <span className="text-sm font-semibold text-foreground/60 hover:text-foreground transition-colors">View All</span>
             </Link>
           </div>
-          <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             {categories.map((cat) => (
               <Link
                 key={cat}
                 to="/dashboard/workouts"
-                className="relative rounded-xl overflow-hidden flex-shrink-0 w-28 h-20 group"
+                className="relative rounded-2xl overflow-hidden flex-shrink-0 w-40 h-28 group"
               >
                 <img src={CATEGORY_IMAGES[cat]} alt={cat} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors" />
-                <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white tracking-wide">
+                <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors" />
+                <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground tracking-wide">
                   {cat}
                 </span>
               </Link>
@@ -274,39 +259,41 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* 5. Your Coaches */}
+        {/* Your Coaches */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-heading text-base text-foreground">Your Coaches</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Your Coaches
+            </h2>
+            <span className="text-sm font-semibold text-foreground/60">View All</span>
           </div>
-          <div className="flex gap-4">
-            <div className="flex flex-col items-center gap-1.5">
-              <div className="w-18 h-18 rounded-full overflow-hidden border-2 border-border" style={{ width: 72, height: 72 }}>
+          <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-border">
                 <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
               </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-foreground">Marcos Leyba</p>
-                <p className="text-[10px] text-muted-foreground">Founder & Head Coach</p>
-              </div>
+              <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
             </div>
           </div>
         </div>
 
-        {/* 6. All Classes */}
+        {/* ALL CLASSES */}
         {allWorkouts.length > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="font-heading text-base text-foreground">All Classes</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground uppercase tracking-wide" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                All Classes
+              </h2>
               <Link to="/dashboard/workouts">
-                <span className="text-xs text-muted-foreground hover:text-foreground transition-colors">View All</span>
+                <span className="text-sm font-semibold text-foreground/60 hover:text-foreground transition-colors">View All</span>
               </Link>
             </div>
-            <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {allWorkouts.map((w, i) => (
                 <Link
                   key={w.id}
                   to="/dashboard/workouts"
-                  className="relative rounded-xl overflow-hidden flex-shrink-0 w-52 aspect-[4/3] group"
+                  className="relative rounded-2xl overflow-hidden flex-shrink-0 w-[75%] aspect-[4/3] group"
                 >
                   <img
                     src={getThumb(w, i) || WORKOUT_IMAGES[i % WORKOUT_IMAGES.length]}
@@ -315,15 +302,17 @@ const Dashboard = () => {
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute top-2.5 right-2.5">
-                    <div className="w-7 h-7 rounded-full bg-white/10 backdrop-blur flex items-center justify-center">
-                      <Play className="w-3 h-3 text-white fill-white" />
+                  <div className="absolute top-3 right-3">
+                    <div className="w-8 h-8 rounded-full bg-foreground/20 backdrop-blur-sm flex items-center justify-center">
+                      <Plus className="w-4 h-4 text-foreground" />
                     </div>
                   </div>
-                  <div className="absolute bottom-2.5 left-3 right-3">
-                    <p className="text-sm font-semibold text-white truncate">{w.title}</p>
-                    <p className="text-[10px] text-white/60">
-                      Marcos Leyba · {w.duration_minutes} min · {w.category}
+                  <div className="absolute bottom-3 left-4 right-4">
+                    <h3 className="text-sm font-bold text-foreground uppercase leading-tight truncate">
+                      {w.title}
+                    </h3>
+                    <p className="text-[11px] font-medium text-foreground/60 mt-0.5">
+                      Marcos Leyba &nbsp;/&nbsp; {w.duration_minutes} min &nbsp;/&nbsp; Train: {w.category}
                     </p>
                   </div>
                 </Link>
@@ -331,7 +320,6 @@ const Dashboard = () => {
             </div>
           </div>
         )}
-
 
       </div>
     </DashboardLayout>
