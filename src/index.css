@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* APOLLO NATION — Dark Luxury Editorial Design System
-   Theme: Deep Stone + Earth Tones + Greek Sculpture
-   Palette: Obsidian Black, Dark Stone, Muted Olive, Warm Sandstone accents
+/* APOLLO NATION — $100M Fitness Platform Design System
+   Inspired by: Equinox, Alo Moves, Apple Fitness+, Nike Training Club
+   Palette: Black, Graphite, Gold Accent, White
 */
 
 @layer base {
@@ -13,93 +13,75 @@
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
 
-    /* Card surfaces — Matte Black */
-    --card: 0 0% 6%;
+    /* Card surfaces — Graphite */
+    --card: 220 14% 10%;
     --card-foreground: 0 0% 100%;
 
-    /* Popover — Matte Black */
-    --popover: 0 0% 7%;
+    /* Popover */
+    --popover: 220 14% 10%;
     --popover-foreground: 0 0% 100%;
 
-    /* Primary — Clean White */
+    /* Primary — White */
     --primary: 0 0% 100%;
     --primary-foreground: 0 0% 0%;
 
-    /* Secondary — Dark surface */
-    --secondary: 0 0% 9%;
+    /* Secondary — Dark graphite */
+    --secondary: 220 14% 10%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Muted — Subtle dark surface */
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 70%;
+    /* Muted */
+    --muted: 220 10% 12%;
+    --muted-foreground: 220 5% 65%;
 
-    /* Accent — Muted Olive */
-    --accent: 80 20% 30%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent — Apollo Gold */
+    --accent: 40 55% 51%;
+    --accent-foreground: 0 0% 0%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — White outline */
-    --border: 0 0% 30%;
-    --input: 0 0% 12%;
-    --ring: 0 0% 60%;
+    /* Borders */
+    --border: 220 13% 19%;
+    --input: 220 14% 12%;
+    --ring: 40 55% 51%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     /* Apollo custom tokens */
     --apollo-black: 0 0% 0%;
-    --apollo-charcoal: 0 0% 4%;
-    --apollo-charcoal-light: 0 0% 6%;
-    --apollo-graphite: 0 0% 6%;
-    --apollo-divider: 0 0% 18%;
-    --apollo-inactive: 0 0% 40%;
-    --apollo-gray: 0 0% 55%;
-    --apollo-white: 0 0% 95%;
-    --apollo-accent: 80 20% 30%;
-    --apollo-star: 0 0% 95%;
+    --apollo-graphite: 220 14% 10%;
+    --apollo-graphite-light: 220 12% 14%;
+    --apollo-border: 220 13% 19%;
+    --apollo-gold: 40 55% 51%;
+    --apollo-gold-light: 40 60% 62%;
+    --apollo-gold-dark: 40 50% 40%;
+    --apollo-white: 0 0% 100%;
+    --apollo-soft-gray: 220 5% 65%;
+    --apollo-divider: 220 10% 15%;
 
-    /* Earth tone tokens — now clean neutrals */
-    --earth-terracotta: 0 0% 70%;
-    --earth-sienna: 0 0% 55%;
-    --earth-olive: 0 0% 60%;
-    --earth-sand: 0 0% 75%;
-    --earth-clay: 0 0% 65%;
-
-    /* Legacy aliases — clean white/silver */
-    --apollo-gold: 0 0% 90%;
-    --apollo-gold-light: 0 0% 95%;
-    --apollo-gold-dark: 0 0% 70%;
-    --apollo-bronze: 0 0% 60%;
-    --apollo-sandstone: 0 0% 55%;
-    --apollo-marble: 0 0% 18%;
-    --apollo-ivory: 0 0% 92%;
-    --apollo-taupe: 0 0% 40%;
-    --apollo-slate: 0 0% 35%;
-
-    /* Chart colors — Clean monochrome */
-    --chart-protein: 0 0% 90%;
-    --chart-carbs: 0 0% 60%;
+    /* Chart colors */
+    --chart-protein: 40 55% 51%;
+    --chart-carbs: 220 5% 65%;
     --chart-fat: 0 0% 40%;
 
-    /* Shadows — Deep elevation */
-    --shadow-card: 0 0 15px rgba(255, 255, 255, 0.06), 0 0 30px rgba(255, 255, 255, 0.03);
-    --shadow-elevated: 0 0 20px rgba(255, 255, 255, 0.1), 0 0 50px rgba(255, 255, 255, 0.05);
+    /* Shadows */
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+    --shadow-elevated: 0 8px 40px rgba(0, 0, 0, 0.6);
 
     /* Sidebar */
     --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary: 40 55% 51%;
     --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent: 220 14% 10%;
     --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 0 0% 60%;
+    --sidebar-border: 220 13% 19%;
+    --sidebar-ring: 40 55% 51%;
   }
 
   .dark {
-    /* Dark theme inherits root — already dark */
+    /* Dark theme inherits root */
   }
 }
 
@@ -117,8 +99,8 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', sans-serif;
-    font-weight: 300;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
     letter-spacing: 0.01em;
     overflow-x: hidden;
     width: 100%;
@@ -126,15 +108,15 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cinzel', serif;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     word-break: break-word;
     overflow-wrap: break-word;
   }
 
   p {
-    line-height: 1.8;
+    line-height: 1.75;
   }
 
   #root {
@@ -144,104 +126,59 @@
 }
 
 @layer components {
-  /* Apollo Button Variants */
-  .btn-apollo-primary {
-    @apply relative overflow-hidden bg-primary text-primary-foreground font-medium px-8 py-4 rounded transition-all duration-300;
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-size: 0.75rem;
+  /* Apollo Gold Button */
+  .btn-apollo-gold {
+    @apply relative overflow-hidden font-medium px-8 py-4 rounded-xl transition-all duration-300;
+    background: hsl(var(--apollo-gold));
+    color: hsl(0 0% 0%);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    font-size: 0.875rem;
+  }
+  .btn-apollo-gold:hover {
+    background: hsl(var(--apollo-gold-light));
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px hsla(var(--apollo-gold) / 0.3);
   }
 
-  .btn-apollo-primary:hover {
-    @apply opacity-90;
-  }
-
-  .btn-apollo-outline {
-    @apply border border-foreground/40 text-foreground bg-transparent px-8 py-4 rounded transition-all duration-300;
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-  }
-
-  .btn-apollo-outline:hover {
-    @apply bg-foreground/10;
-  }
-
-  /* Card styles — Dark Glass */
+  /* Card styles — Graphite Glass */
   .card-apollo {
-    @apply rounded-2xl bg-card p-8 transition-all duration-300;
-    border: 1px solid rgba(255, 255, 255, 0.20);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 4px 16px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.07);
+    @apply rounded-2xl p-8 transition-all duration-300;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-card);
   }
   .card-apollo:hover {
-    transform: translateY(-6px);
-    border-color: rgba(255, 255, 255, 0.35);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.12), inset 0 1px 0 rgba(255,255,255,0.12);
+    transform: translateY(-4px);
+    border-color: hsl(var(--apollo-gold) / 0.3);
+    box-shadow: var(--shadow-elevated);
   }
 
-  .card-apollo-featured {
-    @apply rounded-2xl bg-card p-10 transition-all duration-300;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 4px 16px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.09);
-  }
-  .card-apollo-featured:hover {
-    transform: translateY(-6px);
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.5), 0 0 25px rgba(255,255,255,0.08), 0 0 0 1px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.14);
-  }
-
-  /* Text gradient — Clean silver */
+  /* Text gradient — Gold */
   .text-gradient-gold {
-    background: linear-gradient(135deg, hsl(0 0% 95%), hsl(0 0% 65%));
+    background: linear-gradient(135deg, hsl(var(--apollo-gold-light)), hsl(var(--apollo-gold)));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Section backgrounds */
-  .bg-apollo-gradient {
-    background: linear-gradient(180deg, hsl(0 0% 0%), hsl(0 0% 2%));
+  /* Section label */
+  .section-label {
+    font-family: 'DM Sans', sans-serif;
+    @apply text-muted-foreground font-medium text-xs uppercase tracking-[0.2em];
   }
 
-  /* Animated underline */
-  .underline-apollo {
-    @apply relative;
-  }
-
-  .underline-apollo::after {
-    content: '';
-    @apply absolute bottom-0 left-0 h-px w-0 transition-all duration-500;
-    background: hsl(var(--apollo-gold));
-  }
-
-  .underline-apollo:hover::after {
-    @apply w-full;
-  }
-
-  /* Divider line */
+  /* Divider */
   .divider-gold {
     @apply h-px bg-gradient-to-r from-transparent to-transparent;
     background-image: linear-gradient(to right, transparent, hsl(var(--border)), transparent);
-  }
-
-  /* Section label */
-  .section-label {
-    font-family: 'Inter', sans-serif;
-    @apply text-muted-foreground font-medium text-xs uppercase tracking-[0.2em];
   }
 }
 
 @layer utilities {
   .animate-float {
     animation: float 8s ease-in-out infinite;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 6s ease-in-out infinite;
   }
 
   .animate-shimmer {
@@ -267,14 +204,8 @@
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   /* Prevent iOS zoom on input focus */
