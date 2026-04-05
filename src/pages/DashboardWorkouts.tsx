@@ -298,9 +298,8 @@ const DashboardWorkouts = () => {
 
             {/* Instructors */}
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4">
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Instructors</h2>
-                <span className="text-sm font-bold text-foreground">View All</span>
               </div>
               <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                 <div className="flex flex-col items-center gap-2 flex-shrink-0">
