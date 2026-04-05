@@ -213,7 +213,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center max-w-6xl mx-auto">
             {/* Left — Text */}
             <div>
-              <span className="section-label text-accent mb-3 block">The App</span>
+              <span className="section-label mb-3 block">The App</span>
               <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-6">
                 Your Training System<br />In One App
               </h2>
