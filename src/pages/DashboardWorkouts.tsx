@@ -424,7 +424,7 @@ const DashboardWorkouts = () => {
               <ScrollArea className="max-h-[60vh]">
                 <div className="p-5 space-y-4">
                   <DialogHeader>
-                    <p className="text-[10px] text-foreground/40 uppercase tracking-[0.15em] font-bold mb-1">
+                    <p className="text-[10px] text-white uppercase tracking-[0.15em] font-bold mb-1">
                       {selectedWorkout.category}
                     </p>
                     <DialogTitle className="text-xl font-bold text-foreground">{selectedWorkout.title}</DialogTitle>
