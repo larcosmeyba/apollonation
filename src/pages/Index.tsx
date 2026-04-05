@@ -60,7 +60,7 @@ const Index = () => {
       <Navbar />
 
       {/* ═══ 1. HERO ═══ */}
-      <header className="relative min-h-[85vh] md:min-h-screen flex items-center justify-center overflow-hidden pt-16" role="banner">
+      <header className="relative min-h-[75vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden pt-16" role="banner">
         <img
           src={heroImage}
           alt="Apollo Nation athlete training"
@@ -68,27 +68,27 @@ const Index = () => {
           decoding="async"
           className={`absolute inset-0 w-full h-full object-cover object-[50%_30%] transition-transform duration-[2500ms] ease-out ${isVisible ? "scale-100" : "scale-110"}`}
         />
-        <div className="absolute inset-0 bg-background/65" />
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute inset-0 bg-background/70" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-2xl mx-auto text-center">
-            <span className={`inline-block text-[10px] uppercase tracking-[0.3em] text-white/50 mb-5 font-light transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+          <div className="max-w-xl mx-auto text-center">
+            <span className={`inline-block text-[9px] uppercase tracking-[0.35em] text-foreground/30 mb-4 font-light transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               On-Demand Fitness Platform
             </span>
-            <h1 className={`font-heading text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-[1.05] mb-5 tracking-[0.02em] transition-all duration-1000 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-              <span className="block text-white">Train Like</span>
-              <span className="block text-white/60">a Legend</span>
+            <h1 className={`font-heading text-3xl sm:text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-4 tracking-[0.02em] transition-all duration-1000 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+              <span className="block text-foreground">Train Like</span>
+              <span className="block text-foreground/40">a Legend</span>
             </h1>
-            <p className={`text-sm md:text-lg text-white/60 max-w-md mx-auto mb-8 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+            <p className={`text-sm md:text-base text-foreground/40 max-w-sm mx-auto mb-6 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
               On-demand workouts, structured training programs, and practical nutrition guidance designed to fit real life.
             </p>
             <div className={`flex flex-col sm:flex-row items-center justify-center gap-3 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-              <Button variant="apollo" size="lg" className="group h-14 px-8 text-base rounded-full" onClick={scrollToDownload}>
+              <Button variant="apollo" size="lg" className="group h-12 px-7 text-sm rounded-full" onClick={scrollToDownload}>
                 Download the App
-                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={16} />
               </Button>
-              <Button variant="apollo-outline" size="lg" className="h-14 px-8 text-base rounded-full" onClick={() => document.getElementById("workouts")?.scrollIntoView({ behavior: "smooth" })}>
+              <Button variant="apollo-outline" size="lg" className="h-12 px-7 text-sm rounded-full" onClick={() => document.getElementById("workouts")?.scrollIntoView({ behavior: "smooth" })}>
                 Start Training
               </Button>
             </div>
