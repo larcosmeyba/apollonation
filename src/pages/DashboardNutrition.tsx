@@ -653,11 +653,11 @@ const DashboardNutrition = () => {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <div className="bg-card rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-heading text-lg tracking-wide text-black">Today's Nutrition</h2>
-              <button onClick={() => setIsLogDialogOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-black text-white text-sm font-bold hover:bg-black/80 transition-colors">
-                <Plus className="w-3.5 h-3.5 text-white" /> Log Meal
+              <h2 className="font-heading text-lg tracking-wide text-foreground">Today's Nutrition</h2>
+              <button onClick={() => setIsLogDialogOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-sm font-bold hover:bg-foreground/80 transition-colors">
+                <Plus className="w-3.5 h-3.5 text-background" /> Log Meal
               </button>
             </div>
 
