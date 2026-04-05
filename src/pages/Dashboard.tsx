@@ -256,71 +256,63 @@ const Dashboard = () => {
         </div>
 
         {/* Section 3 — Hero Workout Card with Image */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[var(--shadow-card)]">
+        <div className="rounded-xl border border-border/30 bg-card/50 overflow-hidden">
           {/* Workout Hero Image */}
-          <div className="relative h-36 overflow-hidden">
+          <div className="relative h-32 overflow-hidden">
             <img
               src={isRestDay ? getRestDayImage(format(selectedDate, "yyyy-MM-dd")) : getWorkoutImage(format(selectedDate, "yyyy-MM-dd"))}
               alt="Today's workout"
               className="w-full h-full object-cover object-center"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/60 to-transparent" />
-            <div className="absolute bottom-3 left-5">
-              <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/70 to-transparent" />
+            <div className="absolute bottom-3 left-4">
+              <p className="text-[9px] text-foreground/40 uppercase tracking-[0.25em] font-light">
                 {isViewingToday ? "Today's Workout" : format(selectedDate, "EEEE")}
               </p>
             </div>
-            <div className="absolute bottom-3 right-5">
-              <Link to="/dashboard/training">
-                <Button variant="ghost" size="sm" className="text-muted-foreground text-[10px] h-6 px-2">
-                  <Plus className="w-3 h-3 mr-1" /> Log Activity
-                </Button>
-              </Link>
-            </div>
           </div>
 
-          <div className="p-5 pt-3">
+          <div className="p-4 pt-3">
             {isRestDay ? (
-              <div className="text-center py-6">
-                <p className="font-heading text-xl mb-2">Rest Day</p>
-                <p className="text-sm text-muted-foreground">Recovery is part of the process. Come back stronger.</p>
+              <div className="text-center py-5">
+                <p className="font-heading text-lg mb-1.5 text-foreground/80">Rest Day</p>
+                <p className="text-xs text-muted-foreground/50 font-light">Recovery is part of the process.</p>
               </div>
             ) : (
               <>
-                <h2 className="font-heading text-xl mb-1">
+                <h2 className="font-heading text-lg mb-0.5 text-foreground/90">
                   {todayWorkout?.day_label || `Day ${todayWorkout?.day_number}`}
                 </h2>
                 {todayWorkout?.focus && (
-                  <p className="text-xs text-muted-foreground mb-4">{todayWorkout.focus}</p>
+                  <p className="text-[11px] text-muted-foreground/50 font-light mb-3">{todayWorkout.focus}</p>
                 )}
 
-                {/* Exercise preview */}
-                <div className="space-y-2 mb-4">
-                  {todayWorkout?.exercises.slice(0, 4).map((ex: any, i: number) => (
-                    <div key={ex.id} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
-                      <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary flex-shrink-0">
+                <div className="space-y-1 mb-3">
+                  {todayWorkout?.exercises.slice(0, 3).map((ex: any, i: number) => (
+                    <div key={ex.id} className="flex items-center gap-2.5 py-1.5">
+                      <span className="w-5 h-5 rounded-full bg-foreground/5 flex items-center justify-center text-[9px] text-foreground/40 flex-shrink-0">
                         {i + 1}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{ex.exercise_name}</p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {ex.sets} × {ex.reps}{ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
+                        <p className="text-[13px] truncate text-foreground/80">{ex.exercise_name}</p>
+                        <p className="text-[10px] text-muted-foreground/40 font-light">
+                          {ex.sets} × {ex.reps}
                         </p>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {(todayWorkout?.exercises.length || 0) > 4 && (
-                  <p className="text-[11px] text-muted-foreground text-center mb-4">
-                    +{todayWorkout!.exercises.length - 4} more exercises
+                {(todayWorkout?.exercises.length || 0) > 3 && (
+                  <p className="text-[10px] text-muted-foreground/30 text-center mb-3 font-light">
+                    +{todayWorkout!.exercises.length - 3} more
                   </p>
                 )}
 
                 <Link to={`/dashboard/training/workout?day=${todayWorkout?.id}&date=${format(selectedDate, "yyyy-MM-dd")}`} className="block">
-                  <Button variant="apollo" className="w-full">
-                    <Dumbbell className="w-4 h-4 mr-2" /> Start Workout
+                  <Button variant="apollo" size="sm" className="w-full">
+                    Start Workout
                   </Button>
                 </Link>
               </>
