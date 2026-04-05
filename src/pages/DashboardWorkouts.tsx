@@ -277,12 +277,6 @@ const DashboardWorkouts = () => {
                     </span>
                   </button>
                 ))}
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className="rounded-2xl h-24 bg-card border border-border flex items-center justify-center hover:bg-foreground/5 transition-colors"
-                >
-                  <span className="text-sm font-bold text-foreground">View All</span>
-                </button>
               </div>
             </div>
 
