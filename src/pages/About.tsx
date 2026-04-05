@@ -52,10 +52,8 @@ const About = () => {
           </h2>
           <div className="space-y-3">
             {[
-              { title: "On-Demand Workouts", desc: "New classes added weekly — Strength, HIIT, Sculpt, Cardio, Yoga, and more." },
-              { title: "Structured Programs", desc: "Multi-week training plans designed for real progression and results." },
+              { title: "On-Demand Workouts", desc: "New classes added weekly — Strength, HIIT, Sculpt, Cardio, and more." },
               { title: "Nutrition Guidance", desc: "Personalized meal plans, macro tracking, and grocery lists tailored to your goals." },
-              { title: "Coach Access", desc: "Direct connection to your coach for guidance, accountability, and support." },
             ].map((item) => (
               <div key={item.title} className="p-4 rounded-2xl bg-card border border-border">
                 <h3 className="text-sm font-bold text-foreground">{item.title}</h3>
