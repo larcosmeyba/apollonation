@@ -547,7 +547,112 @@ const DashboardNutrition = () => {
             <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
           </div>
 
-          {/* ── Nutrition Summary Card ── */}
+          {/* ── Macro Calculator ── */}
+          <div className="bg-white rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-base tracking-wide text-black">Your Macro Targets</h2>
+              <button onClick={() => setMacroEditing(!macroEditing)} className="p-1.5 rounded-full hover:bg-black/10 transition-colors">
+                <Pencil className="w-4 h-4 text-black/60" />
+              </button>
+            </div>
+
+            {calculatedMacros && !macroEditing ? (
+              <div className="grid grid-cols-4 gap-2">
+                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
+                  <p className="text-lg font-heading text-black">{calculatedMacros.calories}</p>
+                  <p className="text-[10px] text-black/60 font-semibold uppercase">Calories</p>
+                </div>
+                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
+                  <p className="text-lg font-heading text-black">{calculatedMacros.protein}g</p>
+                  <p className="text-[10px] text-black/60 font-semibold uppercase">Protein</p>
+                </div>
+                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
+                  <p className="text-lg font-heading text-black">{calculatedMacros.carbs}g</p>
+                  <p className="text-[10px] text-black/60 font-semibold uppercase">Carbs</p>
+                </div>
+                <div className="bg-black/5 rounded-xl p-3 text-center border border-black/10">
+                  <p className="text-lg font-heading text-black">{calculatedMacros.fat}g</p>
+                  <p className="text-[10px] text-black/60 font-semibold uppercase">Fat</p>
+                </div>
+                <div className="col-span-4 mt-2 flex gap-2 flex-wrap">
+                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium capitalize">{macroCalc.goal.replace("_", " ")}</span>
+                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium capitalize">{macroCalc.activity_level.replace("_", " ")}</span>
+                  <span className="text-[10px] bg-black/5 border border-black/10 rounded-full px-2.5 py-1 text-black/70 font-medium">{macroCalc.height_ft}'{macroCalc.height_in}" · {macroCalc.weight} lbs</span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Height (ft)</label>
+                    <Input type="number" placeholder="5" value={macroCalc.height_ft} onChange={(e) => setMacroCalc(p => ({ ...p, height_ft: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Height (in)</label>
+                    <Input type="number" placeholder="8" value={macroCalc.height_in} onChange={(e) => setMacroCalc(p => ({ ...p, height_in: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Weight (lbs)</label>
+                    <Input type="number" placeholder="160" value={macroCalc.weight} onChange={(e) => setMacroCalc(p => ({ ...p, weight: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Sex</label>
+                    <Select value={macroCalc.sex} onValueChange={(v) => setMacroCalc(p => ({ ...p, sex: v }))}>
+                      <SelectTrigger className="bg-black/5 border-black/10 text-black h-9 text-sm"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Age</label>
+                    <Input type="number" placeholder="25" value={macroCalc.age} onChange={(e) => setMacroCalc(p => ({ ...p, age: e.target.value }))} className="bg-black/5 border-black/10 text-black h-9 text-sm" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Activity Level</label>
+                    <Select value={macroCalc.activity_level} onValueChange={(v) => setMacroCalc(p => ({ ...p, activity_level: v }))}>
+                      <SelectTrigger className="bg-black/5 border-black/10 text-black h-9 text-sm"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sedentary">Sedentary</SelectItem>
+                        <SelectItem value="light">Light</SelectItem>
+                        <SelectItem value="moderate">Moderate</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="very_active">Very Active</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-black/60 uppercase mb-1 block">Goal</label>
+                    <Select value={macroCalc.goal} onValueChange={(v) => setMacroCalc(p => ({ ...p, goal: v }))}>
+                      <SelectTrigger className="bg-black/5 border-black/10 text-black h-9 text-sm"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="maintain">Maintain Weight</SelectItem>
+                        <SelectItem value="lose_fat">Lose Fat</SelectItem>
+                        <SelectItem value="gain_weight">Gain Weight</SelectItem>
+                        <SelectItem value="gain_muscle">Gain Muscle</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button onClick={() => { handleCalcMacros(); }} className="flex-1 bg-black text-white hover:bg-black/80 font-bold text-sm h-9">
+                    Calculate
+                  </Button>
+                  {calculatedMacros && (
+                    <Button onClick={handleSaveMacroProfile} disabled={macroSaving} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-sm h-9">
+                      {macroSaving ? "Saving..." : "Save"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="bg-white rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-heading text-lg tracking-wide text-black">Today's Nutrition</h2>
