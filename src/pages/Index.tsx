@@ -121,19 +121,11 @@ const Index = () => {
             </p>
 
             <div
-              className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              className={`flex items-center justify-center transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
               <Button variant="apollo" size="lg" className="group h-14 px-10 text-base rounded-full" onClick={scrollToDownload}>
-                Start Training
+                Download the App
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
-              </Button>
-              <Button
-                variant="apollo-outline"
-                size="lg"
-                className="h-14 px-10 text-base rounded-full"
-                onClick={() => document.getElementById("workouts")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                Explore Workouts
               </Button>
             </div>
           </div>
