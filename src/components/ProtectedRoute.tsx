@@ -39,12 +39,9 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     );
   }
 
-  // Archived and cancelled accounts can still access subscribe page to reactivate
+  // Archived and cancelled accounts redirect to dashboard
   if (profile?.account_status === "archived" || profile?.account_status === "cancelled") {
-    if (location.pathname === "/subscribe") {
-      return <>{children}</>;
-    }
-    return <Navigate to="/subscribe" replace />;
+    // Allow access — subscription handled via Apple App Store
   }
 
   // Now wait for subscription and questionnaire loading for active users
