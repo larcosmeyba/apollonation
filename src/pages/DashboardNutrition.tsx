@@ -635,30 +635,32 @@ const DashboardNutrition = () => {
                       const dayMeals = getMealsForDay(dayNum);
                       const totals = getDayTotals(dayNum);
                       return (
-                        <div key={dayNum} className="card-apollo !p-0 overflow-hidden">
-                          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+                        <div key={dayNum} className="bg-white rounded-2xl border border-black/10 overflow-hidden shadow-sm">
+                          <div className="flex items-center justify-between px-4 py-3 border-b border-black/10">
                             <div className="flex items-center gap-2">
-                              <span className="font-heading text-sm">{dayLabel(dayNum)}</span>
-                              <span className="text-[10px] text-muted-foreground">Day {dayNum}</span>
+                              <span className="font-heading text-sm text-black">{dayLabel(dayNum)}</span>
+                              <span className="text-[10px] text-black/50">Day {dayNum}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                              <Badge variant="outline" className="font-normal text-[10px] py-0">{totals.calories} cal</Badge>
+                            <div className="flex items-center gap-2 text-[10px] text-black/60">
+                              <Badge variant="outline" className="font-normal text-[10px] py-0 border-black/20 text-black">{totals.calories} cal</Badge>
                               <span>P{totals.protein}g</span>
                               <span>C{totals.carbs}g</span>
                               <span>F{totals.fat}g</span>
                             </div>
                           </div>
 
-                          <div className="divide-y divide-border/30">
-                            {dayMeals.length > 0 ? dayMeals.map((meal) => (
-                              <div key={meal.id} className="px-4 py-3">
+                          <div className="divide-y divide-black/5">
+                            {dayMeals.length > 0 ? dayMeals.map((meal) => {
+                              const isEaten = macroEntries.some(e => e.notes === `meal:${meal.id}`);
+                              return (
+                              <div key={meal.id} className={`px-4 py-3 ${isEaten ? "bg-green-50" : ""}`}>
                                 {editingMealId === meal.id ? (
                                   <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                      <span className="text-xs font-medium text-muted-foreground">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</span>
+                                      <span className="text-xs font-medium text-black/50">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</span>
                                       <div className="flex gap-1">
-                                        <Button variant="ghost" size="sm" onClick={saveMealEdit} className="h-7 w-7 p-0"><Save className="w-3.5 h-3.5" /></Button>
-                                        <Button variant="ghost" size="sm" onClick={() => setEditingMealId(null)} className="h-7 w-7 p-0"><X className="w-3.5 h-3.5" /></Button>
+                                        <Button variant="ghost" size="sm" onClick={saveMealEdit} className="h-7 w-7 p-0 text-black"><Save className="w-3.5 h-3.5" /></Button>
+                                        <Button variant="ghost" size="sm" onClick={() => setEditingMealId(null)} className="h-7 w-7 p-0 text-black"><X className="w-3.5 h-3.5" /></Button>
                                       </div>
                                     </div>
                                     <Input value={editForm.meal_name} onChange={(e) => setEditForm({ ...editForm, meal_name: e.target.value })} placeholder="Meal name" className="h-8 text-sm" />
@@ -673,10 +675,10 @@ const DashboardNutrition = () => {
                                   </div>
                                 ) : (
                                   <div className="flex items-start gap-3">
-                                    {/* Mark as Eaten Checkbox */}
+                                    {/* Mark as Eaten Checkbox - green when checked */}
                                     <div className="flex-shrink-0 pt-1">
                                       <Checkbox
-                                        checked={macroEntries.some(e => e.notes === `meal:${meal.id}`)}
+                                        checked={isEaten}
                                         onCheckedChange={async (checked) => {
                                           if (checked) {
                                             await saveEntry({
@@ -687,7 +689,6 @@ const DashboardNutrition = () => {
                                               fat_grams: Number(meal.fat_grams) || 0,
                                               ai_estimated: false,
                                             });
-                                            // Update the notes to track source
                                             const { data: latest } = await supabase
                                               .from("macro_logs")
                                               .select("id")
@@ -707,11 +708,11 @@ const DashboardNutrition = () => {
                                             }
                                           }
                                         }}
-                                        className="data-[state=checked]:bg-primary"
+                                        className={`${isEaten ? "data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" : "border-black/30"}`}
                                       />
                                     </div>
                                     {/* Food Photo */}
-                                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                                       <img
                                         src={getMealImage(meal.meal_name, meal.meal_type)}
                                         alt={meal.meal_name}
@@ -720,16 +721,16 @@ const DashboardNutrition = () => {
                                       />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</p>
-                                      <p className={`font-medium text-sm ${macroEntries.some(e => e.notes === `meal:${meal.id}`) ? "line-through text-muted-foreground" : ""}`}>{meal.meal_name}</p>
-                                      {meal.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{meal.description}</p>}
+                                      <p className="text-[10px] text-black/50 uppercase tracking-wider mb-0.5">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</p>
+                                      <p className={`font-medium text-sm text-black ${isEaten ? "line-through text-green-600" : ""}`}>{meal.meal_name}</p>
+                                      {meal.description && <p className="text-xs text-black/60 mt-0.5 line-clamp-2">{meal.description}</p>}
                                       {Array.isArray(meal.ingredients) && meal.ingredients.length > 0 && (
-                                        <ul className="mt-1.5 text-[10px] text-muted-foreground list-disc list-inside space-y-0">
+                                        <ul className="mt-1.5 text-[10px] text-black/50 list-disc list-inside space-y-0">
                                           {(meal.ingredients as string[]).slice(0, 4).map((ing, i) => <li key={i}>{ing}</li>)}
                                           {(meal.ingredients as string[]).length > 4 && <li>+{(meal.ingredients as string[]).length - 4} more</li>}
                                         </ul>
                                       )}
-                                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-muted-foreground">
+                                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-black/60">
                                         <span>{meal.calories} cal</span>
                                         <span>P: {meal.protein_grams}g</span>
                                         <span>C: {meal.carbs_grams}g</span>
@@ -737,18 +738,18 @@ const DashboardNutrition = () => {
                                       </div>
                                     </div>
                                     <div className="flex gap-1 flex-shrink-0">
-                                      <Button variant="ghost" size="sm" onClick={() => openSwap(meal)} className="text-[10px] h-7 px-2 gap-1 text-muted-foreground hover:text-foreground">
+                                      <Button variant="ghost" size="sm" onClick={() => openSwap(meal)} className="text-[10px] h-7 px-2 gap-1 text-black/50 hover:text-black">
                                         <RefreshCw className="w-3 h-3" /> Change
                                       </Button>
-                                      <Button variant="ghost" size="sm" onClick={() => startEditMeal(meal)} className="text-[10px] h-7 px-2 gap-1 text-muted-foreground hover:text-foreground">
+                                      <Button variant="ghost" size="sm" onClick={() => startEditMeal(meal)} className="text-[10px] h-7 px-2 gap-1 text-black/50 hover:text-black">
                                         <Edit2 className="w-3 h-3" />
                                       </Button>
                                     </div>
                                   </div>
                                 )}
                               </div>
-                            )) : (
-                              <p className="px-4 py-6 text-center text-sm text-muted-foreground">No meals for this day.</p>
+                            );}) : (
+                              <p className="px-4 py-6 text-center text-sm text-black/40">No meals for this day.</p>
                             )}
                           </div>
                         </div>
