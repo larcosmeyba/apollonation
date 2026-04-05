@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Play, Search, Bookmark, Plus, Dumbbell } from "lucide-react";
+import { Play, Search, Bookmark, BookmarkCheck, Dumbbell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { format, startOfWeek } from "date-fns";
+import { toast } from "sonner";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
@@ -55,6 +56,7 @@ const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Recovery", "Core", "Stre
 
 const DashboardWorkouts = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"explore" | "collections">("explore");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -102,6 +104,22 @@ const DashboardWorkouts = () => {
     enabled: !!user,
   });
 
+  const toggleFavorite = useMutation({
+    mutationFn: async (workoutId: string) => {
+      if (!user) return;
+      const isFav = favorites.includes(workoutId);
+      if (isFav) {
+        await supabase.from("user_favorites").delete().eq("user_id", user.id).eq("workout_id", workoutId);
+      } else {
+        await supabase.from("user_favorites").insert({ user_id: user.id, workout_id: workoutId });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-favorites"] });
+    },
+    onError: () => toast.error("Could not update favorite"),
+  });
+
   const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
 
   const filteredWorkouts = workouts.filter((w) => {
@@ -120,6 +138,22 @@ const DashboardWorkouts = () => {
     return null;
   };
 
+  const SaveButton = ({ workoutId }: { workoutId: string }) => {
+    const isSaved = favorites.includes(workoutId);
+    return (
+      <button
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite.mutate(workoutId); }}
+        className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-colors"
+      >
+        {isSaved ? (
+          <BookmarkCheck className="w-4 h-4 text-white" />
+        ) : (
+          <Bookmark className="w-4 h-4 text-white" />
+        )}
+      </button>
+    );
+  };
+
   const WorkoutCard = ({ workout, index = 0 }: { workout: Workout; index?: number }) => {
     const thumb = getWorkoutThumbnail(workout) || WORKOUT_IMAGES[index % WORKOUT_IMAGES.length];
     return (
@@ -136,15 +170,13 @@ const DashboardWorkouts = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute top-3 right-3">
-            <div className="w-8 h-8 rounded-full bg-foreground/20 backdrop-blur-sm flex items-center justify-center">
-              <Plus className="w-4 h-4 text-foreground" />
-            </div>
+            <SaveButton workoutId={workout.id} />
           </div>
           <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-sm font-bold text-foreground uppercase leading-tight truncate">
+            <h3 className="text-sm font-bold text-white uppercase leading-tight truncate">
               {workout.title}
             </h3>
-            <p className="text-[11px] font-medium text-foreground/60 mt-0.5">
+            <p className="text-[11px] font-bold text-white mt-0.5">
               Marcos Leyba &nbsp;/&nbsp; {workout.duration_minutes} min &nbsp;/&nbsp; Train: {workout.category}
             </p>
           </div>
@@ -195,7 +227,7 @@ const DashboardWorkouts = () => {
             >
               Explore
               {activeTab === "explore" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
               )}
             </button>
             <button
@@ -206,7 +238,7 @@ const DashboardWorkouts = () => {
             >
               Collections
               {activeTab === "collections" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
               )}
             </button>
           </div>
@@ -220,22 +252,22 @@ const DashboardWorkouts = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Types</h2>
-                <span className="text-sm font-semibold text-foreground/60">View All</span>
+                <span className="text-sm font-bold text-foreground">View All</span>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {TYPES.map((type) => (
                   <button
                     key={type}
                     onClick={() => setSelectedCategory(type)}
-                    className="relative rounded-2xl overflow-hidden h-24 group text-left"
+                    className="relative rounded-2xl overflow-hidden h-24 group text-left shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
                   >
                     <img
                       src={TYPE_IMAGES[type]}
                       alt={type}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors" />
-                    <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground">
+                    <div className="absolute inset-0 bg-black/50 group-hover:bg-black/35 transition-colors" />
+                    <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white drop-shadow-lg">
                       {type}
                     </span>
                   </button>
@@ -244,7 +276,7 @@ const DashboardWorkouts = () => {
                   onClick={() => setSelectedCategory(null)}
                   className="rounded-2xl h-24 bg-card border border-border flex items-center justify-center hover:bg-foreground/5 transition-colors"
                 >
-                  <span className="text-sm font-bold text-foreground/60">View All</span>
+                  <span className="text-sm font-bold text-foreground">View All</span>
                 </button>
               </div>
             </div>
@@ -254,7 +286,7 @@ const DashboardWorkouts = () => {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Recently Added</h2>
-                  <span className="text-sm font-semibold text-foreground/60">View All</span>
+                  <span className="text-sm font-bold text-foreground">View All</span>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                   {recentlyAdded.map((w, i) => (
@@ -270,11 +302,11 @@ const DashboardWorkouts = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Instructors</h2>
-                <span className="text-sm font-semibold text-foreground/60">View All</span>
+                <span className="text-sm font-bold text-foreground">View All</span>
               </div>
               <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                 <div className="flex flex-col items-center gap-2 flex-shrink-0">
-                  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-border">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-foreground/30 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                     <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
                   </div>
                   <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
@@ -287,7 +319,7 @@ const DashboardWorkouts = () => {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Featured</h2>
-                  <span className="text-sm font-semibold text-foreground/60">View All</span>
+                  <span className="text-sm font-bold text-foreground">View All</span>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                   {featuredWorkouts.map((w, i) => (
@@ -349,8 +381,8 @@ const DashboardWorkouts = () => {
             {savedWorkouts.length === 0 ? (
               <div className="text-center py-20">
                 <Bookmark className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
-                <p className="text-foreground/50 text-sm font-bold">No saved workouts yet</p>
-                <p className="text-foreground/30 text-xs mt-1">Tap the + icon on any workout to save it</p>
+                <p className="text-foreground text-sm font-bold">No saved workouts yet</p>
+                <p className="text-foreground/50 text-xs mt-1">Tap the bookmark icon on any workout to save it</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
