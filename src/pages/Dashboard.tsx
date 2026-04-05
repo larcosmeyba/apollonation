@@ -183,36 +183,36 @@ const Dashboard = () => {
   const isRestDay = !todayWorkout;
   const isViewingToday = isSameDay(selectedDate, new Date());
 
-  const MacroRing = ({ current, target, label, size = 48 }: { current: number; target: number; label: string; size?: number }) => {
+  const MacroRing = ({ current, target, label, size = 44 }: { current: number; target: number; label: string; size?: number }) => {
     const pct = Math.min(Math.round((current / target) * 100), 100);
     const rem = Math.max(0, target - current);
     return (
-      <div className="flex flex-col items-center gap-1">
+      <div className="flex flex-col items-center gap-0.5">
         <div className="relative" style={{ width: size, height: size }}>
           <svg className="-rotate-90" viewBox="0 0 36 36" width={size} height={size}>
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray={`${pct}, 100`} strokeLinecap="round" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--border))" strokeWidth="3" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--foreground))" strokeWidth="3" strokeDasharray={`${pct}, 100`} strokeLinecap="round" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xs font-heading">{rem}</span>
+            <span className="text-[10px] font-heading text-foreground/80">{rem}</span>
           </div>
         </div>
-        <span className="text-[10px] text-muted-foreground">{label}</span>
+        <span className="text-[8px] text-muted-foreground/40 font-light">{label}</span>
       </div>
     );
   };
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-5">
 
         {/* App Store Launch Alert */}
-        <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+        <div className="bg-foreground/[0.03] border border-border/30 rounded-xl p-4 flex items-start gap-3">
+          <AlertTriangle className="w-4 h-4 text-foreground/40 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-heading text-sm font-semibold text-foreground">🚀 App Store Launch In Progress</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              We're launching Apollo Nation on the App Store &amp; Google Play! The web app may be temporarily unavailable during this transition. Thank you for your patience!
+            <p className="text-xs font-medium text-foreground/70 tracking-wide">App Store Launch In Progress</p>
+            <p className="text-[11px] text-muted-foreground/60 mt-1 leading-relaxed">
+              We're launching on the App Store &amp; Google Play. The web app may be temporarily unavailable during this transition.
             </p>
           </div>
         </div>
@@ -222,32 +222,15 @@ const Dashboard = () => {
         <WeeklySummary />
 
         {/* Section 1 — Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-[0.15em] mb-1">{todayDate}</p>
-            <h1 className="font-heading text-2xl md:text-3xl tracking-wide">
-              Hello, {profile?.display_name || "Warrior"}
-            </h1>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
-                {profile?.subscription_tier || "Basic"} Member
-              </Badge>
-              {!subscription?.subscribed && (
-                <Link to="/#pricing">
-                  <Button variant="link" size="sm" className="text-primary text-[10px] h-5 px-0">Upgrade</Button>
-                </Link>
-              )}
-            </div>
-          </div>
-          <Link to="/dashboard/profile">
-            <div className="w-11 h-11 rounded-full bg-primary/15 flex items-center justify-center border border-primary/20 hover:border-primary/40 transition-colors">
-              <User className="w-5 h-5 text-primary" />
-            </div>
-          </Link>
+        <div>
+          <p className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em] mb-1">{todayDate}</p>
+          <h1 className="font-heading text-xl md:text-2xl tracking-wide text-foreground/90">
+            {profile?.display_name || "Warrior"}
+          </h1>
         </div>
 
         {/* Section 2 — Weekly Calendar Strip */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 -mx-1 px-1">
+        <div className="flex items-center gap-0.5 overflow-x-auto pb-1">
           {weekDates.map((date) => {
             const isSelected = isSameDay(date, selectedDate);
             const isTodayDate = isToday(date);
@@ -255,16 +238,16 @@ const Dashboard = () => {
               <button
                 key={date.toISOString()}
                 onClick={() => setSelectedDate(date)}
-                className={`flex flex-col items-center justify-center min-w-[44px] py-2 px-1 rounded-xl transition-all ${
+                className={`flex flex-col items-center justify-center min-w-[42px] py-2 px-1 rounded-lg transition-all ${
                   isSelected
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-foreground text-background"
                     : isTodayDate
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted"
+                    ? "bg-foreground/5 text-foreground"
+                    : "text-muted-foreground/40 hover:bg-foreground/5"
                 }`}
               >
-                <span className="text-[10px] font-medium uppercase">{format(date, "EEE")}</span>
-                <span className={`text-base font-heading ${isSelected ? "text-primary-foreground" : ""}`}>
+                <span className="text-[9px] font-light uppercase tracking-wider">{format(date, "EEE")}</span>
+                <span className={`text-sm font-heading ${isSelected ? "text-background" : ""}`}>
                   {format(date, "d")}
                 </span>
               </button>
@@ -273,71 +256,63 @@ const Dashboard = () => {
         </div>
 
         {/* Section 3 — Hero Workout Card with Image */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[var(--shadow-card)]">
+        <div className="rounded-xl border border-border/30 bg-card/50 overflow-hidden">
           {/* Workout Hero Image */}
-          <div className="relative h-36 overflow-hidden">
+          <div className="relative h-32 overflow-hidden">
             <img
               src={isRestDay ? getRestDayImage(format(selectedDate, "yyyy-MM-dd")) : getWorkoutImage(format(selectedDate, "yyyy-MM-dd"))}
               alt="Today's workout"
               className="w-full h-full object-cover object-center"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/60 to-transparent" />
-            <div className="absolute bottom-3 left-5">
-              <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/70 to-transparent" />
+            <div className="absolute bottom-3 left-4">
+              <p className="text-[9px] text-foreground/40 uppercase tracking-[0.25em] font-light">
                 {isViewingToday ? "Today's Workout" : format(selectedDate, "EEEE")}
               </p>
             </div>
-            <div className="absolute bottom-3 right-5">
-              <Link to="/dashboard/training">
-                <Button variant="ghost" size="sm" className="text-muted-foreground text-[10px] h-6 px-2">
-                  <Plus className="w-3 h-3 mr-1" /> Log Activity
-                </Button>
-              </Link>
-            </div>
           </div>
 
-          <div className="p-5 pt-3">
+          <div className="p-4 pt-3">
             {isRestDay ? (
-              <div className="text-center py-6">
-                <p className="font-heading text-xl mb-2">Rest Day</p>
-                <p className="text-sm text-muted-foreground">Recovery is part of the process. Come back stronger.</p>
+              <div className="text-center py-5">
+                <p className="font-heading text-lg mb-1.5 text-foreground/80">Rest Day</p>
+                <p className="text-xs text-muted-foreground/50 font-light">Recovery is part of the process.</p>
               </div>
             ) : (
               <>
-                <h2 className="font-heading text-xl mb-1">
+                <h2 className="font-heading text-lg mb-0.5 text-foreground/90">
                   {todayWorkout?.day_label || `Day ${todayWorkout?.day_number}`}
                 </h2>
                 {todayWorkout?.focus && (
-                  <p className="text-xs text-muted-foreground mb-4">{todayWorkout.focus}</p>
+                  <p className="text-[11px] text-muted-foreground/50 font-light mb-3">{todayWorkout.focus}</p>
                 )}
 
-                {/* Exercise preview */}
-                <div className="space-y-2 mb-4">
-                  {todayWorkout?.exercises.slice(0, 4).map((ex: any, i: number) => (
-                    <div key={ex.id} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
-                      <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary flex-shrink-0">
+                <div className="space-y-1 mb-3">
+                  {todayWorkout?.exercises.slice(0, 3).map((ex: any, i: number) => (
+                    <div key={ex.id} className="flex items-center gap-2.5 py-1.5">
+                      <span className="w-5 h-5 rounded-full bg-foreground/5 flex items-center justify-center text-[9px] text-foreground/40 flex-shrink-0">
                         {i + 1}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{ex.exercise_name}</p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {ex.sets} × {ex.reps}{ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
+                        <p className="text-[13px] truncate text-foreground/80">{ex.exercise_name}</p>
+                        <p className="text-[10px] text-muted-foreground/40 font-light">
+                          {ex.sets} × {ex.reps}
                         </p>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {(todayWorkout?.exercises.length || 0) > 4 && (
-                  <p className="text-[11px] text-muted-foreground text-center mb-4">
-                    +{todayWorkout!.exercises.length - 4} more exercises
+                {(todayWorkout?.exercises.length || 0) > 3 && (
+                  <p className="text-[10px] text-muted-foreground/30 text-center mb-3 font-light">
+                    +{todayWorkout!.exercises.length - 3} more
                   </p>
                 )}
 
                 <Link to={`/dashboard/training/workout?day=${todayWorkout?.id}&date=${format(selectedDate, "yyyy-MM-dd")}`} className="block">
-                  <Button variant="apollo" className="w-full">
-                    <Dumbbell className="w-4 h-4 mr-2" /> Start Workout
+                  <Button variant="apollo" size="sm" className="w-full">
+                    Start Workout
                   </Button>
                 </Link>
               </>
@@ -348,45 +323,42 @@ const Dashboard = () => {
         {/* Section 3B — Today's Focus */}
         <TodaysFocus />
 
-        {/* Section 4A — Calories & Macros Remaining Card */}
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Calories & Macros</p>
+        {/* Section 4A — Calories & Macros */}
+        <div className="rounded-xl border border-border/30 bg-card/50 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[9px] text-foreground/30 uppercase tracking-[0.25em] font-light">Calories & Macros</p>
             <Link to="/dashboard/macros">
-              <Button variant="ghost" size="sm" className="text-muted-foreground text-[10px] h-6 px-2">
-                Log Food <ChevronRight className="w-3 h-3 ml-1" />
+              <Button variant="ghost" size="sm" className="text-muted-foreground/40 text-[10px] h-5 px-1.5">
+                Log <ChevronRight className="w-3 h-3 ml-0.5" />
               </Button>
             </Link>
           </div>
 
-          <div className="flex items-center gap-6 justify-center">
-            {/* Main calorie ring */}
-            <div className="relative w-24 h-24 flex-shrink-0">
-              <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
-                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="2.5" />
-                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="2.5" strokeDasharray={`${calPct}, 100`} strokeLinecap="round" />
+          <div className="flex items-center gap-5 justify-center">
+            <div className="relative w-20 h-20 flex-shrink-0">
+              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--foreground))" strokeWidth="2" strokeDasharray={`${calPct}, 100`} strokeLinecap="round" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xl font-heading">{remaining.calories}</span>
-                <span className="text-[8px] text-muted-foreground">remaining</span>
+                <span className="text-lg font-heading text-foreground/90">{remaining.calories}</span>
+                <span className="text-[7px] text-muted-foreground/40 font-light">remaining</span>
               </div>
             </div>
 
-            {/* Macro mini rings */}
-            <div className="flex gap-4">
-              <MacroRing current={loggedTotals.protein} target={targets.protein} label="Protein" />
-              <MacroRing current={loggedTotals.carbs} target={targets.carbs} label="Carbs" />
-              <MacroRing current={loggedTotals.fat} target={targets.fat} label="Fat" />
+            <div className="flex gap-3">
+              <MacroRing current={loggedTotals.protein} target={targets.protein} label="Protein" size={44} />
+              <MacroRing current={loggedTotals.carbs} target={targets.carbs} label="Carbs" size={44} />
+              <MacroRing current={loggedTotals.fat} target={targets.fat} label="Fat" size={44} />
             </div>
           </div>
 
-          {/* Eaten summary */}
-          <div className="flex items-center justify-center gap-4 mt-4 text-[10px] text-muted-foreground">
+          <div className="flex items-center justify-center gap-3 mt-3 text-[9px] text-muted-foreground/30 font-light">
             <span>{loggedTotals.calories} eaten</span>
             <span>·</span>
-            <span>P: {loggedTotals.protein}g</span>
-            <span>C: {loggedTotals.carbs}g</span>
-            <span>F: {loggedTotals.fat}g</span>
+            <span>P {loggedTotals.protein}g</span>
+            <span>C {loggedTotals.carbs}g</span>
+            <span>F {loggedTotals.fat}g</span>
           </div>
         </div>
 

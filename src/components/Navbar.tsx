@@ -17,13 +17,13 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-background/80 border-b border-border/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-3">
             <img src={apolloLogo} alt="Apollo Nation Logo" className="w-8 h-8 invert brightness-0 invert opacity-95" />
-            <span className="font-heading text-sm tracking-[0.2em] text-white">
-              APOLLO <span className="text-white/50">NATION</span>
+            <span className="font-heading text-xs tracking-[0.25em] text-foreground/90">
+              APOLLO <span className="text-foreground/35">NATION</span>
             </span>
           </Link>
 
@@ -32,7 +32,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-white/40 hover:text-white transition-colors duration-500 font-light text-[11px] uppercase tracking-[0.2em]"
+                className="text-foreground/25 hover:text-foreground transition-colors duration-500 font-light text-[10px] uppercase tracking-[0.25em]"
               >
                 {link.label}
               </a>
