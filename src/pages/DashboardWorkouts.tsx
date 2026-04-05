@@ -388,7 +388,7 @@ const DashboardWorkouts = () => {
               <div className="text-center py-20">
                 <Bookmark className="w-12 h-12 text-foreground/10 mx-auto mb-4" />
                 <p className="text-foreground text-sm font-bold">No saved workouts yet</p>
-                <p className="text-foreground/50 text-xs mt-1">Tap the bookmark icon on any workout to save it</p>
+                <p className="text-white text-xs mt-1">Tap the bookmark icon on any workout to save it</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
