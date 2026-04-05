@@ -166,7 +166,8 @@
   /* Section label */
   .section-label {
     font-family: 'DM Sans', sans-serif;
-    @apply text-muted-foreground font-medium text-xs uppercase tracking-[0.2em];
+    @apply font-semibold text-xs uppercase tracking-[0.25em];
+    color: hsl(var(--apollo-gold));
   }
 
   /* Divider */
