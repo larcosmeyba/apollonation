@@ -22,8 +22,8 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-3">
             <img src={apolloLogo} alt="Apollo Nation Logo" className="w-8 h-8 invert brightness-0 invert opacity-95" />
-            <span className="font-heading text-sm tracking-[0.2em] text-white">
-              APOLLO <span className="text-white/50">NATION</span>
+            <span className="font-heading text-xs tracking-[0.25em] text-foreground/90">
+              APOLLO <span className="text-foreground/35">NATION</span>
             </span>
           </Link>
 
