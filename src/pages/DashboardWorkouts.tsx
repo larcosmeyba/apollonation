@@ -370,7 +370,7 @@ const DashboardWorkouts = () => {
               </div>
             )}
             {filteredWorkouts.length === 0 ? (
-              <p className="text-foreground/40 text-sm py-12 text-center">No workouts found.</p>
+              <p className="text-white/50 text-sm py-12 text-center">No workouts found.</p>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {filteredWorkouts.map((w, i) => (
