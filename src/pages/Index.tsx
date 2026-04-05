@@ -102,9 +102,9 @@ const Index = () => {
           className="absolute inset-0 w-full h-full object-cover object-[50%_30%] -z-[1]"
         />
 
-        {/* Cinematic dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
+        {/* Cinematic dark overlay — lighter to show athlete */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/30 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
@@ -121,19 +121,11 @@ const Index = () => {
             </p>
 
             <div
-              className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              className={`flex items-center justify-center transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
               <Button variant="apollo" size="lg" className="group h-14 px-10 text-base rounded-full" onClick={scrollToDownload}>
-                Start Training
+                Download the App
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
-              </Button>
-              <Button
-                variant="apollo-outline"
-                size="lg"
-                className="h-14 px-10 text-base rounded-full"
-                onClick={() => document.getElementById("workouts")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                Explore Workouts
               </Button>
             </div>
           </div>
@@ -152,20 +144,20 @@ const Index = () => {
       <section id="pillars" className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <span className="section-label text-accent mb-3 block">The Platform</span>
+            <span className="section-label mb-3 block">The Platform</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight">
               Everything You Need to Train
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
             {FEATURES.map((f) => (
               <div
                 key={f.title}
                 className="card-apollo text-center group cursor-default"
               >
-                <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-6 group-hover:bg-accent/20 transition-colors">
-                  <f.icon className="w-6 h-6 text-accent" strokeWidth={1.5} />
+                <div className="w-16 h-16 rounded-2xl bg-accent/15 border border-accent/25 flex items-center justify-center mx-auto mb-6 group-hover:bg-accent/25 transition-colors">
+                  <f.icon className="w-7 h-7 text-accent" strokeWidth={1.5} />
                 </div>
                 <h3 className="font-heading text-xl text-foreground mb-3">{f.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
@@ -179,7 +171,7 @@ const Index = () => {
       <section id="workouts" className="py-20 md:py-28 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <span className="section-label text-accent mb-3 block">Workouts</span>
+            <span className="section-label mb-3 block">Workouts</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
               On-Demand Workout Library
             </h2>
@@ -221,7 +213,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center max-w-6xl mx-auto">
             {/* Left — Text */}
             <div>
-              <span className="section-label text-accent mb-3 block">The App</span>
+              <span className="section-label mb-3 block">The App</span>
               <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-6">
                 Your Training System<br />In One App
               </h2>
@@ -249,7 +241,7 @@ const Index = () => {
       <section id="programs" className="py-20 md:py-28 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <span className="section-label text-accent mb-3 block">Programs</span>
+            <span className="section-label mb-3 block">Programs</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
               Structured Training Programs
             </h2>
@@ -258,26 +250,26 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+          <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
             {PROGRAMS.map((p) => (
               <div
                 key={p.title}
                 className="card-apollo group cursor-default"
               >
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors">
-                    <Dumbbell className="w-5 h-5 text-accent" strokeWidth={1.5} />
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="w-14 h-14 rounded-2xl bg-accent/15 border border-accent/25 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/25 transition-colors">
+                    <Dumbbell className="w-6 h-6 text-accent" strokeWidth={1.5} />
                   </div>
-                  <h3 className="font-heading text-lg text-foreground">{p.title}</h3>
+                  <div>
+                    <h3 className="font-heading text-lg text-foreground">{p.title}</h3>
+                    <span className="text-xs text-accent font-semibold border border-accent/25 rounded-full px-3 py-0.5 inline-block mt-1">
+                      {p.level}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 text-muted-foreground text-sm">
-                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{p.duration}</span>
-                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{p.schedule}</span>
-                </div>
-                <div className="mt-4">
-                  <span className="text-xs text-accent border border-accent/20 rounded-full px-3 py-1">
-                    {p.level}
-                  </span>
+                <div className="flex items-center gap-5 text-muted-foreground text-sm">
+                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-accent/60" />{p.duration}</span>
+                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-accent/60" />{p.schedule}</span>
                 </div>
               </div>
             ))}
@@ -289,7 +281,7 @@ const Index = () => {
       <section id="nutrition" className="py-20 md:py-28 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <span className="section-label text-accent mb-3 block">Nutrition</span>
+            <span className="section-label mb-3 block">Nutrition</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
               Fuel Your Training
             </h2>
@@ -298,7 +290,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-4xl mx-auto">
             {[
               { icon: BarChart3, title: "Macro Tracking", desc: "Log meals and track your daily macros effortlessly." },
               { icon: UtensilsCrossed, title: "Meal Plans", desc: "Weekly meal plans tailored to your calorie goals." },
@@ -306,8 +298,8 @@ const Index = () => {
               { icon: ShoppingCart, title: "Grocery Lists", desc: "Auto-generated grocery lists from your meal plan." },
             ].map((f) => (
               <div key={f.title} className="card-apollo text-center group cursor-default">
-                <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/20 transition-colors">
-                  <f.icon className="w-5 h-5 text-accent" strokeWidth={1.5} />
+                <div className="w-14 h-14 rounded-2xl bg-accent/15 border border-accent/25 flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/25 transition-colors">
+                  <f.icon className="w-6 h-6 text-accent" strokeWidth={1.5} />
                 </div>
                 <h3 className="font-heading text-base text-foreground mb-2">{f.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
@@ -324,7 +316,7 @@ const Index = () => {
       <section className="py-20 md:py-28 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="section-label text-accent mb-3 block">The Founder</span>
+            <span className="section-label mb-3 block">The Founder</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-6">
               Built By a Coach Who Understands Training
             </h2>
