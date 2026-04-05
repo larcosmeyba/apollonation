@@ -290,7 +290,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-4xl mx-auto">
             {[
               { icon: BarChart3, title: "Macro Tracking", desc: "Log meals and track your daily macros effortlessly." },
               { icon: UtensilsCrossed, title: "Meal Plans", desc: "Weekly meal plans tailored to your calorie goals." },
@@ -298,8 +298,8 @@ const Index = () => {
               { icon: ShoppingCart, title: "Grocery Lists", desc: "Auto-generated grocery lists from your meal plan." },
             ].map((f) => (
               <div key={f.title} className="card-apollo text-center group cursor-default">
-                <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/20 transition-colors">
-                  <f.icon className="w-5 h-5 text-accent" strokeWidth={1.5} />
+                <div className="w-14 h-14 rounded-2xl bg-accent/15 border border-accent/25 flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/25 transition-colors">
+                  <f.icon className="w-6 h-6 text-accent" strokeWidth={1.5} />
                 </div>
                 <h3 className="font-heading text-base text-foreground mb-2">{f.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
