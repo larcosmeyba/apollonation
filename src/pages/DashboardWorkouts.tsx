@@ -31,10 +31,10 @@ const TYPE_IMAGES: Record<string, string> = {
   Sculpt: stockBack,
   Cardio: marcosAction1,
   Recovery: marcosAction7,
-  Core: marcosAction6,
-  Stretch: marcosAction7,
-  Yoga: marcosAction1,
-  Senior: stockBack,
+  Core: marcos2,
+  Stretch: marcos3,
+  Yoga: marcos5,
+  Senior: marcos8,
 };
 
 const getYouTubeVideoId = (url: string): string | null => {
