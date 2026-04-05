@@ -29,13 +29,13 @@
     --secondary: 220 14% 10%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Muted — brighter secondary text #C7CCD1 */
+    /* Muted — brighter secondary text */
     --muted: 220 10% 12%;
-    --muted-foreground: 210 8% 78%;
+    --muted-foreground: 210 8% 85%;
 
-    /* Accent — Apollo Gold */
-    --accent: 40 55% 51%;
-    --accent-foreground: 0 0% 0%;
+    /* Accent — Apollo Bronze Gold */
+    --accent: 32 45% 38%;
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
@@ -44,7 +44,7 @@
     /* Borders — #2A2E36 */
     --border: 220 12% 18%;
     --input: 220 14% 12%;
-    --ring: 40 55% 51%;
+    --ring: 32 45% 38%;
 
     --radius: 1rem;
 
@@ -53,9 +53,9 @@
     --apollo-graphite: 220 14% 10%;
     --apollo-graphite-light: 220 12% 14%;
     --apollo-border: 220 12% 18%;
-    --apollo-gold: 40 55% 51%;
-    --apollo-gold-light: 40 60% 62%;
-    --apollo-gold-dark: 40 50% 40%;
+    --apollo-gold: 32 45% 38%;
+    --apollo-gold-light: 35 50% 48%;
+    --apollo-gold-dark: 30 40% 28%;
     --apollo-white: 0 0% 100%;
     --apollo-soft-gray: 210 8% 78%;
     --apollo-divider: 220 10% 15%;
@@ -72,12 +72,12 @@
     /* Sidebar */
     --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 40 55% 51%;
+    --sidebar-primary: 32 45% 38%;
     --sidebar-primary-foreground: 0 0% 0%;
     --sidebar-accent: 220 14% 10%;
     --sidebar-accent-foreground: 0 0% 92%;
     --sidebar-border: 220 12% 18%;
-    --sidebar-ring: 40 55% 51%;
+    --sidebar-ring: 32 45% 38%;
   }
 
   .dark {
