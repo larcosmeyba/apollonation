@@ -3,12 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Play, Clock, Flame, Search, Dumbbell, ChevronRight, Filter } from "lucide-react";
+import { Play, Clock, Flame, Search, Dumbbell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Workout = Tables<"workouts">;
@@ -39,7 +38,7 @@ const getYouTubeThumbnail = (url: string): string | null => {
   return null;
 };
 
-const CATEGORIES = ["All", "Strength", "HIIT", "Flexibility", "Recovery"];
+const CATEGORIES = ["All", "Strength", "HIIT", "Sculpt", "Recovery", "Core", "Mobility", "Stretch"];
 
 const DashboardWorkouts = () => {
   const { user } = useAuth();
@@ -100,7 +99,6 @@ const DashboardWorkouts = () => {
   const recentWorkouts = workouts.filter((w) => recentlyWatched.includes(w.id)).slice(0, 6);
   const categoryWorkouts = (cat: string) => workouts.filter((w) => w.category.toLowerCase() === cat.toLowerCase()).slice(0, 8);
 
-  // Get thumbnail: prefer DB thumbnail, fallback to YouTube auto-thumbnail
   const getWorkoutThumbnail = (workout: Workout): string | null => {
     if (workout.thumbnail_url) return workout.thumbnail_url;
     if (workout.video_url) return getYouTubeThumbnail(workout.video_url);
@@ -113,7 +111,7 @@ const DashboardWorkouts = () => {
     return (
       <button
         onClick={() => setSelectedWorkout(workout)}
-        className={`group relative overflow-hidden rounded-xl border border-border bg-card text-left transition-all hover:border-foreground/20 flex-shrink-0 ${
+        className={`group relative overflow-hidden rounded-xl border border-border/15 bg-foreground/[0.02] text-left transition-all hover:border-foreground/15 flex-shrink-0 ${
           isLg ? "w-full" : size === "sm" ? "w-40 min-w-[10rem]" : "w-52 min-w-[13rem]"
         }`}
       >
@@ -126,48 +124,45 @@ const DashboardWorkouts = () => {
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <Dumbbell className="w-8 h-8 text-muted-foreground/20" />
+            <div className="w-full h-full bg-foreground/[0.03] flex items-center justify-center">
+              <Dumbbell className="w-8 h-8 text-foreground/10" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
 
-          {/* Play overlay */}
           {workout.video_url && (
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className={`rounded-full bg-foreground/90 flex items-center justify-center ${isLg ? "w-16 h-16" : "w-10 h-10"}`}>
-                <Play className={`text-background ml-0.5 ${isLg ? "w-6 h-6" : "w-4 h-4"}`} fill="currentColor" />
+              <div className={`rounded-full bg-foreground/80 flex items-center justify-center ${isLg ? "w-14 h-14" : "w-10 h-10"}`}>
+                <Play className={`text-background ml-0.5 ${isLg ? "w-5 h-5" : "w-4 h-4"}`} fill="currentColor" />
               </div>
             </div>
           )}
 
-          {/* Featured badge */}
           {workout.is_featured && (
-            <div className="absolute top-3 left-3 px-2.5 py-1 bg-foreground rounded-full">
-              <span className="text-[9px] font-semibold text-background uppercase tracking-[0.15em]">Featured</span>
+            <div className="absolute top-2.5 left-2.5 px-2 py-0.5 bg-foreground rounded-full">
+              <span className="text-[8px] font-bold text-background uppercase tracking-[0.15em]">Featured</span>
             </div>
           )}
 
-          {/* Bottom info */}
-          <div className="absolute bottom-2 left-3 right-3 flex items-center gap-2">
-            <span className="flex items-center gap-1 text-[10px] text-foreground/80">
-              <Clock className="w-3 h-3" />
-              {workout.duration_minutes} min
+          <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center gap-2">
+            <span className="flex items-center gap-1 text-[9px] text-foreground/60">
+              <Clock className="w-2.5 h-2.5" />
+              {workout.duration_minutes}m
             </span>
             {workout.calories_estimate && (
-              <span className="flex items-center gap-1 text-[10px] text-foreground/80">
-                <Flame className="w-3 h-3" />
-                {workout.calories_estimate} cal
+              <span className="flex items-center gap-1 text-[9px] text-foreground/60">
+                <Flame className="w-2.5 h-2.5" />
+                {workout.calories_estimate}
               </span>
             )}
           </div>
         </div>
 
-        <div className={`${isLg ? "p-5" : "p-3"}`}>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] mb-1">{workout.category}</p>
-          <h3 className={`font-heading leading-tight ${isLg ? "text-xl" : "text-sm"}`}>{workout.title}</h3>
+        <div className={`${isLg ? "p-4" : "p-2.5"}`}>
+          <p className="text-[8px] text-foreground/25 uppercase tracking-[0.15em] mb-0.5">{workout.category}</p>
+          <h3 className={`font-heading leading-tight text-foreground/80 ${isLg ? "text-lg" : "text-[13px]"}`}>{workout.title}</h3>
           {isLg && workout.description && (
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{workout.description}</p>
+            <p className="text-[11px] text-foreground/30 mt-1 line-clamp-2">{workout.description}</p>
           )}
         </div>
       </button>
@@ -177,11 +172,9 @@ const DashboardWorkouts = () => {
   const HorizontalRow = ({ title, items }: { title: string; items: Workout[] }) => {
     if (items.length === 0) return null;
     return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-heading text-lg tracking-wide">{title}</h2>
-        </div>
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+      <div className="space-y-2.5">
+        <h2 className="font-heading text-base tracking-wide text-foreground/70">{title}</h2>
+        <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
           {items.map((w) => (
             <WorkoutCard key={w.id} workout={w} size="md" />
           ))}
@@ -192,34 +185,34 @@ const DashboardWorkouts = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-5">
         {/* Header */}
         <div>
-          <h1 className="font-heading text-2xl md:text-3xl tracking-wide mb-1">On Demand</h1>
-          <p className="text-sm text-muted-foreground">{workouts.length} workouts ready when you are</p>
+          <h1 className="font-heading text-2xl tracking-wide">On Demand</h1>
+          <p className="text-xs text-foreground/30 mt-0.5">{workouts.length} workouts ready when you are</p>
         </div>
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/20" />
           <Input
             placeholder="Search workouts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-card border-border"
+            className="pl-10 bg-foreground/[0.03] border-border/20 text-sm"
           />
         </div>
 
-        {/* Category filters */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+        {/* Category chips */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-full text-[10px] font-medium transition-all whitespace-nowrap tracking-wider ${
                 selectedCategory === cat
                   ? "bg-foreground text-background"
-                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                  : "bg-foreground/[0.03] border border-border/15 text-foreground/40 hover:text-foreground/60"
               }`}
             >
               {cat}
@@ -229,20 +222,19 @@ const DashboardWorkouts = () => {
 
         {isLoading ? (
           <div className="text-center py-16">
-            <p className="text-muted-foreground animate-pulse">Loading...</p>
+            <p className="text-foreground/30 animate-pulse text-sm">Loading...</p>
           </div>
         ) : searchQuery || selectedCategory !== "All" ? (
-          /* Filtered — horizontal scroll */
-          <div className="space-y-3">
-            <h2 className="font-heading text-lg tracking-wide">
+          <div className="space-y-2.5">
+            <h2 className="font-heading text-base tracking-wide text-foreground/70">
               {selectedCategory !== "All" ? selectedCategory : "Results"}
             </h2>
             {filteredWorkouts.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">No workouts found.</p>
+                <p className="text-foreground/30 text-sm">No workouts found.</p>
               </div>
             ) : (
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
                 {filteredWorkouts.map((w) => (
                   <WorkoutCard key={w.id} workout={w} size="md" />
                 ))}
@@ -250,23 +242,14 @@ const DashboardWorkouts = () => {
             )}
           </div>
         ) : (
-          /* Browse mode — streaming-style rows */
-          <div className="space-y-10">
-            {/* Featured Hero */}
+          <div className="space-y-7">
             {featured && <WorkoutCard workout={featured} size="lg" />}
-
-            {/* Recently Watched */}
             {recentWorkouts.length > 0 && (
-              <HorizontalRow title="Recently Watched" items={recentWorkouts} />
+              <HorizontalRow title="Continue Watching" items={recentWorkouts} />
             )}
-
-            {/* Category rows */}
             <HorizontalRow title="Strength" items={categoryWorkouts("Strength")} />
             <HorizontalRow title="HIIT" items={categoryWorkouts("HIIT")} />
-            <HorizontalRow title="Flexibility" items={categoryWorkouts("Flexibility")} />
             <HorizontalRow title="Recovery" items={categoryWorkouts("Recovery")} />
-
-            {/* All content fallback */}
             {workouts.length > 0 && (
               <HorizontalRow title="All Workouts" items={workouts.slice(0, 12)} />
             )}
@@ -276,7 +259,7 @@ const DashboardWorkouts = () => {
 
       {/* Detail Modal */}
       <Dialog open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-card border-border">
+        <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border/20">
           {selectedWorkout && (
             <>
               {selectedWorkout.video_url ? (
@@ -295,46 +278,46 @@ const DashboardWorkouts = () => {
               ) : null}
 
               <ScrollArea className="max-h-[60vh]">
-                <div className="p-6 space-y-6">
+                <div className="p-5 space-y-4">
                   <DialogHeader>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] mb-1">
+                    <p className="text-[9px] text-foreground/25 uppercase tracking-[0.15em] mb-0.5">
                       {selectedWorkout.category}
                     </p>
-                    <DialogTitle className="font-heading text-2xl">{selectedWorkout.title}</DialogTitle>
+                    <DialogTitle className="font-heading text-xl text-foreground/90">{selectedWorkout.title}</DialogTitle>
                     {selectedWorkout.description && (
-                      <p className="text-muted-foreground text-sm mt-1">{selectedWorkout.description}</p>
+                      <p className="text-foreground/40 text-xs mt-1">{selectedWorkout.description}</p>
                     )}
                   </DialogHeader>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-muted/50 p-3 rounded-lg text-center">
-                      <p className="text-[10px] text-muted-foreground">Duration</p>
-                      <p className="font-medium text-sm">{selectedWorkout.duration_minutes} min</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-foreground/[0.03] p-3 rounded-lg text-center border border-border/10">
+                      <p className="text-[9px] text-foreground/25">Duration</p>
+                      <p className="font-heading text-sm text-foreground/70">{selectedWorkout.duration_minutes} min</p>
                     </div>
                     {selectedWorkout.calories_estimate && (
-                      <div className="bg-muted/50 p-3 rounded-lg text-center">
-                        <p className="text-[10px] text-muted-foreground">Calories</p>
-                        <p className="font-medium text-sm">{selectedWorkout.calories_estimate}</p>
+                      <div className="bg-foreground/[0.03] p-3 rounded-lg text-center border border-border/10">
+                        <p className="text-[9px] text-foreground/25">Calories</p>
+                        <p className="font-heading text-sm text-foreground/70">{selectedWorkout.calories_estimate}</p>
                       </div>
                     )}
                   </div>
 
                   {workoutExercises.length > 0 && (
                     <div>
-                      <h3 className="font-heading text-lg mb-3">Exercises</h3>
-                      <div className="space-y-2">
+                      <h3 className="font-heading text-sm mb-2 text-foreground/60">Exercises</h3>
+                      <div className="space-y-1.5">
                         {workoutExercises.map((we: any, i: number) => (
-                          <div key={we.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50">
-                            <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary flex-shrink-0">
+                          <div key={we.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-foreground/[0.02] border border-border/10">
+                            <span className="w-5 h-5 rounded-full bg-foreground/5 flex items-center justify-center text-[9px] text-foreground/30 flex-shrink-0">
                               {i + 1}
                             </span>
                             <div className="flex-1">
-                              <p className="font-medium text-sm">{we.exercises?.title || "Exercise"}</p>
-                              <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
-                                <span>{we.sets} sets × {we.reps} reps</span>
+                              <p className="text-xs font-medium text-foreground/70">{we.exercises?.title || "Exercise"}</p>
+                              <div className="flex items-center gap-3 mt-0.5 text-[9px] text-foreground/25">
+                                <span>{we.sets}×{we.reps}</span>
                                 {we.rest_seconds && <span>Rest: {we.rest_seconds}s</span>}
                                 {we.exercises?.muscle_group && (
-                                  <Badge variant="secondary" className="text-[9px] py-0">{we.exercises.muscle_group}</Badge>
+                                  <Badge variant="secondary" className="text-[8px] py-0 bg-foreground/5 text-foreground/30 border-0">{we.exercises.muscle_group}</Badge>
                                 )}
                               </div>
                             </div>
