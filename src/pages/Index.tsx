@@ -112,40 +112,39 @@ const Index = () => {
       </section>
 
       {/* ═══ 3. ON-DEMAND WORKOUTS ═══ */}
-      <section id="workouts" className="py-12 md:py-16 border-t border-white/5">
+      <section id="workouts" className="py-10 md:py-14 border-t border-border/10">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 block font-light">Workouts</span>
-            <h2 className="font-heading text-3xl md:text-4xl text-white tracking-wide mb-4">
+          <div className="text-center mb-6">
+            <span className="text-[9px] uppercase tracking-[0.35em] text-foreground/20 mb-2 block font-light">Workouts</span>
+            <h2 className="font-heading text-2xl md:text-3xl text-foreground tracking-wide mb-2">
               On-Demand Workout Library
             </h2>
-            <p className="text-white/50 font-light leading-relaxed max-w-md mx-auto">
+            <p className="text-foreground/35 font-light leading-relaxed max-w-sm mx-auto text-sm">
               Train anytime with guided workouts designed to challenge you and keep your training fresh.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {WORKOUTS.map((w) => (
               <a
                 key={w.title}
                 href={w.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-card hover:border-white/20 transition-all duration-500"
+                className="group relative rounded-xl overflow-hidden border border-border/20 bg-card hover:border-border/40 transition-all duration-500"
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img src={w.image} alt={w.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
-                  {/* Play button overlay */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-12 h-12 rounded-full border border-white/40 flex items-center justify-center bg-background/40 backdrop-blur-sm">
-                      <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+                    <div className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center bg-background/30 backdrop-blur-sm">
+                      <Play className="w-4 h-4 text-foreground ml-0.5" fill="currentColor" />
                     </div>
                   </div>
                 </div>
-                <div className="relative p-5 -mt-10 z-10">
-                  <h3 className="font-heading text-base text-white mb-2 tracking-wide">{w.title}</h3>
-                  <div className="flex items-center gap-3 text-white/40 text-xs font-light">
+                <div className="relative p-4 -mt-8 z-10">
+                  <h3 className="font-heading text-sm text-foreground mb-1.5 tracking-wide">{w.title}</h3>
+                  <div className="flex items-center gap-3 text-foreground/25 text-[10px] font-light">
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{w.duration}</span>
                     <span className="flex items-center gap-1"><Flame className="w-3 h-3" />{w.calories}</span>
                   </div>
