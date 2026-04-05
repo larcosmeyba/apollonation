@@ -176,31 +176,73 @@ const DashboardNutrition = () => {
   });
 
   // Load saved profile into calculator
-  const profileLoaded = !!nutritionProfile;
-  if (nutritionProfile && !macroEditing && calculatedMacros === null && profileLoaded) {
-    const totalInches = nutritionProfile.height_inches || 0;
-    const ft = Math.floor(totalInches / 12);
-    const inches = totalInches % 12;
-    setMacroCalc({
-      height_ft: ft.toString(),
-      height_in: inches.toString(),
-      weight: nutritionProfile.weight_lbs?.toString() || "",
-      sex: (nutritionProfile.dietary_preferences?.[0] === "female" ? "female" : "male"),
-      age: nutritionProfile.age?.toString() || "",
-      activity_level: nutritionProfile.activity_level || "moderate",
-      goal: nutritionProfile.goals || "maintain",
-    });
-    // Recalculate
-    const calcMacros = calculateMacros(
-      nutritionProfile.age || 25,
-      nutritionProfile.dietary_preferences?.[0] === "female" ? "female" : "male",
-      nutritionProfile.height_inches || 68,
-      Number(nutritionProfile.weight_lbs) || 150,
-      nutritionProfile.activity_level || "moderate",
-      nutritionProfile.goals || "maintain"
+  useEffect(() => {
+    if (nutritionProfile && !macroEditing && calculatedMacros === null) {
+      const totalInches = nutritionProfile.height_inches || 0;
+      const ft = Math.floor(totalInches / 12);
+      const inches = totalInches % 12;
+      setMacroCalc({
+        height_ft: ft.toString(),
+        height_in: inches.toString(),
+        weight: nutritionProfile.weight_lbs?.toString() || "",
+        sex: (nutritionProfile.dietary_preferences?.[0] === "female" ? "female" : "male"),
+        age: nutritionProfile.age?.toString() || "",
+        activity_level: nutritionProfile.activity_level || "moderate",
+        goal: nutritionProfile.goals || "maintain",
+      });
+      const calcMacros = calculateMacros(
+        nutritionProfile.age || 25,
+        nutritionProfile.dietary_preferences?.[0] === "female" ? "female" : "male",
+        nutritionProfile.height_inches || 68,
+        Number(nutritionProfile.weight_lbs) || 150,
+        nutritionProfile.activity_level || "moderate",
+        nutritionProfile.goals || "maintain"
+      );
+      setCalculatedMacros(calcMacros);
+    }
+  }, [nutritionProfile]);
+
+  const handleCalcMacros = () => {
+    const heightInches = (parseInt(macroCalc.height_ft) || 0) * 12 + (parseInt(macroCalc.height_in) || 0);
+    const result = calculateMacros(
+      parseInt(macroCalc.age) || 25,
+      macroCalc.sex,
+      heightInches,
+      parseInt(macroCalc.weight) || 150,
+      macroCalc.activity_level,
+      macroCalc.goal
     );
-    setCalculatedMacros(calcMacros);
-  }
+    setCalculatedMacros(result);
+  };
+
+  const handleSaveMacroProfile = async () => {
+    if (!user) return;
+    setMacroSaving(true);
+    const heightInches = (parseInt(macroCalc.height_ft) || 0) * 12 + (parseInt(macroCalc.height_in) || 0);
+    const payload = {
+      user_id: user.id,
+      age: parseInt(macroCalc.age) || null,
+      height_inches: heightInches || null,
+      weight_lbs: parseInt(macroCalc.weight) || null,
+      activity_level: macroCalc.activity_level,
+      goals: macroCalc.goal,
+      dietary_preferences: [macroCalc.sex],
+    };
+    try {
+      if (nutritionProfile) {
+        await supabase.from("client_nutrition_profiles").update(payload).eq("id", nutritionProfile.id);
+      } else {
+        await supabase.from("client_nutrition_profiles").insert(payload);
+      }
+      queryClient.invalidateQueries({ queryKey: ["nutrition-profile"] });
+      setMacroEditing(false);
+      toast({ title: "Macro profile saved!" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setMacroSaving(false);
+    }
+  };
 
   // ── Derived state ──
   const targets = {
