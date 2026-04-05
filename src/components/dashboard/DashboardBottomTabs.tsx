@@ -14,7 +14,7 @@ const DashboardBottomTabs = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-2xl border-t border-border/30 lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-2xl border-t border-border/40 lg:hidden">
       <div className="flex items-center justify-around h-16 px-1 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
@@ -28,12 +28,12 @@ const DashboardBottomTabs = () => {
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-foreground rounded-full" />
               )}
               <tab.icon
-                className={`w-5 h-5 transition-colors ${active ? "text-foreground" : "text-foreground/30"}`}
-                strokeWidth={active ? 2 : 1.5}
+                className={`w-5 h-5 transition-colors ${active ? "text-foreground" : "text-foreground/40"}`}
+                strokeWidth={active ? 2.5 : 1.5}
               />
               <span
                 className={`text-[9px] tracking-[0.1em] uppercase transition-colors ${
-                  active ? "text-foreground font-medium" : "text-foreground/25"
+                  active ? "text-foreground font-bold" : "text-foreground/35 font-medium"
                 }`}
               >
                 {tab.label}
