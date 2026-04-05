@@ -35,7 +35,7 @@ const About = () => {
         {/* The Coach */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Meet the Coach
+            Meet the Founder
           </h2>
           <p className="text-sm text-foreground leading-relaxed">
             Marcos Leyba is a certified fitness coach and the founder of Apollo Nation. With years of experience in personal training, group coaching, and program design, Marcos has helped hundreds of clients transform their bodies and build sustainable fitness habits.
