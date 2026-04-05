@@ -323,45 +323,42 @@ const Dashboard = () => {
         {/* Section 3B — Today's Focus */}
         <TodaysFocus />
 
-        {/* Section 4A — Calories & Macros Remaining Card */}
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-medium">Calories & Macros</p>
+        {/* Section 4A — Calories & Macros */}
+        <div className="rounded-xl border border-border/30 bg-card/50 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[9px] text-foreground/30 uppercase tracking-[0.25em] font-light">Calories & Macros</p>
             <Link to="/dashboard/macros">
-              <Button variant="ghost" size="sm" className="text-muted-foreground text-[10px] h-6 px-2">
-                Log Food <ChevronRight className="w-3 h-3 ml-1" />
+              <Button variant="ghost" size="sm" className="text-muted-foreground/40 text-[10px] h-5 px-1.5">
+                Log <ChevronRight className="w-3 h-3 ml-0.5" />
               </Button>
             </Link>
           </div>
 
-          <div className="flex items-center gap-6 justify-center">
-            {/* Main calorie ring */}
-            <div className="relative w-24 h-24 flex-shrink-0">
-              <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
-                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="2.5" />
-                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--primary))" strokeWidth="2.5" strokeDasharray={`${calPct}, 100`} strokeLinecap="round" />
+          <div className="flex items-center gap-5 justify-center">
+            <div className="relative w-20 h-20 flex-shrink-0">
+              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--foreground))" strokeWidth="2" strokeDasharray={`${calPct}, 100`} strokeLinecap="round" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xl font-heading">{remaining.calories}</span>
-                <span className="text-[8px] text-muted-foreground">remaining</span>
+                <span className="text-lg font-heading text-foreground/90">{remaining.calories}</span>
+                <span className="text-[7px] text-muted-foreground/40 font-light">remaining</span>
               </div>
             </div>
 
-            {/* Macro mini rings */}
-            <div className="flex gap-4">
-              <MacroRing current={loggedTotals.protein} target={targets.protein} label="Protein" />
-              <MacroRing current={loggedTotals.carbs} target={targets.carbs} label="Carbs" />
-              <MacroRing current={loggedTotals.fat} target={targets.fat} label="Fat" />
+            <div className="flex gap-3">
+              <MacroRing current={loggedTotals.protein} target={targets.protein} label="Protein" size={44} />
+              <MacroRing current={loggedTotals.carbs} target={targets.carbs} label="Carbs" size={44} />
+              <MacroRing current={loggedTotals.fat} target={targets.fat} label="Fat" size={44} />
             </div>
           </div>
 
-          {/* Eaten summary */}
-          <div className="flex items-center justify-center gap-4 mt-4 text-[10px] text-muted-foreground">
+          <div className="flex items-center justify-center gap-3 mt-3 text-[9px] text-muted-foreground/30 font-light">
             <span>{loggedTotals.calories} eaten</span>
             <span>·</span>
-            <span>P: {loggedTotals.protein}g</span>
-            <span>C: {loggedTotals.carbs}g</span>
-            <span>F: {loggedTotals.fat}g</span>
+            <span>P {loggedTotals.protein}g</span>
+            <span>C {loggedTotals.carbs}g</span>
+            <span>F {loggedTotals.fat}g</span>
           </div>
         </div>
 
