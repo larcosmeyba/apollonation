@@ -552,7 +552,7 @@ const DashboardNutrition = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-heading text-base tracking-wide text-foreground">Your Macro Targets</h2>
               <button onClick={() => setMacroEditing(!macroEditing)} className="p-1.5 rounded-full hover:bg-foreground/10 transition-colors">
-                <Pencil className="w-4 h-4 text-black/60" />
+                <Pencil className="w-4 h-4 text-foreground/60" />
               </button>
             </div>
 
