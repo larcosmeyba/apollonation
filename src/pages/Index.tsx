@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import heroImage from "@/assets/marcos-hero.jpg";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
+import marcosAction7 from "@/assets/marcos-action-7.jpg";
 import marcos6 from "@/assets/marcos-6.jpg";
 import marcos7 from "@/assets/marcos-7.jpg";
 
