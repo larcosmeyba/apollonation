@@ -199,6 +199,7 @@ export type Database = {
           created_at: string
           dietary_preferences: string[] | null
           food_restrictions: string[] | null
+          goal_weight: number | null
           goals: string | null
           height_inches: number | null
           id: string
@@ -213,6 +214,7 @@ export type Database = {
           created_at?: string
           dietary_preferences?: string[] | null
           food_restrictions?: string[] | null
+          goal_weight?: number | null
           goals?: string | null
           height_inches?: number | null
           id?: string
@@ -227,6 +229,7 @@ export type Database = {
           created_at?: string
           dietary_preferences?: string[] | null
           food_restrictions?: string[] | null
+          goal_weight?: number | null
           goals?: string | null
           height_inches?: number | null
           id?: string
