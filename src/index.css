@@ -126,20 +126,20 @@
 }
 
 @layer components {
-  /* Apollo Gold Button */
+  /* Apollo Primary Button */
   .btn-apollo-gold {
     @apply relative overflow-hidden font-medium px-10 py-5 rounded-xl transition-all duration-300 text-base;
-    background: hsl(var(--apollo-gold));
-    color: hsl(0 0% 0%);
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
     font-family: 'DM Sans', sans-serif;
     font-weight: 600;
     letter-spacing: 0.02em;
     font-size: 0.875rem;
   }
   .btn-apollo-gold:hover {
-    background: hsl(var(--apollo-gold-light));
+    background: hsl(var(--primary) / 0.9);
     transform: translateY(-1px);
-    box-shadow: 0 8px 30px hsla(var(--apollo-gold) / 0.3);
+    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.15);
   }
 
   /* Card styles — Graphite Glass */
@@ -151,7 +151,7 @@
   }
   .card-apollo:hover {
     transform: translateY(-4px);
-    border-color: hsl(var(--apollo-gold) / 0.3);
+    border-color: hsl(var(--primary) / 0.2);
     box-shadow: var(--shadow-elevated);
   }
 
