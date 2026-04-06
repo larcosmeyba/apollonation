@@ -55,18 +55,34 @@ type MealSuggestion = {
 const calculateMacros = (age: number, sex: string, heightInches: number, weightLbs: number, activityLevel: string, goal: string) => {
   const weightKg = weightLbs * 0.453592;
   const heightCm = heightInches * 2.54;
-  // Mifflin-St Jeor
-  let bmr = sex === "female"
+  // Mifflin-St Jeor BMR
+  const bmr = sex === "female"
     ? 10 * weightKg + 6.25 * heightCm - 5 * age - 161
     : 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
   const multipliers: Record<string, number> = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 };
-  let tdee = bmr * (multipliers[activityLevel] || 1.55);
-  if (goal === "lose_fat") tdee -= 500;
-  else if (goal === "gain_weight" || goal === "gain_muscle") tdee += 350;
-  const calories = Math.round(tdee);
-  const protein = Math.round(weightLbs * (goal === "gain_muscle" ? 1.0 : 0.8));
+  const tdee = bmr * (multipliers[activityLevel] || 1.55);
+  
+  // Goal-based calorie adjustment
+  let calories: number;
+  if (goal === "lose_fat") calories = Math.round(tdee - 500);
+  else if (goal === "gain_muscle") calories = Math.round(tdee + 300);
+  else if (goal === "gain_weight") calories = Math.round(tdee + 500);
+  else calories = Math.round(tdee);
+
+  // Protein: higher during cut to preserve muscle
+  let proteinPerLb: number;
+  if (goal === "lose_fat") proteinPerLb = 1.1;
+  else if (goal === "gain_muscle") proteinPerLb = 1.0;
+  else proteinPerLb = 0.85;
+  const protein = Math.round(weightLbs * proteinPerLb);
+
+  // Fat: 25% of total calories
   const fat = Math.round((calories * 0.25) / 9);
-  const carbs = Math.round((calories - protein * 4 - fat * 9) / 4);
+  
+  // Carbs: remaining calories
+  const carbCalories = calories - (protein * 4) - (fat * 9);
+  const carbs = Math.max(Math.round(carbCalories / 4), 0);
+
   return { calories, protein, carbs, fat };
 };
 
