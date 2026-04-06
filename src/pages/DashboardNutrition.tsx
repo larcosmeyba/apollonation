@@ -112,11 +112,12 @@ const DashboardNutrition = () => {
     meal_name: "", calories: "", protein: "", carbs: "", fat: "",
   });
   const [macroCalc, setMacroCalc] = useState({
-    height_ft: "", height_in: "", weight: "", sex: "male", age: "", activity_level: "moderate", goal: "maintain",
+    height_ft: "", height_in: "", weight: "", sex: "male", age: "", activity_level: "moderate", goal: "maintain", goal_weight: "",
   });
   const [calculatedMacros, setCalculatedMacros] = useState<{ calories: number; protein: number; carbs: number; fat: number } | null>(null);
   const [macroEditing, setMacroEditing] = useState(false);
   const [macroSaving, setMacroSaving] = useState(false);
+  const [macroDialogOpen, setMacroDialogOpen] = useState(false);
 
   const selectedDate = format(new Date(), "yyyy-MM-dd");
   const isElite = profile?.subscription_tier === "elite";
