@@ -412,8 +412,8 @@ const DashboardNutrition = () => {
       <div className="flex flex-col items-center gap-1.5">
         <div className="relative w-14 h-14">
           <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={color} strokeWidth="3.5" strokeDasharray={`${pct}, 100`} strokeLinecap="round" className="transition-all duration-700" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4.5" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={color} strokeWidth="4.5" strokeDasharray={`${pct}, 100`} strokeLinecap="round" className="transition-all duration-700" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-xs font-semibold text-foreground">{current}g</span>
@@ -666,8 +666,8 @@ const DashboardNutrition = () => {
               {/* Big calorie ring - GREEN */}
               <div className="relative w-24 h-24 flex-shrink-0">
                 <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#22c55e" strokeWidth="3" strokeDasharray={`${dailyPercent}, 100`} strokeLinecap="round" className="transition-all duration-700" />
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#22c55e" strokeWidth="4" strokeDasharray={`${dailyPercent}, 100`} strokeLinecap="round" className="transition-all duration-700" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-xl font-heading text-foreground">{remaining.calories}</span>
@@ -680,8 +680,8 @@ const DashboardNutrition = () => {
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="relative w-14 h-14">
                     <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(217, 91%, 67%)" strokeWidth="3.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.protein / targets.protein) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4.5" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(217, 91%, 67%)" strokeWidth="4.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.protein / targets.protein) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <span className="text-xs font-semibold text-foreground">{loggedTotals.protein}g</span>
@@ -693,8 +693,8 @@ const DashboardNutrition = () => {
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="relative w-14 h-14">
                     <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(40, 95%, 64%)" strokeWidth="3.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.carbs / targets.carbs) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4.5" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(40, 95%, 64%)" strokeWidth="4.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.carbs / targets.carbs) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <span className="text-xs font-semibold text-foreground">{loggedTotals.carbs}g</span>
@@ -706,8 +706,8 @@ const DashboardNutrition = () => {
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="relative w-14 h-14">
                     <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(350, 80%, 65%)" strokeWidth="3.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.fat / targets.fat) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4.5" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(350, 80%, 65%)" strokeWidth="4.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.fat / targets.fat) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <span className="text-xs font-semibold text-foreground">{loggedTotals.fat}g</span>
