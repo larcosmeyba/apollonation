@@ -65,8 +65,8 @@ const AdminNotifications = ({ onNavigate }: Props) => {
       label: "New contact requests",
       count: unreadContacts || 0,
       tab: "contacts",
-      color: "text-apollo-gold",
-      bg: "bg-apollo-gold/10",
+      color: "text-primary",
+      bg: "bg-primary/10",
     },
     {
       id: "plans",
@@ -84,8 +84,8 @@ const AdminNotifications = ({ onNavigate }: Props) => {
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
-        <Bell className="w-4 h-4 text-apollo-gold" />
-        <h3 className="font-heading text-sm uppercase tracking-wider text-apollo-gold">Notifications</h3>
+        <Bell className="w-4 h-4 text-primary" />
+        <h3 className="font-heading text-sm uppercase tracking-wider text-primary">Notifications</h3>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {notifications.map((n) => (

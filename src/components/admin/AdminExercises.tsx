@@ -558,7 +558,7 @@ const AdminExercises = () => {
                       onClick={() => setVideoPreview({ title: exercise.title, url: exercise.video_url! })}
                       className="w-full h-full flex items-center justify-center hover:bg-muted/80 transition-colors"
                     >
-                      <Play className="w-8 h-8 text-apollo-gold/50" />
+                      <Play className="w-8 h-8 text-primary/50" />
                     </button>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -573,7 +573,7 @@ const AdminExercises = () => {
                   <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     {exercise.video_url && (
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setVideoPreview({ title: exercise.title, url: exercise.video_url! })}>
-                        <Play className="w-3.5 h-3.5 text-apollo-gold" />
+                        <Play className="w-3.5 h-3.5 text-primary" />
                       </Button>
                     )}
                     <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(exercise)}>

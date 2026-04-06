@@ -123,7 +123,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
 
   const getTierBadge = (tier: string) => {
     const colors: Record<string, string> = {
-      elite: "bg-apollo-gold/20 text-apollo-gold",
+      elite: "bg-primary/20 text-primary",
       pro: "bg-purple-500/20 text-purple-400",
       basic: "bg-muted text-muted-foreground",
     };
@@ -143,7 +143,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
       <div className="card-apollo p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <Avatar className="h-16 w-16">
-            <AvatarFallback className="bg-apollo-gold/15 text-apollo-gold font-bold text-xl">
+            <AvatarFallback className="bg-primary/15 text-primary font-bold text-xl">
               {(profile?.display_name || "?")[0].toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -229,7 +229,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
         <TabsContent value="overview" className="space-y-6 mt-4">
           {/* Basic Info from Questionnaire */}
           <div className="card-apollo p-5 space-y-4">
-            <h3 className="font-heading text-sm uppercase tracking-wider text-apollo-gold flex items-center gap-2">
+            <h3 className="font-heading text-sm uppercase tracking-wider text-primary flex items-center gap-2">
               <User className="w-4 h-4" /> Basic Information
             </h3>
             {questionnaire ? (
@@ -277,7 +277,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
           {/* Goals */}
           {questionnaire && (
             <div className="card-apollo p-5 space-y-4">
-              <h3 className="font-heading text-sm uppercase tracking-wider text-apollo-gold flex items-center gap-2">
+              <h3 className="font-heading text-sm uppercase tracking-wider text-primary flex items-center gap-2">
                 <Target className="w-4 h-4" /> Goals & Preferences
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -346,7 +346,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
           {/* Agreements */}
           {questionnaire && (
             <div className="card-apollo p-5 space-y-3">
-              <h3 className="font-heading text-sm uppercase tracking-wider text-apollo-gold flex items-center gap-2">
+              <h3 className="font-heading text-sm uppercase tracking-wider text-primary flex items-center gap-2">
                 <FileText className="w-4 h-4" /> Agreements & Waivers
               </h3>
               <div className="flex items-center gap-3">
@@ -368,11 +368,11 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
           {/* Quick stats */}
           <div className="grid grid-cols-2 gap-3">
             <div className="card-apollo p-4 text-center">
-              <p className="text-2xl font-heading text-apollo-gold">{trainingPlans?.length || 0}</p>
+              <p className="text-2xl font-heading text-primary">{trainingPlans?.length || 0}</p>
               <p className="text-xs text-muted-foreground">Training Plans</p>
             </div>
             <div className="card-apollo p-4 text-center">
-              <p className="text-2xl font-heading text-apollo-gold">{nutritionPlans?.length || 0}</p>
+              <p className="text-2xl font-heading text-primary">{nutritionPlans?.length || 0}</p>
               <p className="text-xs text-muted-foreground">Nutrition Plans</p>
             </div>
           </div>
@@ -499,7 +499,7 @@ const TrainingSection = ({ userId, plans }: { userId: string; plans: any[] }) =>
             <button
               key={d.id}
               onClick={() => setSelectedDayId(d.id)}
-              className="card-apollo flex items-center justify-between p-4 text-left hover:border-apollo-gold/30 transition-all"
+              className="card-apollo flex items-center justify-between p-4 text-left hover:border-primary/30 transition-all"
             >
               <div>
                 <p className="font-medium">{d.day_label || `Day ${d.day_number}`}</p>
@@ -524,7 +524,7 @@ const TrainingSection = ({ userId, plans }: { userId: string; plans: any[] }) =>
             <button
               key={p.id}
               onClick={() => setSelectedPlanId(p.id)}
-              className="card-apollo flex items-center justify-between p-4 text-left hover:border-apollo-gold/30 transition-all"
+              className="card-apollo flex items-center justify-between p-4 text-left hover:border-primary/30 transition-all"
             >
               <div>
                 <p className="font-medium">{p.title}</p>
