@@ -120,7 +120,7 @@ const DashboardNutrition = () => {
   const [macroDialogOpen, setMacroDialogOpen] = useState(false);
 
   const selectedDate = format(new Date(), "yyyy-MM-dd");
-  const isElite = profile?.subscription_tier === "elite";
+  
 
   // ── Queries ──
   const { data: plans } = useQuery({
@@ -517,13 +517,13 @@ const DashboardNutrition = () => {
           <DialogHeader><DialogTitle className="font-heading text-xl">Log a Meal</DialogTitle></DialogHeader>
           <div className="flex gap-2 mb-4">
             <Button variant={!isAiMode ? "apollo" : "apollo-outline"} size="sm" onClick={() => setIsAiMode(false)} className="flex-1">Manual</Button>
-            {isElite && (
+            {true && (
               <Button variant={isAiMode ? "apollo" : "apollo-outline"} size="sm" onClick={() => setIsAiMode(true)} className="flex-1">
                 <Sparkles className="w-4 h-4 mr-1" /> AI Photo
               </Button>
             )}
           </div>
-          {isAiMode && isElite ? (
+          {isAiMode ? (
             <div className="space-y-4">
               {previewUrl ? (
                 <div className="relative aspect-video rounded-lg overflow-hidden">

@@ -63,7 +63,7 @@ const calculateMacros = (age: number, sex: string, heightInches: number, weightL
 };
 
 const Questionnaire = () => {
-  const { user, loading, subscriptionLoading } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [step, setStep] = useState(0);
@@ -84,7 +84,7 @@ const Questionnaire = () => {
     waiver_accepted: false,
   });
 
-  if (loading || subscriptionLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-primary">Loading...</div>
@@ -132,11 +132,9 @@ const Questionnaire = () => {
     const weightLbs = parseFloat(form.weight_lbs) || 150;
     const age = parseInt(form.age) || 25;
 
-    // Calculate macros
     const macros = calculateMacros(age, form.sex, totalInches, weightLbs, form.activity_level, form.goal);
 
     try {
-      // Save questionnaire
       const { data: questionnaireData, error } = await (supabase as any)
         .from("client_questionnaires")
         .insert({
@@ -193,7 +191,6 @@ const Questionnaire = () => {
       });
       navigate("/plan-ready");
 
-      // Fire-and-forget: generate training + nutrition plans in background
       supabase.functions
         .invoke("auto-generate-programs", {
           body: { questionnaireId: questionnaireData.id },
@@ -213,7 +210,6 @@ const Questionnaire = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="border-b border-border/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
@@ -226,7 +222,6 @@ const Questionnaire = () => {
       </div>
 
       <div className="container mx-auto px-4 py-12 max-w-2xl">
-        {/* Title */}
         <div className="text-center mb-10">
           <h1 className="font-heading text-2xl md:text-3xl tracking-[0.05em] mb-2">
             Client <span className="text-primary">Questionnaire</span>
@@ -236,7 +231,6 @@ const Questionnaire = () => {
           </p>
         </div>
 
-        {/* Step Indicator */}
         <div className="flex items-center justify-center gap-2 mb-10">
           {STEPS.map((label, i) => (
             <div key={label} className="flex items-center gap-2">
@@ -252,9 +246,7 @@ const Questionnaire = () => {
               >
                 {i + 1}
               </button>
-              <span
-                className={`text-xs hidden sm:inline ${i === step ? "text-foreground" : "text-muted-foreground"}`}
-              >
+              <span className={`text-xs hidden sm:inline ${i === step ? "text-foreground" : "text-muted-foreground"}`}>
                 {label}
               </span>
               {i < STEPS.length - 1 && <div className="w-8 h-px bg-border" />}
@@ -262,20 +254,15 @@ const Questionnaire = () => {
           ))}
         </div>
 
-        {/* Form Steps */}
         <div className="border border-border/30 bg-card/50 p-6 md:p-10 rounded-2xl">
-          {/* Step 0: Personal & Physical Data */}
           {step === 0 && (
             <div className="space-y-6">
               <h2 className="font-heading text-lg tracking-wide mb-4">Personal & Physical Data</h2>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Sex</Label>
                   <Select value={form.sex} onValueChange={(v) => updateField("sex", v)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
@@ -284,59 +271,27 @@ const Questionnaire = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Age</Label>
-                  <Input
-                    type="number"
-                    placeholder="25"
-                    value={form.age}
-                    onChange={(e) => updateField("age", e.target.value)}
-                    min={13}
-                    max={100}
-                  />
+                  <Input type="number" placeholder="25" value={form.age} onChange={(e) => updateField("age", e.target.value)} min={13} max={100} />
                 </div>
               </div>
-
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Height (ft)</Label>
-                  <Input
-                    type="number"
-                    placeholder="5"
-                    value={form.height_feet}
-                    onChange={(e) => updateField("height_feet", e.target.value)}
-                    min={3}
-                    max={8}
-                  />
+                  <Input type="number" placeholder="5" value={form.height_feet} onChange={(e) => updateField("height_feet", e.target.value)} min={3} max={8} />
                 </div>
                 <div className="space-y-2">
                   <Label>Height (in)</Label>
-                  <Input
-                    type="number"
-                    placeholder="10"
-                    value={form.height_inches}
-                    onChange={(e) => updateField("height_inches", e.target.value)}
-                    min={0}
-                    max={11}
-                  />
+                  <Input type="number" placeholder="10" value={form.height_inches} onChange={(e) => updateField("height_inches", e.target.value)} min={0} max={11} />
                 </div>
                 <div className="space-y-2">
                   <Label>Weight (lbs)</Label>
-                  <Input
-                    type="number"
-                    placeholder="175"
-                    value={form.weight_lbs}
-                    onChange={(e) => updateField("weight_lbs", e.target.value)}
-                    min={50}
-                    max={600}
-                  />
+                  <Input type="number" placeholder="175" value={form.weight_lbs} onChange={(e) => updateField("weight_lbs", e.target.value)} min={50} max={600} />
                 </div>
               </div>
-
               <div className="space-y-2">
                 <Label>Activity Level</Label>
                 <Select value={form.activity_level} onValueChange={(v) => updateField("activity_level", v)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="sedentary">Sedentary (little or no exercise)</SelectItem>
                     <SelectItem value="light">Lightly Active (1-3 days/week)</SelectItem>
@@ -346,7 +301,6 @@ const Questionnaire = () => {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-3">
                 <Label>Goal</Label>
                 <div className="grid grid-cols-3 gap-3">
@@ -369,11 +323,9 @@ const Questionnaire = () => {
             </div>
           )}
 
-          {/* Step 1: Training Preferences */}
           {step === 1 && (
             <div className="space-y-6">
               <h2 className="font-heading text-lg tracking-wide mb-4">Training Preferences</h2>
-
               <div className="space-y-3">
                 <Label>Which days do you want to train?</Label>
                 <p className="text-[11px] text-muted-foreground">
@@ -404,22 +356,13 @@ const Questionnaire = () => {
             </div>
           )}
 
-          {/* Step 2: Nutrition & Agreement */}
           {step === 2 && (
             <div className="space-y-6">
               <h2 className="font-heading text-lg tracking-wide mb-4">Nutrition & Agreement</h2>
-
               <div className="space-y-2">
                 <Label>Weekly Food Budget ($)</Label>
-                <Input
-                  type="number"
-                  placeholder="100"
-                  value={form.weekly_food_budget}
-                  onChange={(e) => updateField("weekly_food_budget", e.target.value)}
-                  min={0}
-                />
+                <Input type="number" placeholder="100" value={form.weekly_food_budget} onChange={(e) => updateField("weekly_food_budget", e.target.value)} min={0} />
               </div>
-
               <div className="space-y-3">
                 <Label>Dietary Restrictions / Preferences</Label>
                 <div className="flex flex-wrap gap-2">
@@ -439,7 +382,6 @@ const Questionnaire = () => {
                   ))}
                 </div>
               </div>
-
               <div className="space-y-2">
                 <Label>Foods You Dislike or Want to Avoid</Label>
                 <Textarea
@@ -448,12 +390,8 @@ const Questionnaire = () => {
                   onChange={(e) => updateField("disliked_foods", e.target.value)}
                   className="min-h-[60px]"
                 />
-                <p className="text-[11px] text-muted-foreground">
-                  Separate items with commas. These will be excluded from your meal plan.
-                </p>
+                <p className="text-[11px] text-muted-foreground">Separate items with commas.</p>
               </div>
-
-              {/* Waiver of Release */}
               <div className="border border-border/50 p-4 bg-muted/20 rounded-xl space-y-3">
                 <h3 className="font-heading text-sm tracking-wide text-foreground">Waiver of Release</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -479,22 +417,13 @@ const Questionnaire = () => {
             </div>
           )}
 
-          {/* Navigation */}
           <div className="flex items-center justify-between mt-10 pt-6 border-t border-border/20">
-            <Button
-              variant="ghost"
-              onClick={() => setStep((s) => s - 1)}
-              disabled={step === 0}
-              className="text-muted-foreground"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+            <Button variant="ghost" onClick={() => setStep((s) => s - 1)} disabled={step === 0} className="text-muted-foreground">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back
             </Button>
-
             {step < STEPS.length - 1 ? (
               <Button variant="apollo" onClick={() => setStep((s) => s + 1)} disabled={!canProceed()}>
-                Next
-                <ArrowRight className="w-4 h-4 ml-2" />
+                Next <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
               <Button variant="apollo" onClick={handleSubmit} disabled={submitting || !canProceed()}>
