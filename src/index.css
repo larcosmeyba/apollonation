@@ -128,7 +128,7 @@
 @layer components {
   /* Apollo Gold Button */
   .btn-apollo-gold {
-    @apply relative overflow-hidden font-medium px-8 py-4 rounded-xl transition-all duration-300;
+    @apply relative overflow-hidden font-medium px-10 py-5 rounded-xl transition-all duration-300 text-base;
     background: hsl(var(--apollo-gold));
     color: hsl(0 0% 0%);
     font-family: 'DM Sans', sans-serif;
