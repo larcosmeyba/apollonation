@@ -136,13 +136,13 @@ const Index = () => {
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="bg-white rounded-2xl p-6 text-center group cursor-default transition-all duration-300 hover:-translate-y-1 shadow-lg"
+                className="card-apollo text-center group cursor-default"
               >
-                <div className="w-16 h-16 rounded-full bg-black/5 border border-black/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-black/10 transition-all duration-300">
-                  <f.icon className="w-7 h-7 text-black" strokeWidth={1.5} />
+                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-white/10 transition-all duration-300">
+                  <f.icon className="w-7 h-7 text-white" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-heading text-xl text-black mb-3">{f.title}</h3>
-                <p className="text-black/70 text-sm leading-relaxed">{f.desc}</p>
+                <h3 className="font-heading text-xl text-foreground mb-3">{f.title}</h3>
+                <p className="text-white/70 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -255,12 +255,12 @@ const Index = () => {
               { icon: RefreshCw, title: "Meal Swaps", desc: "Don't like a meal? Swap it for an alternative instantly." },
               { icon: ShoppingCart, title: "Grocery Lists", desc: "Auto-generated grocery lists from your meal plan." },
             ].map((f) => (
-              <div key={f.title} className="bg-white rounded-2xl p-6 text-center group cursor-default transition-all duration-300 hover:-translate-y-1 shadow-lg">
-                <div className="w-14 h-14 rounded-full bg-black/5 border border-black/10 flex items-center justify-center mx-auto mb-5 group-hover:bg-black/10 transition-all duration-300">
-                  <f.icon className="w-6 h-6 text-black" strokeWidth={1.5} />
+              <div key={f.title} className="card-apollo text-center group cursor-default">
+                <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-5 group-hover:bg-white/10 transition-all duration-300">
+                  <f.icon className="w-6 h-6 text-white" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-heading text-base text-black mb-2">{f.title}</h3>
-                <p className="text-black/70 text-sm leading-relaxed">{f.desc}</p>
+                <h3 className="font-heading text-base text-foreground mb-2">{f.title}</h3>
+                <p className="text-white/70 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
