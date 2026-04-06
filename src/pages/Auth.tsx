@@ -136,9 +136,9 @@ const Auth = () => {
 
           {/* Admin badge */}
           {isAdminMode && (
-            <div className="flex items-center gap-2 mb-6 px-3 py-2 rounded-lg bg-apollo-gold/10 border border-apollo-gold/20">
-              <Shield className="w-4 h-4 text-apollo-gold" />
-              <span className="text-sm text-apollo-gold font-medium">Coach Panel Login</span>
+            <div className="flex items-center gap-2 mb-6 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20">
+              <Shield className="w-4 h-4 text-primary" />
+              <span className="text-sm text-primary font-medium">Coach Panel Login</span>
             </div>
           )}
 
