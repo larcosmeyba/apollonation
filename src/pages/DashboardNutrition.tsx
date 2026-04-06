@@ -206,6 +206,7 @@ const DashboardNutrition = () => {
         age: nutritionProfile.age?.toString() || "",
         activity_level: nutritionProfile.activity_level || "moderate",
         goal: nutritionProfile.goals || "maintain",
+        goal_weight: (nutritionProfile as any).goal_weight?.toString() || "",
       });
       const calcMacros = calculateMacros(
         nutritionProfile.age || 25,
@@ -221,14 +222,13 @@ const DashboardNutrition = () => {
 
   const handleCalcMacros = () => {
     const heightInches = (parseInt(macroCalc.height_ft) || 0) * 12 + (parseInt(macroCalc.height_in) || 0);
-    const result = calculateMacros(
-      parseInt(macroCalc.age) || 25,
-      macroCalc.sex,
-      heightInches,
-      parseInt(macroCalc.weight) || 150,
-      macroCalc.activity_level,
-      macroCalc.goal
-    );
+    const weight = parseInt(macroCalc.weight) || 150;
+    const age = parseInt(macroCalc.age) || 25;
+    if (!heightInches || !weight || !age) {
+      toast({ title: "Missing info", description: "Please fill in all fields", variant: "destructive" });
+      return;
+    }
+    const result = calculateMacros(age, macroCalc.sex, heightInches, weight, macroCalc.activity_level, macroCalc.goal);
     setCalculatedMacros(result);
   };
 
@@ -236,7 +236,7 @@ const DashboardNutrition = () => {
     if (!user) return;
     setMacroSaving(true);
     const heightInches = (parseInt(macroCalc.height_ft) || 0) * 12 + (parseInt(macroCalc.height_in) || 0);
-    const payload = {
+    const payload: any = {
       user_id: user.id,
       age: parseInt(macroCalc.age) || null,
       height_inches: heightInches || null,
@@ -244,6 +244,7 @@ const DashboardNutrition = () => {
       activity_level: macroCalc.activity_level,
       goals: macroCalc.goal,
       dietary_preferences: [macroCalc.sex],
+      goal_weight: macroCalc.goal_weight ? parseFloat(macroCalc.goal_weight) : null,
     };
     try {
       if (nutritionProfile) {
@@ -253,6 +254,7 @@ const DashboardNutrition = () => {
       }
       queryClient.invalidateQueries({ queryKey: ["nutrition-profile"] });
       setMacroEditing(false);
+      setMacroDialogOpen(false);
       toast({ title: "Macro profile saved!" });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
