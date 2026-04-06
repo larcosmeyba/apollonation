@@ -669,54 +669,8 @@ const DashboardNutrition = () => {
             <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
           </div>
 
-          {/* ── Compact Macro Summary ── */}
-          <div className="bg-card rounded-2xl p-4 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-heading text-base tracking-wide text-foreground">Your Macro Targets</h2>
-              <button onClick={() => { setMacroDialogOpen(true); }} className="p-1.5 rounded-full hover:bg-foreground/10 transition-colors">
-                <Pencil className="w-4 h-4 text-foreground/60" />
-              </button>
-            </div>
-            {calculatedMacros ? (
-              <div className="space-y-3">
-                <div className="grid grid-cols-4 gap-2">
-                  <div className="bg-foreground/5 rounded-xl p-2.5 text-center border border-border">
-                    <p className="text-base font-heading text-foreground">{calculatedMacros.calories}</p>
-                    <p className="text-[9px] text-foreground/60 font-semibold uppercase">Calories</p>
-                  </div>
-                  <div className="bg-foreground/5 rounded-xl p-2.5 text-center border border-border">
-                    <p className="text-base font-heading text-foreground">{calculatedMacros.protein}g</p>
-                    <p className="text-[9px] text-foreground/60 font-semibold uppercase">Protein</p>
-                  </div>
-                  <div className="bg-foreground/5 rounded-xl p-2.5 text-center border border-border">
-                    <p className="text-base font-heading text-foreground">{calculatedMacros.carbs}g</p>
-                    <p className="text-[9px] text-foreground/60 font-semibold uppercase">Carbs</p>
-                  </div>
-                  <div className="bg-foreground/5 rounded-xl p-2.5 text-center border border-border">
-                    <p className="text-base font-heading text-foreground">{calculatedMacros.fat}g</p>
-                    <p className="text-[9px] text-foreground/60 font-semibold uppercase">Fat</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium capitalize">{macroCalc.goal.replace("_", " ")}</span>
-                  <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium capitalize">{macroCalc.activity_level.replace("_", " ")}</span>
-                  <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium">{macroCalc.height_ft}'{macroCalc.height_in}" · {macroCalc.weight} lbs</span>
-                  {macroCalc.goal_weight && (
-                    <span className="text-[10px] bg-foreground/5 border border-border rounded-full px-2.5 py-1 text-foreground/70 font-medium">Goal: {macroCalc.goal_weight} lbs</span>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => setMacroDialogOpen(true)}
-                className="w-full py-6 rounded-xl border-2 border-dashed border-border hover:border-foreground/30 transition-colors flex flex-col items-center gap-2"
-              >
-                <ClipboardList className="w-6 h-6 text-foreground/30" />
-                <span className="text-sm text-foreground/60 font-medium">Set up your macro targets</span>
-                <span className="text-[10px] text-foreground/40">Tap to enter your details</span>
-              </button>
-            )}
-          </div>
+
+
 
           <div className="bg-card rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-5">

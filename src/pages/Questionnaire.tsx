@@ -12,13 +12,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 
-const TRAINING_METHODS = [
-  { id: "dumbbells", label: "Dumbbells" },
-  { id: "bodyweight", label: "Bodyweight" },
-  { id: "mini_bands", label: "Mini Bands" },
-  { id: "full_gym", label: "Full Gym Access" },
-];
-
 const DAYS_OF_WEEK = [
   { id: "monday", label: "Mon" },
   { id: "tuesday", label: "Tue" },
@@ -34,10 +27,43 @@ const DIETARY_OPTIONS = [
   "Keto", "Paleo", "Halal", "Kosher", "No Restrictions",
 ];
 
+const GOALS = [
+  { id: "gain_muscle", label: "Gain Muscle" },
+  { id: "lose_fat", label: "Weight Loss" },
+  { id: "reduce_bf", label: "Reduce Body Fat %" },
+];
+
 const STEPS = ["Personal Info", "Training", "Nutrition"];
 
+const calculateMacros = (age: number, sex: string, heightInches: number, weightLbs: number, activityLevel: string, goal: string) => {
+  const weightKg = weightLbs * 0.453592;
+  const heightCm = heightInches * 2.54;
+  const bmr = sex === "female"
+    ? 10 * weightKg + 6.25 * heightCm - 5 * age - 161
+    : 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
+  const multipliers: Record<string, number> = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, extreme: 1.9 };
+  const tdee = bmr * (multipliers[activityLevel] || 1.55);
+
+  let calories: number;
+  if (goal === "lose_fat") calories = Math.round(tdee - 500);
+  else if (goal === "gain_muscle") calories = Math.round(tdee + 300);
+  else if (goal === "reduce_bf") calories = Math.round(tdee - 400);
+  else calories = Math.round(tdee);
+
+  let proteinPerLb: number;
+  if (goal === "lose_fat" || goal === "reduce_bf") proteinPerLb = 1.1;
+  else if (goal === "gain_muscle") proteinPerLb = 1.0;
+  else proteinPerLb = 0.85;
+  const protein = Math.round(weightLbs * proteinPerLb);
+  const fat = Math.round((calories * 0.25) / 9);
+  const carbCalories = calories - (protein * 4) - (fat * 9);
+  const carbs = Math.max(Math.round(carbCalories / 4), 0);
+
+  return { calories, protein, carbs, fat };
+};
+
 const Questionnaire = () => {
-  const { user, loading, subscriptionLoading, profile } = useAuth();
+  const { user, loading, subscriptionLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [step, setStep] = useState(0);
@@ -50,17 +76,9 @@ const Questionnaire = () => {
     height_inches: "",
     weight_lbs: "",
     activity_level: "moderate",
-    workout_days_per_week: "3",
-    training_methods: [] as string[],
-    current_workout_days: [] as string[],
+    goal: "",
     preferred_training_days: [] as string[],
-    workout_duration_minutes: "60",
-    has_other_activities: false,
-    other_activities: [] as { day: string; activity_type: string }[],
-    goal_next_4_weeks: "",
-    goal_weight: "",
     weekly_food_budget: "",
-    grocery_store: "",
     dietary_restrictions: [] as string[],
     disliked_foods: "",
     waiver_accepted: false,
@@ -76,16 +94,12 @@ const Questionnaire = () => {
 
   if (!user) return <Navigate to="/auth" replace />;
 
-  // Only pro/elite need the questionnaire
-  const tier = profile?.subscription_tier;
-  if (tier === "basic") return <Navigate to="/dashboard" replace />;
-
   const updateField = (field: string, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const toggleArrayField = (
-    field: "training_methods" | "dietary_restrictions" | "preferred_training_days" | "current_workout_days",
+    field: "dietary_restrictions" | "preferred_training_days",
     value: string
   ) => {
     setForm((prev) => {
@@ -97,42 +111,12 @@ const Questionnaire = () => {
     });
   };
 
-  const addOtherActivity = () => {
-    setForm((prev) => ({
-      ...prev,
-      other_activities: [...prev.other_activities, { day: "", activity_type: "" }],
-    }));
-  };
-
-  const updateOtherActivity = (index: number, field: "day" | "activity_type", value: string) => {
-    setForm((prev) => {
-      const updated = [...prev.other_activities];
-      updated[index] = { ...updated[index], [field]: value };
-      return { ...prev, other_activities: updated };
-    });
-  };
-
-  const removeOtherActivity = (index: number) => {
-    setForm((prev) => ({
-      ...prev,
-      other_activities: prev.other_activities.filter((_, i) => i !== index),
-    }));
-  };
-
   const canProceed = () => {
     if (step === 0) {
-      return form.sex && form.age && form.height_feet && form.weight_lbs;
+      return form.sex && form.age && form.height_feet && form.weight_lbs && form.goal;
     }
     if (step === 1) {
-      const activitiesValid =
-        !form.has_other_activities ||
-        form.other_activities.every((a) => a.day && a.activity_type);
-      return (
-        form.training_methods.length > 0 &&
-        form.preferred_training_days.length > 0 &&
-        form.workout_duration_minutes &&
-        activitiesValid
-      );
+      return form.preferred_training_days.length > 0;
     }
     if (step === 2) {
       return form.waiver_accepted;
@@ -145,32 +129,32 @@ const Questionnaire = () => {
     setSubmitting(true);
 
     const totalInches = (parseInt(form.height_feet) || 0) * 12 + (parseInt(form.height_inches) || 0);
+    const weightLbs = parseFloat(form.weight_lbs) || 150;
+    const age = parseInt(form.age) || 25;
+
+    // Calculate macros
+    const macros = calculateMacros(age, form.sex, totalInches, weightLbs, form.activity_level, form.goal);
 
     try {
+      // Save questionnaire
       const { data: questionnaireData, error } = await (supabase as any)
         .from("client_questionnaires")
         .insert({
           user_id: user.id,
           sex: form.sex,
-          age: parseInt(form.age),
+          age,
           height_inches: totalInches,
-          weight_lbs: parseFloat(form.weight_lbs),
+          weight_lbs: weightLbs,
           activity_level: form.activity_level,
-          workout_days_per_week: parseInt(form.workout_days_per_week),
-          training_methods: form.training_methods,
-          current_workout_days: form.current_workout_days,
+          workout_days_per_week: form.preferred_training_days.length,
+          training_methods: [],
           preferred_training_days: form.preferred_training_days,
-          workout_duration_minutes: parseInt(form.workout_duration_minutes),
-          has_other_activities: form.has_other_activities,
-          other_activities: form.has_other_activities ? form.other_activities : [],
-          goal_next_4_weeks: form.goal_next_4_weeks || null,
-          goal_weight: form.goal_weight ? parseFloat(form.goal_weight) : null,
-          weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
-          grocery_store: form.grocery_store || null,
+          goal_next_4_weeks: form.goal,
           dietary_restrictions: form.dietary_restrictions,
           disliked_foods: form.disliked_foods
-            ? form.disliked_foods.split(",").map((f) => f.trim()).filter(Boolean)
+            ? form.disliked_foods.split(",").map((f: string) => f.trim()).filter(Boolean)
             : [],
+          weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
           waiver_accepted: true,
           waiver_accepted_at: new Date().toISOString(),
         })
@@ -178,6 +162,30 @@ const Questionnaire = () => {
         .single();
 
       if (error) throw error;
+
+      // Save calculated macros to nutrition profile
+      const { data: existingProfile } = await supabase
+        .from("client_nutrition_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      const profilePayload = {
+        user_id: user.id,
+        age,
+        height_inches: totalInches,
+        weight_lbs: weightLbs,
+        activity_level: form.activity_level,
+        goals: form.goal,
+        dietary_preferences: [form.sex],
+        food_restrictions: form.dietary_restrictions,
+      };
+
+      if (existingProfile) {
+        await supabase.from("client_nutrition_profiles").update(profilePayload).eq("id", existingProfile.id);
+      } else {
+        await supabase.from("client_nutrition_profiles").insert(profilePayload);
+      }
 
       toast({
         title: "Questionnaire submitted!",
@@ -255,8 +263,8 @@ const Questionnaire = () => {
         </div>
 
         {/* Form Steps */}
-        <div className="border border-border/30 bg-card/50 p-6 md:p-10">
-          {/* Step 0: Personal Info */}
+        <div className="border border-border/30 bg-card/50 p-6 md:p-10 rounded-2xl">
+          {/* Step 0: Personal & Physical Data */}
           {step === 0 && (
             <div className="space-y-6">
               <h2 className="font-heading text-lg tracking-wide mb-4">Personal & Physical Data</h2>
@@ -338,91 +346,48 @@ const Questionnaire = () => {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          )}
-
-          {/* Step 1: Training */}
-          {step === 1 && (
-            <div className="space-y-6">
-              <h2 className="font-heading text-lg tracking-wide mb-4">Training Preferences</h2>
-
-              <div className="space-y-2">
-                <Label>Preferred Workout Days Per Week</Label>
-                <Select
-                  value={form.workout_days_per_week}
-                  onValueChange={(v) => updateField("workout_days_per_week", v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[2, 3, 4, 5, 6, 7].map((d) => (
-                      <SelectItem key={d} value={String(d)}>
-                        {d} days
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div className="space-y-3">
-                <Label>Training Methods (select all that apply)</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  {TRAINING_METHODS.map((method) => (
-                    <label
-                      key={method.id}
-                      className={`flex items-center gap-3 p-3 border cursor-pointer transition-colors ${
-                        form.training_methods.includes(method.id)
-                          ? "border-primary/50 bg-primary/5"
-                          : "border-border/30 hover:border-border/60"
-                      }`}
-                    >
-                      <Checkbox
-                        checked={form.training_methods.includes(method.id)}
-                        onCheckedChange={() => toggleArrayField("training_methods", method.id)}
-                      />
-                      <span className="text-sm">{method.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Current workout routine */}
-              <div className="space-y-3">
-                <Label>What is your current workout routine?</Label>
-                <p className="text-[11px] text-muted-foreground">
-                  Select all days you currently exercise.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {DAYS_OF_WEEK.map((day) => (
+                <Label>Goal</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {GOALS.map((g) => (
                     <button
-                      key={day.id}
+                      key={g.id}
                       type="button"
-                      onClick={() => toggleArrayField("current_workout_days", day.id)}
-                      className={`px-4 py-2 text-sm border transition-colors ${
-                        form.current_workout_days.includes(day.id)
-                          ? "border-primary bg-primary/10 text-primary"
+                      onClick={() => updateField("goal", g.id)}
+                      className={`p-3 text-sm border rounded-xl text-center transition-colors ${
+                        form.goal === g.id
+                          ? "border-primary bg-primary/10 text-primary font-medium"
                           : "border-border/30 text-muted-foreground hover:border-border/60"
                       }`}
                     >
-                      {day.label}
+                      {g.label}
                     </button>
                   ))}
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* Preferred training days */}
+          {/* Step 1: Training Preferences */}
+          {step === 1 && (
+            <div className="space-y-6">
+              <h2 className="font-heading text-lg tracking-wide mb-4">Training Preferences</h2>
+
               <div className="space-y-3">
-                <Label>Which days do you plan on training?</Label>
-                <div className="flex flex-wrap gap-2">
+                <Label>Which days do you want to train?</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Select your goal training days. We'll send you reminders on these days if you haven't logged in.
+                </p>
+                <div className="grid grid-cols-7 gap-2">
                   {DAYS_OF_WEEK.map((day) => (
                     <button
                       key={day.id}
                       type="button"
                       onClick={() => toggleArrayField("preferred_training_days", day.id)}
-                      className={`px-4 py-2 text-sm border transition-colors ${
+                      className={`py-3 text-sm border rounded-xl text-center transition-colors ${
                         form.preferred_training_days.includes(day.id)
-                          ? "border-primary bg-primary/10 text-primary"
+                          ? "border-primary bg-primary/10 text-primary font-medium"
                           : "border-border/30 text-muted-foreground hover:border-border/60"
                       }`}
                     >
@@ -430,104 +395,10 @@ const Questionnaire = () => {
                     </button>
                   ))}
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>How long can you work out? (minutes)</Label>
-                <Select
-                  value={form.workout_duration_minutes}
-                  onValueChange={(v) => updateField("workout_duration_minutes", v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="30">30 minutes</SelectItem>
-                    <SelectItem value="45">45 minutes</SelectItem>
-                    <SelectItem value="60">60 minutes</SelectItem>
-                    <SelectItem value="75">75 minutes</SelectItem>
-                    <SelectItem value="90">90 minutes</SelectItem>
-                    <SelectItem value="120">2 hours</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Group classes / other activities */}
-              <div className="space-y-3">
-                <Label>
-                  Are there days where you do group classes or any other physical activity?
-                </Label>
-                <div className="flex gap-3">
-                  {["Yes", "No"].map((opt) => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => {
-                        updateField("has_other_activities", opt === "Yes");
-                        if (opt === "No") updateField("other_activities", []);
-                      }}
-                      className={`px-5 py-2 text-sm border transition-colors ${
-                        (opt === "Yes" ? form.has_other_activities : !form.has_other_activities)
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border/30 text-muted-foreground hover:border-border/60"
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-
-                {form.has_other_activities && (
-                  <div className="space-y-3 pt-1">
-                    <p className="text-[11px] text-muted-foreground">
-                      Add each activity so we can schedule it as part of your fitness routine.
-                    </p>
-                    {form.other_activities.map((activity, idx) => (
-                      <div key={idx} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Day</Label>
-                          <Select
-                            value={activity.day}
-                            onValueChange={(v) => updateOtherActivity(idx, "day", v)}
-                          >
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue placeholder="Select day" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {DAYS_OF_WEEK.map((d) => (
-                                <SelectItem key={d.id} value={d.id}>
-                                  {d.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Activity Type</Label>
-                          <Input
-                            className="h-9 text-sm"
-                            placeholder="e.g., Yoga, Spin class"
-                            value={activity.activity_type}
-                            onChange={(e) => updateOtherActivity(idx, "activity_type", e.target.value)}
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeOtherActivity(idx)}
-                          className="h-9 text-muted-foreground hover:text-destructive text-xs border border-border/30 px-2"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={addOtherActivity}
-                      className="text-xs text-primary border border-primary/30 px-3 py-1.5 hover:bg-primary/5 transition-colors"
-                    >
-                      + Add Activity
-                    </button>
-                  </div>
+                {form.preferred_training_days.length > 0 && (
+                  <p className="text-xs text-primary font-medium">
+                    {form.preferred_training_days.length} day{form.preferred_training_days.length !== 1 ? "s" : ""} selected
+                  </p>
                 )}
               </div>
             </div>
@@ -539,49 +410,14 @@ const Questionnaire = () => {
               <h2 className="font-heading text-lg tracking-wide mb-4">Nutrition & Agreement</h2>
 
               <div className="space-y-2">
-                <Label>Goal for the Next 4 Weeks</Label>
-                <Textarea
-                  placeholder="e.g., Lose 5 lbs, build muscle, improve energy..."
-                  value={form.goal_next_4_weeks}
-                  onChange={(e) => updateField("goal_next_4_weeks", e.target.value)}
-                  className="min-h-[80px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Goal Weight (lbs)</Label>
+                <Label>Weekly Food Budget ($)</Label>
                 <Input
                   type="number"
-                  placeholder="e.g., 160"
-                  value={form.goal_weight}
-                  onChange={(e) => updateField("goal_weight", e.target.value)}
-                  min={50}
-                  max={600}
+                  placeholder="100"
+                  value={form.weekly_food_budget}
+                  onChange={(e) => updateField("weekly_food_budget", e.target.value)}
+                  min={0}
                 />
-                <p className="text-[11px] text-muted-foreground">
-                  Your target weight helps us tailor your training and nutrition plan.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Weekly Food Budget ($)</Label>
-                  <Input
-                    type="number"
-                    placeholder="100"
-                    value={form.weekly_food_budget}
-                    onChange={(e) => updateField("weekly_food_budget", e.target.value)}
-                    min={0}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Grocery Store</Label>
-                  <Input
-                    placeholder="e.g., Walmart, Trader Joe's"
-                    value={form.grocery_store}
-                    onChange={(e) => updateField("grocery_store", e.target.value)}
-                  />
-                </div>
               </div>
 
               <div className="space-y-3">
@@ -592,7 +428,7 @@ const Questionnaire = () => {
                       key={opt}
                       type="button"
                       onClick={() => toggleArrayField("dietary_restrictions", opt)}
-                      className={`px-3 py-1.5 text-xs border transition-colors ${
+                      className={`px-3 py-1.5 text-xs border rounded-lg transition-colors ${
                         form.dietary_restrictions.includes(opt)
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border/30 text-muted-foreground hover:border-border/60"
@@ -618,7 +454,7 @@ const Questionnaire = () => {
               </div>
 
               {/* Waiver of Release */}
-              <div className="border border-border/50 p-4 bg-muted/20 space-y-3">
+              <div className="border border-border/50 p-4 bg-muted/20 rounded-xl space-y-3">
                 <h3 className="font-heading text-sm tracking-wide text-foreground">Waiver of Release</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   By checking the box below, I acknowledge and agree that I am voluntarily participating in
@@ -661,7 +497,7 @@ const Questionnaire = () => {
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button variant="apollo" onClick={handleSubmit} disabled={submitting}>
+              <Button variant="apollo" onClick={handleSubmit} disabled={submitting || !canProceed()}>
                 {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 Submit Questionnaire
               </Button>
