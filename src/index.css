@@ -14,11 +14,11 @@
     --foreground: 0 0% 100%;
 
     /* Card surfaces — Graphite #15181D */
-    --card: 220 14% 10%;
+    --card: 220 12% 18%;
     --card-foreground: 0 0% 100%;
 
     /* Popover */
-    --popover: 220 14% 10%;
+    --popover: 220 12% 18%;
     --popover-foreground: 0 0% 100%;
 
     /* Primary — White */
@@ -26,7 +26,7 @@
     --primary-foreground: 0 0% 0%;
 
     /* Secondary — Dark graphite */
-    --secondary: 220 14% 10%;
+    --secondary: 220 12% 18%;
     --secondary-foreground: 0 0% 100%;
 
     /* Muted — brighter secondary text */
@@ -128,7 +128,7 @@
 @layer components {
   /* Apollo Gold Button */
   .btn-apollo-gold {
-    @apply relative overflow-hidden font-medium px-8 py-4 rounded-xl transition-all duration-300;
+    @apply relative overflow-hidden font-medium px-10 py-5 rounded-xl transition-all duration-300 text-base;
     background: hsl(var(--apollo-gold));
     color: hsl(0 0% 0%);
     font-family: 'DM Sans', sans-serif;
@@ -147,7 +147,7 @@
     @apply rounded-2xl p-6 transition-all duration-300;
     background: hsl(var(--card));
     border: 1px solid hsl(var(--apollo-border));
-    box-shadow: var(--shadow-card);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 1px 6px rgba(0, 0, 0, 0.2);
   }
   .card-apollo:hover {
     transform: translateY(-4px);
