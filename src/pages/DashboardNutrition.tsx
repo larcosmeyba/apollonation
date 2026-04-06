@@ -120,7 +120,7 @@ const DashboardNutrition = () => {
   const [macroDialogOpen, setMacroDialogOpen] = useState(false);
 
   const selectedDate = format(new Date(), "yyyy-MM-dd");
-  const isElite = profile?.subscription_tier === "elite";
+  
 
   // ── Queries ──
   const { data: plans } = useQuery({
