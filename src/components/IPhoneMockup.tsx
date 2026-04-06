@@ -1,78 +1,132 @@
+import { useEffect, useRef, useState } from "react";
 import mockupHome from "@/assets/mockup-home.jpg";
 import mockupOnDemand from "@/assets/mockup-ondemand.jpg";
 import mockupFuel from "@/assets/mockup-fuel.jpg";
 
-/* ─── Single Phone Shell ─── */
+const SCREENS = [
+  { src: mockupHome, alt: "Home Dashboard" },
+  { src: mockupOnDemand, alt: "On Demand Library" },
+  { src: mockupFuel, alt: "Fuel Nutrition" },
+];
+
+/* ─── Scrolling Phone Shell ─── */
 interface PhoneProps {
-  screenImage: string;
-  alt: string;
+  screens: typeof SCREENS;
   className?: string;
   style?: React.CSSProperties;
   size?: "sm" | "md";
+  /** ms per screen */
+  speed?: number;
+  /** stagger start delay */
+  delay?: number;
 }
 
-const PhoneDevice = ({ screenImage, alt, className = "", style, size = "md" }: PhoneProps) => {
-  const w = size === "md" ? "w-[280px] md:w-[320px]" : "w-[220px] md:w-[260px]";
+const ScrollingPhone = ({ screens, className = "", style, size = "md", speed = 4000, delay = 0 }: PhoneProps) => {
+  const w = size === "md" ? "w-[220px] md:w-[240px]" : "w-[170px] md:w-[190px]";
+  const stripRef = useRef<HTMLDivElement>(null);
+  const [offset, setOffset] = useState(0);
+  const [screenH, setScreenH] = useState(0);
+  const [transitioning, setTransitioning] = useState(true);
+
+  // Measure one screen height once images load
+  const measureRef = useRef<HTMLImageElement>(null);
+  const handleLoad = () => {
+    if (measureRef.current) setScreenH(measureRef.current.clientHeight);
+  };
+
+  useEffect(() => {
+    if (!screenH) return;
+    let idx = 0;
+    const timer = setInterval(() => {
+      idx++;
+      if (idx >= screens.length) {
+        // Jump back instantly then continue
+        setTransitioning(false);
+        setOffset(0);
+        idx = 0;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => setTransitioning(true));
+        });
+      } else {
+        setTransitioning(true);
+        setOffset(idx * screenH);
+      }
+    }, speed);
+
+    const delayTimer = setTimeout(() => {}, delay);
+    return () => { clearInterval(timer); clearTimeout(delayTimer); };
+  }, [screenH, screens.length, speed, delay]);
+
+  // Delayed start
+  const [started, setStarted] = useState(delay === 0);
+  useEffect(() => {
+    if (delay > 0) {
+      const t = setTimeout(() => setStarted(true), delay);
+      return () => clearTimeout(t);
+    }
+  }, [delay]);
 
   return (
     <div className={`relative ${className}`} style={style}>
-      {/* Soft glow behind device */}
-      <div className="absolute -inset-12 bg-white/[0.03] rounded-full blur-3xl pointer-events-none" />
+      {/* Soft glow */}
+      <div className="absolute -inset-8 bg-white/[0.02] rounded-full blur-3xl pointer-events-none" />
 
-      {/* Shadow under device */}
+      {/* Shadow */}
       <div
-        className="absolute -bottom-6 left-[10%] right-[10%] h-16 rounded-[50%] blur-2xl pointer-events-none"
-        style={{ background: "radial-gradient(ellipse, rgba(0,0,0,0.7) 0%, transparent 70%)" }}
+        className="absolute -bottom-4 left-[10%] right-[10%] h-12 rounded-[50%] blur-2xl pointer-events-none"
+        style={{ background: "radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 70%)" }}
       />
 
       {/* Device body */}
-      <div className={`${w} rounded-[2.8rem] p-[2.5px] relative`}
+      <div className={`${w} rounded-[2.4rem] p-[2px] relative`}
         style={{
           background: "linear-gradient(160deg, rgba(120,120,130,0.5) 0%, rgba(60,60,65,0.4) 30%, rgba(30,30,35,0.6) 70%, rgba(80,80,90,0.3) 100%)",
-          boxShadow: "0 25px 80px rgba(0,0,0,0.7), 0 8px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.7), 0 6px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
         }}
       >
-        {/* Inner metallic rim */}
-        <div className="rounded-[2.6rem] p-[1px]"
-          style={{
-            background: "linear-gradient(180deg, rgba(100,100,110,0.3) 0%, rgba(40,40,45,0.2) 100%)",
-          }}
+        <div className="rounded-[2.2rem] p-[1px]"
+          style={{ background: "linear-gradient(180deg, rgba(100,100,110,0.3) 0%, rgba(40,40,45,0.2) 100%)" }}
         >
-          {/* Screen */}
-          <div className="rounded-[2.5rem] bg-black overflow-hidden relative">
-            <img
-              src={screenImage}
-              alt={alt}
-              className="w-full h-auto block"
-              loading="lazy"
-            />
-
-            {/* Glass reflection overlay */}
+          {/* Screen with scrolling content */}
+          <div className="rounded-[2.1rem] bg-black overflow-hidden relative">
             <div
-              className="absolute inset-0 rounded-[2.5rem] pointer-events-none"
+              ref={stripRef}
               style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 35%, transparent 65%, rgba(255,255,255,0.03) 100%)",
+                transform: started ? `translateY(-${offset}px)` : "translateY(0)",
+                transition: transitioning ? `transform ${800}ms cubic-bezier(0.4, 0, 0.2, 1)` : "none",
               }}
+            >
+              {/* Render screens + duplicate first for seamless loop */}
+              {[...screens, screens[0]].map((s, i) => (
+                <img
+                  key={i}
+                  ref={i === 0 ? measureRef : undefined}
+                  src={s.src}
+                  alt={s.alt}
+                  className="w-full h-auto block"
+                  loading="lazy"
+                  onLoad={i === 0 ? handleLoad : undefined}
+                />
+              ))}
+            </div>
+
+            {/* Glass reflection */}
+            <div
+              className="absolute inset-0 rounded-[2.1rem] pointer-events-none"
+              style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 35%, transparent 65%, rgba(255,255,255,0.03) 100%)" }}
             />
-            {/* Top edge highlight */}
             <div
               className="absolute top-0 left-[15%] right-[15%] h-[1px] pointer-events-none"
-              style={{
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)",
-              }}
+              style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)" }}
             />
           </div>
         </div>
 
-        {/* Physical buttons */}
-        <div className="absolute -left-[2px] top-[80px] w-[3px] h-[28px] rounded-l-sm"
-          style={{ background: "linear-gradient(180deg, #555 0%, #333 100%)" }} />
-        <div className="absolute -left-[2px] top-[120px] w-[3px] h-[44px] rounded-l-sm"
-          style={{ background: "linear-gradient(180deg, #555 0%, #333 100%)" }} />
-        <div className="absolute -left-[2px] top-[172px] w-[3px] h-[44px] rounded-l-sm"
-          style={{ background: "linear-gradient(180deg, #555 0%, #333 100%)" }} />
-        <div className="absolute -right-[2px] top-[130px] w-[3px] h-[60px] rounded-r-sm"
-          style={{ background: "linear-gradient(180deg, #555 0%, #333 100%)" }} />
+        {/* Buttons */}
+        <div className="absolute -left-[2px] top-[60px] w-[3px] h-[22px] rounded-l-sm" style={{ background: "linear-gradient(180deg, #555, #333)" }} />
+        <div className="absolute -left-[2px] top-[92px] w-[3px] h-[34px] rounded-l-sm" style={{ background: "linear-gradient(180deg, #555, #333)" }} />
+        <div className="absolute -left-[2px] top-[134px] w-[3px] h-[34px] rounded-l-sm" style={{ background: "linear-gradient(180deg, #555, #333)" }} />
+        <div className="absolute -right-[2px] top-[100px] w-[3px] h-[48px] rounded-r-sm" style={{ background: "linear-gradient(180deg, #555, #333)" }} />
       </div>
     </div>
   );
@@ -81,44 +135,40 @@ const PhoneDevice = ({ screenImage, alt, className = "", style, size = "md" }: P
 /* ─── Main Exported Component ─── */
 const IPhoneMockup = () => {
   return (
-    <div className="relative w-full py-8">
-      {/* Background vignette */}
+    <div className="relative w-full py-6">
       <div className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%)",
-        }}
+        style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%)" }}
       />
 
-      {/* 3-phone arrangement */}
-      <div className="relative flex items-center justify-center gap-0 md:gap-0">
-        {/* Left Phone — On Demand */}
+      <div className="relative flex items-center justify-center">
+        {/* Left Phone */}
         <div className="hidden md:block relative z-10"
           style={{
-            transform: "perspective(1200px) rotateY(25deg) rotateX(2deg) translateX(40px) translateZ(-80px) scale(0.85)",
+            transform: "perspective(1200px) rotateY(25deg) rotateX(2deg) translateX(30px) translateZ(-60px) scale(0.82)",
             transformStyle: "preserve-3d",
           }}
         >
-          <PhoneDevice screenImage={mockupOnDemand} alt="On Demand Library" size="sm" />
+          <ScrollingPhone screens={SCREENS} size="sm" speed={4000} delay={1300} />
         </div>
 
-        {/* Center Phone — Home Dashboard */}
+        {/* Center Phone */}
         <div className="relative z-30 animate-phone-float"
           style={{
             transform: "perspective(1200px) rotateY(-2deg) rotateX(3deg)",
             transformStyle: "preserve-3d",
           }}
         >
-          <PhoneDevice screenImage={mockupHome} alt="Home Dashboard" />
+          <ScrollingPhone screens={SCREENS} size="md" speed={4000} delay={0} />
         </div>
 
-        {/* Right Phone — Fuel / Nutrition */}
+        {/* Right Phone */}
         <div className="hidden md:block relative z-10"
           style={{
-            transform: "perspective(1200px) rotateY(-25deg) rotateX(2deg) translateX(-40px) translateZ(-80px) scale(0.85)",
+            transform: "perspective(1200px) rotateY(-25deg) rotateX(2deg) translateX(-30px) translateZ(-60px) scale(0.82)",
             transformStyle: "preserve-3d",
           }}
         >
-          <PhoneDevice screenImage={mockupFuel} alt="Fuel Nutrition" size="sm" />
+          <ScrollingPhone screens={SCREENS} size="sm" speed={4000} delay={2600} />
         </div>
       </div>
     </div>
