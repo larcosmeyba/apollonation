@@ -66,9 +66,8 @@ const ProtectedRoute = ({ children, requiredTier }: ProtectedRouteProps) => {
     return <Navigate to="/subscribe" replace />;
   }
 
-  // Pro/Elite users must complete questionnaire before accessing dashboard
-  const tier = profile?.subscription_tier;
-  if ((tier === "pro" || tier === "elite") && !hasQuestionnaire) {
+  // All users must complete questionnaire before accessing dashboard
+  if (!hasQuestionnaire) {
     return <Navigate to="/questionnaire" replace />;
   }
 
