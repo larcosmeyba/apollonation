@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useMessages } from "@/hooks/useMessages";
 import {
   MessageSquare,
   AlertCircle,
@@ -24,8 +23,6 @@ interface Props {
 }
 
 const AdminDashboardHome = ({ onNavigate }: Props) => {
-  const { unreadCount } = useMessages();
-
   // Unread contact requests
   const { data: unreadContacts = 0 } = useQuery({
     queryKey: ["admin-unread-contacts"],
@@ -125,8 +122,7 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
 
   // Alerts
   const alerts = [
-    { icon: MessageSquare, label: "Unread messages", count: unreadCount, tab: "messages", color: "text-blue-400", bg: "bg-blue-500/10" },
-    { icon: Inbox, label: "New contact requests", count: unreadContacts, tab: "contacts", color: "text-apollo-gold", bg: "bg-apollo-gold/10" },
+    { icon: Inbox, label: "New contact requests", count: unreadContacts, tab: "contacts", color: "text-primary", bg: "bg-primary/10" },
     { icon: AlertCircle, label: "Clients without plans", count: clientsWithoutPlans, tab: "clients", color: "text-orange-400", bg: "bg-orange-500/10" },
   ].filter((a) => a.count > 0);
 
@@ -134,7 +130,7 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
     t === "elite" ? "Elite" : t === "pro" ? "Premier" : "Essential";
 
   const quickAccess = [
-    { id: "messages", icon: MessageSquare, title: "Messages", desc: "Chat with your clients", color: "text-blue-400" },
+    { id: "messages", icon: MessageSquare, title: "Messages", desc: "Email your clients", color: "text-blue-400" },
     { id: "broadcast", icon: Megaphone, title: "Broadcast", desc: "Send announcements", color: "text-purple-400" },
     { id: "workouts", icon: Dumbbell, title: "On-Demand Classes", desc: "Manage video workouts", color: "text-green-400" },
     { id: "exercises", icon: Activity, title: "Exercise Library", desc: "Browse & add exercises", color: "text-red-400" },
@@ -153,7 +149,7 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
       {/* ─── SECTION 1: ALERTS ─── */}
       {alerts.length > 0 && (
         <section>
-          <h2 className="font-heading text-xs uppercase tracking-widest text-apollo-gold mb-3">Alerts</h2>
+          <h2 className="font-heading text-xs uppercase tracking-widest text-primary mb-3">Alerts</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {alerts.map((a) => (
               <button
@@ -176,13 +172,13 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
 
       {/* ─── SECTION 2: CLIENT STATS ─── */}
       <section>
-        <h2 className="font-heading text-xs uppercase tracking-widest text-apollo-gold mb-3">Client Overview</h2>
+        <h2 className="font-heading text-xs uppercase tracking-widest text-primary mb-3">Client Overview</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             { label: "Total Clients", value: totalClients, icon: Users, color: "text-blue-400" },
             { label: "Active Today", value: activeToday, icon: TrendingUp, color: "text-green-400" },
             { label: "Workouts Done", value: workoutsCompleted, icon: Dumbbell, color: "text-purple-400" },
-            { label: "New Signups (7d)", value: newSignups, icon: UserPlus, color: "text-apollo-gold" },
+            { label: "New Signups (7d)", value: newSignups, icon: UserPlus, color: "text-primary" },
           ].map((s) => (
             <Card key={s.label} className="bg-card border-border rounded-xl">
               <CardContent className="p-4">
@@ -201,7 +197,7 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
       {recentClients.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-heading text-xs uppercase tracking-widest text-apollo-gold">Recent Clients</h2>
+            <h2 className="font-heading text-xs uppercase tracking-widest text-primary">Recent Clients</h2>
             <button
               onClick={() => onNavigate("clients")}
               className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
@@ -214,17 +210,17 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
               <Card
                 key={c.user_id}
                 onClick={() => onNavigate("clients")}
-                className="bg-card border-border rounded-xl cursor-pointer hover:ring-1 hover:ring-apollo-gold/30 transition-all"
+                className="bg-card border-border rounded-xl cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all"
               >
                 <CardContent className="p-4 flex flex-col items-center text-center gap-2">
                   <Avatar className="w-12 h-12">
-                    <AvatarFallback className="bg-apollo-gold/20 text-apollo-gold text-sm">
+                    <AvatarFallback className="bg-primary/20 text-primary text-sm">
                       {c.display_name?.charAt(0) || "?"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium truncate max-w-full">{c.display_name || "Client"}</p>
-                    <p className="text-[10px] uppercase tracking-wider text-apollo-gold/70">
+                    <p className="text-[10px] uppercase tracking-wider text-primary/70">
                       {tierLabel(c.subscription_tier)}
                     </p>
                   </div>
@@ -237,16 +233,16 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
 
       {/* ─── SECTION 4: QUICK ACCESS TOOLS ─── */}
       <section>
-        <h2 className="font-heading text-xs uppercase tracking-widest text-apollo-gold mb-3">Quick Access</h2>
+        <h2 className="font-heading text-xs uppercase tracking-widest text-primary mb-3">Quick Access</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           {quickAccess.map((q) => (
             <Card
               key={q.id}
               onClick={() => onNavigate(q.id)}
-              className="bg-card border-border rounded-xl cursor-pointer hover:ring-1 hover:ring-apollo-gold/30 transition-all group"
+              className="bg-card border-border rounded-xl cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all group"
             >
               <CardContent className="p-5 flex items-start gap-4">
-                <div className="p-2.5 rounded-lg bg-muted group-hover:bg-apollo-gold/10 transition-colors">
+                <div className="p-2.5 rounded-lg bg-muted group-hover:bg-primary/10 transition-colors">
                   <q.icon className={`w-5 h-5 ${q.color}`} />
                 </div>
                 <div className="flex-1 min-w-0">
