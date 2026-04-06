@@ -16,24 +16,15 @@ interface Profile {
   updated_at: string;
 }
 
-interface SubscriptionStatus {
-  subscribed: boolean;
-  subscription_tier: string | null;
-  subscription_end: string | null;
-}
-
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  subscription: SubscriptionStatus | null;
-  subscriptionLoading: boolean;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-  checkSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -51,8 +42,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
-  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -68,50 +57,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return data as Profile | null;
   };
 
-  const defaultUnsub: SubscriptionStatus = { subscribed: false, subscription_tier: null, subscription_end: null };
-
-  const checkSubscription = useCallback(async () => {
-    if (!user) return;
-
-    setSubscriptionLoading(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.log("No active session, skipping subscription check");
-        setSubscription(defaultUnsub);
-        return;
-      }
-
-      // Read profile to check account status without causing re-render loop
-      const { data: currentProfile } = await supabase
-        .from("profiles")
-        .select("account_status")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      // Skip subscription check for archived/cancelled accounts
-      if (currentProfile?.account_status === "archived" || currentProfile?.account_status === "cancelled") {
-        setSubscription(defaultUnsub);
-        setSubscriptionLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke("check-subscription");
-      if (error) {
-        console.error("Error checking subscription:", error);
-        setSubscription(defaultUnsub);
-        return;
-      }
-      setSubscription(data as SubscriptionStatus);
-      // NOTE: Do NOT call setProfile here — it would create a re-render loop
-    } catch (err) {
-      console.error("Subscription check failed:", err);
-      setSubscription(defaultUnsub);
-    } finally {
-      setSubscriptionLoading(false);
-    }
-  }, [user]);
-
   const refreshProfile = async () => {
     if (user) {
       const profileData = await fetchProfile(user.id);
@@ -120,14 +65,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          // Use setTimeout to avoid potential race conditions
           setTimeout(async () => {
             const profileData = await fetchProfile(session.user.id);
             setProfile(profileData);
@@ -135,14 +78,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }, 0);
         } else {
           setProfile(null);
-          setSubscription(null);
-          setSubscriptionLoading(false);
           setLoading(false);
         }
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -160,28 +100,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => authSubscription.unsubscribe();
   }, []);
 
-  // Check subscription status when user changes (only depends on user, not profile)
-  useEffect(() => {
-    if (user) {
-      checkSubscription();
-
-      // Auto-refresh subscription every 5 minutes (was 60s — too frequent)
-      const interval = setInterval(checkSubscription, 300000);
-      return () => clearInterval(interval);
-    }
-  }, [user?.id, checkSubscription]);
-
-  // Check for checkout success in URL
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("checkout") === "success" && user) {
-      // Delay to allow Stripe to process
-      setTimeout(() => {
-        checkSubscription();
-      }, 2000);
-    }
-  }, [user, checkSubscription]);
-
   const signUp = async (email: string, password: string, displayName?: string) => {
     const { error } = await supabase.auth.signUp({
       email,
@@ -194,7 +112,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
     });
 
-    // Notify admin of new signup (fire-and-forget)
     if (!error) {
       supabase.functions.invoke("notify-new-signup", {
         body: { email, displayName: displayName || "No name" },
@@ -219,7 +136,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setSession(null);
     setProfile(null);
-    setSubscription(null);
   };
 
   return (
@@ -229,13 +145,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         session,
         profile,
         loading,
-        subscription,
-        subscriptionLoading,
         signUp,
         signIn,
         signOut,
         refreshProfile,
-        checkSubscription,
       }}
     >
       {children}
