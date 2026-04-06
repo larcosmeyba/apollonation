@@ -523,7 +523,7 @@ const DashboardNutrition = () => {
               </Button>
             )}
           </div>
-          {isAiMode && isElite ? (
+          {isAiMode ? (
             <div className="space-y-4">
               {previewUrl ? (
                 <div className="relative aspect-video rounded-lg overflow-hidden">
