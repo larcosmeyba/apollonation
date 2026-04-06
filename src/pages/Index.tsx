@@ -190,32 +190,29 @@ const Index = () => {
       </section>
 
       {/* ═══ 4. APP EXPERIENCE ═══ */}
-      <section className="py-20 md:py-28 border-t border-border/30">
+      <section className="py-20 md:py-32 border-t border-border/30 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center max-w-6xl mx-auto">
-            <div>
-              <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">The App</span>
-              <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-6">
-                Your Training System<br />In One App
-              </h2>
-              <ul className="space-y-4 mb-8">
-                {APP_FEATURES.map((feat) => (
-                  <li key={feat} className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-                    <span className="text-white text-base">{feat}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button
-                size="lg"
-                className="rounded-full h-14 px-10 bg-white text-black hover:bg-white/90 border border-white font-semibold"
-                onClick={scrollToDownload}
-              >
-                Download the App
-                <ArrowRight className="ml-2" size={18} />
-              </Button>
-            </div>
-            <IPhoneMockup />
+          <div className="text-center mb-12 md:mb-16">
+            <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">The App</span>
+            <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
+              Your Training System In One App
+            </h2>
+            <p className="text-white max-w-lg mx-auto text-base">
+              Workouts, programs, nutrition, and progress tracking — all in one premium experience.
+            </p>
+          </div>
+
+          <IPhoneMockup />
+
+          <div className="flex justify-center mt-12">
+            <Button
+              size="lg"
+              className="rounded-full h-14 px-10 bg-white text-black hover:bg-white/90 border border-white font-semibold"
+              onClick={scrollToDownload}
+            >
+              Download the App
+              <ArrowRight className="ml-2" size={18} />
+            </Button>
           </div>
         </div>
       </section>
