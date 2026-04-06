@@ -412,7 +412,7 @@ const AdminWorkouts = () => {
                   </div>
                 )}
                 {workout.is_featured && (
-                  <span className="absolute top-2 left-2 text-[10px] font-medium bg-apollo-gold/90 text-primary-foreground px-1.5 py-0.5 rounded">⭐ Featured</span>
+                  <span className="absolute top-2 left-2 text-[10px] font-medium bg-primary/90 text-primary-foreground px-1.5 py-0.5 rounded">⭐ Featured</span>
                 )}
                 <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{workout.duration_minutes} min</span>
               </div>

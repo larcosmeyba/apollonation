@@ -342,10 +342,10 @@ const AdminRecipes = () => {
       {/* AI Tools */}
       <div className="grid md:grid-cols-2 gap-4">
         {/* AI Recipe Creator */}
-        <Card className="bg-card border-border border-apollo-gold/20">
+        <Card className="bg-card border-border border-primary/20">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <Sparkles className="w-5 h-5 text-apollo-gold" />
+              <Sparkles className="w-5 h-5 text-primary" />
               AI Recipe Creator
             </CardTitle>
           </CardHeader>
@@ -403,7 +403,7 @@ const AdminRecipes = () => {
         <Card className="bg-card border-border">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <FileText className="w-5 h-5 text-apollo-gold" />
+              <FileText className="w-5 h-5 text-primary" />
               Import from PDF
             </CardTitle>
           </CardHeader>

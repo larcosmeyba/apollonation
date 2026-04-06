@@ -114,7 +114,7 @@ const ClientBodyMetrics = ({ userId }: { userId: string }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="font-heading text-sm uppercase tracking-wider text-apollo-gold">Body Metrics</h3>
+        <h3 className="font-heading text-sm uppercase tracking-wider text-primary">Body Metrics</h3>
         <Button variant="apollo" size="sm" onClick={() => setIsOpen(true)} className="gap-1">
           <Plus className="w-3.5 h-3.5" /> Add Measurement
         </Button>

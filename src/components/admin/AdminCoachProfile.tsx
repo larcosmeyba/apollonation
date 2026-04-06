@@ -96,7 +96,7 @@ const AdminCoachProfile = () => {
     <div className="space-y-6 max-w-2xl">
       <div>
         <h2 className="font-heading text-xl flex items-center gap-2">
-          <Shield className="w-5 h-5 text-apollo-gold" />
+          <Shield className="w-5 h-5 text-primary" />
           Coach Profile
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
@@ -110,14 +110,14 @@ const AdminCoachProfile = () => {
           <div className="relative">
             <Avatar className="h-20 w-20">
               {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
-              <AvatarFallback className="bg-apollo-gold/20 text-apollo-gold font-bold text-xl">
+              <AvatarFallback className="bg-primary/20 text-primary font-bold text-xl">
                 {(displayName || "C")[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-apollo-gold text-primary-foreground flex items-center justify-center hover:opacity-80 transition-opacity"
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:opacity-80 transition-opacity"
             >
               {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
             </button>
@@ -125,7 +125,7 @@ const AdminCoachProfile = () => {
           </div>
           <div>
             <p className="font-heading text-lg">{profile?.display_name || "Coach"}</p>
-            <p className="text-xs text-apollo-gold uppercase tracking-wider">Administrator • Owner</p>
+            <p className="text-xs text-primary uppercase tracking-wider">Administrator • Owner</p>
           </div>
         </div>
 

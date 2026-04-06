@@ -232,7 +232,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
             </Avatar>
             <div>
               <h3 className="font-heading text-xl">{partnerName}</h3>
-              <p className="text-xs text-apollo-gold uppercase tracking-wider mt-1">Your Coach</p>
+              <p className="text-xs text-primary uppercase tracking-wider mt-1">Your Coach</p>
             </div>
             {partnerProfile?.bio && (
               <div className="text-sm text-muted-foreground leading-relaxed">
@@ -241,7 +241,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
             )}
             {partnerProfile?.fitness_goals && (
               <div className="w-full text-left">
-                <p className="text-xs text-apollo-gold font-medium uppercase tracking-wider mb-2">Coaching Philosophy</p>
+                <p className="text-xs text-primary font-medium uppercase tracking-wider mb-2">Coaching Philosophy</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {partnerProfile.fitness_goals}
                 </p>

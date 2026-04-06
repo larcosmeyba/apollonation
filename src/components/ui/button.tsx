@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-accent text-accent-foreground hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_hsla(40,55%,51%,0.3)]",
+        default: "bg-primary text-primary-foreground hover:brightness-95 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.15)]",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-border text-foreground bg-transparent hover:bg-card",
+        outline: "border border-foreground/20 text-foreground bg-transparent hover:bg-card",
         secondary: "bg-card text-foreground border border-border hover:bg-card/80",
         ghost: "hover:bg-muted hover:text-foreground text-muted-foreground",
         link: "text-foreground underline-offset-4 hover:underline tracking-normal",
-        apollo: "bg-accent text-accent-foreground font-semibold hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_hsla(40,55%,51%,0.3)] rounded-xl",
-        "apollo-outline": "border border-border text-foreground bg-transparent hover:bg-card hover:border-accent/30 rounded-xl",
+        apollo: "bg-primary text-primary-foreground font-semibold hover:brightness-95 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.15)] rounded-xl",
+        "apollo-outline": "border border-foreground/20 text-foreground bg-transparent hover:bg-card hover:border-foreground/40 rounded-xl",
       },
       size: {
         default: "h-11 px-8 py-3 text-sm",

@@ -147,7 +147,7 @@ const ClientNotesPanel = ({ userId, clientName }: Props) => {
                   {editingNote?.id === note.id ? (
                     <>
                       <Button size="icon" variant="ghost" onClick={() => updateMutation.mutate({ id: note.id, content: editContent })} disabled={updateMutation.isPending}>
-                        <Save className="w-4 h-4 text-apollo-gold" />
+                        <Save className="w-4 h-4 text-primary" />
                       </Button>
                       <Button size="icon" variant="ghost" onClick={() => setEditingNote(null)}>
                         <X className="w-4 h-4" />

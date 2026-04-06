@@ -176,7 +176,7 @@ const MarketingAIImages = () => {
 
       {generating && (
         <div className="flex flex-col items-center py-12 gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-apollo-gold" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Creating your image…</p>
         </div>
       )}

@@ -1,6 +1,5 @@
 import { ReactNode, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMessages } from "@/hooks/useMessages";
 
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 import {
@@ -56,7 +55,6 @@ const navItems = [
 
 const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => {
   const { profile, signOut } = useAuth();
-  const { unreadCount } = useMessages();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const avatarUrl = profile?.avatar_url;
@@ -89,12 +87,12 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
           </button>
         </div>
 
-        {/* Right: notifications + messages + profile */}
+        {/* Right: notifications + profile */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => onTabChange("contacts")}
             className="relative p-2 rounded-md hover:bg-muted transition-colors"
-            title="Notifications"
+            title="Contact Requests"
           >
             <Bell className="w-5 h-5 text-muted-foreground" />
           </button>
@@ -104,11 +102,6 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
             title="Messages"
           >
             <MessageSquare className="w-5 h-5 text-muted-foreground" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            )}
           </button>
 
           <DropdownMenu>
@@ -178,11 +171,6 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
                 >
                   <item.icon className={`w-[18px] h-[18px] flex-shrink-0 ${item.color}`} />
                   <span className={`flex-1 text-left truncate ${isActive ? "text-white" : "text-muted-foreground hover:text-foreground"}`}>{item.label}</span>
-                  {item.id === "messages" && unreadCount > 0 && (
-                    <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                      {unreadCount}
-                    </span>
-                  )}
                 </button>
               );
             })}

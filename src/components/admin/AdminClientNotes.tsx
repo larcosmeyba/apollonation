@@ -153,7 +153,7 @@ const AdminClientNotes = () => {
           onClick={() => setSelectedClient(null)}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
             !selectedClient
-              ? "bg-apollo-gold/15 text-apollo-gold"
+              ? "bg-primary/15 text-primary"
               : "bg-muted text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -165,7 +165,7 @@ const AdminClientNotes = () => {
             onClick={() => setSelectedClient(p)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               selectedClient?.user_id === p.user_id
-                ? "bg-apollo-gold/15 text-apollo-gold"
+                ? "bg-primary/15 text-primary"
                 : "bg-muted text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -189,7 +189,7 @@ const AdminClientNotes = () => {
             <div key={note.id} className="card-apollo p-4 space-y-2">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-apollo-gold font-medium">
+                  <p className="text-xs text-primary font-medium">
                     {getClientName(note.client_user_id)}
                   </p>
                   {editingNote?.id === note.id ? (
@@ -216,7 +216,7 @@ const AdminClientNotes = () => {
                         onClick={() => updateMutation.mutate({ id: note.id, content: editContent })}
                         disabled={updateMutation.isPending}
                       >
-                        <Save className="w-4 h-4 text-apollo-gold" />
+                        <Save className="w-4 h-4 text-primary" />
                       </Button>
                       <Button size="icon" variant="ghost" onClick={() => setEditingNote(null)}>
                         <X className="w-4 h-4" />
@@ -267,7 +267,7 @@ const AdminClientNotes = () => {
                     onClick={() => setSelectedClient(p)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                       selectedClient?.user_id === p.user_id
-                        ? "bg-apollo-gold/15 text-apollo-gold"
+                        ? "bg-primary/15 text-primary"
                         : "bg-muted text-muted-foreground hover:text-foreground"
                     }`}
                   >

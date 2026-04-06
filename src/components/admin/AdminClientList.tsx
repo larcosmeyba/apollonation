@@ -108,7 +108,7 @@ const AdminClientList = () => {
 
   const getTierBadge = (tier: string) => {
     const colors: Record<string, string> = {
-      elite: "bg-apollo-gold/20 text-apollo-gold",
+      elite: "bg-primary/20 text-primary",
       pro: "bg-purple-500/20 text-purple-400",
       basic: "bg-muted text-muted-foreground",
     };
@@ -178,10 +178,10 @@ const AdminClientList = () => {
             <button
               key={profile.id}
               onClick={() => setSelectedClient(profile)}
-              className="card-apollo flex items-center gap-4 p-4 text-left hover:border-apollo-gold/30 transition-all group"
+              className="card-apollo flex items-center gap-4 p-4 text-left hover:border-primary/30 transition-all group"
             >
               <Avatar className="h-11 w-11 flex-shrink-0">
-                <AvatarFallback className="bg-apollo-gold/15 text-apollo-gold font-bold text-sm">
+                <AvatarFallback className="bg-primary/15 text-primary font-bold text-sm">
                   {(profile.display_name || "?")[0].toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -196,7 +196,7 @@ const AdminClientList = () => {
               <span className={`px-2.5 py-1 rounded text-xs uppercase font-medium ${getTierBadge(profile.subscription_tier)}`}>
                 {profile.subscription_tier}
               </span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-apollo-gold transition-colors" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </button>
           ))
         )}

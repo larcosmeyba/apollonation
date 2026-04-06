@@ -103,7 +103,7 @@ const ClientQuickActions = ({ userId, clientName, onRefresh }: Props) => {
     <div className="space-y-3">
       {/* AI Command Bar */}
       <div className="card-apollo p-4 space-y-3">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-apollo-gold font-heading">
+        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-primary font-heading">
           <Sparkles className="w-4 h-4" />
           AI Coach Command
         </div>

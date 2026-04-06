@@ -166,7 +166,7 @@ const AdminUsers = () => {
   const getTierBadgeColor = (tier: string) => {
     switch (tier) {
       case "elite":
-        return "bg-apollo-gold/20 text-apollo-gold";
+        return "bg-primary/20 text-primary";
       case "pro":
         return "bg-purple-500/20 text-purple-400";
       default:
@@ -283,7 +283,7 @@ const AdminUsers = () => {
                       {/* App access info */}
                       {(profile.subscription_tier === "pro" || profile.subscription_tier === "elite") && profile.account_status === "active" && (
                         <Button size="icon" variant="ghost" onClick={() => handleAppAccess(profile)} title="App access info">
-                          <Smartphone className="w-4 h-4 text-apollo-gold" />
+                          <Smartphone className="w-4 h-4 text-primary" />
                         </Button>
                       )}
 
@@ -335,7 +335,7 @@ const AdminUsers = () => {
                           onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "active" })}
                           disabled={statusMutation.isPending}
                         >
-                          <RotateCcw className="w-4 h-4 text-apollo-gold" />
+                          <RotateCcw className="w-4 h-4 text-primary" />
                         </Button>
                       )}
                     </div>
@@ -475,7 +475,7 @@ const AdminUsers = () => {
                 <div className="flex items-center gap-2">
                   <Input readOnly value={selectedUserForApp?.user_id || ""} className="font-mono text-sm" />
                   <Button size="icon" variant="ghost" onClick={() => copyToClipboard(selectedUserForApp?.user_id || "", "user_id")}>
-                    {copiedField === "user_id" ? <Check className="w-4 h-4 text-apollo-gold" /> : <Copy className="w-4 h-4" />}
+                    {copiedField === "user_id" ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
@@ -484,7 +484,7 @@ const AdminUsers = () => {
                 <div className="flex items-center gap-2">
                   <Input readOnly value={selectedUserForApp?.display_name || "Not set"} className="text-sm" />
                   <Button size="icon" variant="ghost" onClick={() => copyToClipboard(selectedUserForApp?.display_name || "", "name")}>
-                    {copiedField === "name" ? <Check className="w-4 h-4 text-apollo-gold" /> : <Copy className="w-4 h-4" />}
+                    {copiedField === "name" ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>

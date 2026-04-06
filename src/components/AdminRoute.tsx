@@ -14,7 +14,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   if (authLoading || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-apollo-gold">Loading...</div>
+        <div className="animate-pulse text-primary">Loading...</div>
       </div>
     );
   }

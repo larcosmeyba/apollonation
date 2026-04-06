@@ -236,7 +236,7 @@ const AdminNutrition = () => {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <User className="w-5 h-5 text-apollo-gold" />
+            <User className="w-5 h-5 text-primary" />
             Select Client
           </CardTitle>
         </CardHeader>
@@ -248,11 +248,11 @@ const AdminNutrition = () => {
                 onClick={() => handleSelectUser(u.user_id)}
                 className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
                   selectedUserId === u.user_id
-                    ? "border-apollo-gold bg-apollo-gold/10"
+                    ? "border-primary bg-primary/10"
                     : "border-border hover:border-muted-foreground/30"
                 }`}
               >
-                <div className="w-8 h-8 rounded-full bg-apollo-gold/20 flex items-center justify-center text-sm font-bold text-apollo-gold">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
                   {(u.display_name || "?")[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -446,10 +446,10 @@ const AdminNutrition = () => {
 
           {/* Generate Plan */}
           {clientProfile && (
-            <Card className="bg-card border-border border-apollo-gold/20">
+            <Card className="bg-card border-border border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Sparkles className="w-5 h-5 text-apollo-gold" />
+                  <Sparkles className="w-5 h-5 text-primary" />
                   Generate AI Meal Plan
                 </CardTitle>
               </CardHeader>
@@ -501,7 +501,7 @@ const AdminNutrition = () => {
                   {clientPlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-apollo-gold/30 transition-all"
+                      className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/30 transition-all"
                     >
                       <div className="flex-1">
                         <p className="font-medium">{plan.title}</p>
