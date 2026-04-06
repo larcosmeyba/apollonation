@@ -67,7 +67,7 @@ const TermsOfService = () => {
           </p>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">5. Health and Fitness Disclaimer</h2>
-          <p className="font-medium text-foreground bg-apollo-gold/10 p-4 rounded-lg border border-apollo-gold/20">
+          <p className="font-medium text-foreground bg-primary/10 p-4 rounded-lg border border-primary/20">
             IMPORTANT: The content provided through our Services, including workout videos, nutrition recipes, 
             macro tracking, and coaching guidance, is for informational and educational purposes only. 
             It is NOT intended to be a substitute for professional medical advice, diagnosis, or treatment.
