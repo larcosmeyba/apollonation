@@ -919,7 +919,7 @@ const DashboardNutrition = () => {
                                             }
                                           }
                                         }}
-                                        className={`${isEaten ? "data-[state=checked]:bg-green-500/100 data-[state=checked]:border-green-500" : "border-black/30"}`}
+                                        className={`${isEaten ? "data-[state=checked]:bg-green-500/100 data-[state=checked]:border-green-500" : "border-white"}`}
                                       />
                                     </div>
                                     {/* Food Photo */}
