@@ -36,18 +36,10 @@ const AdminDashboard = () => {
         return <AdminGroupCoaching />;
       case "marketing":
         return <AdminMarketing />;
-      case "video-editor":
-        return <OnDemandEditor />;
-      case "programs":
-        return <AdminPrograms />;
       case "challenges":
         return <AdminChallenges />;
-      case "notifications":
-        return <AdminPushNotifications />;
       case "contacts":
         return <AdminContactRequests />;
-      case "coach-insights":
-        return <AdminCoachInsights />;
       case "profile":
         return <AdminCoachProfile />;
       default:
