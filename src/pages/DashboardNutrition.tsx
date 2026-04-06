@@ -640,7 +640,7 @@ const DashboardNutrition = () => {
                   </div>
                 </div>
                 <div className="flex gap-2 pt-1">
-                  <Button onClick={() => { handleCalcMacros(); }} className="flex-1 bg-black text-white hover:bg-black/80 font-bold text-sm h-9">
+                  <Button onClick={() => { handleCalcMacros(); }} className="flex-1 bg-black text-white hover:bg-black/80 font-bold text-sm h-9 rounded-xl">
                     Calculate
                   </Button>
                   {calculatedMacros && (
