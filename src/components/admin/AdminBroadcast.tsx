@@ -7,16 +7,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Megaphone, Send, Users, CheckCircle } from "lucide-react";
+import { Megaphone, Send, Users, CheckCircle, AlertTriangle } from "lucide-react";
 
 const AdminBroadcast = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [message, setMessage] = useState("");
+  const [subject, setSubject] = useState("");
   const [targetTier, setTargetTier] = useState("all");
   const [sentCount, setSentCount] = useState<number | null>(null);
 
-  // Fetch all client profiles (excluding admin)
   const { data: clients } = useQuery({
     queryKey: ["admin-broadcast-clients"],
     queryFn: async () => {
@@ -25,7 +25,6 @@ const AdminBroadcast = () => {
         .select("user_id, display_name, subscription_tier")
         .order("display_name");
       if (error) throw error;
-      // Filter out the admin's own profile
       return (data || []).filter((p) => p.user_id !== user?.id);
     },
   });
@@ -38,24 +37,24 @@ const AdminBroadcast = () => {
   const broadcastMutation = useMutation({
     mutationFn: async () => {
       if (!user?.id || !message.trim()) return;
+      if (filteredClients.length === 0) throw new Error("No clients to send to");
 
-      const messages = filteredClients.map((client) => ({
-        sender_id: user.id,
-        recipient_id: client.user_id,
-        content: message.trim(),
-        is_read: false,
-      }));
-
-      if (messages.length === 0) throw new Error("No clients to send to");
-
-      const { error } = await supabase.from("messages").insert(messages);
+      const { error } = await supabase.functions.invoke("send-coach-email", {
+        body: {
+          recipientIds: filteredClients.map((c) => c.user_id),
+          subject: subject.trim() || "A Message from the Apollo Team",
+          message: message.trim(),
+          type: "broadcast",
+        },
+      });
       if (error) throw error;
-      return messages.length;
+      return filteredClients.length;
     },
     onSuccess: (count) => {
       setSentCount(count || 0);
-      toast({ title: `Broadcast sent to ${count} client${count !== 1 ? "s" : ""}` });
+      toast({ title: `Broadcast email sent to ${count} client${count !== 1 ? "s" : ""}` });
       setMessage("");
+      setSubject("");
       setTimeout(() => setSentCount(null), 5000);
     },
     onError: (error) => {
@@ -67,11 +66,11 @@ const AdminBroadcast = () => {
     <div className="space-y-6 max-w-2xl">
       <div>
         <h2 className="font-heading text-xl flex items-center gap-2">
-          <Megaphone className="w-5 h-5 text-apollo-gold" />
-          Broadcast Message
+          <Megaphone className="w-5 h-5 text-primary" />
+          Broadcast Email
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Send a message to all clients at once. Each client will receive it as a direct message from you.
+          Send an email to all clients at once. Each client will receive it from Apollo Nation. Clients can unsubscribe anytime.
         </p>
       </div>
 
@@ -92,8 +91,21 @@ const AdminBroadcast = () => {
           </Select>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             <Users className="w-3 h-3" />
-            {filteredClients.length} client{filteredClients.length !== 1 ? "s" : ""} will receive this message
+            {filteredClients.length} client{filteredClients.length !== 1 ? "s" : ""} will receive this email
           </p>
+        </div>
+
+        {/* Subject */}
+        <div className="space-y-2">
+          <Label>Subject Line</Label>
+          <input
+            type="text"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            placeholder="A Message from the Apollo Team"
+            maxLength={200}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
         </div>
 
         {/* Message */}
@@ -103,11 +115,18 @@ const AdminBroadcast = () => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Hey team! Just wanted to let you all know..."
-            rows={5}
-            maxLength={1000}
+            rows={6}
+            maxLength={2000}
             className="resize-none"
           />
-          <p className="text-xs text-muted-foreground text-right">{message.length}/1000</p>
+          <p className="text-xs text-muted-foreground text-right">{message.length}/2000</p>
+        </div>
+
+        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 flex items-start gap-2">
+          <AlertTriangle className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            Clients can unsubscribe from broadcast emails at any time. Emails are sent from Apollo Nation.
+          </p>
         </div>
 
         {/* Send */}
@@ -117,18 +136,13 @@ const AdminBroadcast = () => {
             onClick={() => broadcastMutation.mutate()}
             disabled={!message.trim() || filteredClients.length === 0 || broadcastMutation.isPending}
           >
-            {broadcastMutation.isPending ? (
-              "Sending..."
-            ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                Send Broadcast
-              </>
+            {broadcastMutation.isPending ? "Sending..." : (
+              <><Send className="w-4 h-4 mr-2" /> Send Broadcast Email</>
             )}
           </Button>
 
           {sentCount !== null && (
-            <span className="text-sm text-apollo-gold flex items-center gap-1">
+            <span className="text-sm text-green-400 flex items-center gap-1">
               <CheckCircle className="w-4 h-4" />
               Sent to {sentCount} client{sentCount !== 1 ? "s" : ""}
             </span>
