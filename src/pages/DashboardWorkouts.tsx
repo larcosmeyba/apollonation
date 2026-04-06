@@ -165,13 +165,13 @@ const DashboardWorkouts = () => {
     return (
       <button
         onClick={() => setSelectedWorkout(workout)}
-        className="group relative overflow-hidden rounded-2xl text-left transition-all w-full"
+      className="group relative overflow-hidden rounded-2xl text-left transition-all w-full"
       >
-        <div className="relative overflow-hidden aspect-[4/3]">
+        <div className="relative overflow-hidden rounded-2xl aspect-[16/10]">
           <img
             src={thumb}
             alt={workout.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover scale-110 group-hover:scale-[1.15] transition-transform duration-500"
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
