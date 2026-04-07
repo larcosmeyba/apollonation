@@ -66,6 +66,13 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: Ensure Capacitor CLI and iOS packages exist in CI
+        run: |
+          set -euxo pipefail
+          if [ ! -x ./node_modules/.bin/cap ]; then
+            npm install --no-save @capacitor/cli @capacitor/core @capacitor/ios @capacitor/android
+          fi
+
       - name: Debug Node and Capacitor install
         run: |
           set -euxo pipefail
