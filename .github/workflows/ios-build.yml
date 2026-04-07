@@ -5,106 +5,242 @@ on:
 
 jobs:
   build-ios:
+    name: Build signed iOS IPA
     runs-on: macos-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      BUNDLE_ID: com.apollonation.app
+      IOS_SCHEME: App
+      IOS_PROJECT_DIR: ios/App
+      IOS_WORKSPACE: ios/App/App.xcworkspace
+      ARCHIVE_PATH: ios/App/build/App.xcarchive
+      EXPORT_PATH: ios/App/build/export
+      EXPORT_OPTIONS_PLIST: ios/App/ExportOptions.plist
+      PROVISIONING_PROFILE_NAME: ApolloNation App Store
+      EXPECTED_TEAM_ID: 4APZGH6X99
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: npm
+
+      - name: Show runner diagnostics
+        run: |
+          set -euxo pipefail
+          sw_vers
+          uname -a
+          pwd
+          xcode-select -p
+          xcodebuild -version
+
+      - name: Validate required GitHub secrets
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_PROVISIONING_PROFILE APPLE_TEAM_ID; do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required GitHub secret: $name"
+              exit 1
+            fi
+          done
+          if [ "$APPLE_TEAM_ID" != "$EXPECTED_TEAM_ID" ]; then
+            echo "APPLE_TEAM_ID secret does not match expected Team ID $EXPECTED_TEAM_ID"
+            exit 1
+          fi
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
-      - name: Debug install
+      - name: Debug Node and Capacitor install
         run: |
+          set -euxo pipefail
           node -v
           npm -v
           ls -la
-          ls -la node_modules/.bin || true
-          npm ls @capacitor/cli || true
-          npm ls @capacitor/core || true
-          npm ls @capacitor/ios || true
+          ls -la node_modules/.bin
+          test -x ./node_modules/.bin/cap
+          ./node_modules/.bin/cap --version
+          npm ls @capacitor/cli @capacitor/core @capacitor/ios || true
 
       - name: Build web app
         run: npm run build
 
-      - name: Sync Capacitor iOS
-        run: ./node_modules/.bin/cap sync ios
+      - name: Bootstrap and sync iOS project
+        run: |
+          set -euxo pipefail
+          if [ ! -d "$IOS_PROJECT_DIR" ]; then
+            ./node_modules/.bin/cap add ios --no-sync
+          fi
+          ./node_modules/.bin/cap sync ios
+          ls -la ios
+          ls -la "$IOS_PROJECT_DIR"
+          test -f "$IOS_PROJECT_DIR/Podfile"
 
       - name: Install CocoaPods
         run: |
-          sudo gem install cocoapods
-          cd ios/App
-          pod install
+          set -euxo pipefail
+          sudo gem install cocoapods -N
+          pod --version
+          cd "$IOS_PROJECT_DIR"
+          pod install --repo-update
+          test -d App.xcworkspace
 
-      - name: Install signing certificate and provisioning profile
+      - name: Install signing assets
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
         run: |
-          echo "$APPLE_CERTIFICATE" | base64 --decode > certificate.p12
-          echo "$APPLE_PROVISIONING_PROFILE" | base64 --decode > profile.mobileprovision
-          security create-keychain -p temp123 build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p temp123 build.keychain
-          security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k temp123 build.keychain
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          set -euxo pipefail
+          CERT_PATH="$RUNNER_TEMP/certificate.p12"
+          PROFILE_PATH="$RUNNER_TEMP/profile.mobileprovision"
+          PROFILE_PLIST="$RUNNER_TEMP/profile.plist"
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
+          KEYCHAIN_PASSWORD="temp123"
+
+          echo -n "$APPLE_CERTIFICATE" | base64 --decode > "$CERT_PATH"
+          echo -n "$APPLE_PROVISIONING_PROFILE" | base64 --decode > "$PROFILE_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain-db
+          security default-keychain -s "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/xcodebuild
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
+
+          security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST"
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" "$PROFILE_PLIST")
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" "$PROFILE_PLIST")
+
+          if [ "$PROFILE_NAME" != "$PROVISIONING_PROFILE_NAME" ]; then
+            echo "Provisioning profile name mismatch. Expected '$PROVISIONING_PROFILE_NAME' but got '$PROFILE_NAME'."
+            exit 1
+          fi
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+
+          echo "CI_KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+          echo "INSTALLED_PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
 
       - name: Create ExportOptions.plist
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          cat > ExportOptions.plist <<EOF
+          set -euxo pipefail
+          cat > "$EXPORT_OPTIONS_PLIST" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
+            <key>destination</key>
+            <string>export</string>
             <key>method</key>
             <string>app-store-connect</string>
-            <key>signingStyle</key>
-            <string>manual</string>
-            <key>teamID</key>
-            <string>$APPLE_TEAM_ID</string>
             <key>provisioningProfiles</key>
             <dict>
-              <key>com.apollonation.app</key>
-              <string>ApolloNation App Store</string>
+              <key>$BUNDLE_ID</key>
+              <string>$PROVISIONING_PROFILE_NAME</string>
             </dict>
+            <key>signingCertificate</key>
+            <string>Apple Distribution</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>teamID</key>
+            <string>$APPLE_TEAM_ID</string>
+            <key>thinning</key>
+            <string>&lt;none&gt;</string>
           </dict>
           </plist>
           EOF
-
-      - name: Show Xcode version
-        run: xcodebuild -version
+          cat "$EXPORT_OPTIONS_PLIST"
 
       - name: Build archive
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
+          set -euxo pipefail
+          rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH" ios/App/build/AppArchive.xcresult
+          mkdir -p "$EXPORT_PATH"
+
           xcodebuild \
-            -workspace ios/App/App.xcworkspace \
-            -scheme App \
+            -workspace "$IOS_WORKSPACE" \
+            -scheme "$IOS_SCHEME" \
             -configuration Release \
-            -archivePath ios/App/build/App.xcarchive \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -archivePath "$ARCHIVE_PATH" \
+            -resultBundlePath ios/App/build/AppArchive.xcresult \
             clean archive \
             CODE_SIGN_STYLE=Manual \
-            PRODUCT_BUNDLE_IDENTIFIER=com.apollonation.app \
-            DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }}
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROVISIONING_PROFILE_NAME" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $CI_KEYCHAIN_PATH" \
+            | tee "$RUNNER_TEMP/xcodebuild-archive.log"
+
+          test -d "$ARCHIVE_PATH"
 
       - name: Export IPA
         run: |
+          set -euxo pipefail
           xcodebuild -exportArchive \
-            -archivePath ios/App/build/App.xcarchive \
-            -exportPath ios/App/build \
-            -exportOptionsPlist ExportOptions.plist
+            -archivePath "$ARCHIVE_PATH" \
+            -exportPath "$EXPORT_PATH" \
+            -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
+            | tee "$RUNNER_TEMP/xcodebuild-export.log"
+
+          ls -la "$EXPORT_PATH"
+          shopt -s nullglob
+          ipas=("$EXPORT_PATH"/*.ipa)
+          if [ ${#ipas[@]} -eq 0 ]; then
+            echo "No IPA file was produced."
+            exit 1
+          fi
+
+      - name: Show iOS build output on failure
+        if: failure()
+        run: |
+          set +e
+          ls -R ios || true
+          ls -R ios/App/build || true
 
       - name: Upload IPA artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          name: ApolloNation-ipa
-          path: ios/App/build/*.ipa 
+          name: ApolloReborn-ipa
+          path: ${{ env.EXPORT_PATH }}/*.ipa
+          if-no-files-found: error
+
+      - name: Upload iOS build logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ios-build-logs
+          path: |
+            ${{ runner.temp }}/xcodebuild-archive.log
+            ${{ runner.temp }}/xcodebuild-export.log
+            ${{ runner.temp }}/profile.plist
+            ${{ env.EXPORT_OPTIONS_PLIST }}
+            ios/App/build/AppArchive.xcresult
+          if-no-files-found: warn
