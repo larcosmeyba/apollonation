@@ -99,7 +99,7 @@ jobs:
       - name: Export IPA
         run: |
           xcodebuild -exportArchive \
-            -archivePath ios/App/build/App.xcarchive \ 
+            -archivePath ios/App/build/App.xcarchive \
             -exportPath ios/App/build \
             -exportOptionsPlist ExportOptions.plist
 
@@ -107,4 +107,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ApolloNation-ipa
-          path: ios/App/build/*.ipa
+          path: ios/App/build/*.ipa 
