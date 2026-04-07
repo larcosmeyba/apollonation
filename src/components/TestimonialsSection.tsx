@@ -3,7 +3,7 @@ import { Star, User } from "lucide-react";
 const testimonials = [
   {
     name: "Marcus J.",
-    content: "Apollo Nation makes it easy to stay consistent with my workouts. The structured programs keep me on track.",
+    content: "Apollo Reborn makes it easy to stay consistent with my workouts. The structured programs keep me on track.",
     rating: 5,
     initials: "MJ",
   },

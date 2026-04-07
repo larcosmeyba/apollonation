@@ -11,7 +11,7 @@ const About = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6">
             <h1 className="text-3xl font-bold text-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Apollo Nation
+              Apollo Reborn
             </h1>
             <p className="text-sm font-medium text-white/80 mt-2">
               Built by Marcos Leyba
@@ -25,10 +25,10 @@ const About = () => {
             Our Mission
           </h2>
           <p className="text-sm text-foreground leading-relaxed">
-            Apollo Nation was created to bring structured, coach-led training to everyone — regardless of experience level, age, or fitness background. We believe that real results come from real programming, not random workouts.
+            Apollo Reborn was created to bring structured, coach-led training to everyone — regardless of experience level, age, or fitness background. We believe that real results come from real programming, not random workouts.
           </p>
           <p className="text-sm text-foreground leading-relaxed">
-            Every workout on Apollo Nation is designed with purpose. Each session follows a structured training methodology built around progressive overload, balanced programming, and recovery — the same principles used by professional athletes.
+            Every workout on Apollo Reborn is designed with purpose. Each session follows a structured training methodology built around progressive overload, balanced programming, and recovery — the same principles used by professional athletes.
           </p>
         </div>
 
@@ -38,10 +38,10 @@ const About = () => {
             Meet the Founder
           </h2>
           <p className="text-sm text-foreground leading-relaxed">
-            Marcos Leyba is a certified fitness coach and the founder of Apollo Nation. With years of experience in personal training, group coaching, and program design, Marcos has helped hundreds of clients transform their bodies and build sustainable fitness habits.
+            Marcos Leyba is a certified fitness coach and the founder of Apollo Reborn. With years of experience in personal training, group coaching, and program design, Marcos has helped hundreds of clients transform their bodies and build sustainable fitness habits.
           </p>
           <p className="text-sm text-foreground leading-relaxed">
-            His approach combines strength training, functional movement, and nutrition guidance into one cohesive system. Apollo Nation is the platform he built to scale that coaching to reach more people.
+            His approach combines strength training, functional movement, and nutrition guidance into one cohesive system. Apollo Reborn is the platform he built to scale that coaching to reach more people.
           </p>
         </div>
 

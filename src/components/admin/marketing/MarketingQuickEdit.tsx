@@ -167,7 +167,7 @@ async function renderEdit(canvas: HTMLCanvasElement, imageUrl: string, state: Ed
     ctx.letterSpacing = "0px";
   }
 
-  // Apollo Nation logo
+  // Apollo Reborn logo
   if (state.showLogo) {
     const logoFontSize = Math.round(14 * scale);
     ctx.font = `500 ${logoFontSize}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
@@ -175,10 +175,10 @@ async function renderEdit(canvas: HTMLCanvasElement, imageUrl: string, state: Ed
     ctx.letterSpacing = `${3 * scale}px`;
 
     const pos = state.logoPosition;
-    if (pos === "top-right") { ctx.textAlign = "right"; ctx.fillText("APOLLO NATION", W - pad, pad); }
-    else if (pos === "top-left") { ctx.textAlign = "left"; ctx.fillText("APOLLO NATION", pad, pad); }
-    else if (pos === "bottom-right") { ctx.textAlign = "right"; ctx.fillText("APOLLO NATION", W - pad, H - pad); }
-    else { ctx.textAlign = "left"; ctx.fillText("APOLLO NATION", pad, H - pad); }
+    if (pos === "top-right") { ctx.textAlign = "right"; ctx.fillText("APOLLO REBORN", W - pad, pad); }
+    else if (pos === "top-left") { ctx.textAlign = "left"; ctx.fillText("APOLLO REBORN", pad, pad); }
+    else if (pos === "bottom-right") { ctx.textAlign = "right"; ctx.fillText("APOLLO REBORN", W - pad, H - pad); }
+    else { ctx.textAlign = "left"; ctx.fillText("APOLLO REBORN", pad, H - pad); }
     ctx.letterSpacing = "0px";
   }
 }
@@ -377,7 +377,7 @@ const MarketingQuickEdit = () => {
               <CardContent className="space-y-3">
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <input type="checkbox" checked={state.showLogo} onChange={e => update("showLogo", e.target.checked)} className="rounded border-border" />
-                  <span className="text-muted-foreground text-xs">Add "Apollo Nation" logo</span>
+                  <span className="text-muted-foreground text-xs">Add "Apollo Reborn" logo</span>
                 </label>
                 {state.showLogo && (
                   <div>

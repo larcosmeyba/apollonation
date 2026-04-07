@@ -463,7 +463,7 @@ const AdminUsers = () => {
       <Dialog open={isAppDialogOpen} onOpenChange={setIsAppDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Apollo Nation App Access</DialogTitle>
+            <DialogTitle>Apollo Reborn App Access</DialogTitle>
             <DialogDescription>
               Use these credentials to manually set up app access for {selectedUserForApp?.display_name || "this user"}
             </DialogDescription>
@@ -490,7 +490,7 @@ const AdminUsers = () => {
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              💡 The user will use the same email/password they created on the website to log into the Apollo Nation mobile app.
+              💡 The user will use the same email/password they created on the website to log into the Apollo Reborn mobile app.
             </p>
           </div>
         </DialogContent>

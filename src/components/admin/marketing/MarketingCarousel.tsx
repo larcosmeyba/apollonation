@@ -164,7 +164,7 @@ function drawSlideText(ctx: CanvasRenderingContext2D, W: number, H: number, slid
   ctx.fillStyle = "rgba(242,242,242,0.5)";
   ctx.letterSpacing = `${3 * scale}px`;
   ctx.textAlign = "right";
-  ctx.fillText("APOLLO NATION", W - pad, pad - 10 * scale);
+  ctx.fillText("APOLLO REBORN", W - pad, pad - 10 * scale);
   ctx.letterSpacing = "0px";
 }
 

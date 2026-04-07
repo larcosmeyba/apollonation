@@ -66,9 +66,9 @@ const PlanReady = () => {
       <div className="border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <Link to="/" className="flex items-center gap-3">
-            <img src={apolloLogo} alt="Apollo Nation" className="w-10 h-10 invert" />
+            <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" />
             <span className="font-heading text-lg tracking-wider">
-              APOLLO <span className="text-primary">NATION</span>
+              APOLLO <span className="text-primary">REBORN</span>
             </span>
           </Link>
         </div>

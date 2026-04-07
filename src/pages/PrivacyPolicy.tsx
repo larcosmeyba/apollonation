@@ -7,7 +7,7 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Privacy Policy"
-        description="Apollo Nation's privacy policy. Learn how we collect, use, and protect your personal information."
+        description="Apollo Reborn's privacy policy. Learn how we collect, use, and protect your personal information."
         path="/privacy"
       />
       <Navbar />
@@ -21,7 +21,7 @@ const PrivacyPolicy = () => {
             <strong>Effective Date:</strong> {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
           <p>
-            Apollo Fitness LLC, operating as Apollo Nation ("we," "us," or "our"), is committed to protecting your privacy. 
+            Apollo Fitness LLC, operating as Apollo Reborn ("we," "us," or "our"), is committed to protecting your privacy. 
             This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website 
             and mobile application (collectively, the "Services").
           </p>

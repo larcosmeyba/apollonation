@@ -64,7 +64,7 @@ serve(async (req) => {
 ${photoContext}
 Design specs:
 - ${styleDesc}
-- Premium, luxury fitness brand called "Apollo Nation"
+- Premium, luxury fitness brand called "Apollo Reborn"
 - The image should look like a high-end fitness brand advertisement
 - Use bold, clean typography
 - Include these text elements prominently displayed:

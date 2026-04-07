@@ -40,7 +40,7 @@ const PricingSection = () => {
             </div>
 
             <div className="text-center mb-10 pt-4">
-              <h3 className="font-heading text-xl tracking-[0.1em] mb-3 text-foreground">Apollo Nation</h3>
+              <h3 className="font-heading text-xl tracking-[0.1em] mb-3 text-foreground">Apollo Reborn</h3>
               <p className="text-foreground/60 text-xs font-light mb-6">
                 Everything you need to train, fuel, and transform.
               </p>

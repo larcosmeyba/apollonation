@@ -22,7 +22,7 @@ const BlockSlide = ({ blockLabel, exercises, slideNumber, totalSlides }: BlockSl
       <div className="absolute inset-0 bg-background/70" />
 
       {/* Logo */}
-      <img src={apolloLogo} alt="Apollo Nation" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
+      <img src={apolloLogo} alt="Apollo Reborn" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
 
       {/* Slide counter */}
       <div className="absolute top-6 left-6 text-xs tracking-[0.2em] text-muted-foreground z-20">

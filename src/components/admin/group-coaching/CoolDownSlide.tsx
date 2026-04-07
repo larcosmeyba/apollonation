@@ -17,7 +17,7 @@ const CoolDownSlide = ({ appUrl = "https://apollonation.lovable.app" }: CoolDown
       <div className="absolute inset-0 bg-background/70" />
 
       {/* Logo */}
-      <img src={apolloLogo} alt="Apollo Nation" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
+      <img src={apolloLogo} alt="Apollo Reborn" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
 
       {/* Content — split layout */}
       <div className="relative z-10 flex w-full h-full items-center">
@@ -50,17 +50,17 @@ const CoolDownSlide = ({ appUrl = "https://apollonation.lovable.app" }: CoolDown
         {/* Right side — QR code + app promo */}
         <div className="hidden md:flex flex-1 flex-col items-center justify-center p-8 gap-6">
           <div className="bg-card/80 border border-border rounded-2xl p-10 flex flex-col items-center gap-6 backdrop-blur-sm">
-            <img src={apolloLogo} alt="Apollo Nation" className="w-20 h-20 object-contain invert" />
+            <img src={apolloLogo} alt="Apollo Reborn" className="w-20 h-20 object-contain invert" />
 
             <div className="text-center space-y-2">
-              <h3 className="font-heading text-xl tracking-[0.15em] text-foreground">APOLLO NATION</h3>
+              <h3 className="font-heading text-xl tracking-[0.15em] text-foreground">APOLLO REBORN</h3>
               <p className="text-sm text-muted-foreground">Training, nutrition & coaching — all in one place</p>
             </div>
 
             <div className="bg-white rounded-xl p-4">
               <img
                 src={qrUrl}
-                alt="Scan to visit Apollo Nation"
+                alt="Scan to visit Apollo Reborn"
                 className="w-44 h-44"
               />
             </div>

@@ -16,7 +16,7 @@ function buildEmail(recipientName: string, messageBody: string, type: "direct" |
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #0a0a0a; color: #e5e5e5;">
       <div style="text-align: center; margin-bottom: 32px;">
         <h1 style="font-size: 24px; letter-spacing: 0.05em; margin: 0; color: #ffffff;">
-          APOLLO <span style="color: #3b82f6;">NATION</span>
+          APOLLO <span style="color: #3b82f6;">REBORN</span>
         </h1>
       </div>
       <div style="background-color: #141414; border: 1px solid #262626; border-radius: 8px; padding: 32px; margin-bottom: 24px;">
@@ -24,7 +24,7 @@ function buildEmail(recipientName: string, messageBody: string, type: "direct" |
         <p style="margin: 0 0 20px; font-size: 16px; color: #e5e5e5;">Hey ${recipientName},</p>
         <div style="margin: 0 0 24px; font-size: 15px; color: #a3a3a3; line-height: 1.7; white-space: pre-wrap;">${messageBody}</div>
       </div>
-      <p style="text-align: center; font-size: 11px; color: #525252; margin: 0 0 8px;">© ${new Date().getFullYear()} Apollo Nation. All rights reserved.</p>
+      <p style="text-align: center; font-size: 11px; color: #525252; margin: 0 0 8px;">© ${new Date().getFullYear()} Apollo Reborn. All rights reserved.</p>
       <p style="text-align: center; font-size: 10px; color: #404040; margin: 0;">
         If you no longer wish to receive these emails, you may unsubscribe by replying with "unsubscribe".
       </p>
@@ -112,7 +112,7 @@ serve(async (req) => {
       const name = profile?.display_name || "there";
 
       await resend.emails.send({
-        from: "Apollo Nation <onboarding@resend.dev>",
+        from: "Apollo Reborn <onboarding@resend.dev>",
         to: [recipientAuth.user.email],
         subject: subject || "Message from Your Coach",
         html: buildEmail(name, message, "direct"),
@@ -148,7 +148,7 @@ serve(async (req) => {
           const name = profile?.display_name || "there";
 
           await resend.emails.send({
-            from: "Apollo Nation <onboarding@resend.dev>",
+            from: "Apollo Reborn <onboarding@resend.dev>",
             to: [recipientAuth.user.email],
             subject: subject || "A Message from the Apollo Team",
             html: buildEmail(name, message, "broadcast"),

@@ -80,7 +80,7 @@ const HEADLINE_SUGGESTIONS = [
   "Train Like a God",
   "Your Body. Your Temple.",
   "Built Different.",
-  "Join Apollo Nation",
+  "Join Apollo Reborn",
   "Unlock Your Potential",
   "Personalized Coaching",
   "Stop Guessing. Start Training.",
@@ -348,7 +348,7 @@ function drawText(
     ctx.fillStyle = "rgba(242,242,242,0.5)";
     ctx.letterSpacing = `${3 * scale}px`;
     ctx.textAlign = "right";
-    ctx.fillText("APOLLO NATION", W - pad, pad - 10 * scale);
+    ctx.fillText("APOLLO REBORN", W - pad, pad - 10 * scale);
     ctx.letterSpacing = "0px";
     ctx.textAlign = textAlign;
   }
@@ -736,7 +736,7 @@ const AdminMarketing = () => {
                       onChange={(e) => setShowLogo(e.target.checked)}
                       className="rounded border-border"
                     />
-                    <span className="text-muted-foreground">Show "Apollo Nation" watermark</span>
+                    <span className="text-muted-foreground">Show "Apollo Reborn" watermark</span>
                   </label>
                 </CardContent>
               </Card>

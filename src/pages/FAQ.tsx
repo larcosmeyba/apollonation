@@ -3,16 +3,16 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 const faqs = [
   {
-    q: "What is Apollo Nation?",
-    a: "Apollo Nation is a premium fitness platform built by coach Marcos Leyba. It offers structured on-demand workouts, personalized training programs, nutrition planning, and direct coach access — all in one app.",
+    q: "What is Apollo Reborn?",
+    a: "Apollo Reborn is a premium fitness platform built by coach Marcos Leyba. It offers structured on-demand workouts, personalized training programs, nutrition planning, and direct coach access — all in one app.",
   },
   {
     q: "How do I subscribe?",
-    a: "You can subscribe directly through the Apple App Store. Once you download the Apollo Nation app, you'll be able to choose a membership plan and start training immediately.",
+    a: "You can subscribe directly through the Apple App Store. Once you download the Apollo Reborn app, you'll be able to choose a membership plan and start training immediately.",
   },
   {
     q: "What types of workouts are available?",
-    a: "Apollo Nation offers a wide range of workout styles including Strength, HIIT, Sculpt, Cardio, Core, Stretch, Yoga, and Senior-focused classes. New workouts are added every week.",
+    a: "Apollo Reborn offers a wide range of workout styles including Strength, HIIT, Sculpt, Cardio, Core, Stretch, Yoga, and Senior-focused classes. New workouts are added every week.",
   },
   {
     q: "Do I need equipment?",
@@ -32,11 +32,11 @@ const faqs = [
   },
   {
     q: "Can I message my coach?",
-    a: "Yes. Apollo Nation includes direct messaging with your coach so you can ask questions, get form checks, and stay accountable.",
+    a: "Yes. Apollo Reborn includes direct messaging with your coach so you can ask questions, get form checks, and stay accountable.",
   },
   {
     q: "What if I'm a complete beginner?",
-    a: "Apollo Nation is built for all fitness levels. Workouts range from beginner-friendly to advanced. Your coach can also help guide you to the right starting point based on your experience.",
+    a: "Apollo Reborn is built for all fitness levels. Workouts range from beginner-friendly to advanced. Your coach can also help guide you to the right starting point based on your experience.",
   },
   {
     q: "How do I cancel my subscription?",
@@ -61,7 +61,7 @@ const FAQ = () => {
             FAQ
           </h1>
           <p className="text-sm text-foreground/60 mt-2">
-            Everything you need to know about Apollo Nation.
+            Everything you need to know about Apollo Reborn.
           </p>
         </div>
 

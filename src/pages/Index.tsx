@@ -55,12 +55,12 @@ const Index = () => {
     <main className="min-h-screen overflow-x-hidden w-full bg-background">
       <SEOHead
         path="/"
-        description="Apollo Nation — premium fitness platform with 100+ structured workouts, training programs, and nutrition guidance. Download the app today."
+        description="Apollo Reborn — premium fitness platform with 100+ structured workouts, training programs, and nutrition guidance. Download the app today."
         jsonLd={[
           {
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: "Apollo Nation",
+            name: "Apollo Reborn",
             url: "https://www.www-apollo.com",
             logo: "https://www.www-apollo.com/favicon.png",
             description: "Premium on-demand fitness platform.",
@@ -83,7 +83,7 @@ const Index = () => {
         </video>
         <img
           src={heroImage}
-          alt="Apollo Nation athlete training"
+          alt="Apollo Reborn athlete training"
           fetchPriority="high"
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover object-[50%_30%] -z-[1]"
@@ -103,7 +103,7 @@ const Index = () => {
             <p
               className={`text-lg md:text-xl text-white max-w-xl mx-auto mb-10 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
-              Apollo Nation is a modern training platform designed to help you build strength, discipline, and longevity.
+              Apollo Reborn is a modern training platform designed to help you build strength, discipline, and longevity.
             </p>
 
             <div
@@ -273,7 +273,7 @@ const Index = () => {
               Built By a Coach Who Understands Training
             </h2>
             <p className="text-white text-base leading-relaxed mb-8">
-              Apollo Nation was founded by Marcos Leyba to create a budget-friendly way to help people get fit at home and achieve their nutrition goals. Every workout, program, and meal plan is built with purpose — structured training that delivers real results without the chaos of traditional gym culture.
+              Apollo Reborn was founded by Marcos Leyba to create a budget-friendly way to help people get fit at home and achieve their nutrition goals. Every workout, program, and meal plan is built with purpose — structured training that delivers real results without the chaos of traditional gym culture.
             </p>
           </div>
         </div>
@@ -287,7 +287,7 @@ const Index = () => {
               Start Training Today
             </h2>
             <p className="text-white text-base leading-relaxed mb-6 max-w-md mx-auto">
-              Download Apollo Nation and get access to structured workouts, training programs, and nutrition tools.
+              Download Apollo Reborn and get access to structured workouts, training programs, and nutrition tools.
             </p>
 
             <div className="flex items-center justify-center gap-3 mb-4">
