@@ -87,12 +87,18 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Bootstrap and sync iOS project
+      - name: Ensure iOS platform exists
         run: |
           set -euxo pipefail
           if [ ! -d "$IOS_PROJECT_DIR" ]; then
-            ./node_modules/.bin/cap add ios --no-sync
+            ./node_modules/.bin/cap add ios
+          else
+            echo "iOS platform already exists"
           fi
+
+      - name: Sync Capacitor iOS
+        run: |
+          set -euxo pipefail
           ./node_modules/.bin/cap sync ios
           ls -la ios
           ls -la "$IOS_PROJECT_DIR"
