@@ -19,8 +19,14 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Install Capacitor CLI
+        run: npm install -D @capacitor/cli @capacitor/core @capacitor/ios --legacy-peer-deps
+
       - name: Build web app
         run: npm run build
+
+      - name: Add iOS platform
+        run: npx cap add ios || true
 
       - name: Sync Capacitor iOS
         run: npx cap sync ios
