@@ -78,7 +78,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
             <img src={apolloLogo} alt="Apollo Reborn" className="w-8 h-8 invert" />
             <div className="hidden sm:block">
               <span className="font-heading text-sm tracking-wider text-foreground">
-                APOLLO <span className="text-primary">NATION</span>
+                APOLLO <span className="text-primary">REBORN</span>
               </span>
               <span className="text-[9px] uppercase tracking-widest text-primary/70 block leading-none">
                 Coach Panel

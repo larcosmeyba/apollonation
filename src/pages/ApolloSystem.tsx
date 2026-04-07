@@ -18,7 +18,7 @@ const ApolloSystem = () => {
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xs text-primary uppercase tracking-[0.3em] mb-4 font-medium">The Philosophy</p>
           <h1 className="font-heading text-4xl md:text-6xl tracking-wide mb-6">
-            THE APOLLO <span className="text-primary">SYSTEM</span>
+            THE APOLLO REBORN <span className="text-primary">SYSTEM</span>
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Apollo Reborn isn't just a fitness app. It's a complete training system designed to transform your body through science-backed programming, structured nutrition, and relentless accountability.

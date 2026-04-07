@@ -68,7 +68,7 @@ const PlanReady = () => {
           <Link to="/" className="flex items-center gap-3">
             <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" />
             <span className="font-heading text-lg tracking-wider">
-              APOLLO <span className="text-primary">NATION</span>
+              APOLLO <span className="text-primary">REBORN</span>
             </span>
           </Link>
         </div>

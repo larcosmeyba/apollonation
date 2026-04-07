@@ -112,7 +112,7 @@ const Auth = () => {
           <div className="flex items-center gap-3 mb-6">
             <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" />
             <span className="font-heading text-lg tracking-[0.15em]">
-              APOLLO <span className="text-foreground/60">NATION</span>
+              APOLLO <span className="text-foreground/60">REBORN</span>
             </span>
           </div>
           <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-sm">
@@ -130,7 +130,7 @@ const Auth = () => {
           <div className="lg:hidden flex items-center gap-3 mb-10">
             <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" />
             <span className="font-heading text-lg tracking-[0.15em]">
-              APOLLO <span className="text-foreground/60">NATION</span>
+              APOLLO <span className="text-foreground/60">REBORN</span>
             </span>
           </div>
 
