@@ -1,0 +1,113 @@
+name: Build Android AAB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build signed Android AAB
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      BUNDLE_ID: com.apollonation.app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Ensure Capacitor packages exist
+        run: |
+          set -euxo pipefail
+          if [ ! -x ./node_modules/.bin/cap ]; then
+            npm install --no-save @capacitor/cli @capacitor/core @capacitor/ios @capacitor/android
+          fi
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Ensure Android platform exists
+        run: |
+          set -euxo pipefail
+          if [ ! -d android ]; then
+            ./node_modules/.bin/cap add android
+          else
+            echo "Android platform already exists"
+          fi
+
+      - name: Sync Capacitor Android
+        run: |
+          set -euxo pipefail
+          ./node_modules/.bin/cap sync android
+
+      - name: Decode keystore
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ANDROID_KEYSTORE:-}" ]; then
+            echo "Missing ANDROID_KEYSTORE secret"
+            exit 1
+          fi
+          echo -n "$ANDROID_KEYSTORE" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Build signed AAB
+        env:
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          set -euxo pipefail
+          cd android
+
+          cat > app/keystore.properties <<EOF
+          storeFile=upload-keystore.jks
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          keyPassword=$ANDROID_KEY_PASSWORD
+          EOF
+
+          chmod +x gradlew
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=$(pwd)/app/upload-keystore.jks \
+            -Pandroid.injected.signing.store.password="$ANDROID_STORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$ANDROID_KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD"
+
+      - name: Verify AAB exists
+        run: |
+          set -euo pipefail
+          AAB=$(find android/app/build/outputs/bundle/release -name '*.aab' | head -1)
+          if [ -z "$AAB" ]; then
+            echo "No AAB file produced"
+            exit 1
+          fi
+          echo "AAB built: $AAB"
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ApolloReborn-aab
+          path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+
+      - name: Show build output on failure
+        if: failure()
+        run: |
+          set +e
+          ls -R android/app/build/outputs || true
