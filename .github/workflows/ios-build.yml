@@ -99,7 +99,7 @@ jobs:
       - name: Export IPA
         run: |
           xcodebuild -exportArchive \
-            -archivePath ios/App/build/App.xcarchive \
+            -archivePath ios/App/build/App.xcarchive \ 
             -exportPath ios/App/build \
             -exportOptionsPlist ExportOptions.plist
 
