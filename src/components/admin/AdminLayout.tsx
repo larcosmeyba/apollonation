@@ -75,7 +75,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
             onClick={() => onTabChange("dashboard")}
             className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
           >
-            <img src={apolloLogo} alt="Apollo Nation" className="w-8 h-8 invert" />
+            <img src={apolloLogo} alt="Apollo Reborn" className="w-8 h-8 invert" />
             <div className="hidden sm:block">
               <span className="font-heading text-sm tracking-wider text-foreground">
                 APOLLO <span className="text-primary">NATION</span>

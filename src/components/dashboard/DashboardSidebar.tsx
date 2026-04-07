@@ -35,7 +35,7 @@ const DashboardSidebar = () => {
       <div className="px-5 py-6">
         <Link to="/dashboard">
           <span className="text-[10px] font-bold tracking-[0.3em] text-foreground/90 uppercase">
-            Apollo Nation
+            Apollo Reborn
           </span>
         </Link>
       </div>

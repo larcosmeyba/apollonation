@@ -25,7 +25,7 @@ const GallerySection = () => {
             <span className="text-gradient-gold block">GOD</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Dedication. Discipline. Dominance. This is what it means to be part of Apollo Nation.
+            Dedication. Discipline. Dominance. This is what it means to be part of Apollo Reborn.
           </p>
         </div>
 

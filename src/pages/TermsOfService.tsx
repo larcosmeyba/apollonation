@@ -7,7 +7,7 @@ const TermsOfService = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Terms of Service"
-        description="Apollo Nation's terms of service. Read the terms and conditions governing your use of our fitness platform."
+        description="Apollo Reborn's terms of service. Read the terms and conditions governing your use of our fitness platform."
         path="/terms"
       />
       <Navbar />
@@ -21,7 +21,7 @@ const TermsOfService = () => {
             <strong>Effective Date:</strong> {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
           <p>
-            Welcome to Apollo Nation. These Terms of Service ("Terms") govern your use of the website and mobile application 
+            Welcome to Apollo Reborn. These Terms of Service ("Terms") govern your use of the website and mobile application 
             (collectively, the "Services") operated by Apollo Fitness LLC ("we," "us," or "our"). 
             By accessing or using our Services, you agree to be bound by these Terms.
           </p>

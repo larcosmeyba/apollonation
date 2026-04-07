@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 const SITE_URL = "https://www.www-apollo.com";
-const SITE_NAME = "Apollo Nation";
+const SITE_NAME = "Apollo Reborn";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
 interface SEOHeadProps {
@@ -16,7 +16,7 @@ interface SEOHeadProps {
 
 const SEOHead = ({
   title,
-  description = "On-demand workouts, structured training programs, and practical nutrition guidance. Train anytime, anywhere with Apollo Nation.",
+  description = "On-demand workouts, structured training programs, and practical nutrition guidance. Train anytime, anywhere with Apollo Reborn.",
   path = "/",
   image = DEFAULT_IMAGE,
   type = "website",

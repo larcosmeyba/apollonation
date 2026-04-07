@@ -103,7 +103,7 @@ Make the recipes practical, healthy, and delicious. Include precise measurements
         messages: [
           {
             role: "system",
-            content: `You are a professional sports nutrition chef creating recipes for a premium fitness coaching platform called Apollo Nation. 
+            content: `You are a professional sports nutrition chef creating recipes for a premium fitness coaching platform called Apollo Reborn. 
 
 You MUST respond with ONLY valid JSON (no markdown, no code blocks, no extra text) in this exact format:
 {

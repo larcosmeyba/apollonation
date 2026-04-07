@@ -213,7 +213,7 @@ const Questionnaire = () => {
       <div className="border-b border-border/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={apolloLogo} alt="Apollo Nation" className="w-10 h-10 invert" />
+            <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" />
             <span className="font-heading text-lg tracking-wider">
               APOLLO <span className="text-primary">NATION</span>
             </span>
@@ -396,8 +396,8 @@ const Questionnaire = () => {
                 <h3 className="font-heading text-sm tracking-wide text-foreground">Waiver of Release</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   By checking the box below, I acknowledge and agree that I am voluntarily participating in
-                  fitness and nutrition programs provided by Apollo Nation. I understand that physical exercise
-                  and dietary changes carry inherent risks, and I release Apollo Nation, Coach Marcos, and all
+                  fitness and nutrition programs provided by Apollo Reborn. I understand that physical exercise
+                  and dietary changes carry inherent risks, and I release Apollo Reborn, Coach Marcos, and all
                   associated staff from any and all liability for injury, illness, or adverse health effects that
                   may result from following the prescribed training and nutrition programs. I confirm that I have
                   consulted with a physician and am physically fit to participate in exercise programs. I understand

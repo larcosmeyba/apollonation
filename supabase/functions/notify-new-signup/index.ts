@@ -39,7 +39,7 @@ serve(async (req) => {
     const resend = new Resend(resendApiKey);
 
     const emailResponse = await resend.emails.send({
-      from: "Apollo Nation <onboarding@resend.dev>",
+      from: "Apollo Reborn <onboarding@resend.dev>",
       to: [ADMIN_EMAIL],
       subject: `New Client Signup: ${displayName}`,
       html: `
@@ -60,7 +60,7 @@ serve(async (req) => {
               <a href="https://apollonation.lovable.app/admin" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 32px; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.05em;">VIEW IN ADMIN</a>
             </div>
           </div>
-          <p style="text-align: center; font-size: 12px; color: #525252; margin: 0;">© ${new Date().getFullYear()} Apollo Nation. All rights reserved.</p>
+          <p style="text-align: center; font-size: 12px; color: #525252; margin: 0;">© ${new Date().getFullYear()} Apollo Reborn. All rights reserved.</p>
         </div>
       `,
     });

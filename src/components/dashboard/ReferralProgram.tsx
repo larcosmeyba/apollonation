@@ -57,7 +57,7 @@ const ReferralProgram = () => {
     const shareUrl = `${window.location.origin}/auth?ref=${referralCode.code}`;
     if (navigator.share) {
       await navigator.share({
-        title: "Join Apollo Nation",
+        title: "Join Apollo Reborn",
         text: `Use my referral code ${referralCode.code} to get ${referralCode.discount_percent}% off!`,
         url: shareUrl,
       });

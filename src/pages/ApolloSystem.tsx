@@ -8,7 +8,7 @@ const ApolloSystem = () => {
     <main className="min-h-screen overflow-x-hidden w-full">
       <SEOHead
         path="/system"
-        title="The Apollo System | Apollo Nation"
+        title="The Apollo System | Apollo Reborn"
         description="Discover the Apollo Method — a structured training system built around progressive overload, hypertrophy science, and disciplined recovery cycles."
       />
       <Navbar />
@@ -21,7 +21,7 @@ const ApolloSystem = () => {
             THE APOLLO <span className="text-primary">SYSTEM</span>
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Apollo Nation isn't just a fitness app. It's a complete training system designed to transform your body through science-backed programming, structured nutrition, and relentless accountability.
+            Apollo Reborn isn't just a fitness app. It's a complete training system designed to transform your body through science-backed programming, structured nutrition, and relentless accountability.
           </p>
         </div>
       </section>
@@ -70,7 +70,7 @@ const ApolloSystem = () => {
             </div>
           </div>
           <p className="text-muted-foreground leading-relaxed mb-8 max-w-3xl">
-            Apollo Nation programs operate in structured 6-week phases designed to optimize muscle growth, strength progression, and recovery. Each phase builds on the last.
+            Apollo Reborn programs operate in structured 6-week phases designed to optimize muscle growth, strength progression, and recovery. Each phase builds on the last.
           </p>
           <div className="space-y-4">
             {[

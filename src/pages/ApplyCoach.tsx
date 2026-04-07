@@ -60,7 +60,7 @@ const ApplyCoach = () => {
             Apply to Become a Coach
           </h1>
           <p className="text-white/70 text-base mb-8">
-            Join the Apollo Nation™ coaching team. Fill out the form below and we'll review your application.
+            Join the Apollo Reborn™ coaching team. Fill out the form below and we'll review your application.
           </p>
 
           {submitted ? (
@@ -125,7 +125,7 @@ const ApplyCoach = () => {
               </div>
 
               <div>
-                <Label htmlFor="reason" className="text-white font-semibold text-sm">Why do you want to join Apollo Nation?</Label>
+                <Label htmlFor="reason" className="text-white font-semibold text-sm">Why do you want to join Apollo Reborn?</Label>
                 <Textarea
                   id="reason"
                   value={form.reason}

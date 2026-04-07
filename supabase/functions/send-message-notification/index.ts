@@ -22,7 +22,7 @@ function buildEmail(name: string, body: string, link: string) {
           <a href="${link}" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 32px; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.05em;">VIEW MESSAGE</a>
         </div>
       </div>
-      <p style="text-align: center; font-size: 12px; color: #525252; margin: 0;">© ${new Date().getFullYear()} Apollo Nation. All rights reserved.</p>
+      <p style="text-align: center; font-size: 12px; color: #525252; margin: 0;">© ${new Date().getFullYear()} Apollo Reborn. All rights reserved.</p>
     </div>
   `;
 }
@@ -119,7 +119,7 @@ serve(async (req) => {
       const recipientEmail = recipientData.user.email;
 
       const emailResponse = await resend.emails.send({
-        from: "Apollo Nation <onboarding@resend.dev>",
+        from: "Apollo Reborn <onboarding@resend.dev>",
         to: [recipientEmail],
         subject: "Coach Marcos sent you a message",
         html: buildEmail(recipientName, "Coach Marcos just sent you a new message. Log in to your dashboard to read and reply.", "https://apollonation.lovable.app/dashboard/messages"),
@@ -141,7 +141,7 @@ serve(async (req) => {
       const clientName = senderProfile?.display_name || "A client";
 
       const emailResponse = await resend.emails.send({
-        from: "Apollo Nation <onboarding@resend.dev>",
+        from: "Apollo Reborn <onboarding@resend.dev>",
         to: [ADMIN_EMAIL],
         subject: `${clientName} sent you a message`,
         html: buildEmail("Coach", `${clientName} just sent you a new message. Log in to your admin panel to read and reply.`, "https://apollonation.lovable.app/admin"),

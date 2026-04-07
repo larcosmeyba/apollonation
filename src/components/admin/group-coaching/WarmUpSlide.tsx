@@ -9,7 +9,7 @@ const WarmUpSlide = () => {
       />
       <div className="absolute inset-0 bg-background/70" />
 
-      <img src={apolloLogo} alt="Apollo Nation" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
+      <img src={apolloLogo} alt="Apollo Reborn" className="absolute top-6 right-6 w-10 h-10 opacity-80 object-contain z-20 invert" />
 
       <div className="relative z-10 flex flex-col items-center gap-8 text-center px-8">
         <div className="w-20 h-20 rounded-full border-2 border-foreground/20 flex items-center justify-center">
