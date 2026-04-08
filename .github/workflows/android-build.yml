@@ -57,15 +57,52 @@ jobs:
           set -euxo pipefail
           ./node_modules/.bin/cap sync android
 
+      - name: Force Java 17 across all modules
+        run: |
+          set -euxo pipefail
+          cd android
+
+          # Patch every build.gradle to use Java 17 instead of 21
+          find . -name 'build.gradle' -type f | while read f; do
+            sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$f"
+            sed -i "s/jvmTarget = '21'/jvmTarget = '17'/g" "$f"
+            sed -i 's/jvmTarget = "21"/jvmTarget = "17"/g' "$f"
+            sed -i 's/sourceCompatibility = 21/sourceCompatibility = 17/g' "$f"
+            sed -i 's/targetCompatibility = 21/targetCompatibility = 17/g' "$f"
+          done
+
+          # Also patch build.gradle.kts files
+          find . -name 'build.gradle.kts' -type f | while read f; do
+            sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$f"
+            sed -i "s/jvmTarget = \"21\"/jvmTarget = \"17\"/g" "$f"
+          done
+
+          echo "All build files patched to Java 17"
+
+      - name: Validate signing secrets
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          MISSING=""
+          [ -z "${ANDROID_KEYSTORE:-}" ] && MISSING="$MISSING ANDROID_KEYSTORE"
+          [ -z "${ANDROID_KEY_ALIAS:-}" ] && MISSING="$MISSING ANDROID_KEY_ALIAS"
+          [ -z "${ANDROID_KEY_PASSWORD:-}" ] && MISSING="$MISSING ANDROID_KEY_PASSWORD"
+          [ -z "${ANDROID_STORE_PASSWORD:-}" ] && MISSING="$MISSING ANDROID_STORE_PASSWORD"
+          if [ -n "$MISSING" ]; then
+            echo "::error::Missing GitHub secrets:$MISSING"
+            exit 1
+          fi
+          echo "All signing secrets are set"
+
       - name: Decode keystore
         env:
           ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
         run: |
           set -euo pipefail
-          if [ -z "${ANDROID_KEYSTORE:-}" ]; then
-            echo "Missing ANDROID_KEYSTORE secret"
-            exit 1
-          fi
           echo -n "$ANDROID_KEYSTORE" | base64 --decode > android/app/upload-keystore.jks
 
       - name: Build signed AAB
@@ -76,14 +113,6 @@ jobs:
         run: |
           set -euxo pipefail
           cd android
-
-          cat > app/keystore.properties <<EOF
-          storeFile=upload-keystore.jks
-          storePassword=$ANDROID_STORE_PASSWORD
-          keyAlias=$ANDROID_KEY_ALIAS
-          keyPassword=$ANDROID_KEY_PASSWORD
-          EOF
-
           chmod +x gradlew
           ./gradlew bundleRelease \
             -Pandroid.injected.signing.store.file=$(pwd)/app/upload-keystore.jks \
