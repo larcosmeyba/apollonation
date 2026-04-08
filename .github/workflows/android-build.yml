@@ -70,7 +70,7 @@ jobs:
           } >> gradle.properties
 
           # Update Gradle wrapper to 8.7
-          sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip|' gradle/wrapper/gradle-wrapper.properties
+          sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.13-bin.zip|' gradle/wrapper/gradle-wrapper.properties
 
           # Patch ALL build.gradle and build.gradle.kts — Java 21 → 17
           find . \( -name 'build.gradle' -o -name 'build.gradle.kts' \) -type f | while read f; do
