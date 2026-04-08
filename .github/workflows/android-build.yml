@@ -57,38 +57,43 @@ jobs:
           set -euxo pipefail
           ./node_modules/.bin/cap sync android
 
-      - name: Force Java 17 across all modules
+      - name: Force Java 17 and update Gradle wrapper
         run: |
           set -euxo pipefail
           cd android
 
-          # Global gradle.properties override — most reliable way
+          # Fix gradle.properties — NO leading whitespace
           cat >> gradle.properties <<'EOF'
-          org.gradle.java.home=$JAVA_HOME
-          kotlin.jvm.target=17
-          EOF
+org.gradle.java.home=$JAVA_HOME
+kotlin.jvm.target=17
+android.useAndroidX=true
+EOF
 
-          # Patch every build.gradle to use Java 17 instead of 21
-          find . -name 'build.gradle' -type f | while read f; do
+          # Update Gradle wrapper to 8.7
+          sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip|' gradle/wrapper/gradle-wrapper.properties
+
+          # Patch ALL build.gradle and build.gradle.kts — Java 21 → 17
+          find . \( -name 'build.gradle' -o -name 'build.gradle.kts' \) -type f | while read f; do
             sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$f"
             sed -i "s/jvmTarget = '21'/jvmTarget = '17'/g" "$f"
             sed -i 's/jvmTarget = "21"/jvmTarget = "17"/g' "$f"
+            sed -i "s/jvmTarget.set('21')/jvmTarget.set('17')/g" "$f"
+            sed -i 's/jvmTarget.set("21")/jvmTarget.set("17")/g' "$f"
             sed -i 's/sourceCompatibility = 21/sourceCompatibility = 17/g' "$f"
             sed -i 's/targetCompatibility = 21/targetCompatibility = 17/g' "$f"
+            sed -i 's/sourceCompatibility JavaVersion.VERSION_21/sourceCompatibility JavaVersion.VERSION_17/g' "$f"
+            sed -i 's/targetCompatibility JavaVersion.VERSION_21/targetCompatibility JavaVersion.VERSION_17/g' "$f"
           done
 
-          # Also patch build.gradle.kts files
-          find . -name 'build.gradle.kts' -type f | while read f; do
-            sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$f"
-            sed -i "s/jvmTarget = \"21\"/jvmTarget = \"17\"/g" "$f"
-            sed -i 's/sourceCompatibility = 21/sourceCompatibility = 17/g' "$f"
-            sed -i 's/targetCompatibility = 21/targetCompatibility = 17/g' "$f"
-          done
+          # Debug: confirm no Java 21 refs remain
+          echo "=== Remaining Java 21 refs ==="
+          grep -rn 'VERSION_21\|jvmTarget.*21\|sourceCompatibility.*21\|targetCompatibility.*21' . --include='*.gradle*' || echo "None found — all patched to Java 17"
 
-          # Debug: show what Java version references remain
-          echo "=== Remaining Java version refs ==="
-          grep -rn 'VERSION_21\|jvmTarget.*21\|sourceCompatibility.*21' . --include='*.gradle*' || echo "None found — all patched"
-          echo "All build files patched to Java 17"
+          echo "=== gradle.properties ==="
+          cat gradle.properties
+
+          echo "=== Gradle wrapper version ==="
+          cat gradle/wrapper/gradle-wrapper.properties
 
       - name: Validate signing secrets
         env:
