@@ -24,7 +24,7 @@ jobs:
       ARCHIVE_PATH: ios/App/build/App.xcarchive
       EXPORT_PATH: ios/App/build/export
       EXPORT_OPTIONS_PLIST: ios/App/ExportOptions.plist
-      PROVISIONING_PROFILE_NAME: ApolloNation App Store
+      PROVISIONING_PROFILE_NAME: Apollo Nation App Store
       EXPECTED_TEAM_ID: 4APZGH6X99
 
     steps:
