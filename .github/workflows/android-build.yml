@@ -24,11 +24,11 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Setup Java 17
+      - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
@@ -57,7 +57,7 @@ jobs:
           set -euxo pipefail
           ./node_modules/.bin/cap sync android
 
-      - name: Force Java 17 and update Gradle wrapper
+      - name: Configure Gradle wrapper and properties
         run: |
           set -euxo pipefail
           cd android
@@ -65,29 +65,13 @@ jobs:
           # Fix gradle.properties
           {
             echo "org.gradle.java.home=$JAVA_HOME"
-            echo "kotlin.jvm.target=17"
+            echo "kotlin.jvm.target=21"
             echo "android.useAndroidX=true"
           } >> gradle.properties
 
           # Update Gradle wrapper to 8.7
           sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.13-bin.zip|' gradle/wrapper/gradle-wrapper.properties
 
-          # Patch ALL build.gradle and build.gradle.kts — Java 21 → 17
-          find . \( -name 'build.gradle' -o -name 'build.gradle.kts' \) -type f | while read f; do
-            sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$f"
-            sed -i "s/jvmTarget = '21'/jvmTarget = '17'/g" "$f"
-            sed -i 's/jvmTarget = "21"/jvmTarget = "17"/g' "$f"
-            sed -i "s/jvmTarget.set('21')/jvmTarget.set('17')/g" "$f"
-            sed -i 's/jvmTarget.set("21")/jvmTarget.set("17")/g' "$f"
-            sed -i 's/sourceCompatibility = 21/sourceCompatibility = 17/g' "$f"
-            sed -i 's/targetCompatibility = 21/targetCompatibility = 17/g' "$f"
-            sed -i 's/sourceCompatibility JavaVersion.VERSION_21/sourceCompatibility JavaVersion.VERSION_17/g' "$f"
-            sed -i 's/targetCompatibility JavaVersion.VERSION_21/targetCompatibility JavaVersion.VERSION_17/g' "$f"
-          done
-
-          # Debug: confirm no Java 21 refs remain
-          echo "=== Remaining Java 21 refs ==="
-          grep -rn 'VERSION_21\|jvmTarget.*21\|sourceCompatibility.*21\|targetCompatibility.*21' . --include='*.gradle*' || echo "None found — all patched to Java 17"
 
           echo "=== gradle.properties ==="
           cat gradle.properties
