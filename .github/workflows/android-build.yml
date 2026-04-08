@@ -62,12 +62,12 @@ jobs:
           set -euxo pipefail
           cd android
 
-          # Fix gradle.properties — NO leading whitespace
-          cat >> gradle.properties <<'EOF'
-org.gradle.java.home=$JAVA_HOME
-kotlin.jvm.target=17
-android.useAndroidX=true
-EOF
+          # Fix gradle.properties
+          {
+            echo "org.gradle.java.home=$JAVA_HOME"
+            echo "kotlin.jvm.target=17"
+            echo "android.useAndroidX=true"
+          } >> gradle.properties
 
           # Update Gradle wrapper to 8.7
           sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip|' gradle/wrapper/gradle-wrapper.properties
