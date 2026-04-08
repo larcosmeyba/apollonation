@@ -62,6 +62,12 @@ jobs:
           set -euxo pipefail
           cd android
 
+          # Global gradle.properties override — most reliable way
+          cat >> gradle.properties <<'EOF'
+          org.gradle.java.home=$JAVA_HOME
+          kotlin.jvm.target=17
+          EOF
+
           # Patch every build.gradle to use Java 17 instead of 21
           find . -name 'build.gradle' -type f | while read f; do
             sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$f"
@@ -75,8 +81,13 @@ jobs:
           find . -name 'build.gradle.kts' -type f | while read f; do
             sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$f"
             sed -i "s/jvmTarget = \"21\"/jvmTarget = \"17\"/g" "$f"
+            sed -i 's/sourceCompatibility = 21/sourceCompatibility = 17/g' "$f"
+            sed -i 's/targetCompatibility = 21/targetCompatibility = 17/g' "$f"
           done
 
+          # Debug: show what Java version references remain
+          echo "=== Remaining Java version refs ==="
+          grep -rn 'VERSION_21\|jvmTarget.*21\|sourceCompatibility.*21' . --include='*.gradle*' || echo "None found — all patched"
           echo "All build files patched to Java 17"
 
       - name: Validate signing secrets
