@@ -21,6 +21,7 @@ jobs:
       IOS_SCHEME: App
       IOS_PROJECT_DIR: ios/App
       IOS_PROJECT: ios/App/App.xcodeproj
+      IOS_SPM_PACKAGE: ios/App/CapApp-SPM/Package.swift
       ARCHIVE_PATH: ios/App/build/App.xcarchive
       EXPORT_PATH: ios/App/build/export
       EXPORT_OPTIONS_PLIST: ios/App/ExportOptions.plist
@@ -80,10 +81,12 @@ jobs:
       - name: Ensure iOS platform exists
         run: |
           set -euxo pipefail
-          if [ ! -d "$IOS_PROJECT_DIR" ]; then
-            ./node_modules/.bin/cap add ios
+          if [ -d "$IOS_PROJECT" ] && [ -f "$IOS_SPM_PACKAGE" ] && [ ! -f "$IOS_PROJECT_DIR/Podfile" ]; then
+            echo "iOS SPM platform already exists"
           else
-            echo "iOS platform already exists"
+            echo "Regenerating iOS platform as a Capacitor SPM project"
+            rm -rf ios
+            ./node_modules/.bin/cap add ios --packagemanager SPM
           fi
 
       - name: Sync Capacitor iOS
@@ -92,6 +95,8 @@ jobs:
           ./node_modules/.bin/cap sync ios
           ls -la "$IOS_PROJECT_DIR"
           test -d "$IOS_PROJECT"
+          test -f "$IOS_SPM_PACKAGE"
+          test ! -f "$IOS_PROJECT_DIR/Podfile"
 
       - name: Resolve Swift Package Manager dependencies
         run: |
