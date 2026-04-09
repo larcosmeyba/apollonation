@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import SplashScreen from "@/components/SplashScreen";
 import Index from "./pages/Index";
+import AppEntryRedirect from "@/components/AppEntryRedirect";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Questionnaire from "./pages/Questionnaire";
