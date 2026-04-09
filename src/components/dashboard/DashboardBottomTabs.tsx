@@ -42,7 +42,7 @@ const DashboardBottomTabs = () => {
           );
         })}
       </div>
-      <div className="h-[env(safe-area-inset-bottom)]" />
+      {/* safe area handled by paddingBottom on nav */}
     </nav>
   );
 };
