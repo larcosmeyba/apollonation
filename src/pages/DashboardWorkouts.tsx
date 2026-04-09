@@ -401,8 +401,9 @@ const DashboardWorkouts = () => {
                   <iframe
                     src={getYouTubeEmbedUrl(selectedWorkout.video_url)}
                     className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
+                    referrerPolicy="no-referrer"
                   />
                 </div>
               ) : getWorkoutThumbnail(selectedWorkout) ? (
