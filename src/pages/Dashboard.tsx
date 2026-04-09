@@ -256,7 +256,7 @@ const Dashboard = () => {
             {categories.map((cat) => (
               <Link
                 key={cat}
-                to="/dashboard/workouts"
+                to={`/dashboard/workouts?category=${cat.toLowerCase()}`}
                 className="relative rounded-2xl overflow-hidden flex-shrink-0 w-40 h-28 group shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
               >
                 <img src={CATEGORY_IMAGES[cat]} alt={cat} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
