@@ -62,11 +62,23 @@ const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch", "Senio
 const DashboardWorkouts = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"explore" | "collections">("explore");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<"explore" | "collections">(
+    searchParams.get("tab") === "collections" ? "collections" : "explore"
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
-  const [showSearch, setShowSearch] = useState(false);
+  const [showSearch, setShowSearch] = useState(searchParams.get("search") === "true");
+
+  // Handle category from URL param (e.g. from Home page category cards)
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    if (cat) {
+      const matched = TYPES.find(t => t.toLowerCase() === cat.toLowerCase());
+      if (matched) setSelectedCategory(matched);
+    }
+  }, [searchParams]);
 
   const { data: workouts = [], isLoading } = useQuery({
     queryKey: ["client-workouts"],
