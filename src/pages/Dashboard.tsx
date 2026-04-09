@@ -256,7 +256,7 @@ const Dashboard = () => {
             {categories.map((cat) => (
               <Link
                 key={cat}
-                to="/dashboard/workouts"
+                to={`/dashboard/workouts?category=${cat.toLowerCase()}`}
                 className="relative rounded-2xl overflow-hidden flex-shrink-0 w-40 h-28 group shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
               >
                 <img src={CATEGORY_IMAGES[cat]} alt={cat} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -278,12 +278,12 @@ const Dashboard = () => {
             <span className="text-sm font-bold text-foreground">View All</span>
           </div>
           <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+            <Link to="/dashboard/coach/marcos" className="flex flex-col items-center gap-2 flex-shrink-0">
               <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_12px_rgba(255,255,255,0.12),0_0_30px_rgba(255,255,255,0.05)]">
                 <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
               </div>
               <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
-            </div>
+            </Link>
           </div>
         </div>
 

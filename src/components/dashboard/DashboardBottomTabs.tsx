@@ -14,7 +14,7 @@ const DashboardBottomTabs = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-2xl border-t border-border/40 lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-2xl border-t border-border/40 lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       <div className="flex items-center justify-around h-16 px-1 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
@@ -42,7 +42,7 @@ const DashboardBottomTabs = () => {
           );
         })}
       </div>
-      <div className="h-[env(safe-area-inset-bottom)]" />
+      {/* safe area handled by paddingBottom on nav */}
     </nav>
   );
 };

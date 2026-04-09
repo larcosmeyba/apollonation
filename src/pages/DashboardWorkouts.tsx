@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -46,7 +47,7 @@ const getYouTubeVideoId = (url: string): string | null => {
 
 const getYouTubeEmbedUrl = (url: string): string => {
   const videoId = getYouTubeVideoId(url);
-  if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1`;
+  if (videoId) return `https://www.youtube.com/embed/${videoId}?playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1&origin=${encodeURIComponent(window.location.origin)}`;
   return url;
 };
 
@@ -61,11 +62,23 @@ const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch", "Senio
 const DashboardWorkouts = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"explore" | "collections">("explore");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<"explore" | "collections">(
+    searchParams.get("tab") === "collections" ? "collections" : "explore"
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
-  const [showSearch, setShowSearch] = useState(false);
+  const [showSearch, setShowSearch] = useState(searchParams.get("search") === "true");
+
+  // Handle category from URL param (e.g. from Home page category cards)
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    if (cat) {
+      const matched = TYPES.find(t => t.toLowerCase() === cat.toLowerCase());
+      if (matched) setSelectedCategory(matched);
+    }
+  }, [searchParams]);
 
   const { data: workouts = [], isLoading } = useQuery({
     queryKey: ["client-workouts"],
@@ -401,8 +414,9 @@ const DashboardWorkouts = () => {
                   <iframe
                     src={getYouTubeEmbedUrl(selectedWorkout.video_url)}
                     className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
+                    referrerPolicy="no-referrer"
                   />
                 </div>
               ) : getWorkoutThumbnail(selectedWorkout) ? (
