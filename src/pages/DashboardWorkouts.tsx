@@ -46,7 +46,7 @@ const getYouTubeVideoId = (url: string): string | null => {
 
 const getYouTubeEmbedUrl = (url: string): string => {
   const videoId = getYouTubeVideoId(url);
-  if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1`;
+  if (videoId) return `https://www.youtube.com/embed/${videoId}?playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1&origin=${encodeURIComponent(window.location.origin)}`;
   return url;
 };
 
