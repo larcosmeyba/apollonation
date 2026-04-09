@@ -47,7 +47,8 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const [splashDone, setSplashDone] = useState(false);
+  const isNative = typeof window !== "undefined" && (window as any).Capacitor?.isNativePlatform?.();
+  const [splashDone, setSplashDone] = useState(!isNative);
   const handleSplashFinish = useCallback(() => setSplashDone(true), []);
 
   return (

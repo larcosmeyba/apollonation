@@ -1,8 +1,22 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "@/contexts/AuthContext";
+import Index from "@/pages/Index";
 
 const AppEntryRedirect = () => {
+  const isNative = Capacitor.isNativePlatform();
+
+  // On the public website, just show the normal home page
+  if (!isNative) {
+    return <Index />;
+  }
+
+  // Native app: splash → auth check → dashboard
+  return <NativeAppEntry />;
+};
+
+const NativeAppEntry = () => {
   const { user, profile, loading } = useAuth();
   const [welcomeDone, setWelcomeDone] = useState(false);
 
