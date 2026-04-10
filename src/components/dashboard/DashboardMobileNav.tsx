@@ -19,7 +19,7 @@ const DashboardMobileNav = () => {
           <SheetContent side="left" className="w-72 bg-card border-border p-0">
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="px-6 pt-8 pb-6 border-b border-border">
+              <div className="px-6 pb-6 border-b border-border" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 2rem)" }}>
                 <h2 className="font-heading text-xl font-bold text-foreground">Apollo Reborn<sup className="text-[8px] ml-0.5">™</sup></h2>
               </div>
 

@@ -147,9 +147,10 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
 
         {/* ─── LEFT SIDEBAR ─── */}
         <aside
-          className={`fixed lg:relative inset-y-0 left-0 top-14 z-20 w-60 bg-card/90 backdrop-blur-sm border-r border-border flex flex-col transition-transform duration-200 lg:translate-x-0 ${
+          className={`fixed lg:relative inset-y-0 left-0 z-20 w-60 bg-card/90 backdrop-blur-sm border-r border-border flex flex-col transition-transform duration-200 lg:translate-x-0 ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
+          style={{ top: "calc(3.5rem + env(safe-area-inset-top, 0px))" }}
         >
           <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
             {navItems.map((item) => {
