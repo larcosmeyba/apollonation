@@ -4,7 +4,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Play, Search, Bookmark, BookmarkCheck, Dumbbell } from "lucide-react";
+import { Search, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -42,12 +42,16 @@ const getYouTubeVideoId = (url: string): string | null => {
   try {
     const match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]v=([a-zA-Z0-9_-]+)/) || url.match(/\/shorts\/([a-zA-Z0-9_-]+)/) || url.match(/\/embed\/([a-zA-Z0-9_-]+)/);
     return match ? match[1] : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 };
 
 const getYouTubeEmbedUrl = (url: string): string => {
   const videoId = getYouTubeVideoId(url);
-  if (videoId) return `https://www.youtube.com/embed/${videoId}?playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1&origin=${encodeURIComponent(window.location.origin)}`;
+  if (videoId) {
+    return `https://www.youtube-nocookie.com/embed/${videoId}?playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1&autoplay=1`;
+  }
   return url;
 };
 
@@ -55,6 +59,31 @@ const getYouTubeThumbnail = (url: string): string | null => {
   const videoId = getYouTubeVideoId(url);
   if (videoId) return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   return null;
+};
+
+const StorageVideoPlayer = ({ storagePath, title }: { storagePath: string; title: string }) => {
+  const [bucket, ...pathParts] = storagePath.split("/");
+  const filePath = pathParts.join("/");
+
+  const { data: signedUrl, isLoading } = useQuery({
+    queryKey: ["client-workout-video", storagePath],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600);
+      if (error) throw error;
+      return data.signedUrl;
+    },
+    staleTime: 1000 * 60 * 30,
+  });
+
+  if (isLoading || !signedUrl) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-black">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return <video src={signedUrl} controls autoPlay playsInline className="w-full h-full" title={title} />;
 };
 
 const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch", "Senior"];
@@ -71,11 +100,10 @@ const DashboardWorkouts = () => {
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [showSearch, setShowSearch] = useState(searchParams.get("search") === "true");
 
-  // Handle category from URL param (e.g. from Home page category cards)
   useEffect(() => {
     const cat = searchParams.get("category");
     if (cat) {
-      const matched = TYPES.find(t => t.toLowerCase() === cat.toLowerCase());
+      const matched = TYPES.find((t) => t.toLowerCase() === cat.toLowerCase());
       if (matched) setSelectedCategory(matched);
     }
   }, [searchParams]);
@@ -116,7 +144,7 @@ const DashboardWorkouts = () => {
         .select("workout_id")
         .eq("user_id", user.id)
         .not("workout_id", "is", null);
-      return data?.map(f => f.workout_id).filter(Boolean) as string[] || [];
+      return (data?.map((f) => f.workout_id).filter(Boolean) as string[]) || [];
     },
     enabled: !!user,
   });
@@ -145,10 +173,10 @@ const DashboardWorkouts = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const recentlyAdded = workouts.filter(w => w.created_at >= weekStart);
-  const savedWorkouts = workouts.filter(w => favorites.includes(w.id));
-  const featuredWorkouts = workouts.filter(w => w.is_featured).length > 0
-    ? workouts.filter(w => w.is_featured)
+  const recentlyAdded = workouts.filter((w) => w.created_at >= weekStart);
+  const savedWorkouts = workouts.filter((w) => favorites.includes(w.id));
+  const featuredWorkouts = workouts.filter((w) => w.is_featured).length > 0
+    ? workouts.filter((w) => w.is_featured)
     : [...workouts].sort(() => 0.5 - Math.random()).slice(0, 6);
 
   const getWorkoutThumbnail = (workout: Workout): string | null => {
@@ -161,7 +189,11 @@ const DashboardWorkouts = () => {
     const isSaved = favorites.includes(workoutId);
     return (
       <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite.mutate(workoutId); }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleFavorite.mutate(workoutId);
+        }}
         className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-colors"
       >
         {isSaved ? (
@@ -176,10 +208,7 @@ const DashboardWorkouts = () => {
   const WorkoutCard = ({ workout, index = 0 }: { workout: Workout; index?: number }) => {
     const thumb = getWorkoutThumbnail(workout) || WORKOUT_IMAGES[index % WORKOUT_IMAGES.length];
     return (
-      <button
-        onClick={() => setSelectedWorkout(workout)}
-      className="group relative overflow-hidden rounded-2xl text-left transition-all w-full"
-      >
+      <button onClick={() => setSelectedWorkout(workout)} className="group relative overflow-hidden rounded-2xl text-left transition-all w-full">
         <div className="relative overflow-hidden rounded-2xl aspect-[16/10]">
           <img
             src={thumb}
@@ -192,9 +221,7 @@ const DashboardWorkouts = () => {
             <SaveButton workoutId={workout.id} />
           </div>
           <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-sm font-bold text-white uppercase leading-tight truncate">
-              {workout.title}
-            </h3>
+            <h3 className="text-sm font-bold text-white uppercase leading-tight truncate">{workout.title}</h3>
             <p className="text-[11px] font-bold text-white mt-0.5">
               Marcos Leyba &nbsp;/&nbsp; {workout.duration_minutes} min &nbsp;/&nbsp; Train: {workout.category}
             </p>
@@ -207,8 +234,6 @@ const DashboardWorkouts = () => {
   return (
     <DashboardLayout>
       <div className="max-w-xl mx-auto space-y-6">
-
-        {/* Header */}
         <div className="flex items-center justify-between pt-2">
           <h1 className="text-3xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             On Demand
@@ -221,7 +246,6 @@ const DashboardWorkouts = () => {
           </button>
         </div>
 
-        {/* Search bar (toggleable) */}
         {showSearch && (
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
@@ -235,19 +259,16 @@ const DashboardWorkouts = () => {
           </div>
         )}
 
-        {/* Tabs */}
         <div className="border-b border-border">
           <div className="flex">
             <button
               onClick={() => setActiveTab("explore")}
               className={`flex-1 pb-3 text-sm font-bold text-center transition-colors relative ${
-              activeTab === "explore" ? "text-white" : "text-white/40"
+                activeTab === "explore" ? "text-white" : "text-white/40"
               }`}
             >
               Explore
-              {activeTab === "explore" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
-              )}
+              {activeTab === "explore" && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
             </button>
             <button
               onClick={() => setActiveTab("collections")}
@@ -256,18 +277,13 @@ const DashboardWorkouts = () => {
               }`}
             >
               Collections
-              {activeTab === "collections" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
-              )}
+              {activeTab === "collections" && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
             </button>
           </div>
         </div>
 
-        {/* Explore Tab */}
         {activeTab === "explore" && !searchQuery && !selectedCategory && (
           <div className="space-y-8">
-
-            {/* Types — 2-column grid with image backgrounds */}
             <div>
               <div className="mb-4">
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Types</h2>
@@ -293,7 +309,6 @@ const DashboardWorkouts = () => {
               </div>
             </div>
 
-            {/* Recently Added */}
             {recentlyAdded.length > 0 && (
               <div>
                 <div className="mb-4">
@@ -309,7 +324,6 @@ const DashboardWorkouts = () => {
               </div>
             )}
 
-            {/* Instructors */}
             <div>
               <div className="mb-4">
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Instructors</h2>
@@ -324,7 +338,6 @@ const DashboardWorkouts = () => {
               </div>
             </div>
 
-            {/* Featured */}
             {featuredWorkouts.length > 0 && workouts.length > 0 && (
               <div>
                 <div className="mb-4">
@@ -340,7 +353,6 @@ const DashboardWorkouts = () => {
               </div>
             )}
 
-            {/* All Classes */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>All Classes</h2>
@@ -358,15 +370,11 @@ const DashboardWorkouts = () => {
           </div>
         )}
 
-        {/* Explore Tab — filtered/search results */}
         {activeTab === "explore" && (searchQuery || selectedCategory) && (
           <div className="space-y-6">
             {selectedCategory && (
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className="text-xs font-bold text-foreground"
-                >
+                <button onClick={() => setSelectedCategory(null)} className="text-xs font-bold text-foreground">
                   ← Back
                 </button>
                 <span className="text-lg font-bold text-foreground">{selectedCategory}</span>
@@ -384,7 +392,6 @@ const DashboardWorkouts = () => {
           </div>
         )}
 
-        {/* Collections Tab */}
         {activeTab === "collections" && (
           <div className="space-y-6">
             {savedWorkouts.length === 0 ? (
@@ -404,21 +411,27 @@ const DashboardWorkouts = () => {
         )}
       </div>
 
-      {/* Detail Modal */}
       <Dialog open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
           {selectedWorkout && (
             <>
               {selectedWorkout.video_url ? (
-                <div className="relative aspect-video w-full">
-                  <iframe
-                    src={getYouTubeEmbedUrl(selectedWorkout.video_url)}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
+                selectedWorkout.video_url.startsWith("storage:") ? (
+                  <div className="relative aspect-video w-full bg-black">
+                    <StorageVideoPlayer storagePath={selectedWorkout.video_url.replace("storage:", "")} title={selectedWorkout.title} />
+                  </div>
+                ) : (
+                  <div className="relative aspect-video w-full bg-black">
+                    <iframe
+                      src={getYouTubeEmbedUrl(selectedWorkout.video_url)}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      referrerPolicy="no-referrer"
+                      title={selectedWorkout.title}
+                    />
+                  </div>
+                )
               ) : getWorkoutThumbnail(selectedWorkout) ? (
                 <div className="relative aspect-video w-full overflow-hidden">
                   <img src={getWorkoutThumbnail(selectedWorkout)!} alt={selectedWorkout.title} className="w-full h-full object-cover" />
@@ -428,13 +441,9 @@ const DashboardWorkouts = () => {
               <ScrollArea className="max-h-[60vh]">
                 <div className="p-5 space-y-4">
                   <DialogHeader>
-                    <p className="text-[10px] text-white uppercase tracking-[0.15em] font-bold mb-1">
-                      {selectedWorkout.category}
-                    </p>
+                    <p className="text-[10px] text-white uppercase tracking-[0.15em] font-bold mb-1">{selectedWorkout.category}</p>
                     <DialogTitle className="text-xl font-bold text-foreground">{selectedWorkout.title}</DialogTitle>
-                    {selectedWorkout.description && (
-                      <p className="text-white text-sm mt-1">{selectedWorkout.description}</p>
-                    )}
+                    {selectedWorkout.description && <p className="text-white text-sm mt-1">{selectedWorkout.description}</p>}
                   </DialogHeader>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -465,7 +474,9 @@ const DashboardWorkouts = () => {
                                 <span>{we.sets}×{we.reps}</span>
                                 {we.rest_seconds && <span>Rest: {we.rest_seconds}s</span>}
                                 {we.exercises?.muscle_group && (
-                                  <Badge variant="secondary" className="text-[9px] py-0 bg-foreground/5 text-white border-0">{we.exercises.muscle_group}</Badge>
+                                  <Badge variant="secondary" className="text-[9px] py-0 bg-foreground/5 text-white border-0">
+                                    {we.exercises.muscle_group}
+                                  </Badge>
                                 )}
                               </div>
                             </div>

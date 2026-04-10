@@ -300,6 +300,9 @@ const AdminWorkouts = () => {
               </div>
               <div>
                 <Label>Video</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Best for the app: upload the workout directly here. External video links can be unreliable on mobile.
+                </p>
                 <input
                   ref={videoInputRef}
                   type="file"
@@ -308,12 +311,12 @@ const AdminWorkouts = () => {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    if (file.size > 500 * 1024 * 1024) {
-                      toast({ title: "File too large", description: "Max 500MB", variant: "destructive" });
+                    if (file.size > 2 * 1024 * 1024 * 1024) {
+                      toast({ title: "File too large", description: "Max 2GB", variant: "destructive" });
                       return;
                     }
                     setIsUploadingVideo(true);
-                    setVideoUploadProgress("Uploading...");
+                    setVideoUploadProgress("Uploading... keep this screen open");
                     const ext = file.name.split(".").pop() || "mp4";
                     const fileName = `workout-${crypto.randomUUID()}.${ext}`;
                     const { error } = await supabase.storage.from("exercise-videos").upload(fileName, file, { contentType: file.type });
@@ -359,7 +362,7 @@ const AdminWorkouts = () => {
                     ) : (
                       <div className="flex flex-col items-center gap-1">
                         <Upload className="w-5 h-5 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Upload video (MP4, MOV, WebM — max 500MB)</span>
+                        <span className="text-xs text-muted-foreground">Upload video (MP4, MOV, WebM — max 2GB)</span>
                       </div>
                     )}
                   </Button>
@@ -371,8 +374,11 @@ const AdminWorkouts = () => {
                       className="mt-1"
                       value={formData.video_url}
                       onChange={(e) => setFormData((p) => ({ ...p, video_url: e.target.value }))}
-                      placeholder="https://youtube.com/watch?v=..."
+                      placeholder="https://..."
                     />
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Uploaded videos are the recommended option for reliable playback inside the app.
+                    </p>
                   </>
                 )}
                 {errors.video_url && <p className="text-xs text-destructive mt-1">{errors.video_url}</p>}
