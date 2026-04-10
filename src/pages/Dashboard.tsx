@@ -140,7 +140,7 @@ const Dashboard = () => {
           >
             {avatarSignedUrl ? (
               <img src={avatarSignedUrl} alt="" className="w-full h-full rounded-full object-cover" />
-            ) : profile?.avatar_url ? (
+            ) : (
               <span className="text-lg font-bold text-background">
                 {(profile?.display_name || "M").charAt(0).toUpperCase()}
               </span>
