@@ -40,7 +40,10 @@ const AdminWorkouts = () => {
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [linkingWorkout, setLinkingWorkout] = useState<Workout | null>(null);
   const [isUploadingThumb, setIsUploadingThumb] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [videoUploadProgress, setVideoUploadProgress] = useState("");
   const thumbInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -78,6 +81,7 @@ const AdminWorkouts = () => {
   };
 
   const isValidUrl = (url: string) => {
+    if (url.startsWith("storage:")) return true;
     try {
       new URL(url);
       return true;
@@ -295,14 +299,82 @@ const AdminWorkouts = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="video_url">Video URL (YouTube/Vimeo)</Label>
-                <Input
-                  id="video_url"
-                  value={formData.video_url}
-                  onChange={(e) => setFormData((p) => ({ ...p, video_url: e.target.value }))}
-                  placeholder="https://youtube.com/watch?v=..."
-                  className={errors.video_url ? "border-destructive" : ""}
+                <Label>Video</Label>
+                <input
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/mp4,video/quicktime,video/webm"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 500 * 1024 * 1024) {
+                      toast({ title: "File too large", description: "Max 500MB", variant: "destructive" });
+                      return;
+                    }
+                    setIsUploadingVideo(true);
+                    setVideoUploadProgress("Uploading...");
+                    const ext = file.name.split(".").pop() || "mp4";
+                    const fileName = `workout-${crypto.randomUUID()}.${ext}`;
+                    const { error } = await supabase.storage.from("exercise-videos").upload(fileName, file, { contentType: file.type });
+                    if (error) {
+                      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+                      setIsUploadingVideo(false);
+                      setVideoUploadProgress("");
+                      return;
+                    }
+                    setFormData((p) => ({ ...p, video_url: `storage:exercise-videos/${fileName}` }));
+                    setIsUploadingVideo(false);
+                    setVideoUploadProgress("");
+                    toast({ title: "Video uploaded!" });
+                  }}
                 />
+                {formData.video_url && formData.video_url.startsWith("storage:") ? (
+                  <div className="mt-2 flex items-center gap-2 p-3 rounded-md border border-border bg-muted/30">
+                    <Upload className="w-4 h-4 text-primary flex-shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">
+                      {formData.video_url.replace("storage:exercise-videos/", "")}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setFormData((p) => ({ ...p, video_url: "" }))}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-16 border-dashed mt-2"
+                    onClick={() => videoInputRef.current?.click()}
+                    disabled={isUploadingVideo}
+                  >
+                    {isUploadingVideo ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">{videoUploadProgress}</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1">
+                        <Upload className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Upload video (MP4, MOV, WebM — max 500MB)</span>
+                      </div>
+                    )}
+                  </Button>
+                )}
+                {!formData.video_url?.startsWith("storage:") && (
+                  <>
+                    <p className="text-xs text-muted-foreground mt-2 text-center">— or paste a URL —</p>
+                    <Input
+                      className="mt-1"
+                      value={formData.video_url}
+                      onChange={(e) => setFormData((p) => ({ ...p, video_url: e.target.value }))}
+                      placeholder="https://youtube.com/watch?v=..."
+                    />
+                  </>
+                )}
                 {errors.video_url && <p className="text-xs text-destructive mt-1">{errors.video_url}</p>}
               </div>
               <div>
