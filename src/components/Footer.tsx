@@ -42,6 +42,12 @@ const Footer = () => {
           <Link to="/privacy" className="text-white/60 hover:text-white text-xs tracking-wide transition-colors">
             Data & Privacy Notice
           </Link>
+          <a 
+            href="mailto:support@apollonation.com?subject=Account%20Deletion%20Request" 
+            className="text-white/60 hover:text-white text-xs tracking-wide transition-colors"
+          >
+            Request Account Deletion
+          </a>
         </div>
 
         <div className="mt-6 text-center">
