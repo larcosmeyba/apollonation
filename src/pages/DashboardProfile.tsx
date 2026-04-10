@@ -604,6 +604,30 @@ const DashboardProfile = () => {
                   <span className="text-sm text-foreground">Logout</span>
                   <LogOut className="w-4 h-4 text-foreground/30" />
                 </button>
+                <button
+                  onClick={async () => {
+                    if (!user) return;
+                    const confirmed = window.confirm(
+                      "Are you sure you want to request account deletion? This will submit a request to permanently delete your account and all associated data. This action cannot be undone once processed."
+                    );
+                    if (!confirmed) return;
+                    const { error } = await supabase.from("support_tickets").insert({
+                      user_id: user.id,
+                      type: "account_deletion",
+                      subject: "Account Deletion Request",
+                      message: `User ${user.email} has requested full account and data deletion.`,
+                    });
+                    if (error) {
+                      toast({ title: "Error", description: "Could not submit request. Please try again.", variant: "destructive" });
+                    } else {
+                      toast({ title: "Request Submitted", description: "Your account deletion request has been received. We will process it within 30 days." });
+                    }
+                  }}
+                  className="flex items-center justify-between w-full py-3.5 border-b border-border"
+                >
+                  <span className="text-sm text-destructive">Request Account Deletion</span>
+                  <ChevronRight className="w-4 h-4 text-destructive/50" />
+                </button>
               </div>
             </div>
           )}
