@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
-import { Bookmark, BookmarkCheck } from "lucide-react";
+import { Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -161,15 +161,19 @@ const DashboardCoachProfile = () => {
           {selectedWorkout && (
             <>
               {selectedWorkout.video_url && (
-                <div className="relative aspect-video w-full">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedWorkout.video_url)}?playsinline=1&modestbranding=1&rel=0&origin=${encodeURIComponent(window.location.origin)}`}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
+                selectedWorkout.video_url.startsWith("storage:") ? (
+                  <StorageVideoPlayer storagePath={selectedWorkout.video_url.replace("storage:", "")} />
+                ) : (
+                  <div className="relative aspect-video w-full">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(selectedWorkout.video_url)}?playsinline=1&modestbranding=1&rel=0&origin=${encodeURIComponent(window.location.origin)}`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                )
               )}
               <ScrollArea className="max-h-[60vh]">
                 <div className="p-5 space-y-3">
@@ -189,6 +193,36 @@ const DashboardCoachProfile = () => {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+  );
+/** Plays a video from private storage using a signed URL */
+const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
+  const [bucket, ...pathParts] = storagePath.split("/");
+  const filePath = pathParts.join("/");
+
+  const { data: signedUrl, isLoading } = useQuery({
+    queryKey: ["signed-video", storagePath],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(filePath, 3600);
+      if (error) throw error;
+      return data.signedUrl;
+    },
+    staleTime: 1000 * 60 * 30,
+  });
+
+  if (isLoading || !signedUrl) {
+    return (
+      <div className="aspect-video w-full flex items-center justify-center bg-black">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="aspect-video w-full bg-black">
+      <video src={signedUrl} controls autoPlay playsInline className="w-full h-full" />
+    </div>
   );
 };
 
