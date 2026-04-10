@@ -126,14 +126,10 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
     { icon: AlertCircle, label: "Clients without plans", count: clientsWithoutPlans, tab: "clients", color: "text-orange-400", bg: "bg-orange-500/10" },
   ].filter((a) => a.count > 0);
 
-  const tierLabel = (t: string) =>
-    t === "elite" ? "Elite" : t === "pro" ? "Premier" : "Essential";
-
   const quickAccess = [
     { id: "messages", icon: MessageSquare, title: "Messages", desc: "Email your clients", color: "text-blue-400" },
     { id: "broadcast", icon: Megaphone, title: "Broadcast", desc: "Send announcements", color: "text-purple-400" },
     { id: "workouts", icon: Dumbbell, title: "On-Demand Classes", desc: "Manage video workouts", color: "text-green-400" },
-    { id: "exercises", icon: Activity, title: "Exercise Library", desc: "Browse & add exercises", color: "text-red-400" },
     { id: "recipes", icon: Utensils, title: "Recipes", desc: "Manage meal recipes", color: "text-yellow-400" },
     { id: "group-coaching", icon: UsersRound, title: "Group Coaching", desc: "Run live group sessions", color: "text-teal-400" },
   ];
@@ -220,9 +216,6 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium truncate max-w-full">{c.display_name || "Client"}</p>
-                    <p className="text-[10px] uppercase tracking-wider text-primary/70">
-                      {tierLabel(c.subscription_tier)}
-                    </p>
                   </div>
                 </CardContent>
               </Card>

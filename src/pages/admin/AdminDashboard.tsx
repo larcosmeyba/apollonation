@@ -3,7 +3,6 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import AdminDashboardHome from "@/components/admin/AdminDashboardHome";
 import AdminWorkouts from "@/components/admin/AdminWorkouts";
 import AdminRecipes from "@/components/admin/AdminRecipes";
-import AdminExercises from "@/components/admin/AdminExercises";
 import AdminMessages from "@/components/admin/AdminMessages";
 import AdminContactRequests from "@/components/admin/AdminContactRequests";
 import AdminBroadcast from "@/components/admin/AdminBroadcast";
@@ -11,7 +10,6 @@ import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientList from "@/components/admin/AdminClientList";
 import AdminGroupCoaching from "@/components/admin/AdminGroupCoaching";
 import AdminMarketing from "@/components/admin/AdminMarketing";
-import AdminChallenges from "@/components/admin/AdminChallenges";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -28,16 +26,12 @@ const AdminDashboard = () => {
         return <AdminClientList />;
       case "workouts":
         return <AdminWorkouts />;
-      case "exercises":
-        return <AdminExercises />;
       case "recipes":
         return <AdminRecipes />;
       case "group-coaching":
         return <AdminGroupCoaching />;
       case "marketing":
         return <AdminMarketing />;
-      case "challenges":
-        return <AdminChallenges />;
       case "contacts":
         return <AdminContactRequests />;
       case "profile":

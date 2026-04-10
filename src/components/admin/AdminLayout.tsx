@@ -44,11 +44,9 @@ const navItems = [
   { id: "messages", label: "Messages", icon: MessageSquare, color: "text-[hsl(160,84%,39%)]" },
   { id: "broadcast", label: "Broadcast", icon: Megaphone, color: "text-[hsl(25,95%,53%)]" },
   { id: "workouts", label: "On-Demand Classes", icon: Dumbbell, color: "text-[hsl(0,72%,51%)]" },
-  { id: "exercises", label: "Exercise Library", icon: Activity, color: "text-[hsl(45,93%,47%)]" },
   { id: "recipes", label: "Recipes", icon: Utensils, color: "text-[hsl(30,80%,55%)]" },
   { id: "group-coaching", label: "Group Coaching", icon: UsersRound, color: "text-[hsl(200,80%,50%)]" },
   { id: "marketing", label: "Marketing", icon: Palette, color: "text-[hsl(320,70%,55%)]" },
-  { id: "challenges", label: "Challenges", icon: Activity, color: "text-[hsl(35,90%,55%)]" },
   { id: "contacts", label: "Contact Requests", icon: Inbox, color: "text-[hsl(180,60%,45%)]" },
   { id: "profile", label: "Coach Profile", icon: User, color: "text-[hsl(220,60%,60%)]" },
 ];
@@ -62,7 +60,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* ─── TOP NAVIGATION BAR ─── */}
-      <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 lg:px-6 z-30 shrink-0" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+      <header className="border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 lg:px-6 z-30 shrink-0" style={{ paddingTop: "env(safe-area-inset-top, 0px)", minHeight: "calc(3.5rem + env(safe-area-inset-top, 0px))" }}>
         {/* Left: hamburger (mobile) + logo */}
         <div className="flex items-center gap-3">
           <button

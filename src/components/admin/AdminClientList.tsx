@@ -193,9 +193,7 @@ const AdminClientList = () => {
                     : "Never active"}
                 </p>
               </div>
-              <span className={`px-2.5 py-1 rounded text-xs uppercase font-medium ${getTierBadge(profile.subscription_tier)}`}>
-                {profile.subscription_tier}
-              </span>
+              {/* Tier badge removed — unified membership */}
               <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </button>
           ))
@@ -222,17 +220,7 @@ const AdminClientList = () => {
               <Label>Temporary Password</Label>
               <Input type="text" value={createFormData.password} onChange={(e) => setCreateFormData(p => ({ ...p, password: e.target.value }))} minLength={6} required />
             </div>
-            <div>
-              <Label>Membership Tier</Label>
-              <Select value={createFormData.subscription_tier} onValueChange={(v) => setCreateFormData(p => ({ ...p, subscription_tier: v as any }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="basic">Essential</SelectItem>
-                  <SelectItem value="pro">Premier</SelectItem>
-                  <SelectItem value="elite">Elite</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Tier selector removed — unified membership */}
             <div className="flex gap-2 justify-end">
               <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
               <Button type="submit" variant="apollo" disabled={createMutation.isPending}>

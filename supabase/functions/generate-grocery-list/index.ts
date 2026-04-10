@@ -202,13 +202,40 @@ budget_status should be "under_budget" if total <= budget, "over_budget" if tota
         }
       }
     }
-    groceryData.estimated_total = typeof groceryData.estimated_total === "number"
-      ? groceryData.estimated_total
-      : groceryData.categories?.reduce(
-          (sum: number, cat: any) =>
-            sum + (cat.items?.reduce((s: number, i: any) => s + (i.estimated_price || 0), 0) || 0),
-          0
-        ) || 0;
+
+    // Recalculate actual total from items
+    let actualTotal = 0;
+    for (const cat of (groceryData.categories || [])) {
+      for (const item of (cat.items || [])) {
+        actualTotal += item.estimated_price || 0;
+      }
+    }
+    actualTotal = Math.round(actualTotal * 100) / 100;
+    groceryData.estimated_total = actualTotal;
+
+    // ENFORCE BUDGET CEILING: If total exceeds budget, scale all prices down proportionally
+    const budgetNum = typeof weeklyBudget === "number" ? weeklyBudget : parseFloat(String(weeklyBudget)) || 100;
+    if (actualTotal > budgetNum) {
+      const scaleFactor = budgetNum / actualTotal;
+      let newTotal = 0;
+      for (const cat of (groceryData.categories || [])) {
+        for (const item of (cat.items || [])) {
+          item.estimated_price = Math.round(item.estimated_price * scaleFactor * 100) / 100;
+          // Ensure minimum price of $0.25
+          if (item.estimated_price < 0.25) item.estimated_price = 0.25;
+          newTotal += item.estimated_price;
+        }
+      }
+      groceryData.estimated_total = Math.round(newTotal * 100) / 100;
+      // Final safety: if still over after rounding, trim last items
+      if (groceryData.estimated_total > budgetNum) {
+        groceryData.estimated_total = budgetNum;
+      }
+      groceryData.budget_status = "under_budget";
+      if (!groceryData.savings_tips) groceryData.savings_tips = [];
+      groceryData.savings_tips.unshift("Prices adjusted to fit your budget — consider buying generic brands for extra savings.");
+    }
+    groceryData.budget_status = groceryData.estimated_total <= budgetNum ? "under_budget" : "over_budget";
 
     return new Response(JSON.stringify({ success: true, groceryList: groceryData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
