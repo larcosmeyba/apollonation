@@ -12,7 +12,7 @@ const Navbar = () => {
   const { isAdmin } = useAdminStatus();
 
   const navLinks = [
-    { href: "/apply-coach", label: "Coaches Portal" },
+    { href: "/contact", label: "Contact Portal" },
     { href: "#download", label: "Download the App", isAnchor: true },
   ];
 

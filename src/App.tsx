@@ -28,7 +28,8 @@ import TermsOfService from "./pages/TermsOfService";
 import ApolloSystem from "./pages/ApolloSystem";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
-import ApplyCoach from "./pages/ApplyCoach";
+import ContactPortal from "./pages/ContactPortal";
+import AccountDeletion from "./pages/AccountDeletion";
 import PlanReady from "./pages/PlanReady";
 import DashboardTransformation from "./pages/DashboardTransformation";
 import DashboardRecovery from "./pages/DashboardRecovery";
@@ -70,7 +71,9 @@ const App = () => {
               <Route path="/system" element={<ApolloSystem />} />
               <Route path="/about" element={<About />} />
               <Route path="/faq" element={<FAQ />} />
-              <Route path="/apply-coach" element={<ApplyCoach />} />
+              <Route path="/contact" element={<ContactPortal />} />
+              <Route path="/apply-coach" element={<ContactPortal />} />
+              <Route path="/account-deletion" element={<AccountDeletion />} />
               <Route path="/plan-ready" element={<ProtectedRoute><PlanReady /></ProtectedRoute>} />
               <Route
                 path="/dashboard/transformation"
