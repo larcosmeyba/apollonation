@@ -42,13 +42,7 @@ const Footer = () => {
           <Link to="/privacy" className="text-white/60 hover:text-white text-xs tracking-wide transition-colors">
             Data & Privacy Notice
           </Link>
-          <Link to="/" 
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="text-white/60 hover:text-white text-xs tracking-wide transition-colors"
-          >
+          <Link to="/contact" className="text-white/60 hover:text-white text-xs tracking-wide transition-colors">
             Request Account Deletion
           </Link>
         </div>
