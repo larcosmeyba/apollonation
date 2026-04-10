@@ -454,7 +454,7 @@ const DashboardNutrition = () => {
     <>
       {/* Meal Swap Dialog */}
       <Dialog open={!!swapMeal} onOpenChange={(open) => { if (!open) { setSwapMeal(null); setSwapSuggestions([]); } }}>
-        <DialogContent className="max-w-[90vw] sm:max-w-lg bg-card border-border max-h-[85vh] overflow-y-auto overflow-x-hidden">
+        <DialogContent className="max-w-[85vw] sm:max-w-md bg-card border-border max-h-[85vh] overflow-y-auto overflow-x-hidden">
           <DialogHeader><DialogTitle className="font-heading text-xl">Choose an Alternative</DialogTitle></DialogHeader>
           {swapLoading ? (
             <div className="flex flex-col items-center justify-center py-10 gap-3">
