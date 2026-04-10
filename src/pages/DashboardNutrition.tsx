@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart,
-  Loader2, Lightbulb, DollarSign, Store, RefreshCw, Check, Sparkles,
+  Loader2, DollarSign, Store, RefreshCw, Check, Sparkles,
   ClipboardList, AlertCircle, Plus, Trash2, Upload, Clock, Pencil,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,7 +22,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
-import FuelCalendar from "@/components/dashboard/FuelCalendar";
 
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"];
 const MEAL_TYPE_LABELS: Record<string, string> = {
@@ -55,31 +54,24 @@ type MealSuggestion = {
 const calculateMacros = (age: number, sex: string, heightInches: number, weightLbs: number, activityLevel: string, goal: string) => {
   const weightKg = weightLbs * 0.453592;
   const heightCm = heightInches * 2.54;
-  // Mifflin-St Jeor BMR
   const bmr = sex === "female"
     ? 10 * weightKg + 6.25 * heightCm - 5 * age - 161
     : 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
   const multipliers: Record<string, number> = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 };
   const tdee = bmr * (multipliers[activityLevel] || 1.55);
   
-  // Goal-based calorie adjustment
   let calories: number;
   if (goal === "lose_fat") calories = Math.round(tdee - 500);
   else if (goal === "gain_muscle") calories = Math.round(tdee + 300);
   else if (goal === "gain_weight") calories = Math.round(tdee + 500);
   else calories = Math.round(tdee);
 
-  // Protein: higher during cut to preserve muscle
   let proteinPerLb: number;
   if (goal === "lose_fat") proteinPerLb = 1.1;
   else if (goal === "gain_muscle") proteinPerLb = 1.0;
   else proteinPerLb = 0.85;
   const protein = Math.round(weightLbs * proteinPerLb);
-
-  // Fat: 25% of total calories
   const fat = Math.round((calories * 0.25) / 9);
-  
-  // Carbs: remaining calories
   const carbCalories = calories - (protein * 4) - (fat * 9);
   const carbs = Math.max(Math.round(carbCalories / 4), 0);
 
@@ -119,8 +111,11 @@ const DashboardNutrition = () => {
   const [macroSaving, setMacroSaving] = useState(false);
   const [macroDialogOpen, setMacroDialogOpen] = useState(false);
 
+  // Budget & Store inputs
+  const [clientBudget, setClientBudget] = useState("");
+  const [clientStore, setClientStore] = useState("");
+
   const selectedDate = format(new Date(), "yyyy-MM-dd");
-  
 
   // ── Queries ──
   const { data: plans } = useQuery({
@@ -143,6 +138,36 @@ const DashboardNutrition = () => {
     enabled: !!user,
   });
 
+  // Load questionnaire data for budget/store defaults
+  const { data: questionnaireData } = useQuery({
+    queryKey: ["questionnaire-budget", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("client_questionnaires")
+        .select("grocery_store, weekly_food_budget")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Initialize budget/store from questionnaire
+  useEffect(() => {
+    if (questionnaireData) {
+      if (!clientBudget && questionnaireData.weekly_food_budget) {
+        setClientBudget(String(questionnaireData.weekly_food_budget));
+      }
+      if (!clientStore && questionnaireData.grocery_store) {
+        setClientStore(questionnaireData.grocery_store);
+      }
+    }
+  }, [questionnaireData]);
+
   const activePlan = selectedPlanId
     ? plans?.find((p) => p.id === selectedPlanId)
     : plans?.find((p) => p.status === "active") || plans?.[0];
@@ -158,7 +183,6 @@ const DashboardNutrition = () => {
     enabled: !!activePlan,
   });
 
-  // Macro logs for today
   const { data: macroEntries = [] } = useQuery({
     queryKey: ["macro-logs", user?.id, selectedDate],
     queryFn: async () => {
@@ -170,7 +194,6 @@ const DashboardNutrition = () => {
     enabled: !!user,
   });
 
-  // Recipes
   const { data: recipes = [] } = useQuery({
     queryKey: ["all-recipes"],
     queryFn: async () => {
@@ -180,7 +203,6 @@ const DashboardNutrition = () => {
     },
   });
 
-  // ── Nutrition Profile (macro calculator saved data) ──
   const { data: nutritionProfile } = useQuery({
     queryKey: ["nutrition-profile", user?.id],
     queryFn: async () => {
@@ -192,7 +214,6 @@ const DashboardNutrition = () => {
     enabled: !!user,
   });
 
-  // Load saved profile into calculator
   useEffect(() => {
     if (nutritionProfile && !macroEditing && calculatedMacros === null) {
       const totalInches = nutritionProfile.height_inches || 0;
@@ -383,7 +404,10 @@ const DashboardNutrition = () => {
 
   const groceryMutation = useMutation({
     mutationFn: async ({ planId, week }: { planId: string; week: number }) => {
-      const { data, error } = await supabase.functions.invoke("generate-grocery-list", { body: { planId, week } });
+      const body: any = { planId, week };
+      if (clientStore) body.store = clientStore;
+      if (clientBudget) body.budget = parseFloat(clientBudget);
+      const { data, error } = await supabase.functions.invoke("generate-grocery-list", { body });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       return data.groceryList as GroceryList;
@@ -416,39 +440,20 @@ const DashboardNutrition = () => {
     if (!activePlan || regenerating) return;
     setRegenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("client-regenerate-meal-plan", { body: { planId: activePlan.id, week: currentWeek } });
-      if (error) throw new Error(error.message);
-      if (data?.error) throw new Error(data.error);
+      const resp = await supabase.functions.invoke("client-regenerate-meal-plan", { body: { planId: activePlan.id, week: currentWeek } });
+      if (resp.error) {
+        const errorMsg = typeof resp.error === "object" && resp.error.message ? resp.error.message : String(resp.error);
+        throw new Error(errorMsg);
+      }
+      if (resp.data?.error) throw new Error(resp.data.error);
       toast({ title: "Meal plan refreshed!", description: `Week ${currentWeek} has been regenerated.` });
       queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan.id] });
-    } catch (err: any) { toast({ title: "Could not regenerate", description: err.message, variant: "destructive" }); }
+    } catch (err: any) {
+      console.error("Regenerate error:", err);
+      toast({ title: "Could not regenerate", description: err.message || "Unknown error", variant: "destructive" });
+    }
     finally { setRegenerating(false); }
   };
-
-  const MacroRing = ({ current, target, color, label }: { current: number; target: number; color: string; label: string }) => {
-    const pct = Math.min(Math.round((current / target) * 100), 100);
-    return (
-      <div className="flex flex-col items-center gap-1.5">
-        <div className="relative w-14 h-14">
-          <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={color} strokeWidth="4.5" strokeDasharray={`${pct}, 100`} strokeLinecap="round" className="transition-all duration-700" />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xs font-semibold text-foreground">{current}g</span>
-          </div>
-        </div>
-        <span className="text-[10px] text-muted-foreground font-medium">{label}</span>
-        <span className="text-[9px] text-muted-foreground">{target - current > 0 ? `${target - current}g left` : "Done"}</span>
-      </div>
-    );
-  };
-
-  const MacroBar = ({ current, target, color }: { current: number; target: number; color: string }) => (
-    <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-      <div className={`h-full rounded-full transition-all duration-500 ${color}`} style={{ width: `${Math.min((current / target) * 100, 100)}%` }} />
-    </div>
-  );
 
   return (
     <>
@@ -517,11 +522,9 @@ const DashboardNutrition = () => {
           <DialogHeader><DialogTitle className="font-heading text-xl">Log a Meal</DialogTitle></DialogHeader>
           <div className="flex gap-2 mb-4">
             <Button variant={!isAiMode ? "apollo" : "apollo-outline"} size="sm" onClick={() => setIsAiMode(false)} className="flex-1">Manual</Button>
-            {true && (
-              <Button variant={isAiMode ? "apollo" : "apollo-outline"} size="sm" onClick={() => setIsAiMode(true)} className="flex-1">
-                <Sparkles className="w-4 h-4 mr-1" /> AI Photo
-              </Button>
-            )}
+            <Button variant={isAiMode ? "apollo" : "apollo-outline"} size="sm" onClick={() => setIsAiMode(true)} className="flex-1">
+              <Sparkles className="w-4 h-4 mr-1" /> AI Photo
+            </Button>
           </div>
           {isAiMode ? (
             <div className="space-y-4">
@@ -669,9 +672,6 @@ const DashboardNutrition = () => {
             <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
           </div>
 
-
-
-
           <div className="bg-card rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-heading text-lg tracking-wide text-foreground">Today's Nutrition</h2>
@@ -682,7 +682,6 @@ const DashboardNutrition = () => {
 
             {/* Calorie hero + macro rings */}
             <div className="flex items-center gap-6">
-              {/* Big calorie ring - GREEN */}
               <div className="relative w-24 h-24 flex-shrink-0">
                 <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
                   <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
@@ -694,7 +693,6 @@ const DashboardNutrition = () => {
                 </div>
               </div>
 
-              {/* Macro rings */}
               <div className="flex flex-1 justify-around">
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="relative w-14 h-14">
@@ -836,7 +834,40 @@ const DashboardNutrition = () => {
                 </div>
               )}
 
-              {/* Weekly refresh banner - blue accent */}
+              {/* Budget & Store inputs */}
+              <div className="bg-card rounded-2xl p-4 border border-border">
+                <h3 className="font-heading text-sm tracking-wide text-foreground mb-3">Your Shopping Preferences</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Weekly Budget ($)</label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground/40" />
+                      <Input
+                        type="number"
+                        placeholder="100"
+                        value={clientBudget}
+                        onChange={(e) => setClientBudget(e.target.value)}
+                        className="pl-8 bg-foreground/5 border-border text-foreground h-9 text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Grocery Store</label>
+                    <div className="relative">
+                      <Store className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground/40" />
+                      <Input
+                        type="text"
+                        placeholder="Walmart"
+                        value={clientStore}
+                        onChange={(e) => setClientStore(e.target.value)}
+                        className="pl-8 bg-foreground/5 border-border text-foreground h-9 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Weekly refresh banner */}
               <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
                 <Sparkles className="w-4 h-4 text-blue-400 flex-shrink-0" />
                 <p className="text-xs text-white flex-1">Meals refresh every Monday. Want something different? Hit regenerate.</p>
@@ -905,7 +936,6 @@ const DashboardNutrition = () => {
                                   </div>
                                 ) : (
                                   <div className="flex items-start gap-3">
-                                    {/* Mark as Eaten Checkbox - green when checked */}
                                     <div className="flex-shrink-0 pt-1">
                                       <Checkbox
                                         checked={isEaten}
@@ -941,7 +971,6 @@ const DashboardNutrition = () => {
                                         className={`${isEaten ? "data-[state=checked]:bg-green-500/100 data-[state=checked]:border-green-500" : "border-white"}`}
                                       />
                                     </div>
-                                    {/* Food Photo */}
                                     <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
                                       <img
                                         src={getMealImage(meal.meal_name, meal.meal_type)}
@@ -1030,22 +1059,6 @@ const DashboardNutrition = () => {
                             </div>
                           </div>
                         ))}
-
-                        {groceryList.savings_tips?.length > 0 && (
-                          <div className="rounded-lg bg-accent/10 border border-accent/20 p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Lightbulb className="w-4 h-4 text-foreground" />
-                              <p className="font-heading text-sm">Money-Saving Tips</p>
-                            </div>
-                            <ul className="space-y-1">
-                              {groceryList.savings_tips.map((tip, i) => (
-                                <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
-                                  <span className="text-foreground mt-0.5">•</span>{tip}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
                       </>
                     )}
 
@@ -1061,9 +1074,6 @@ const DashboardNutrition = () => {
               </Tabs>
             </>
           )}
-
-          {/* ── Fuel Calendar — Tracking & Streaks ── */}
-          <FuelCalendar />
         </div>
       </DashboardLayout>
     </>

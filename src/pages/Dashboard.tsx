@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Play, Bookmark, BookmarkCheck } from "lucide-react";
+import { Play, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import stockBack from "@/assets/stock-back.png";
 import stockArms from "@/assets/stock-arms.png";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
@@ -27,12 +31,23 @@ const CATEGORY_IMAGES: Record<string, string> = {
   Senior: stockBack,
 };
 
-const getYouTubeThumbnail = (url: string): string | null => {
+const getYouTubeVideoId = (url: string): string | null => {
   try {
-    const match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]v=([a-zA-Z0-9_-]+)/) || url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
-    if (match) return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
-    return null;
+    const match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]v=([a-zA-Z0-9_-]+)/) || url.match(/\/shorts\/([a-zA-Z0-9_-]+)/) || url.match(/\/embed\/([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : null;
   } catch { return null; }
+};
+
+const getYouTubeThumbnail = (url: string): string | null => {
+  const videoId = getYouTubeVideoId(url);
+  if (videoId) return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  return null;
+};
+
+const getYouTubeEmbedUrl = (url: string): string => {
+  const videoId = getYouTubeVideoId(url);
+  if (videoId) return `https://www.youtube.com/embed/${videoId}?playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1&autoplay=1`;
+  return url;
 };
 
 const getThumb = (w: any, i: number) => {
@@ -41,10 +56,28 @@ const getThumb = (w: any, i: number) => {
   return WORKOUT_IMAGES[i % WORKOUT_IMAGES.length];
 };
 
+/** Storage video player with signed URL */
+const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
+  const [bucket, ...pathParts] = storagePath.split("/");
+  const filePath = pathParts.join("/");
+  const { data: signedUrl } = useQuery({
+    queryKey: ["signed-video", storagePath],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600);
+      if (error) throw error;
+      return data.signedUrl;
+    },
+    staleTime: 1000 * 60 * 30,
+  });
+  if (!signedUrl) return <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
+  return <video src={signedUrl} controls autoPlay playsInline className="w-full h-full" />;
+};
+
 const Dashboard = () => {
   const { user, profile } = useAuth();
   const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
+  const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
@@ -60,7 +93,7 @@ const Dashboard = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("workouts")
-        .select("id, title, category, duration_minutes, calories_estimate, thumbnail_url, video_url")
+        .select("*")
         .gte("created_at", weekStart)
         .order("created_at", { ascending: false })
         .limit(10);
@@ -73,7 +106,7 @@ const Dashboard = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("workouts")
-        .select("id, title, category, duration_minutes, calories_estimate, thumbnail_url, video_url")
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(12);
       return data || [];
@@ -92,6 +125,21 @@ const Dashboard = () => {
       return data?.map(f => f.workout_id).filter(Boolean) as string[] || [];
     },
     enabled: !!user,
+  });
+
+  const { data: workoutExercises = [] } = useQuery({
+    queryKey: ["workout-exercises-home", selectedWorkout?.id],
+    queryFn: async () => {
+      if (!selectedWorkout) return [];
+      const { data, error } = await supabase
+        .from("workout_exercises")
+        .select("*, exercises(*)")
+        .eq("workout_id", selectedWorkout.id)
+        .order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedWorkout,
   });
 
   const toggleFavorite = useMutation({
@@ -127,6 +175,55 @@ const Dashboard = () => {
       </button>
     );
   };
+
+  const renderVideoPlayer = (workout: any) => {
+    if (!workout.video_url) return null;
+    const isStorage = workout.video_url.startsWith("storage:");
+    if (isStorage) {
+      return (
+        <div className="relative aspect-video w-full bg-black">
+          <StorageVideoPlayer storagePath={workout.video_url.replace("storage:", "")} />
+        </div>
+      );
+    }
+    return (
+      <div className="relative aspect-video w-full">
+        <iframe
+          src={getYouTubeEmbedUrl(workout.video_url)}
+          className="w-full h-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          referrerPolicy="no-referrer"
+        />
+      </div>
+    );
+  };
+
+  const WorkoutCard = ({ workout, index, aspectClass = "aspect-[16/10]" }: { workout: any; index: number; aspectClass?: string }) => (
+    <button
+      onClick={() => setSelectedWorkout(workout)}
+      className={`relative rounded-2xl overflow-hidden flex-shrink-0 w-[75%] ${aspectClass} group text-left`}
+    >
+      <img
+        src={getThumb(workout, index) || WORKOUT_IMAGES[index % WORKOUT_IMAGES.length]}
+        alt={workout.title}
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        loading="lazy"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      <div className="absolute top-3 right-3">
+        <SaveButton workoutId={workout.id} />
+      </div>
+      <div className="absolute bottom-4 left-4 right-4">
+        <h3 className="text-base font-bold text-white uppercase leading-tight truncate">
+          {workout.title}
+        </h3>
+        <p className="text-xs font-bold text-white mt-1">
+          Marcos Leyba &nbsp;/&nbsp; {workout.duration_minutes} min &nbsp;/&nbsp; Train: {workout.category}
+        </p>
+      </div>
+    </button>
+  );
 
   return (
     <DashboardLayout>
@@ -167,78 +264,13 @@ const Dashboard = () => {
           {newThisWeek.length > 0 ? (
             <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {newThisWeek.map((w, i) => (
-                <Link
-                  key={w.id}
-                  to="/dashboard/workouts"
-                  className="relative rounded-2xl overflow-hidden flex-shrink-0 w-[75%] aspect-[16/10] group"
-                >
-                  <img
-                    src={getThumb(w, i) || WORKOUT_IMAGES[i % WORKOUT_IMAGES.length]}
-                    alt={w.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                  <div className="absolute top-3 right-3">
-                    <SaveButton workoutId={w.id} />
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-base font-bold text-white uppercase leading-tight truncate">
-                      {w.title}
-                    </h3>
-                    <p className="text-xs font-bold text-white mt-1">
-                      Marcos Leyba &nbsp;/&nbsp; {w.duration_minutes} min &nbsp;/&nbsp; Train: {w.category}
-                    </p>
-                    <Link to="/dashboard/workouts">
-                      <Button
-                        variant="outline"
-                        className="mt-3 rounded-full border-white/40 text-white bg-transparent hover:bg-white/10 text-xs font-bold uppercase tracking-wider px-6 h-9"
-                      >
-                        <Play className="w-3 h-3 mr-2 fill-current" />
-                        Start
-                      </Button>
-                    </Link>
-                  </div>
-                </Link>
+                <WorkoutCard key={w.id} workout={w} index={i} />
               ))}
             </div>
           ) : (
-            /* Fallback — show all workouts as "new" */
             <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {allWorkouts.slice(0, 5).map((w, i) => (
-                <Link
-                  key={w.id}
-                  to="/dashboard/workouts"
-                  className="relative rounded-2xl overflow-hidden flex-shrink-0 w-[75%] aspect-[16/10] group"
-                >
-                  <img
-                    src={getThumb(w, i) || WORKOUT_IMAGES[i % WORKOUT_IMAGES.length]}
-                    alt={w.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                  <div className="absolute top-3 right-3">
-                    <SaveButton workoutId={w.id} />
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-base font-bold text-white uppercase leading-tight truncate">
-                      {w.title}
-                    </h3>
-                    <p className="text-xs font-bold text-white mt-1">
-                      Marcos Leyba &nbsp;/&nbsp; {w.duration_minutes} min &nbsp;/&nbsp; Train: {w.category}
-                    </p>
-                    <Link to="/dashboard/workouts">
-                      <Button
-                        variant="outline"
-                        className="mt-3 rounded-full border-white/40 text-white bg-transparent hover:bg-white/10 text-xs font-bold uppercase tracking-wider px-6 h-9"
-                      >
-                        <Play className="w-3 h-3 mr-2 fill-current" />
-                        Start
-                      </Button>
-                    </Link>
-                  </div>
-                </Link>
+                <WorkoutCard key={w.id} workout={w} index={i} />
               ))}
             </div>
           )}
@@ -302,36 +334,69 @@ const Dashboard = () => {
             </div>
             <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {allWorkouts.map((w, i) => (
-                <Link
-                  key={w.id}
-                  to="/dashboard/workouts"
-                  className="relative rounded-2xl overflow-hidden flex-shrink-0 w-[75%] aspect-[4/3] group"
-                >
-                  <img
-                    src={getThumb(w, i) || WORKOUT_IMAGES[i % WORKOUT_IMAGES.length]}
-                    alt={w.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute top-3 right-3">
-                    <SaveButton workoutId={w.id} />
-                  </div>
-                  <div className="absolute bottom-3 left-4 right-4">
-                    <h3 className="text-sm font-bold text-white uppercase leading-tight truncate">
-                      {w.title}
-                    </h3>
-                    <p className="text-[11px] font-bold text-white mt-0.5">
-                      Marcos Leyba &nbsp;/&nbsp; {w.duration_minutes} min &nbsp;/&nbsp; Train: {w.category}
-                    </p>
-                  </div>
-                </Link>
+                <WorkoutCard key={w.id} workout={w} index={i} aspectClass="aspect-[4/3]" />
               ))}
             </div>
           </div>
         )}
 
       </div>
+
+      {/* Workout Detail Modal */}
+      <Dialog open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
+          {selectedWorkout && (
+            <>
+              {selectedWorkout.video_url ? (
+                renderVideoPlayer(selectedWorkout)
+              ) : getThumb(selectedWorkout, 0) ? (
+                <div className="relative aspect-video w-full overflow-hidden">
+                  <img src={getThumb(selectedWorkout, 0)} alt={selectedWorkout.title} className="w-full h-full object-cover" />
+                </div>
+              ) : null}
+
+              <ScrollArea className="max-h-[60vh]">
+                <div className="p-5 space-y-4">
+                  <DialogHeader>
+                    <DialogTitle className="font-heading text-xl tracking-wide">
+                      {selectedWorkout.title}
+                    </DialogTitle>
+                  </DialogHeader>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline" className="text-xs border-border text-foreground">{selectedWorkout.category}</Badge>
+                    <Badge variant="outline" className="text-xs border-border text-foreground">{selectedWorkout.duration_minutes} min</Badge>
+                    {selectedWorkout.calories_estimate && (
+                      <Badge variant="outline" className="text-xs border-border text-foreground">{selectedWorkout.calories_estimate} cal</Badge>
+                    )}
+                  </div>
+
+                  {selectedWorkout.description && (
+                    <p className="text-sm text-muted-foreground">{selectedWorkout.description}</p>
+                  )}
+
+                  {workoutExercises.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="font-heading text-sm tracking-wide text-foreground">Exercises</h3>
+                      {workoutExercises.map((we: any, idx: number) => (
+                        <div key={we.id} className="flex items-center gap-3 p-3 rounded-lg bg-card border border-border">
+                          <span className="text-xs font-bold text-muted-foreground w-6 text-center">{idx + 1}</span>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-foreground">{we.exercises?.title || "Exercise"}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {we.sets && `${we.sets} sets`}{we.reps && ` × ${we.reps}`}{we.rest_seconds && ` · ${we.rest_seconds}s rest`}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
