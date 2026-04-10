@@ -35,7 +35,6 @@ const TYPE_IMAGES: Record<string, string> = {
   Core: marcos2,
   Stretch: marcos3,
   Yoga: marcos5,
-  Senior: marcos8,
 };
 
 const getYouTubeVideoId = (url: string): string | null => {
@@ -86,7 +85,7 @@ const StorageVideoPlayer = ({ storagePath, title }: { storagePath: string; title
   return <video src={signedUrl} controls autoPlay playsInline className="w-full h-full" title={title} />;
 };
 
-const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch", "Senior"];
+const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch"];
 
 const DashboardWorkouts = () => {
   const { user } = useAuth();

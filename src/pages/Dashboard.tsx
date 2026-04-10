@@ -17,18 +17,22 @@ import stockArms from "@/assets/stock-arms.png";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
+import catStretch from "@/assets/categories/stretch.jpg";
+import catCardio from "@/assets/categories/cardio.jpg";
+import catSculpt from "@/assets/categories/sculpt.jpg";
+import catStrength from "@/assets/categories/strength.png";
+import catHIIT from "@/assets/categories/hiit.png";
 import { toast } from "sonner";
 
 const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7];
 
 const CATEGORY_IMAGES: Record<string, string> = {
-  Cardio: marcosAction1,
-  Sculpt: stockBack,
-  Strength: stockArms,
-  HIIT: marcosAction6,
-  Stretch: marcosAction7,
-  Yoga: marcosAction1,
-  Senior: stockBack,
+  Strength: catStrength,
+  HIIT: catHIIT,
+  Sculpt: catSculpt,
+  Cardio: catCardio,
+  Stretch: catStretch,
+  Core: marcosAction6,
 };
 
 const getYouTubeVideoId = (url: string): string | null => {
@@ -158,7 +162,7 @@ const Dashboard = () => {
     onError: () => toast.error("Could not update favorite"),
   });
 
-  const categories = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Senior"];
+  const categories = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch"];
 
   const SaveButton = ({ workoutId }: { workoutId: string }) => {
     const isSaved = favorites.includes(workoutId);
@@ -287,13 +291,17 @@ const Dashboard = () => {
             </Link>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {categories.map((cat) => (
+            {categories.map((cat, idx) => (
               <Link
                 key={cat}
                 to={`/dashboard/workouts?category=${cat.toLowerCase()}`}
                 className="relative rounded-2xl overflow-hidden flex-shrink-0 w-40 h-28 group shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
               >
-                <img src={CATEGORY_IMAGES[cat]} alt={cat} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img
+                  src={CATEGORY_IMAGES[cat]}
+                  alt={cat}
+                  className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${idx % 2 !== 0 ? "grayscale" : ""}`}
+                />
                 <div className="absolute inset-0 bg-black/50 group-hover:bg-black/35 transition-colors" />
                 <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white tracking-wide drop-shadow-lg">
                   {cat}
