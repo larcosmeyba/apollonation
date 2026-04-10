@@ -295,7 +295,7 @@ const Dashboard = () => {
               <Link
                 key={cat}
                 to={`/dashboard/workouts?category=${cat.toLowerCase()}`}
-                className="relative rounded-2xl overflow-hidden flex-shrink-0 w-40 h-28 group shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+                className="relative rounded-2xl overflow-hidden flex-shrink-0 w-52 h-40 group shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
               >
                 <img
                   src={CATEGORY_IMAGES[cat]}

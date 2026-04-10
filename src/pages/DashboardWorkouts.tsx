@@ -208,7 +208,7 @@ const DashboardWorkouts = () => {
     const thumb = getWorkoutThumbnail(workout) || WORKOUT_IMAGES[index % WORKOUT_IMAGES.length];
     return (
       <button onClick={() => setSelectedWorkout(workout)} className="group relative overflow-hidden rounded-2xl text-left transition-all w-full">
-        <div className="relative overflow-hidden rounded-2xl aspect-[16/10]">
+        <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
           <img
             src={thumb}
             alt={workout.title}
