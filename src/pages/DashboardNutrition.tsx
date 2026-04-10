@@ -478,26 +478,26 @@ const DashboardNutrition = () => {
 
               <div className="space-y-2">
                 {swapSuggestions.map((suggestion, idx) => (
-                  <div key={idx} className="p-4 rounded-xl bg-muted/20 border border-border/50 hover:border-primary/40 transition-all cursor-pointer group" onClick={() => acceptSwap(suggestion)}>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0 space-y-1.5">
-                        <p className="font-heading text-sm">{suggestion.meal_name}</p>
-                        {suggestion.description && <p className="text-xs text-muted-foreground">{suggestion.description}</p>}
-                        <div className="flex items-center gap-3 text-[10px] font-medium">
-                          <span className="text-primary">{suggestion.calories} cal</span>
-                          <span className="text-muted-foreground">P: {suggestion.protein_grams}g</span>
-                          <span className="text-muted-foreground">C: {suggestion.carbs_grams}g</span>
-                          <span className="text-muted-foreground">F: {suggestion.fat_grams}g</span>
-                        </div>
-                        {suggestion.ingredients?.length > 0 && (
-                          <p className="text-[10px] text-muted-foreground truncate">
-                            {suggestion.ingredients.slice(0, 4).join(" · ")}{suggestion.ingredients.length > 4 ? ` +${suggestion.ingredients.length - 4} more` : ""}
-                          </p>
-                        )}
+                  <div key={idx} className="p-3 rounded-lg bg-muted/20 border border-border/50 hover:border-primary/40 transition-all cursor-pointer group" onClick={() => acceptSwap(suggestion)}>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-heading text-sm flex-1 min-w-0 truncate">{suggestion.meal_name}</p>
+                        <Button variant="apollo" size="sm" className="flex-shrink-0 h-7 text-[10px] px-2.5 gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                          <Check className="w-3 h-3" /> Select
+                        </Button>
                       </div>
-                      <Button variant="apollo" size="sm" className="flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity h-8 text-xs gap-1">
-                        <Check className="w-3 h-3" /> Select
-                      </Button>
+                      {suggestion.description && <p className="text-[10px] text-muted-foreground line-clamp-1">{suggestion.description}</p>}
+                      <div className="flex items-center gap-2 text-[10px] font-medium">
+                        <span className="text-primary">{suggestion.calories} cal</span>
+                        <span className="text-muted-foreground">P: {suggestion.protein_grams}g</span>
+                        <span className="text-muted-foreground">C: {suggestion.carbs_grams}g</span>
+                        <span className="text-muted-foreground">F: {suggestion.fat_grams}g</span>
+                      </div>
+                      {suggestion.ingredients?.length > 0 && (
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          {suggestion.ingredients.slice(0, 3).join(" · ")}{suggestion.ingredients.length > 3 ? ` +${suggestion.ingredients.length - 3} more` : ""}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
