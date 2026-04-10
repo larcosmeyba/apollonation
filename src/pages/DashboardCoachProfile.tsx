@@ -84,14 +84,13 @@ const DashboardCoachProfile = () => {
   return (
     <DashboardLayout>
       <div className="max-w-xl mx-auto space-y-6">
-        {/* Coach Header */}
-        <div className="flex flex-col items-center gap-4 pt-4">
-          <div className="w-28 h-28 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_25px_rgba(255,255,255,0.2)]">
-            <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
-          </div>
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground">Marcos Leyba</h1>
-            <p className="text-sm text-muted-foreground mt-1">Head Coach · Apollo Nation</p>
+        {/* Coach Hero — Large square image */}
+        <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.08)]">
+          <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <h1 className="text-2xl font-bold text-white">Marcos Leyba</h1>
+            <p className="text-sm text-white/70 mt-1">Head Coach · Apollo Nation</p>
           </div>
         </div>
 

@@ -805,8 +805,8 @@ const DashboardNutrition = () => {
             <div className="card-apollo py-12 text-center">
               {!hasQuestionnaire ? (
                 <>
-                  <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
-                    <AlertCircle className="w-7 h-7 text-accent" />
+                  <div className="w-16 h-16 rounded-full bg-foreground/10 border border-foreground/20 flex items-center justify-center mx-auto mb-4">
+                    <AlertCircle className="w-7 h-7 text-foreground" />
                   </div>
                   <h3 className="font-heading text-lg text-foreground mb-2">Complete Your Profile First</h3>
                   <p className="text-muted-foreground text-sm mb-1">Complete your questionnaire to receive a personalized meal plan.</p>
@@ -815,8 +815,8 @@ const DashboardNutrition = () => {
                 </>
               ) : (
                 <>
-                  <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
-                    <Utensils className="w-7 h-7 text-accent" />
+                  <div className="w-16 h-16 rounded-full bg-foreground/10 border border-foreground/20 flex items-center justify-center mx-auto mb-4">
+                    <Utensils className="w-7 h-7 text-foreground" />
                   </div>
                   <h3 className="font-heading text-lg text-foreground mb-2">Plan Being Prepared</h3>
                   <p className="text-muted-foreground text-sm mb-1">Your nutrition plan is being set up. Check back soon!</p>
@@ -1051,7 +1051,7 @@ const DashboardNutrition = () => {
 
                     {!groceryList && !groceryMutation.isPending && (
                       <div className="card-apollo py-12 text-center">
-                        <ShoppingCart className="w-8 h-8 text-accent/30 mx-auto mb-3" />
+                        <ShoppingCart className="w-8 h-8 text-foreground/30 mx-auto mb-3" />
                         <h3 className="font-heading text-base text-foreground mb-1">Generate Your Grocery List</h3>
                         <p className="text-muted-foreground text-xs max-w-xs mx-auto">Select a week and generate a shopping list based on your meals, budget, and store.</p>
                       </div>
