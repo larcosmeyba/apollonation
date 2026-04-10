@@ -104,42 +104,11 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const prompt = `Generate a complete 7-day meal plan for Week ${week}. This should be COMPLETELY DIFFERENT meals from any previous generation — use different proteins, cuisines, cooking methods, and ingredients.
+    const prompt = `7-day meal plan, Week ${week}. 4 meals/day (breakfast, lunch, dinner, snack). Varied cuisines & proteins.
+Targets: ${plan.daily_calories}cal, ${plan.protein_grams}g P, ${plan.carbs_grams}g C, ${plan.fat_grams}g F. Goal: ${goal}.
+${dietaryPrefs}${restrictionsText}${budgetInfo}${profile?.notes ? ` Notes: ${profile.notes}` : ""}
 
-- Daily calories: ${plan.daily_calories} kcal
-- Protein: ${plan.protein_grams}g
-- Carbs: ${plan.carbs_grams}g
-- Fat: ${plan.fat_grams}g
-- Goal: ${goal}
-${dietaryPrefs}
-${restrictionsText}
-${budgetInfo}
-${profile?.notes ? `Additional notes: ${profile.notes}` : ""}
-
-For EACH of the 7 days, provide exactly 4 meals: breakfast, lunch, dinner, and snack.
-
-You MUST respond with ONLY valid JSON (no markdown, no code blocks):
-{
-  "days": [
-    {
-      "day_number": 1,
-      "meals": [
-        {
-          "meal_type": "breakfast",
-          "meal_name": "name",
-          "description": "brief description with cooking instructions",
-          "ingredients": ["ingredient 1 with amount", "ingredient 2 with amount"],
-          "calories": 400,
-          "protein_grams": 30,
-          "carbs_grams": 40,
-          "fat_grams": 15
-        }
-      ]
-    }
-  ]
-}
-
-Make meals practical, varied, and delicious. Each day's total macros should approximately match the targets.`;
+Respond ONLY with JSON: {"days":[{"day_number":1,"meals":[{"meal_type":"breakfast","meal_name":"...","description":"...","ingredients":["item with amount"],"calories":0,"protein_grams":0,"carbs_grams":0,"fat_grams":0}]}]}`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -148,11 +117,12 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-flash-lite",
         messages: [
-          { role: "system", content: "You are an expert sports nutritionist. Generate precise, practical meal plans with maximum variety. Respond with ONLY valid JSON." },
+          { role: "system", content: "Expert nutritionist. Return ONLY valid JSON, no markdown." },
           { role: "user", content: prompt },
         ],
+        temperature: 0.9,
       }),
     });
 
