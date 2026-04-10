@@ -176,7 +176,10 @@ const TermsOfService = () => {
 
           <h2 className="font-heading text-2xl text-foreground mt-8">15. Contact Us</h2>
           <p>
-            If you have questions about these Terms, please contact us at:
+            If you have questions about these Terms, please contact us through our{" "}
+            <Link to="/" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: document.getElementById('contact')?.offsetTop || 0, behavior: 'smooth' }); }} className="text-primary hover:underline">
+              contact form
+            </Link>.
           </p>
           <p className="font-medium text-foreground">
             Apollo Fitness LLC
