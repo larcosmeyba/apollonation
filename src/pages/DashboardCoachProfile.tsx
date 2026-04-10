@@ -193,7 +193,8 @@ const DashboardCoachProfile = () => {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
-  );
+};
+
 /** Plays a video from private storage using a signed URL */
 const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
   const [bucket, ...pathParts] = storagePath.split("/");
