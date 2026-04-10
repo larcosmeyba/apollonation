@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
-import { Play, Bookmark, BookmarkCheck } from "lucide-react";
+import { Bookmark, BookmarkCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -87,10 +87,10 @@ const DashboardCoachProfile = () => {
         {/* Coach Hero — Large square image */}
         <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.08)]">
           <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-          <div className="absolute bottom-4 left-4 right-4">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute bottom-5 left-5 right-5">
             <h1 className="text-2xl font-bold text-white">Marcos Leyba</h1>
-            <p className="text-sm text-white/70 mt-1">Head Coach · Apollo Nation</p>
+            <p className="text-sm text-white/70 mt-1">Founder & Head Coach · Apollo Nation</p>
           </div>
         </div>
 
@@ -117,7 +117,7 @@ const DashboardCoachProfile = () => {
         {/* Bio Tab */}
         {activeTab === "bio" && (
           <div className="space-y-4">
-            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">{COACH_BIO}</p>
+            <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">{COACH_BIO}</p>
           </div>
         )}
 

@@ -64,12 +64,8 @@ serve(async (req) => {
       if (!weeklyBudget) weeklyBudget = questionnaire?.weekly_food_budget;
     }
 
-    if (!groceryStore || !weeklyBudget) {
-      return new Response(
-        JSON.stringify({ error: "Please select a grocery store and enter your weekly budget." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    if (!groceryStore) groceryStore = "Local Grocery Store";
+    if (!weeklyBudget) weeklyBudget = 100;
 
     // Get dietary restrictions from questionnaire
     const { data: qData } = await supabaseClient
