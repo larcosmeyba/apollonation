@@ -17,18 +17,22 @@ import stockArms from "@/assets/stock-arms.png";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
+import catStretch from "@/assets/categories/stretch.jpg";
+import catCardio from "@/assets/categories/cardio.jpg";
+import catSculpt from "@/assets/categories/sculpt.jpg";
+import catStrength from "@/assets/categories/strength.png";
+import catHIIT from "@/assets/categories/hiit.png";
 import { toast } from "sonner";
 
 const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7];
 
 const CATEGORY_IMAGES: Record<string, string> = {
-  Cardio: marcosAction1,
-  Sculpt: stockBack,
-  Strength: stockArms,
-  HIIT: marcosAction6,
-  Stretch: marcosAction7,
-  Yoga: marcosAction1,
-  Senior: stockBack,
+  Strength: catStrength,
+  HIIT: catHIIT,
+  Sculpt: catSculpt,
+  Cardio: catCardio,
+  Stretch: catStretch,
+  Core: marcosAction6,
 };
 
 const getYouTubeVideoId = (url: string): string | null => {
@@ -158,7 +162,7 @@ const Dashboard = () => {
     onError: () => toast.error("Could not update favorite"),
   });
 
-  const categories = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Senior"];
+  const categories = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch"];
 
   const SaveButton = ({ workoutId }: { workoutId: string }) => {
     const isSaved = favorites.includes(workoutId);
