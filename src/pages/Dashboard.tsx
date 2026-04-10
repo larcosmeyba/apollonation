@@ -1,4 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Play, Bookmark, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ const getThumb = (w: any, i: number) => {
 
 const Dashboard = () => {
   const { user, profile } = useAuth();
+  const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
 
   const greeting = useMemo(() => {
@@ -136,8 +138,8 @@ const Dashboard = () => {
             to="/dashboard/profile"
             className="w-14 h-14 rounded-full bg-foreground flex items-center justify-center flex-shrink-0"
           >
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+            {avatarSignedUrl ? (
+              <img src={avatarSignedUrl} alt="" className="w-full h-full rounded-full object-cover" />
             ) : (
               <span className="text-lg font-bold text-background">
                 {(profile?.display_name || "M").charAt(0).toUpperCase()}
