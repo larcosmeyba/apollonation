@@ -14,17 +14,49 @@ type FoodCategory = {
 
 const FOOD_CATEGORIES: FoodCategory[] = [
   {
+    image: mealSnack,
+    keywords: [
+      "almond butter rice cake", "rice cakes with", "almond butter banana",
+      "peanut butter rice cake", "nut butter rice cake",
+      "cottage cheese with pineapple", "cottage cheese with",
+      "greek yogurt with", "yogurt parfait", "yogurt bowl",
+      "chia pudding", "chia seed pudding", "overnight chia",
+      "protein bar", "energy ball", "protein ball",
+      "trail mix", "mixed nuts", "nut mix",
+      "apple with peanut butter", "banana with almond butter",
+      "celery with peanut butter", "hummus and veggies",
+      "dark chocolate", "edamame",
+      "snack", "nuts", "almonds", "almond butter", "peanut butter",
+      "yogurt", "fruit", "apple", "banana", "berries", "bar",
+      "energy ball", "trail mix", "hummus", "cheese",
+      "cottage cheese", "crackers", "rice cake", "rice cakes",
+      "celery", "carrot sticks", "granola bar", "dried fruit",
+      "seeds", "sunflower", "nut butter", "cashew", "pistachio",
+      "popcorn",
+    ],
+  },
+  {
     image: mealBreakfast,
     keywords: [
+      "overnight oats", "protein oatmeal", "baked oatmeal",
+      "egg white omelet", "veggie omelet", "spinach omelet",
+      "french toast", "protein pancake", "banana pancake",
+      "breakfast burrito", "breakfast wrap", "breakfast bowl",
+      "acai bowl", "smoothie bowl",
+      "frittata with", "hash brown",
       "breakfast", "oatmeal", "oats", "pancake", "waffle", "eggs", "egg",
-      "omelet", "omelette", "french toast", "cereal", "granola", "muesli",
+      "omelet", "omelette", "cereal", "granola", "muesli",
       "porridge", "toast", "bagel", "muffin", "frittata", "hash",
-      "overnight", "chia pudding", "acai bowl",
+      "overnight", "acai bowl",
     ],
   },
   {
     image: mealChicken,
     keywords: [
+      "grilled chicken breast", "baked chicken thigh", "chicken stir fry",
+      "honey mustard chicken", "lemon herb chicken", "chicken lettuce wrap",
+      "chicken caesar", "teriyaki chicken",
+      "turkey meatball", "turkey burger", "ground turkey",
       "chicken", "turkey", "poultry", "grilled chicken", "roast chicken",
       "baked chicken", "breast", "thigh", "wing",
     ],
@@ -32,6 +64,9 @@ const FOOD_CATEGORIES: FoodCategory[] = [
   {
     image: mealFish,
     keywords: [
+      "salmon fillet", "baked salmon", "grilled salmon",
+      "tuna salad", "tuna steak", "tuna wrap",
+      "shrimp stir fry", "grilled shrimp",
       "salmon", "fish", "tuna", "cod", "tilapia", "shrimp", "prawn",
       "seafood", "sushi", "mahi", "trout", "halibut", "sea bass",
       "crab", "lobster", "scallop",
@@ -40,6 +75,10 @@ const FOOD_CATEGORIES: FoodCategory[] = [
   {
     image: mealSteak,
     keywords: [
+      "turkey meatloaf", "lean meatloaf", "beef meatloaf",
+      "steak with", "grilled steak", "sirloin steak",
+      "ground beef bowl", "beef stir fry",
+      "pork tenderloin", "grilled pork",
       "steak", "beef", "sirloin", "ribeye", "filet", "ground beef",
       "burger", "meatball", "pork", "lamb", "brisket", "roast",
       "tenderloin", "meatloaf",
@@ -48,14 +87,22 @@ const FOOD_CATEGORIES: FoodCategory[] = [
   {
     image: mealSalad,
     keywords: [
+      "mediterranean salmon salad", "quinoa salad", "greek salad",
+      "chicken caesar salad", "kale salad", "spinach salad",
+      "grain bowl", "buddha bowl", "power bowl",
+      "lentil soup", "vegetable soup", "minestrone",
       "salad", "bowl", "greens", "kale", "spinach", "arugula",
       "lettuce", "mediterranean", "greek", "caesar", "cobb",
       "quinoa bowl", "buddha bowl", "grain bowl",
+      "soup", "lentil",
     ],
   },
   {
     image: mealPasta,
     keywords: [
+      "chicken stir fry with rice", "beef stir fry with noodles",
+      "burrito bowl", "chicken wrap", "taco bowl",
+      "curry with rice", "chicken curry",
       "pasta", "spaghetti", "penne", "noodle", "macaroni", "lasagna",
       "fettuccine", "linguine", "rice", "risotto", "stir fry",
       "stir-fry", "fried rice", "lo mein", "pad thai", "curry",
@@ -65,20 +112,10 @@ const FOOD_CATEGORIES: FoodCategory[] = [
   {
     image: mealSmoothie,
     keywords: [
+      "protein smoothie", "green smoothie", "berry smoothie",
+      "post-workout shake", "recovery shake",
       "smoothie", "shake", "protein shake", "juice", "acai",
       "milkshake", "drink", "protein drink", "blend",
-    ],
-  },
-  {
-    image: mealSnack,
-    keywords: [
-      "snack", "nuts", "almonds", "almond butter", "peanut butter",
-      "yogurt", "fruit", "apple", "banana", "berries", "bar",
-      "protein bar", "energy ball", "trail mix", "hummus", "cheese",
-      "cottage cheese", "crackers", "dark chocolate", "edamame",
-      "rice cake", "rice cakes", "celery", "carrot sticks",
-      "granola bar", "dried fruit", "seeds", "sunflower",
-      "nut butter", "cashew", "pistachio", "popcorn",
     ],
   },
 ];
