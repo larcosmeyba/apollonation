@@ -19,6 +19,7 @@ const FOOD_CATEGORIES: FoodCategory[] = [
       "breakfast", "oatmeal", "oats", "pancake", "waffle", "eggs", "egg",
       "omelet", "omelette", "french toast", "cereal", "granola", "muesli",
       "porridge", "toast", "bagel", "muffin", "frittata", "hash",
+      "overnight", "chia pudding", "acai bowl",
     ],
   },
   {
@@ -71,29 +72,36 @@ const FOOD_CATEGORIES: FoodCategory[] = [
   {
     image: mealSnack,
     keywords: [
-      "snack", "nuts", "almonds", "yogurt", "fruit", "apple",
-      "banana", "berries", "bar", "protein bar", "energy ball",
-      "trail mix", "hummus", "cheese", "cottage cheese", "crackers",
-      "dark chocolate", "edamame", "rice cake",
+      "snack", "nuts", "almonds", "almond butter", "peanut butter",
+      "yogurt", "fruit", "apple", "banana", "berries", "bar",
+      "protein bar", "energy ball", "trail mix", "hummus", "cheese",
+      "cottage cheese", "crackers", "dark chocolate", "edamame",
+      "rice cake", "rice cakes", "celery", "carrot sticks",
+      "granola bar", "dried fruit", "seeds", "sunflower",
+      "nut butter", "cashew", "pistachio", "popcorn",
     ],
   },
 ];
 
 /**
  * Returns a food category image based on the meal name and meal type.
- * Uses keyword matching to find the best visual representation.
+ * Uses keyword matching — longest match first for accuracy.
  */
 export function getMealImage(mealName: string, mealType?: string): string {
   const name = mealName.toLowerCase();
 
-  // Check specific food keywords first
+  // Score each category by longest keyword match
+  let bestMatch: { image: string; length: number } | null = null;
+
   for (const category of FOOD_CATEGORIES) {
     for (const keyword of category.keywords) {
-      if (name.includes(keyword)) {
-        return category.image;
+      if (name.includes(keyword) && (!bestMatch || keyword.length > bestMatch.length)) {
+        bestMatch = { image: category.image, length: keyword.length };
       }
     }
   }
+
+  if (bestMatch) return bestMatch.image;
 
   // Fall back to meal type
   switch (mealType?.toLowerCase()) {

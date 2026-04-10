@@ -365,7 +365,7 @@ const DashboardWorkouts = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setSelectedCategory(null)}
-                  className="text-xs font-bold text-accent"
+                  className="text-xs font-bold text-foreground"
                 >
                   ← Back
                 </button>
