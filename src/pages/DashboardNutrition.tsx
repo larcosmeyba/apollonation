@@ -454,8 +454,8 @@ const DashboardNutrition = () => {
     <>
       {/* Meal Swap Dialog */}
       <Dialog open={!!swapMeal} onOpenChange={(open) => { if (!open) { setSwapMeal(null); setSwapSuggestions([]); } }}>
-        <DialogContent className="max-w-[85vw] sm:max-w-md bg-card border-border max-h-[85vh] overflow-y-auto overflow-x-hidden">
-          <DialogHeader><DialogTitle className="font-heading text-xl">Choose an Alternative</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-[90vw] sm:max-w-sm bg-card border-border max-h-[85vh] overflow-y-auto overflow-x-hidden">
+          <DialogHeader><DialogTitle className="font-heading text-base">Choose an Alternative</DialogTitle></DialogHeader>
           {swapLoading ? (
             <div className="flex flex-col items-center justify-center py-10 gap-3">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -463,48 +463,48 @@ const DashboardNutrition = () => {
             </div>
           ) : swapSuggestions.length > 0 ? (
             <div className="space-y-3">
-              <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
-                <p className="text-[10px] text-muted-foreground mb-1 uppercase tracking-wider">Replacing</p>
-                <p className="font-medium text-sm line-through text-muted-foreground">{swapMeal?.meal_name}</p>
+              <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50">
+                <p className="text-[10px] text-muted-foreground mb-0.5 uppercase tracking-wider">Replacing</p>
+                <p className="font-medium text-xs line-through text-muted-foreground">{swapMeal?.meal_name}</p>
                 <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
                   <span>{swapMeal?.calories} cal</span>
-                  <span>P: {swapMeal?.protein_grams}g</span>
-                  <span>C: {swapMeal?.carbs_grams}g</span>
-                  <span>F: {swapMeal?.fat_grams}g</span>
+                  <span>P{swapMeal?.protein_grams}g</span>
+                  <span>C{swapMeal?.carbs_grams}g</span>
+                  <span>F{swapMeal?.fat_grams}g</span>
                 </div>
               </div>
 
-              <p className="text-xs text-muted-foreground">Pick one of these macro-matched alternatives:</p>
+              <p className="text-[11px] text-muted-foreground">Tap a card to swap:</p>
 
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 {swapSuggestions.map((suggestion, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-muted/20 border border-border/50 hover:border-primary/40 transition-all cursor-pointer group" onClick={() => acceptSwap(suggestion)}>
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="font-heading text-sm flex-1 min-w-0 truncate">{suggestion.meal_name}</p>
-                        <Button variant="apollo" size="sm" className="flex-shrink-0 h-7 text-[10px] px-2.5 gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                          <Check className="w-3 h-3" /> Select
-                        </Button>
+                  <div
+                    key={idx}
+                    className="rounded-xl bg-muted/20 border border-border/50 hover:border-primary/40 transition-all cursor-pointer group overflow-hidden"
+                    onClick={() => acceptSwap(suggestion)}
+                  >
+                    <div className="aspect-square overflow-hidden">
+                      <img
+                        src={getMealImage(suggestion.meal_name, swapMeal?.meal_type)}
+                        alt={suggestion.meal_name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="p-2.5 space-y-1">
+                      <p className="font-heading text-xs leading-tight line-clamp-2">{suggestion.meal_name}</p>
+                      <p className="text-[10px] font-medium text-primary">{suggestion.calories} cal</p>
+                      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+                        <span>P{suggestion.protein_grams}g</span>
+                        <span>C{suggestion.carbs_grams}g</span>
+                        <span>F{suggestion.fat_grams}g</span>
                       </div>
-                      {suggestion.description && <p className="text-[10px] text-muted-foreground line-clamp-1">{suggestion.description}</p>}
-                      <div className="flex items-center gap-2 text-[10px] font-medium">
-                        <span className="text-primary">{suggestion.calories} cal</span>
-                        <span className="text-muted-foreground">P: {suggestion.protein_grams}g</span>
-                        <span className="text-muted-foreground">C: {suggestion.carbs_grams}g</span>
-                        <span className="text-muted-foreground">F: {suggestion.fat_grams}g</span>
-                      </div>
-                      {suggestion.ingredients?.length > 0 && (
-                        <p className="text-[10px] text-muted-foreground truncate">
-                          {suggestion.ingredients.slice(0, 3).join(" · ")}{suggestion.ingredients.length > 3 ? ` +${suggestion.ingredients.length - 3} more` : ""}
-                        </p>
-                      )}
                     </div>
                   </div>
                 ))}
               </div>
 
               <Button variant="apollo-outline" size="sm" className="w-full gap-2" onClick={() => openSwap(swapMeal)} disabled={swapLoading}>
-                <RefreshCw className="w-3.5 h-3.5" /> Generate More Options
+                <RefreshCw className="w-3.5 h-3.5" /> More Options
               </Button>
             </div>
           ) : null}

@@ -62,7 +62,7 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* ─── TOP NAVIGATION BAR ─── */}
-      <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 lg:px-6 z-30 shrink-0">
+      <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 lg:px-6 z-30 shrink-0" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
         {/* Left: hamburger (mobile) + logo */}
         <div className="flex items-center gap-3">
           <button
