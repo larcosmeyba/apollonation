@@ -481,7 +481,7 @@ const AdminWorkouts = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {workouts?.map((workout) => (
             <div key={workout.id} className="card-apollo overflow-hidden group">
-              <div className="aspect-video bg-muted relative">
+              <div className="aspect-[4/3] bg-muted relative">
                 {workout.thumbnail_url ? (
                   <img src={workout.thumbnail_url} alt={workout.title} className="w-full h-full object-cover" />
                 ) : (
