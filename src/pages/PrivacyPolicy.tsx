@@ -100,14 +100,31 @@ const PrivacyPolicy = () => {
             We encourage you to read their privacy policies.
           </p>
 
-          <h2 className="font-heading text-2xl text-foreground mt-8">8. Changes to This Policy</h2>
+          <h2 className="font-heading text-2xl text-foreground mt-8">8. Data Retention</h2>
+          <p>
+            Apollo Reborn retains user data only for as long as necessary to provide services within the application.
+          </p>
+          <p>
+            User account information, workout history, training progress, nutrition preferences, and questionnaire 
+            responses are stored while the user account remains active.
+          </p>
+          <p>
+            If a user deletes their account or submits a request to delete their data, Apollo Reborn will permanently 
+            delete all associated personal data from our systems within 30 days unless retention is required for legal, 
+            financial, or security obligations.
+          </p>
+          <p>
+            Inactive accounts may be removed from our systems after an extended period of inactivity.
+          </p>
+
+          <h2 className="font-heading text-2xl text-foreground mt-8">9. Changes to This Policy</h2>
           <p>
             We may update this Privacy Policy from time to time. 
             We will notify you of any changes by posting the new Privacy Policy on this page 
             and updating the "Effective Date" above.
           </p>
 
-          <h2 className="font-heading text-2xl text-foreground mt-8">9. Contact Us</h2>
+          <h2 className="font-heading text-2xl text-foreground mt-8">10. Contact Us</h2>
           <p>
             If you have questions about this Privacy Policy or our privacy practices, please contact us through our{" "}
             <Link to="/contact" className="text-primary hover:underline">
