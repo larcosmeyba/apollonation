@@ -10,8 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, Sparkles, FileText, Loader2, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Sparkles, FileText, Loader2, Upload, Library } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import BulkPdfImport from "./BulkPdfImport";
 
 interface Recipe {
   id: string;
@@ -40,6 +41,7 @@ const AdminRecipes = () => {
   const [aiCount, setAiCount] = useState(1);
   const [aiGenerating, setAiGenerating] = useState(false);
   const [pdfProcessing, setPdfProcessing] = useState(false);
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -399,54 +401,47 @@ const AdminRecipes = () => {
           </CardContent>
         </Card>
 
-        {/* PDF Upload */}
+        {/* Bulk PDF Import */}
         <Card className="bg-card border-border">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <FileText className="w-5 h-5 text-primary" />
-              Import from PDF
+              <Library className="w-5 h-5 text-primary" />
+              Bulk PDF Import
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Upload a nutrition PDF and AI will extract recipes, ingredients, macros, and instructions automatically.
+              Upload one or more cookbook PDFs. AI extracts every recipe with macros — review and add photos before saving.
             </p>
-            <div className="relative">
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handlePdfUpload}
-                disabled={pdfProcessing}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                id="pdf-upload"
-              />
-              <Button
-                variant="apollo-outline"
-                className="w-full"
-                disabled={pdfProcessing}
-                asChild
-              >
-                <label htmlFor="pdf-upload" className="cursor-pointer flex items-center justify-center">
-                  {pdfProcessing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing PDF...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Nutrition PDF
-                    </>
-                  )}
-                </label>
-              </Button>
-            </div>
+            <Button
+              variant="apollo-outline"
+              className="w-full"
+              onClick={() => setBulkImportOpen(true)}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Open Bulk Importer
+            </Button>
             <p className="text-xs text-muted-foreground">
-              Text-based PDFs only • Max 10MB
+              Best for large recipe libraries · Max 20MB per file
             </p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Bulk Import Dialog */}
+      <Dialog open={bulkImportOpen} onOpenChange={setBulkImportOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Import recipes from PDF</DialogTitle>
+          </DialogHeader>
+          <BulkPdfImport
+            onComplete={() => {
+              setBulkImportOpen(false);
+              queryClient.invalidateQueries({ queryKey: ["admin-recipes"] });
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Recipe Table Header */}
       <div className="flex justify-between items-center">
