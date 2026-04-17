@@ -644,6 +644,36 @@ export type Database = {
         }
         Relationships: []
       }
+      food_spend_logs: {
+        Row: {
+          amount_spent: number
+          created_at: string
+          id: string
+          notes: string | null
+          spend_date: string
+          store_name: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_spent: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          spend_date?: string
+          store_name?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_spent?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          spend_date?: string
+          store_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       group_coaching_slideshows: {
         Row: {
           class_type: string
@@ -1517,6 +1547,33 @@ export type Database = {
           },
         ]
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          achievement_title: string
+          id: string
+          is_seen: boolean
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          achievement_title: string
+          id?: string
+          is_seen?: boolean
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          achievement_title?: string
+          id?: string
+          is_seen?: boolean
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_favorites: {
         Row: {
           created_at: string
@@ -1555,6 +1612,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_macro_targets: {
+        Row: {
+          bmr: number | null
+          calorie_target: number
+          carb_grams: number
+          created_at: string
+          fat_grams: number
+          goal_type: string
+          id: string
+          protein_grams: number
+          source: string
+          tdee: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bmr?: number | null
+          calorie_target: number
+          carb_grams: number
+          created_at?: string
+          fat_grams: number
+          goal_type?: string
+          id?: string
+          protein_grams: number
+          source?: string
+          tdee?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bmr?: number | null
+          calorie_target?: number
+          carb_grams?: number
+          created_at?: string
+          fat_grams?: number
+          goal_type?: string
+          id?: string
+          protein_grams?: number
+          source?: string
+          tdee?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_privacy_preferences: {
         Row: {
@@ -1690,11 +1792,45 @@ export type Database = {
           },
         ]
       }
+      workout_recommendations: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          is_dismissed: boolean
+          reason: string
+          recommended_workout: string
+          source_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_dismissed?: boolean
+          reason: string
+          recommended_workout: string
+          source_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_dismissed?: boolean
+          reason?: string
+          recommended_workout?: string
+          source_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       workout_session_logs: {
         Row: {
           completed_at: string | null
           created_at: string
           day_id: string
+          difficulty_rating: number | null
           id: string
           log_date: string
           notes: string | null
@@ -1705,6 +1841,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           day_id: string
+          difficulty_rating?: number | null
           id?: string
           log_date?: string
           notes?: string | null
@@ -1715,6 +1852,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           day_id?: string
+          difficulty_rating?: number | null
           id?: string
           log_date?: string
           notes?: string | null
