@@ -13,7 +13,8 @@ import { Shield } from "lucide-react";
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const isAdminMode = searchParams.get("role") === "admin";
-  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
+  const initialMode = searchParams.get("mode") === "signup" ? "signup" : "login";
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
