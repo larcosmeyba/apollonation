@@ -316,7 +316,7 @@ const BulkPdfImport = ({ onComplete }: Props) => {
               </label>
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-3">Max 20MB per file</p>
+          <p className="text-xs text-muted-foreground mt-3">Up to 50MB per file · processed in 5-page chunks</p>
         </div>
       </div>
     );
