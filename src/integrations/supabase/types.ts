@@ -1556,6 +1556,33 @@ export type Database = {
           },
         ]
       }
+      user_privacy_preferences: {
+        Row: {
+          ai_personalization_opted_out: boolean
+          created_at: string
+          id: string
+          marketing_opted_out: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_personalization_opted_out?: boolean
+          created_at?: string
+          id?: string
+          marketing_opted_out?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_personalization_opted_out?: boolean
+          created_at?: string
+          id?: string
+          marketing_opted_out?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

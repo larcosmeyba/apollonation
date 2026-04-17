@@ -26,6 +26,18 @@ Deno.serve(async (req) => {
 
     if (userError || !user) throw new Error("Unauthorized");
 
+    // Privacy: respect AI personalization opt-out
+    const { data: privacyPrefs } = await supabase
+      .from("user_privacy_preferences")
+      .select("ai_personalization_opted_out")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (privacyPrefs?.ai_personalization_opted_out) {
+      return new Response(JSON.stringify({ error: "AI personalization is disabled in your privacy settings. Enable it under Profile → Privacy & Data to get suggestions." }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { mealId, planId } = await req.json();
     if (!mealId || !planId) throw new Error("Missing mealId or planId");
 
