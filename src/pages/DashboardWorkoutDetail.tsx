@@ -761,6 +761,14 @@ const DashboardWorkoutDetail = () => {
               </p>
             </div>
 
+            {/* Difficulty rating - Smart Coach */}
+            <DifficultyRating
+              value={difficulty}
+              onChange={setDifficulty}
+              onSave={() => saveDifficultyAndRecommend(difficulty ?? 5)}
+              saving={savingDifficulty}
+            />
+
             {/* Apple Watch Screenshot Upload */}
             <div className="mx-4 p-4 rounded-xl border border-border bg-muted/30 space-y-3">
               <div className="flex items-center justify-center gap-2 text-sm font-medium">
