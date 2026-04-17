@@ -16,6 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { useMacroTargets } from "@/hooks/useMacroTargets";
+import FoodBudgetCard from "@/components/dashboard/FoodBudgetCard";
 
 const DashboardMacros = () => {
   const { user, profile } = useAuth();
@@ -146,6 +148,9 @@ const DashboardMacros = () => {
   };
 
   // Fetch nutrition plan for daily targets
+  // Auto-calculated macro targets via Mifflin-St Jeor (overrides nutrition_plans default)
+  const macroTargets = useMacroTargets();
+
   const { data: nutritionPlan } = useQuery({
     queryKey: ["nutrition-plan-targets", user?.id],
     queryFn: async () => {
@@ -162,11 +167,12 @@ const DashboardMacros = () => {
     enabled: !!user,
   });
 
+  // Prefer explicit nutrition plan, fall back to auto-calculated macros
   const targets = {
-    calories: nutritionPlan?.daily_calories || 2500,
-    protein: nutritionPlan?.protein_grams || 180,
-    carbs: nutritionPlan?.carbs_grams || 300,
-    fat: nutritionPlan?.fat_grams || 70,
+    calories: nutritionPlan?.daily_calories || macroTargets.calorie_target,
+    protein: nutritionPlan?.protein_grams || macroTargets.protein_grams,
+    carbs: nutritionPlan?.carbs_grams || macroTargets.carb_grams,
+    fat: nutritionPlan?.fat_grams || macroTargets.fat_grams,
   };
 
   const totals = entries.reduce(
