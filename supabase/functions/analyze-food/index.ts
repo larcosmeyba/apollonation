@@ -46,7 +46,19 @@ serve(async (req) => {
       );
     }
 
-    // Optionally check if user has Elite subscription for this feature
+    // Privacy: respect AI personalization opt-out
+    const { data: privacyPrefs } = await supabaseClient
+      .from("user_privacy_preferences")
+      .select("ai_personalization_opted_out")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (privacyPrefs?.ai_personalization_opted_out) {
+      return new Response(
+        JSON.stringify({ error: "AI personalization is disabled in your privacy settings. Enable it under Profile → Privacy & Data to use food analysis." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { data: profile } = await supabaseClient
       .from("profiles")
       .select("subscription_tier")
