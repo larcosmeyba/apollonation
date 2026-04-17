@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { PDFDocument } from "pdf-lib";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,6 +67,28 @@ const BulkPdfImport = ({ onComplete }: Props) => {
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [activePhotoIdx, setActivePhotoIdx] = useState<number | null>(null);
 
+  const CHUNK_SIZE = 5; // pages per AI call
+
+  const splitPdfIntoChunks = async (file: File): Promise<string[]> => {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const src = await PDFDocument.load(bytes);
+    const total = src.getPageCount();
+    const chunks: string[] = [];
+    for (let start = 0; start < total; start += CHUNK_SIZE) {
+      const end = Math.min(start + CHUNK_SIZE, total);
+      const sub = await PDFDocument.create();
+      const pages = await sub.copyPages(src, Array.from({ length: end - start }, (_, i) => start + i));
+      pages.forEach((p) => sub.addPage(p));
+      const subBytes = await sub.save();
+      // base64 encode
+      let binary = "";
+      const len = subBytes.byteLength;
+      for (let i = 0; i < len; i++) binary += String.fromCharCode(subBytes[i]);
+      chunks.push(btoa(binary));
+    }
+    return chunks;
+  };
+
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -75,8 +98,8 @@ const BulkPdfImport = ({ onComplete }: Props) => {
         toast({ title: `${f.name} is not a PDF`, variant: "destructive" });
         return;
       }
-      if (f.size > 20 * 1024 * 1024) {
-        toast({ title: `${f.name} exceeds 20MB`, variant: "destructive" });
+      if (f.size > 50 * 1024 * 1024) {
+        toast({ title: `${f.name} exceeds 50MB`, variant: "destructive" });
         return;
       }
     }
@@ -87,27 +110,53 @@ const BulkPdfImport = ({ onComplete }: Props) => {
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        setProgressMsg(`Reading ${file.name} (${i + 1} of ${files.length})…`);
-        const pdfBase64 = await fileToBase64(file);
+        setProgressMsg(`Splitting ${file.name} (${i + 1}/${files.length})…`);
+        const chunks = await splitPdfIntoChunks(file);
 
-        setProgressMsg(`Extracting recipes from ${file.name}… this can take 30–60 seconds.`);
-        const { data, error } = await supabase.functions.invoke("bulk-import-recipes-pdf", {
-          body: { pdfBase64, fileName: file.name },
-        });
+        setProgressMsg(
+          `Extracting recipes from ${file.name} — ${chunks.length} chunk${chunks.length > 1 ? "s" : ""} in parallel…`
+        );
 
-        if (error) throw error;
-        if (data?.error) throw new Error(data.error);
-
-        const parsed: ParsedRecipe[] = data.recipes || [];
-        for (const r of parsed) {
-          allRecipes.push({
-            ...r,
-            _id: crypto.randomUUID(),
-            _selected: true,
-            _thumbnail_base64: null,
-            _thumbnail_mime: null,
-            _thumbnail_preview: null,
+        // Run chunks in parallel (3 at a time to avoid rate limits)
+        const concurrency = 3;
+        const results: ParsedRecipe[][] = [];
+        for (let c = 0; c < chunks.length; c += concurrency) {
+          const batch = chunks.slice(c, c + concurrency);
+          const settled = await Promise.allSettled(
+            batch.map((pdfBase64, idx) =>
+              supabase.functions.invoke("bulk-import-recipes-pdf", {
+                body: { pdfBase64, fileName: `${file.name} [chunk ${c + idx + 1}/${chunks.length}]` },
+              })
+            )
+          );
+          settled.forEach((s, idx) => {
+            if (s.status === "fulfilled") {
+              const { data, error } = s.value;
+              if (error || data?.error) {
+                console.error("Chunk failed:", error || data?.error);
+              } else {
+                results.push(data.recipes || []);
+              }
+            } else {
+              console.error("Chunk rejected:", s.reason);
+            }
           });
+          setProgressMsg(
+            `${file.name}: processed ${Math.min(c + concurrency, chunks.length)}/${chunks.length} chunks…`
+          );
+        }
+
+        for (const parsed of results) {
+          for (const r of parsed) {
+            allRecipes.push({
+              ...r,
+              _id: crypto.randomUUID(),
+              _selected: true,
+              _thumbnail_base64: null,
+              _thumbnail_mime: null,
+              _thumbnail_preview: null,
+            });
+          }
         }
       }
 
@@ -267,7 +316,7 @@ const BulkPdfImport = ({ onComplete }: Props) => {
               </label>
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-3">Max 20MB per file</p>
+          <p className="text-xs text-muted-foreground mt-3">Up to 50MB per file · processed in 5-page chunks</p>
         </div>
       </div>
     );

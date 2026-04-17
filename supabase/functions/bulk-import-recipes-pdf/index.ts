@@ -69,8 +69,8 @@ serve(async (req) => {
       });
     }
 
-    // Rate limit: 30 PDF imports per admin per day
-    const allowed = await checkRateLimit(userId, "bulk-import-recipes-pdf", 30, 1440);
+    // Rate limit: 200 PDF chunks per admin per day (we now chunk large PDFs client-side)
+    const allowed = await checkRateLimit(userId, "bulk-import-recipes-pdf", 200, 1440);
     if (!allowed) return rateLimitResponse(corsHeaders);
 
     const { pdfBase64, fileName } = await req.json();
@@ -95,7 +95,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
         messages: [
           {
             role: "system",
