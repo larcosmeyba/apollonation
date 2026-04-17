@@ -215,6 +215,14 @@ const DashboardProfile = () => {
     );
   }
 
+  if (settingsView === "report-bug") {
+    return (
+      <DashboardLayout>
+        <ReportBugView onBack={() => setSettingsView(null)} />
+      </DashboardLayout>
+    );
+  }
+
   if (settingsView === "profile-edit") {
     return (
       <DashboardLayout>
