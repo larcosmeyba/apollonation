@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { PDFDocument } from "pdf-lib";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
