@@ -607,6 +607,10 @@ const DashboardProfile = () => {
                   <span className="text-sm text-foreground">Privacy & Data</span>
                   <ChevronRight className="w-4 h-4 text-foreground/30" />
                 </button>
+                <button onClick={() => setSettingsView("report-bug")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="text-sm text-foreground">Report a Bug</span>
+                  <ChevronRight className="w-4 h-4 text-foreground/30" />
+                </button>
               </div>
 
               <div className="mt-6">
