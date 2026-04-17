@@ -12,6 +12,7 @@ import { format, subDays } from "date-fns";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { Switch } from "@/components/ui/switch";
 import PrivacyDataView from "@/components/dashboard/PrivacyDataView";
+import ReportBugView from "@/components/dashboard/ReportBugView";
 
 const WORKOUT_TYPES = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Core", "Senior"];
 
