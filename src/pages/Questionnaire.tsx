@@ -105,8 +105,6 @@ const Questionnaire = () => {
     const weightLbs = parseFloat(form.weight_lbs) || 150;
     const age = parseInt(form.age) || 25;
 
-    const macros = calculateMacros(age, form.sex, totalInches, weightLbs, form.activity_level, form.goal);
-
     try {
       const { data: questionnaireData, error } = await (supabase as any)
         .from("client_questionnaires")
