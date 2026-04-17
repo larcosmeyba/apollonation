@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
+import DifficultyRating from "@/components/dashboard/DifficultyRating";
 
 // ── YouTube helpers ──────────────────────────────────────────────────
 const getYouTubeVideoId = (url: string): string | null => {
@@ -302,6 +303,48 @@ const DashboardWorkoutDetail = () => {
   const [watchScreenshot, setWatchScreenshot] = useState<File | null>(null);
   const [watchPreviewUrl, setWatchPreviewUrl] = useState<string | null>(null);
   const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
+  const [difficulty, setDifficulty] = useState<number | null>(null);
+  const [savingDifficulty, setSavingDifficulty] = useState(false);
+
+  const saveDifficultyAndRecommend = async (rating: number) => {
+    if (!user || !dayId) return;
+    setSavingDifficulty(true);
+    try {
+      await (supabase as any)
+        .from("workout_session_logs")
+        .update({ difficulty_rating: rating })
+        .eq("user_id", user.id)
+        .eq("day_id", dayId)
+        .eq("log_date", dateParam);
+
+      // Generate a smart recommendation
+      const focus = dayData?.focus || dayData?.day_label || "training";
+      let reason = "";
+      let recommended = "";
+      if (rating <= 4) {
+        reason = `Last ${focus} session felt too easy (${rating}/10). Push heavier weights or add a set next time.`;
+        recommended = `Progressive Overload: ${focus}`;
+      } else if (rating >= 8) {
+        reason = `Last ${focus} session was brutal (${rating}/10). Drop intensity 10% or focus on recovery.`;
+        recommended = `Recovery & Mobility`;
+      } else {
+        reason = `${focus} effort was dialed in (${rating}/10). Keep this load and add reps next time.`;
+        recommended = `Maintain & Build: ${focus}`;
+      }
+      await (supabase as any).from("workout_recommendations").insert({
+        user_id: user.id,
+        recommended_workout: recommended,
+        reason,
+        category: focus,
+        source_session_id: null,
+      });
+      toast({ title: "Saved!", description: "Smart Coach updated your next plan." });
+    } catch (e: any) {
+      toast({ title: "Couldn't save rating", description: e.message, variant: "destructive" });
+    } finally {
+      setSavingDifficulty(false);
+    }
+  };
 
   // Fetch day with exercises
   const { data: dayData } = useQuery({
@@ -717,6 +760,14 @@ const DashboardWorkoutDetail = () => {
                 You just crushed <span className="text-foreground font-medium">{dayData?.day_label || `Day ${dayData?.day_number}`}</span>!
               </p>
             </div>
+
+            {/* Difficulty rating - Smart Coach */}
+            <DifficultyRating
+              value={difficulty}
+              onChange={setDifficulty}
+              onSave={() => saveDifficultyAndRecommend(difficulty ?? 5)}
+              saving={savingDifficulty}
+            />
 
             {/* Apple Watch Screenshot Upload */}
             <div className="mx-4 p-4 rounded-xl border border-border bg-muted/30 space-y-3">
