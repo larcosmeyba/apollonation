@@ -10,6 +10,7 @@ import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientList from "@/components/admin/AdminClientList";
 import AdminGroupCoaching from "@/components/admin/AdminGroupCoaching";
 import AdminMarketing from "@/components/admin/AdminMarketing";
+import AdminBugReports from "@/components/admin/AdminBugReports";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -34,6 +35,8 @@ const AdminDashboard = () => {
         return <AdminMarketing />;
       case "contacts":
         return <AdminContactRequests />;
+      case "bugs":
+        return <AdminBugReports />;
       case "profile":
         return <AdminCoachProfile />;
       default:
