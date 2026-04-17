@@ -35,33 +35,6 @@ const GOALS = [
 
 const STEPS = ["Personal Info", "Training", "Nutrition"];
 
-const calculateMacros = (age: number, sex: string, heightInches: number, weightLbs: number, activityLevel: string, goal: string) => {
-  const weightKg = weightLbs * 0.453592;
-  const heightCm = heightInches * 2.54;
-  const bmr = sex === "female"
-    ? 10 * weightKg + 6.25 * heightCm - 5 * age - 161
-    : 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
-  const multipliers: Record<string, number> = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, extreme: 1.9 };
-  const tdee = bmr * (multipliers[activityLevel] || 1.55);
-
-  let calories: number;
-  if (goal === "lose_fat") calories = Math.round(tdee - 500);
-  else if (goal === "gain_muscle") calories = Math.round(tdee + 300);
-  else if (goal === "reduce_bf") calories = Math.round(tdee - 400);
-  else calories = Math.round(tdee);
-
-  let proteinPerLb: number;
-  if (goal === "lose_fat" || goal === "reduce_bf") proteinPerLb = 1.1;
-  else if (goal === "gain_muscle") proteinPerLb = 1.0;
-  else proteinPerLb = 0.85;
-  const protein = Math.round(weightLbs * proteinPerLb);
-  const fat = Math.round((calories * 0.25) / 9);
-  const carbCalories = calories - (protein * 4) - (fat * 9);
-  const carbs = Math.max(Math.round(carbCalories / 4), 0);
-
-  return { calories, protein, carbs, fat };
-};
-
 const Questionnaire = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -131,8 +104,6 @@ const Questionnaire = () => {
     const totalInches = (parseInt(form.height_feet) || 0) * 12 + (parseInt(form.height_inches) || 0);
     const weightLbs = parseFloat(form.weight_lbs) || 150;
     const age = parseInt(form.age) || 25;
-
-    const macros = calculateMacros(age, form.sex, totalInches, weightLbs, form.activity_level, form.goal);
 
     try {
       const { data: questionnaireData, error } = await (supabase as any)
