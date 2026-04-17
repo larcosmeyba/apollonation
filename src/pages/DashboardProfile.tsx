@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, subDays } from "date-fns";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { Switch } from "@/components/ui/switch";
+import PrivacyDataView from "@/components/dashboard/PrivacyDataView";
 
 const WORKOUT_TYPES = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Core", "Senior"];
 
@@ -206,6 +207,14 @@ const DashboardProfile = () => {
   const displayedAchievements = showAllAchievements ? allAchievements : allAchievements.slice(0, 5);
 
   // Settings sub-views
+  if (settingsView === "privacy") {
+    return (
+      <DashboardLayout>
+        <PrivacyDataView onBack={() => setSettingsView(null)} />
+      </DashboardLayout>
+    );
+  }
+
   if (settingsView === "profile-edit") {
     return (
       <DashboardLayout>
@@ -592,6 +601,10 @@ const DashboardProfile = () => {
                 </button>
                 <button onClick={() => setSettingsView("preferences")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
                   <span className="text-sm text-foreground">Preferences</span>
+                  <ChevronRight className="w-4 h-4 text-foreground/30" />
+                </button>
+                <button onClick={() => setSettingsView("privacy")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="text-sm text-foreground">Privacy & Data</span>
                   <ChevronRight className="w-4 h-4 text-foreground/30" />
                 </button>
               </div>
