@@ -334,6 +334,8 @@ const DashboardMacros = () => {
           </div>
         </div>
 
+        <div className="mb-6"><FoodBudgetCard /></div>
+
         <h2 className="font-heading text-xl mb-4">Today's Meals</h2>
         {entries.length === 0 ? (
           <div className="card-apollo p-8 text-center">
