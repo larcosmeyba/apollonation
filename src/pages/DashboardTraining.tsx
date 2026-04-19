@@ -20,18 +20,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import stockBack from "@/assets/stock-back.png";
 
-const getYouTubeVideoId = (url: string): string | null => {
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname.includes("youtube.com")) return parsed.searchParams.get("v");
-    if (parsed.hostname === "youtu.be") return parsed.pathname.slice(1);
-    if (url.includes("/shorts/")) {
-      const m = url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
-      return m ? m[1] : null;
-    }
-    return null;
-  } catch { return null; }
-};
+import { getYouTubeVideoId } from "@/utils/youtube";
 
 const DashboardTraining = () => {
   const { user } = useAuth();
