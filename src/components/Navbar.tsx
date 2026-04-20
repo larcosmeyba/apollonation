@@ -21,7 +21,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-3">
-            <img src={apolloLogo} alt="Apollo Reborn Logo" className="w-8 h-8 invert brightness-0 invert opacity-95" />
+            <img src={apolloLogo} alt="Apollo Reborn Logo" className="w-8 h-8 invert brightness-0 invert opacity-95" loading="eager" />
             <span className="font-heading text-base tracking-wide text-white font-bold">
               Apollo Reborn<sup className="text-[8px] ml-0.5 align-super">™</sup>
             </span>

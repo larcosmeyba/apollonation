@@ -30,6 +30,8 @@ const SplashScreen = ({ onFinish, memberName }: SplashScreenProps) => {
           alt=""
           className="w-full h-full object-cover"
           style={{ filter: "brightness(1.25)" }}
+          loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-black/50" />
       </div>
@@ -44,6 +46,7 @@ const SplashScreen = ({ onFinish, memberName }: SplashScreenProps) => {
             phase === "logo" ? "opacity-0 scale-75" : "opacity-100 scale-100"
           }`}
           style={{ filter: "invert(1)" }}
+          loading="eager"
         />
 
         {/* Welcome text — appears after logo */}

@@ -19,7 +19,7 @@ import stockArms from "@/assets/stock-arms.png";
 import marcos2 from "@/assets/marcos-2.jpg";
 import marcos3 from "@/assets/marcos-3.jpg";
 import marcos5 from "@/assets/marcos-5.jpg";
-import marcos8 from "@/assets/marcos-8.jpg";
+import marcos8 from "@/assets/marcos-8.webp";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Workout = Tables<"workouts">;
