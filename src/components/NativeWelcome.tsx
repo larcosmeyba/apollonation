@@ -15,6 +15,8 @@ const NativeWelcome = () => {
           alt=""
           className="w-full h-full object-cover"
           style={{ filter: "brightness(0.85)" }}
+          loading="eager"
+          fetchPriority="high"
         />
         {/* Dark gradient for legibility */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/90" />
@@ -30,6 +32,7 @@ const NativeWelcome = () => {
           alt="Apollo Reborn"
           className="h-10 w-auto object-contain"
           style={{ filter: "invert(1)" }}
+          loading="eager"
         />
       </div>
 
