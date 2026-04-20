@@ -16,4 +16,4 @@ Disallow: /dashboard
 Disallow: /admin
 Disallow: /questionnaire
 
-Sitemap: https://www.www-apollo.com/sitemap.xml
+Sitemap: https://www.apolloreborn.com/sitemap.xml
