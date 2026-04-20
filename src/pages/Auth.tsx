@@ -111,7 +111,7 @@ const Auth = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-background/80" />
         <div className="absolute bottom-12 left-12 right-12 z-10">
           <div className="flex items-center gap-3 mb-6">
-            <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" />
+            <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" loading="eager" />
             <span className="font-heading text-lg tracking-[0.15em]">
               APOLLO <span className="text-foreground/60">REBORN</span>
             </span>
@@ -129,7 +129,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
-            <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" />
+            <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" loading="eager" />
             <span className="font-heading text-lg tracking-[0.15em]">
               APOLLO <span className="text-foreground/60">REBORN</span>
             </span>
