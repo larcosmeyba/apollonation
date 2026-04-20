@@ -12,6 +12,7 @@ import { format, startOfWeek } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import stockBack from "@/assets/stock-back.png";
 import stockArms from "@/assets/stock-arms.png";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
@@ -22,6 +23,7 @@ import catCardio from "@/assets/categories/cardio.jpg";
 import catSculpt from "@/assets/categories/sculpt.jpg";
 import catStrength from "@/assets/categories/strength.png";
 import catHIIT from "@/assets/categories/hiit.png";
+import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/utils/youtube";
 import { toast } from "sonner";
 
 const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7];
@@ -35,24 +37,6 @@ const CATEGORY_IMAGES: Record<string, string> = {
   Core: marcosAction6,
 };
 
-const getYouTubeVideoId = (url: string): string | null => {
-  try {
-    const match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]v=([a-zA-Z0-9_-]+)/) || url.match(/\/shorts\/([a-zA-Z0-9_-]+)/) || url.match(/\/embed\/([a-zA-Z0-9_-]+)/);
-    return match ? match[1] : null;
-  } catch { return null; }
-};
-
-const getYouTubeThumbnail = (url: string): string | null => {
-  const videoId = getYouTubeVideoId(url);
-  if (videoId) return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-  return null;
-};
-
-const getYouTubeEmbedUrl = (url: string): string => {
-  const videoId = getYouTubeVideoId(url);
-  if (videoId) return `https://www.youtube.com/embed/${videoId}?playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1&autoplay=1`;
-  return url;
-};
 
 const getThumb = (w: any, i: number) => {
   if (w.thumbnail_url) return w.thumbnail_url;
@@ -92,7 +76,7 @@ const Dashboard = () => {
 
   const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
 
-  const { data: newThisWeek = [] } = useQuery({
+  const { data: newThisWeek = [], isLoading: isLoadingNew } = useQuery({
     queryKey: ["new-this-week", weekStart],
     queryFn: async () => {
       const { data } = await supabase
@@ -212,7 +196,10 @@ const Dashboard = () => {
         src={getThumb(workout, index) || WORKOUT_IMAGES[index % WORKOUT_IMAGES.length]}
         alt={workout.title}
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        loading="lazy"
+        loading={index < 2 ? "eager" : "lazy"}
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).src = WORKOUT_IMAGES[index % WORKOUT_IMAGES.length];
+        }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
       <div className="absolute top-3 right-3">
@@ -265,7 +252,13 @@ const Dashboard = () => {
               <span className="text-sm font-bold text-foreground hover:text-accent transition-colors">View All</span>
             </Link>
           </div>
-          {newThisWeek.length > 0 ? (
+          {isLoadingNew ? (
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} className="flex-shrink-0 w-[75%] aspect-[16/10] rounded-2xl" />
+              ))}
+            </div>
+          ) : newThisWeek.length > 0 ? (
             <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {newThisWeek.map((w, i) => (
                 <WorkoutCard key={w.id} workout={w} index={i} />

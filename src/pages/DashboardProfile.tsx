@@ -89,6 +89,15 @@ const DashboardProfile = () => {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a JPG, PNG, WebP, or GIF.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (file.size > 5 * 1024 * 1024) {
       toast({ title: "File too large", description: "Max 5MB", variant: "destructive" });
       return;
@@ -496,7 +505,11 @@ const DashboardProfile = () => {
                     <p className="text-sm font-bold text-foreground">Active Days</p>
                     <p className="text-4xl font-bold text-foreground mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>{weeklyActivity?.activeDays || 0}</p>
                     <div className="flex items-center gap-1 mt-1">
-                      <span className="text-xs font-semibold" style={{ color: 'hsl(142, 71%, 55%)' }}>▲ {weeklyActivity?.activeDays || 0} Day</span>
+                      {(weeklyActivity?.activeDays || 0) > 0 ? (
+                        <span className="text-xs font-semibold" style={{ color: 'hsl(142, 71%, 55%)' }}>▲ {weeklyActivity?.activeDays} Day{weeklyActivity?.activeDays === 1 ? '' : 's'}</span>
+                      ) : (
+                        <span className="text-xs font-semibold text-muted-foreground">No activity yet this week</span>
+                      )}
                     </div>
                     <div className="flex items-center justify-between gap-2 mt-4">
                       {weekDays.map((d) => (

@@ -56,9 +56,10 @@ export function useSignedUrl(
     fetchSignedUrl();
 
     // Refresh URL before it expires (at 80% of expiry time)
-    const refreshInterval = setInterval(fetchSignedUrl, expiresIn * 800);
+    const refreshMs = expiresIn * 1000 * 0.8;
+    const timer = setInterval(fetchSignedUrl, refreshMs);
 
-    return () => clearInterval(refreshInterval);
+    return () => clearInterval(timer);
   }, [bucket, path, expiresIn]);
 
   return { signedUrl, isLoading, error };

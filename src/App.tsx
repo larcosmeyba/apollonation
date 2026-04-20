@@ -1,4 +1,3 @@
-import { useState, useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,8 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
-import SplashScreen from "@/components/SplashScreen";
 import Index from "./pages/Index";
+import ApplyCoach from "./pages/ApplyCoach";
 import AppEntryRedirect from "@/components/AppEntryRedirect";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
@@ -43,22 +42,18 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: 1,
+      staleTime: 1000 * 60 * 5,
     },
   },
 });
 
 const App = () => {
-  const isNative = typeof window !== "undefined" && (window as any).Capacitor?.isNativePlatform?.();
-  const [splashDone, setSplashDone] = useState(!isNative);
-  const handleSplashFinish = useCallback(() => setSplashDone(true), []);
-
   return (
     <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
         <BrowserRouter>
           <AuthProvider>
             <Routes>
@@ -72,7 +67,7 @@ const App = () => {
               <Route path="/about" element={<About />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/contact" element={<ContactPortal />} />
-              <Route path="/apply-coach" element={<ContactPortal />} />
+              <Route path="/apply-coach" element={<ApplyCoach />} />
               <Route path="/account-deletion" element={<AccountDeletion />} />
               <Route path="/plan-ready" element={<ProtectedRoute><PlanReady /></ProtectedRoute>} />
               <Route
