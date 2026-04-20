@@ -76,7 +76,7 @@ const Dashboard = () => {
 
   const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
 
-  const { data: newThisWeek = [] } = useQuery({
+  const { data: newThisWeek = [], isLoading: isLoadingNew } = useQuery({
     queryKey: ["new-this-week", weekStart],
     queryFn: async () => {
       const { data } = await supabase
@@ -196,7 +196,10 @@ const Dashboard = () => {
         src={getThumb(workout, index) || WORKOUT_IMAGES[index % WORKOUT_IMAGES.length]}
         alt={workout.title}
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        loading="lazy"
+        loading={index < 2 ? "eager" : "lazy"}
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).src = WORKOUT_IMAGES[index % WORKOUT_IMAGES.length];
+        }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
       <div className="absolute top-3 right-3">
@@ -249,7 +252,13 @@ const Dashboard = () => {
               <span className="text-sm font-bold text-foreground hover:text-accent transition-colors">View All</span>
             </Link>
           </div>
-          {newThisWeek.length > 0 ? (
+          {isLoadingNew ? (
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} className="flex-shrink-0 w-[75%] aspect-[16/10] rounded-2xl" />
+              ))}
+            </div>
+          ) : newThisWeek.length > 0 ? (
             <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {newThisWeek.map((w, i) => (
                 <WorkoutCard key={w.id} workout={w} index={i} />
