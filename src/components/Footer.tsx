@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-14">
         <div className="flex flex-col items-center gap-6">
           {/* Logo only — no text */}
-          <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert brightness-0 invert opacity-90" />
+          <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert brightness-0 invert opacity-90" loading="lazy" />
 
           {/* Social Icons — white and bright, with TikTok */}
           <div className="flex items-center gap-5">

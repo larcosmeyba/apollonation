@@ -86,6 +86,7 @@ const Index = () => {
           alt="Apollo Reborn athlete training"
           fetchPriority="high"
           decoding="async"
+          loading="eager"
           className="absolute inset-0 w-full h-full object-cover object-[50%_30%] -z-[1]"
         />
 
