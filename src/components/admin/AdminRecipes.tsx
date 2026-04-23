@@ -682,50 +682,127 @@ const AdminRecipes = () => {
                 </Button>
               </div>
             </form>
-          </DialogContent>
-        </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        {/* Search / Filter / Sort row */}
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search recipes by title..."
+              className="pl-9 pr-9"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="breakfast">Breakfast</SelectItem>
+              <SelectItem value="main">Main</SelectItem>
+              <SelectItem value="snack">Snack</SelectItem>
+              <SelectItem value="dessert">Dessert</SelectItem>
+              <SelectItem value="smoothie">Smoothie</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="title">Title (A–Z)</SelectItem>
+              <SelectItem value="calories">Calories (high)</SelectItem>
+            </SelectContent>
+          </Select>
+          {filteredRecipes.length > 0 && (
+            <Button variant="outline" size="sm" onClick={toggleSelectAll}>
+              {allFilteredSelected ? "Clear selection" : "Select all"}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Recipe Card Grid */}
       {isLoading ? (
         <p className="text-center py-8 text-muted-foreground">Loading...</p>
-      ) : recipes?.length === 0 ? (
-        <p className="text-center py-8 text-muted-foreground">No recipes yet. Use AI or add one manually!</p>
+      ) : filteredRecipes.length === 0 ? (
+        <p className="text-center py-8 text-muted-foreground">
+          {recipes?.length === 0
+            ? "No recipes yet. Use AI or add one manually!"
+            : "No recipes match your filters."}
+        </p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {recipes?.map((recipe) => (
-            <div key={recipe.id} className="card-apollo overflow-hidden group">
-              <div className="aspect-video bg-muted relative">
-                {recipe.thumbnail_url ? (
-                  <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-muted-foreground/30" />
+          {filteredRecipes.map((recipe) => {
+            const isSelected = selectedIds.has(recipe.id);
+            return (
+              <div
+                key={recipe.id}
+                className={`card-apollo overflow-hidden relative ${isSelected ? "ring-2 ring-primary" : ""}`}
+              >
+                <div className="absolute top-2 right-2 z-10">
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() => toggleSelect(recipe.id)}
+                    className="bg-background/80 border-foreground/40"
+                  />
+                </div>
+                <div className="aspect-video bg-muted relative">
+                  {recipe.thumbnail_url ? (
+                    <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Sparkles className="w-8 h-8 text-muted-foreground/30" />
+                    </div>
+                  )}
+                  {recipe.category && (
+                    <span className="absolute top-2 left-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded capitalize">{recipe.category}</span>
+                  )}
+                  {recipe.calories_per_serving && (
+                    <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{recipe.calories_per_serving} cal</span>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="font-medium text-sm truncate">{recipe.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {recipe.protein_grams || 0}g P · {recipe.carbs_grams || 0}g C · {recipe.fat_grams || 0}g F
+                  </p>
+                  <div className="flex gap-1 mt-2">
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(recipe)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => {
+                        if (confirm(`Delete "${recipe.title}"?`)) deleteMutation.mutate(recipe.id);
+                      }}
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                    </Button>
                   </div>
-                )}
-                {recipe.category && (
-                  <span className="absolute top-2 left-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded capitalize">{recipe.category}</span>
-                )}
-                {recipe.calories_per_serving && (
-                  <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{recipe.calories_per_serving} cal</span>
-                )}
-              </div>
-              <div className="p-3">
-                <p className="font-medium text-sm truncate">{recipe.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {recipe.protein_grams || 0}g P · {recipe.carbs_grams || 0}g C · {recipe.fat_grams || 0}g F
-                </p>
-                <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(recipe)}>
-                    <Pencil className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteMutation.mutate(recipe.id)} disabled={deleteMutation.isPending}>
-                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                  </Button>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
