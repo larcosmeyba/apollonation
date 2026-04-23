@@ -66,7 +66,7 @@ const Index = () => {
             description: "Premium on-demand fitness platform.",
             sameAs: [
               "https://www.instagram.com/larcosfit",
-              "https://www.tiktok.com/@larcosfitness",
+              "https://www.tiktok.com/@larcosfit",
               "https://www.youtube.com/@larcosfitness",
             ],
           },
@@ -310,7 +310,7 @@ const Index = () => {
                 Apollo Reborn exists because fitness shouldn't require a $200/month gym, a nutritionist, and three separate apps. Every workout, program, and meal plan is built with purpose — structured training that delivers real results without the chaos of traditional gym culture or the noise of influencer fitness.
               </p>
               <p className="text-white text-base leading-relaxed mb-6">
-                Founded by Marcos Leyba, a coach with over a decade of experience in strength training and body transformation. His philosophy: build programs that fit your life, not the other way around.
+                Founded by Marcos Leyba, a NASM-certified coach with over a decade of experience in strength training and body transformation. His philosophy: build programs that fit your life, not the other way around.
               </p>
               <a
                 href="https://www.instagram.com/larcosfit"
