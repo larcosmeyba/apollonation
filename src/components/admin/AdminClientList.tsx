@@ -9,9 +9,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { UserPlus, Search, Snowflake, Archive, XCircle, ChevronRight } from "lucide-react";
+import { UserPlus, Search, Snowflake, Archive, XCircle, ChevronRight, FlaskConical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+import { Switch } from "@/components/ui/switch";
 import AdminClientProfile from "./AdminClientProfile";
 
 interface Profile {
@@ -21,6 +22,7 @@ interface Profile {
   subscription_tier: "basic" | "pro" | "elite";
   account_status: string;
   created_at: string;
+  is_test_account?: boolean;
 }
 
 const AdminClientList = () => {
@@ -28,6 +30,7 @@ const AdminClientList = () => {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState("active");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showTestAccounts, setShowTestAccounts] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Profile | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [createFormData, setCreateFormData] = useState({
@@ -72,7 +75,9 @@ const AdminClientList = () => {
     enabled: clientIds.length > 0,
   });
 
-  const filteredProfiles = profiles?.filter((p) => {
+  const visibleProfiles = profiles?.filter((p) => showTestAccounts || !p.is_test_account);
+
+  const filteredProfiles = visibleProfiles?.filter((p) => {
     const matchesStatus = p.account_status === statusFilter;
     const matchesSearch = !searchQuery ||
       (p.display_name || "").toLowerCase().includes(searchQuery.toLowerCase());
@@ -80,11 +85,22 @@ const AdminClientList = () => {
   });
 
   const statusCounts = {
-    active: profiles?.filter((p) => p.account_status === "active").length || 0,
-    frozen: profiles?.filter((p) => p.account_status === "frozen").length || 0,
-    cancelled: profiles?.filter((p) => p.account_status === "cancelled").length || 0,
-    archived: profiles?.filter((p) => p.account_status === "archived").length || 0,
+    active: visibleProfiles?.filter((p) => p.account_status === "active").length || 0,
+    frozen: visibleProfiles?.filter((p) => p.account_status === "frozen").length || 0,
+    cancelled: visibleProfiles?.filter((p) => p.account_status === "cancelled").length || 0,
+    archived: visibleProfiles?.filter((p) => p.account_status === "archived").length || 0,
   };
+
+  const toggleTestAccount = useMutation({
+    mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
+      const { error } = await supabase.from("profiles").update({ is_test_account: value } as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
+      toast({ title: "Updated" });
+    },
+  });
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof createFormData) => {
