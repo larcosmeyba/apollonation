@@ -267,6 +267,13 @@ const Dashboard = () => {
             <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               {profile?.display_name || "Warrior"}
             </h1>
+            <Link
+              to="/dashboard/profile"
+              className="inline-flex items-center gap-1.5 mt-1 text-xs font-semibold text-foreground/60 hover:text-foreground transition-colors"
+            >
+              <Flame className={`w-3.5 h-3.5 ${streak > 0 ? "text-orange-400" : "text-foreground/40"}`} />
+              {streak > 0 ? `${streak} day streak` : "Start your streak"}
+            </Link>
           </div>
         </div>
 
