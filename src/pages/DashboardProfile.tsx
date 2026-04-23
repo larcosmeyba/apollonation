@@ -745,6 +745,57 @@ const DashboardProfile = () => {
           )}
         </div>
       </div>
+
+      {/* Sign Out Confirmation */}
+      <AlertDialog open={signOutOpen} onOpenChange={setSignOutOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sign out of Apollo Reborn?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You'll need to sign back in to access your workouts, meal plans, and progress.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => signOut()}>Sign Out</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Account Confirmation */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete your Apollo Reborn account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes your profile, workout history, nutrition logs, progress photos, and subscription data. This cannot be undone. If you have an active subscription, cancel it through the App Store or Google Play first.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async () => {
+                if (!user) return;
+                const { error } = await supabase.from("support_tickets").insert({
+                  user_id: user.id,
+                  type: "account_deletion",
+                  subject: "Account Deletion Request",
+                  message: `User ${user.email} has requested full account and data deletion.`,
+                });
+                if (error) {
+                  toast({ title: "Error", description: "Could not submit request. Please try again.", variant: "destructive" });
+                } else {
+                  toast({ title: "Request submitted", description: "Your account will be deleted within 30 days. You'll receive a confirmation email." });
+                  setDeleteOpen(false);
+                }
+              }}
+            >
+              Delete Account
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 };
