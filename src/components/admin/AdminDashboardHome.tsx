@@ -32,47 +32,52 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
     refetchInterval: 60000,
   });
 
-  // Clients without plans
+  // Clients without plans (excluding test accounts)
   const { data: clientsWithoutPlans = 0 } = useQuery({
     queryKey: ["admin-clients-no-plans"],
     queryFn: async () => {
       const { data: proEliteClients } = await supabase
         .from("profiles")
-        .select("user_id")
+        .select("user_id, is_test_account")
         .in("subscription_tier", ["pro", "elite"])
         .eq("account_status", "active");
-      if (!proEliteClients?.length) return 0;
+      const real = (proEliteClients || []).filter((c: any) => !c.is_test_account);
+      if (!real.length) return 0;
       const { data: plans } = await supabase
         .from("client_training_plans")
         .select("user_id")
-        .in("user_id", proEliteClients.map((c) => c.user_id))
+        .in("user_id", real.map((c) => c.user_id))
         .eq("status", "active");
       const usersWithPlans = new Set(plans?.map((p) => p.user_id));
-      return proEliteClients.filter((c) => !usersWithPlans.has(c.user_id)).length;
+      return real.filter((c) => !usersWithPlans.has(c.user_id)).length;
     },
     refetchInterval: 300000,
   });
 
-  // Client stats
-  const { data: totalClients = 0 } = useQuery({
-    queryKey: ["admin-total-clients"],
+  // Real (non-test) client ids — basis for all client-related stats
+  const { data: realClientIds = [] } = useQuery({
+    queryKey: ["admin-real-client-ids"],
     queryFn: async () => {
-      const { count } = await supabase
+      const { data } = await supabase
         .from("profiles")
-        .select("*", { count: "exact", head: true })
+        .select("user_id, is_test_account, account_status")
         .eq("account_status", "active");
-      return count || 0;
+      return (data || []).filter((c: any) => !c.is_test_account).map((c: any) => c.user_id) as string[];
     },
   });
 
+  const totalClients = realClientIds.length;
+
   const { data: activeToday = 0 } = useQuery({
-    queryKey: ["admin-active-today"],
+    queryKey: ["admin-active-today", realClientIds.length],
+    enabled: realClientIds.length > 0,
     queryFn: async () => {
       const today = format(new Date(), "yyyy-MM-dd");
       const { count } = await supabase
         .from("workout_session_logs")
         .select("user_id", { count: "exact", head: true })
-        .eq("log_date", today);
+        .eq("log_date", today)
+        .in("user_id", realClientIds);
       return count || 0;
     },
   });
@@ -81,38 +86,40 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
     queryKey: ["admin-new-signups"],
     queryFn: async () => {
       const sevenDaysAgo = subDays(new Date(), 7).toISOString();
-      const { count } = await supabase
+      const { data } = await supabase
         .from("profiles")
-        .select("*", { count: "exact", head: true })
+        .select("user_id, is_test_account, created_at")
         .gte("created_at", sevenDaysAgo);
-      return count || 0;
+      return (data || []).filter((p: any) => !p.is_test_account).length;
     },
   });
 
   const { data: workoutsCompleted = 0 } = useQuery({
-    queryKey: ["admin-workouts-completed-today"],
+    queryKey: ["admin-workouts-completed-today", realClientIds.length],
+    enabled: realClientIds.length > 0,
     queryFn: async () => {
       const today = format(new Date(), "yyyy-MM-dd");
       const { count } = await supabase
         .from("workout_session_logs")
         .select("*", { count: "exact", head: true })
         .eq("log_date", today)
-        .not("completed_at", "is", null);
+        .not("completed_at", "is", null)
+        .in("user_id", realClientIds);
       return count || 0;
     },
   });
 
-  // Recent clients
+  // Recent clients (excluding test accounts)
   const { data: recentClients = [] } = useQuery({
     queryKey: ["admin-recent-clients"],
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("user_id, display_name, subscription_tier, avatar_url")
+        .select("user_id, display_name, subscription_tier, avatar_url, is_test_account")
         .eq("account_status", "active")
         .order("updated_at", { ascending: false })
-        .limit(8);
-      return data || [];
+        .limit(20);
+      return (data || []).filter((c: any) => !c.is_test_account).slice(0, 8);
     },
   });
 

@@ -9,9 +9,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { UserPlus, Search, Snowflake, Archive, XCircle, ChevronRight } from "lucide-react";
+import { UserPlus, Search, Snowflake, Archive, XCircle, ChevronRight, FlaskConical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+import { Switch } from "@/components/ui/switch";
 import AdminClientProfile from "./AdminClientProfile";
 
 interface Profile {
@@ -21,6 +22,7 @@ interface Profile {
   subscription_tier: "basic" | "pro" | "elite";
   account_status: string;
   created_at: string;
+  is_test_account?: boolean;
 }
 
 const AdminClientList = () => {
@@ -28,6 +30,7 @@ const AdminClientList = () => {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState("active");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showTestAccounts, setShowTestAccounts] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Profile | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [createFormData, setCreateFormData] = useState({
@@ -72,7 +75,9 @@ const AdminClientList = () => {
     enabled: clientIds.length > 0,
   });
 
-  const filteredProfiles = profiles?.filter((p) => {
+  const visibleProfiles = profiles?.filter((p) => showTestAccounts || !p.is_test_account);
+
+  const filteredProfiles = visibleProfiles?.filter((p) => {
     const matchesStatus = p.account_status === statusFilter;
     const matchesSearch = !searchQuery ||
       (p.display_name || "").toLowerCase().includes(searchQuery.toLowerCase());
@@ -80,11 +85,22 @@ const AdminClientList = () => {
   });
 
   const statusCounts = {
-    active: profiles?.filter((p) => p.account_status === "active").length || 0,
-    frozen: profiles?.filter((p) => p.account_status === "frozen").length || 0,
-    cancelled: profiles?.filter((p) => p.account_status === "cancelled").length || 0,
-    archived: profiles?.filter((p) => p.account_status === "archived").length || 0,
+    active: visibleProfiles?.filter((p) => p.account_status === "active").length || 0,
+    frozen: visibleProfiles?.filter((p) => p.account_status === "frozen").length || 0,
+    cancelled: visibleProfiles?.filter((p) => p.account_status === "cancelled").length || 0,
+    archived: visibleProfiles?.filter((p) => p.account_status === "archived").length || 0,
   };
+
+  const toggleTestAccount = useMutation({
+    mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
+      const { error } = await supabase.from("profiles").update({ is_test_account: value } as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
+      toast({ title: "Updated" });
+    },
+  });
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof createFormData) => {
@@ -155,14 +171,21 @@ const AdminClientList = () => {
               <Archive className="w-3 h-3" /> Archived <span className="text-[10px] opacity-60">({statusCounts.archived})</span>
             </TabsTrigger>
           </TabsList>
-          <div className="relative w-full max-w-xs">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search clients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9"
-            />
+          <div className="flex items-center gap-3 flex-wrap">
+            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+              <FlaskConical className="w-3.5 h-3.5" />
+              <Switch checked={showTestAccounts} onCheckedChange={setShowTestAccounts} />
+              <span>Show test accounts</span>
+            </label>
+            <div className="relative w-full max-w-xs">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search clients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9"
+              />
+            </div>
           </div>
         </div>
       </Tabs>
@@ -175,27 +198,37 @@ const AdminClientList = () => {
           <p className="text-center py-8 text-muted-foreground">No clients found.</p>
         ) : (
           filteredProfiles?.map((profile) => (
-            <button
+            <div
               key={profile.id}
-              onClick={() => setSelectedClient(profile)}
               className="card-apollo flex items-center gap-4 p-4 text-left hover:border-primary/30 transition-all group"
             >
-              <Avatar className="h-11 w-11 flex-shrink-0">
-                <AvatarFallback className="bg-primary/15 text-primary font-bold text-sm">
-                  {(profile.display_name || "?")[0].toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">{profile.display_name || "Unnamed"}</p>
-                <p className="text-xs text-muted-foreground">
-                  {lastActiveMap?.[profile.user_id]
-                    ? `Active ${formatDistanceToNow(new Date(lastActiveMap[profile.user_id]), { addSuffix: true })}`
-                    : "Never active"}
-                </p>
-              </div>
-              {/* Tier badge removed — unified membership */}
+              <button onClick={() => setSelectedClient(profile)} className="flex items-center gap-4 flex-1 min-w-0 text-left">
+                <Avatar className="h-11 w-11 flex-shrink-0">
+                  <AvatarFallback className="bg-primary/15 text-primary font-bold text-sm">
+                    {(profile.display_name || "?")[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium truncate">{profile.display_name || "Unnamed"}</p>
+                    {profile.is_test_account && <Badge variant="outline" className="text-[9px] uppercase">Test</Badge>}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {lastActiveMap?.[profile.user_id]
+                      ? `Active ${formatDistanceToNow(new Date(lastActiveMap[profile.user_id]), { addSuffix: true })}`
+                      : "Never active"}
+                  </p>
+                </div>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleTestAccount.mutate({ id: profile.id, value: !profile.is_test_account }); }}
+                className="text-[10px] text-muted-foreground hover:text-primary px-2 py-1 rounded border border-border"
+                title={profile.is_test_account ? "Unmark as test account" : "Mark as test account"}
+              >
+                {profile.is_test_account ? "Untag" : "Mark test"}
+              </button>
               <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            </button>
+            </div>
           ))
         )}
       </div>

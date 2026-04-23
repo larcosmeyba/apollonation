@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import WorkoutExerciseLinker from "./WorkoutExerciseLinker";
 
 interface Workout {
@@ -23,6 +24,8 @@ interface Workout {
   video_url: string | null;
   thumbnail_url: string | null;
   is_featured: boolean | null;
+  is_published?: boolean;
+  created_at?: string;
 }
 
 const CATEGORIES = [
@@ -53,8 +56,15 @@ const AdminWorkouts = () => {
     video_url: "",
     thumbnail_url: "",
     is_featured: false,
+    is_published: true,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Library mgmt: search, filter, sort
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [publishFilter, setPublishFilter] = useState<"all" | "published" | "draft">("all");
+  const [sortBy, setSortBy] = useState<"newest" | "title" | "duration">("newest");
 
   const { data: workouts, isLoading } = useQuery({
     queryKey: ["admin-workouts"],
@@ -101,7 +111,8 @@ const AdminWorkouts = () => {
         video_url: data.video_url.trim() || null,
         thumbnail_url: data.thumbnail_url.trim() || null,
         is_featured: data.is_featured,
-      });
+        is_published: data.is_published,
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -128,7 +139,8 @@ const AdminWorkouts = () => {
           video_url: data.video_url.trim() || null,
           thumbnail_url: data.thumbnail_url.trim() || null,
           is_featured: data.is_featured,
-        })
+          is_published: data.is_published,
+        } as any)
         .eq("id", id);
       if (error) throw error;
     },
@@ -168,6 +180,7 @@ const AdminWorkouts = () => {
       video_url: "",
       thumbnail_url: "",
       is_featured: false,
+      is_published: true,
     });
     setEditingWorkout(null);
     setIsDialogOpen(false);
@@ -185,6 +198,7 @@ const AdminWorkouts = () => {
       video_url: workout.video_url || "",
       thumbnail_url: workout.thumbnail_url || "",
       is_featured: workout.is_featured || false,
+      is_published: workout.is_published !== false,
     });
     setErrors({});
     setIsDialogOpen(true);
@@ -459,6 +473,14 @@ const AdminWorkouts = () => {
                 />
                 <Label htmlFor="is_featured">Featured workout (shown on homepage)</Label>
               </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="is_published"
+                  checked={formData.is_published}
+                  onCheckedChange={(v) => setFormData((p) => ({ ...p, is_published: v }))}
+                />
+                <Label htmlFor="is_published">Published (visible to clients) — turn off to save as draft</Label>
+              </div>
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={resetForm}>
                   Cancel
@@ -472,47 +494,125 @@ const AdminWorkouts = () => {
         </Dialog>
       </div>
 
+      {/* Library Management Bar */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search workouts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="h-9 w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={publishFilter} onValueChange={(v: any) => setPublishFilter(v)}>
+          <SelectTrigger className="h-9 w-[130px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="published">Published</SelectItem>
+            <SelectItem value="draft">Drafts</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
+          <SelectTrigger className="h-9 w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest</SelectItem>
+            <SelectItem value="title">Title (A→Z)</SelectItem>
+            <SelectItem value="duration">Duration</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Card Grid */}
-      {isLoading ? (
-        <p className="text-center py-8 text-muted-foreground">Loading...</p>
-      ) : workouts?.length === 0 ? (
-        <p className="text-center py-8 text-muted-foreground">No classes yet. Add your first!</p>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {workouts?.map((workout) => (
-            <div key={workout.id} className="card-apollo overflow-hidden group">
-              <div className="aspect-[4/3] bg-muted relative">
-                {workout.thumbnail_url ? (
-                  <img src={workout.thumbnail_url} alt={workout.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Image className="w-8 h-8 text-muted-foreground/30" />
+      {(() => {
+        const filtered = (workouts || [])
+          .filter((w) => {
+            if (searchQuery && !w.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+            if (categoryFilter !== "all" && w.category !== categoryFilter) return false;
+            if (publishFilter === "published" && w.is_published === false) return false;
+            if (publishFilter === "draft" && w.is_published !== false) return false;
+            return true;
+          })
+          .sort((a, b) => {
+            if (sortBy === "title") return a.title.localeCompare(b.title);
+            if (sortBy === "duration") return a.duration_minutes - b.duration_minutes;
+            return (b.created_at || "").localeCompare(a.created_at || "");
+          });
+        if (isLoading) return <p className="text-center py-8 text-muted-foreground">Loading...</p>;
+        if (!filtered.length) return <p className="text-center py-8 text-muted-foreground">No workouts match these filters.</p>;
+        return (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filtered.map((workout) => (
+              <div key={workout.id} className="card-apollo overflow-hidden group">
+                <div className="aspect-[4/3] bg-muted relative">
+                  {workout.thumbnail_url ? (
+                    <img src={workout.thumbnail_url} alt={workout.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Image className="w-8 h-8 text-muted-foreground/30" />
+                    </div>
+                  )}
+                  {workout.is_featured && (
+                    <span className="absolute top-2 left-2 text-[10px] font-medium bg-primary/90 text-primary-foreground px-1.5 py-0.5 rounded">⭐ Featured</span>
+                  )}
+                  {workout.is_published === false && (
+                    <span className="absolute top-2 right-2 text-[10px] font-medium bg-muted/90 text-muted-foreground px-1.5 py-0.5 rounded">Draft</span>
+                  )}
+                  <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{workout.duration_minutes} min</span>
+                </div>
+                <div className="p-3">
+                  <p className="font-medium text-sm truncate">{workout.title}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{workout.category}</p>
+                  <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button size="icon" variant="ghost" className="h-7 w-7" title="Link exercises" onClick={() => setLinkingWorkout(workout)}>
+                      <ListChecks className="w-3.5 h-3.5 text-primary" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-7 w-7" title="Edit" onClick={() => handleEdit(workout)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      title={workout.is_published === false ? "Publish" : "Unpublish"}
+                      onClick={async () => {
+                        await supabase.from("workouts").update({ is_published: workout.is_published === false } as any).eq("id", workout.id);
+                        queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
+                      }}
+                    >
+                      <EyeOff className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      title="Duplicate"
+                      onClick={async () => {
+                        const { id, created_at, ...rest } = workout as any;
+                        await supabase.from("workouts").insert({ ...rest, title: `${workout.title} (copy)`, is_published: false });
+                        queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
+                        toast({ title: "Duplicated as draft" });
+                      }}
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteMutation.mutate(workout.id)} disabled={deleteMutation.isPending}>
+                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                    </Button>
                   </div>
-                )}
-                {workout.is_featured && (
-                  <span className="absolute top-2 left-2 text-[10px] font-medium bg-primary/90 text-primary-foreground px-1.5 py-0.5 rounded">⭐ Featured</span>
-                )}
-                <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{workout.duration_minutes} min</span>
-              </div>
-              <div className="p-3">
-                <p className="font-medium text-sm truncate">{workout.title}</p>
-                <p className="text-xs text-muted-foreground capitalize">{workout.category}</p>
-                <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button size="icon" variant="ghost" className="h-7 w-7" title="Link exercises" onClick={() => setLinkingWorkout(workout)}>
-                    <ListChecks className="w-3.5 h-3.5 text-primary" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(workout)}>
-                    <Pencil className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteMutation.mutate(workout.id)} disabled={deleteMutation.isPending}>
-                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                  </Button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        );
+      })()}
     </div>
   );
 };
