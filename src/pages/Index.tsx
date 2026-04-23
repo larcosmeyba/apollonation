@@ -159,7 +159,7 @@ const Index = () => {
               On-Demand Workout Library
             </h2>
             <p className="text-white max-w-lg mx-auto text-base">
-              Train anytime with guided workouts designed to challenge you and keep your training fresh.
+              A focused library of guided workouts — every one filmed, programmed, and coached by Marcos. Built with intent, not filler.
             </p>
           </div>
 
