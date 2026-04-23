@@ -111,7 +111,8 @@ const AdminWorkouts = () => {
         video_url: data.video_url.trim() || null,
         thumbnail_url: data.thumbnail_url.trim() || null,
         is_featured: data.is_featured,
-      });
+        is_published: data.is_published,
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -138,7 +139,8 @@ const AdminWorkouts = () => {
           video_url: data.video_url.trim() || null,
           thumbnail_url: data.thumbnail_url.trim() || null,
           is_featured: data.is_featured,
-        })
+          is_published: data.is_published,
+        } as any)
         .eq("id", id);
       if (error) throw error;
     },
@@ -178,6 +180,7 @@ const AdminWorkouts = () => {
       video_url: "",
       thumbnail_url: "",
       is_featured: false,
+      is_published: true,
     });
     setEditingWorkout(null);
     setIsDialogOpen(false);
@@ -195,6 +198,7 @@ const AdminWorkouts = () => {
       video_url: workout.video_url || "",
       thumbnail_url: workout.thumbnail_url || "",
       is_featured: workout.is_featured || false,
+      is_published: workout.is_published !== false,
     });
     setErrors({});
     setIsDialogOpen(true);
