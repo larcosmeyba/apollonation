@@ -1,15 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  MessageSquare,
   AlertCircle,
   Inbox,
   Users,
-  Activity,
   Dumbbell,
-  Megaphone,
   Utensils,
-  UsersRound,
   TrendingUp,
   UserPlus,
   ChevronRight,
@@ -127,11 +123,10 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
   ].filter((a) => a.count > 0);
 
   const quickAccess = [
-    { id: "messages", icon: MessageSquare, title: "Messages", desc: "Email your clients", color: "text-blue-400" },
-    { id: "broadcast", icon: Megaphone, title: "Broadcast", desc: "Send announcements", color: "text-purple-400" },
     { id: "workouts", icon: Dumbbell, title: "On-Demand Classes", desc: "Manage video workouts", color: "text-green-400" },
     { id: "recipes", icon: Utensils, title: "Recipes", desc: "Manage meal recipes", color: "text-yellow-400" },
-    { id: "group-coaching", icon: UsersRound, title: "Group Coaching", desc: "Run live group sessions", color: "text-teal-400" },
+    { id: "contacts", icon: Inbox, title: "Contact Requests", desc: "View new requests", color: "text-cyan-400" },
+    { id: "clients", icon: Users, title: "Clients", desc: "Jump to client list", color: "text-blue-400" },
   ];
 
   return (
