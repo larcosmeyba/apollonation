@@ -4,9 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 import {
   LayoutDashboard,
-  MessageSquare,
   Dumbbell,
-  Activity,
   Users,
   Inbox,
   Utensils,
@@ -14,12 +12,9 @@ import {
   User,
   Menu,
   X,
-  Megaphone,
   Bell,
   ChevronDown,
   Settings,
-  UsersRound,
-  Palette,
   Eye,
   Bug,
 } from "lucide-react";
@@ -42,12 +37,8 @@ interface AdminLayoutProps {
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "text-[hsl(210,100%,52%)]" },
   { id: "clients", label: "Clients", icon: Users, color: "text-[hsl(142,71%,45%)]" },
-  { id: "messages", label: "Messages", icon: MessageSquare, color: "text-[hsl(160,84%,39%)]" },
-  { id: "broadcast", label: "Broadcast", icon: Megaphone, color: "text-[hsl(25,95%,53%)]" },
   { id: "workouts", label: "On-Demand Classes", icon: Dumbbell, color: "text-[hsl(0,72%,51%)]" },
   { id: "recipes", label: "Recipes", icon: Utensils, color: "text-[hsl(30,80%,55%)]" },
-  { id: "group-coaching", label: "Group Coaching", icon: UsersRound, color: "text-[hsl(200,80%,50%)]" },
-  { id: "marketing", label: "Marketing", icon: Palette, color: "text-[hsl(320,70%,55%)]" },
   { id: "contacts", label: "Contact Requests", icon: Inbox, color: "text-[hsl(180,60%,45%)]" },
   { id: "bugs", label: "Bug Reports", icon: Bug, color: "text-[hsl(0,80%,55%)]" },
   { id: "profile", label: "Coach Profile", icon: User, color: "text-[hsl(220,60%,60%)]" },
@@ -95,13 +86,6 @@ const AdminLayout = ({ children, activeTab, onTabChange }: AdminLayoutProps) => 
             title="Contact Requests"
           >
             <Bell className="w-5 h-5 text-muted-foreground" />
-          </button>
-          <button
-            onClick={() => onTabChange("messages")}
-            className="relative p-2 rounded-md hover:bg-muted transition-colors"
-            title="Messages"
-          >
-            <MessageSquare className="w-5 h-5 text-muted-foreground" />
           </button>
 
           <DropdownMenu>
