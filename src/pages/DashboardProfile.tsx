@@ -46,6 +46,8 @@ const DashboardProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("activity");
   const [settingsView, setSettingsView] = useState<string | null>(null);
+  const [signOutOpen, setSignOutOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
