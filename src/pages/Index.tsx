@@ -242,7 +242,7 @@ const Index = () => {
               Fuel Your Training
             </h2>
             <p className="text-white max-w-lg mx-auto text-base">
-              Simple nutrition tools to help you make better food choices, track macros, and stay consistent with your goals.
+              Macro-tracked meal plans that match your grocery store and your weekly budget. No extreme diets, no $300 grocery runs.
             </p>
           </div>
 
