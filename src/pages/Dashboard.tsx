@@ -102,6 +102,33 @@ const Dashboard = () => {
     },
   });
 
+  // Streak: consecutive days with workout OR meal log
+  const { data: streak = 0 } = useQuery({
+    queryKey: ["home-streak", user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const since = format(subDays(new Date(), 60), "yyyy-MM-dd");
+      const [sessions, macros] = await Promise.all([
+        supabase.from("workout_session_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
+        supabase.from("macro_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
+      ]);
+      const dates = new Set<string>([
+        ...((sessions.data || []) as any[]).map((s) => s.log_date),
+        ...((macros.data || []) as any[]).map((m) => m.log_date),
+      ]);
+      const today = new Date();
+      let count = 0;
+      for (let i = 0; i < 60; i++) {
+        const d = format(subDays(today, i), "yyyy-MM-dd");
+        if (i === 0 && !dates.has(d)) continue;
+        if (dates.has(d)) count++;
+        else if (i > 0) break;
+      }
+      return count;
+    },
+    enabled: !!user,
+  });
+
   const { data: favorites = [] } = useQuery({
     queryKey: ["user-favorites", user?.id],
     queryFn: async () => {
