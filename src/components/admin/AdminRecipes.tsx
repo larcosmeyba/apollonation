@@ -493,25 +493,43 @@ const AdminRecipes = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Recipe Table Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="font-heading text-xl">Nutrition Recipes</h2>
-          <p className="text-sm text-muted-foreground">
-            {recipes?.length || 0} recipes in library
-          </p>
-        </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="apollo" onClick={() => resetForm()}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Manually
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingRecipe ? "Edit Recipe" : "Add New Recipe"}</DialogTitle>
-            </DialogHeader>
+      {/* Recipe Library Header */}
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-between items-start gap-3 flex-wrap">
+          <div>
+            <h2 className="font-heading text-xl">Nutrition Recipes</h2>
+            <p className="text-sm text-muted-foreground">
+              {filteredRecipes.length} of {recipes?.length || 0} recipes
+              {selectedIds.size > 0 && ` · ${selectedIds.size} selected`}
+            </p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  if (confirm(`Delete ${selectedIds.size} recipe(s)? This cannot be undone.`)) {
+                    bulkDeleteMutation.mutate(Array.from(selectedIds));
+                  }
+                }}
+                disabled={bulkDeleteMutation.isPending}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete {selectedIds.size}
+              </Button>
+            )}
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="apollo" onClick={() => resetForm()}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Manually
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{editingRecipe ? "Edit Recipe" : "Add New Recipe"}</DialogTitle>
+                </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="title">Title</Label>
