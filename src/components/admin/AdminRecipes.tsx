@@ -159,6 +159,51 @@ const AdminRecipes = () => {
     },
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("recipes").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: (_, ids) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-recipes"] });
+      toast({ title: `Deleted ${ids.length} recipe(s)` });
+      setSelectedIds(new Set());
+    },
+    onError: (error) => {
+      toast({ title: "Bulk delete failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const filteredRecipes = (recipes || [])
+    .filter((r) => {
+      if (categoryFilter !== "all" && r.category !== categoryFilter) return false;
+      if (searchQuery && !r.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "title") return a.title.localeCompare(b.title);
+      if (sortBy === "calories") return (b.calories_per_serving || 0) - (a.calories_per_serving || 0);
+      return 0; // newest is the default order from query
+    });
+
+  const allFilteredSelected = filteredRecipes.length > 0 && filteredRecipes.every((r) => selectedIds.has(r.id));
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredRecipes.map((r) => r.id)));
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       title: "",
