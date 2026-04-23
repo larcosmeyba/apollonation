@@ -246,7 +246,7 @@ const Dashboard = () => {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-foreground uppercase tracking-wide" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              New This Week
+              Latest Classes
             </h2>
             <Link to="/dashboard/workouts">
               <span className="text-sm font-bold text-foreground hover:text-accent transition-colors">View All</span>
