@@ -18,17 +18,17 @@ const FEATURES = [
   {
     icon: Dumbbell,
     title: "Structured Training",
-    desc: "100+ guided workouts designed to help you build strength, endurance, and mobility.",
+    desc: "A focused library of guided workouts — every one filmed, programmed, and coached by Marcos. Built with intent, not filler.",
   },
   {
     icon: Target,
-    title: "Elite Programming",
-    desc: "Training programs designed by experienced fitness professionals to keep you progressing.",
+    title: "Progressive Programming",
+    desc: "Multi-week programs that progress with you — built to prevent plateaus and match your schedule.",
   },
   {
     icon: Heart,
     title: "Sustainable Nutrition",
-    desc: "Simple nutrition guidance that supports real results without extreme dieting.",
+    desc: "Macro-tracked meal plans that match your grocery store and weekly budget. No extreme diets.",
   },
 ];
 
