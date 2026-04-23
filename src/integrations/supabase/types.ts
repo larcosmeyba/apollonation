@@ -442,6 +442,7 @@ export type Database = {
       }
       contact_requests: {
         Row: {
+          category: string
           created_at: string
           email: string
           id: string
@@ -452,6 +453,7 @@ export type Database = {
           preferred_contact: string
         }
         Insert: {
+          category?: string
           created_at?: string
           email: string
           id?: string
@@ -462,6 +464,7 @@ export type Database = {
           preferred_contact?: string
         }
         Update: {
+          category?: string
           created_at?: string
           email?: string
           id?: string
@@ -1100,46 +1103,67 @@ export type Database = {
           account_status: string
           avatar_url: string | null
           bio: string | null
+          certifications: string[]
           created_at: string
           display_name: string | null
           fitness_goals: string | null
+          hero_image_url: string | null
           id: string
+          instagram_handle: string | null
+          is_test_account: boolean
+          long_bio: string | null
           manual_subscription: boolean
+          specialties: string[]
           status_changed_at: string | null
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
           user_id: string
           welcome_seen: boolean
+          years_coaching: number | null
         }
         Insert: {
           account_status?: string
           avatar_url?: string | null
           bio?: string | null
+          certifications?: string[]
           created_at?: string
           display_name?: string | null
           fitness_goals?: string | null
+          hero_image_url?: string | null
           id?: string
+          instagram_handle?: string | null
+          is_test_account?: boolean
+          long_bio?: string | null
           manual_subscription?: boolean
+          specialties?: string[]
           status_changed_at?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id: string
           welcome_seen?: boolean
+          years_coaching?: number | null
         }
         Update: {
           account_status?: string
           avatar_url?: string | null
           bio?: string | null
+          certifications?: string[]
           created_at?: string
           display_name?: string | null
           fitness_goals?: string | null
+          hero_image_url?: string | null
           id?: string
+          instagram_handle?: string | null
+          is_test_account?: boolean
+          long_bio?: string | null
           manual_subscription?: boolean
+          specialties?: string[]
           status_changed_at?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id?: string
           welcome_seen?: boolean
+          years_coaching?: number | null
         }
         Relationships: []
       }
@@ -1521,29 +1545,41 @@ export type Database = {
       }
       support_tickets: {
         Row: {
+          admin_replied_at: string | null
+          admin_reply: string | null
           created_at: string
           id: string
           message: string
+          priority: string
           status: string
           subject: string
+          triage_status: string
           type: string
           user_id: string
         }
         Insert: {
+          admin_replied_at?: string | null
+          admin_reply?: string | null
           created_at?: string
           id?: string
           message: string
+          priority?: string
           status?: string
           subject?: string
+          triage_status?: string
           type?: string
           user_id: string
         }
         Update: {
+          admin_replied_at?: string | null
+          admin_reply?: string | null
           created_at?: string
           id?: string
           message?: string
+          priority?: string
           status?: string
           subject?: string
+          triage_status?: string
           type?: string
           user_id?: string
         }
@@ -1989,6 +2025,7 @@ export type Database = {
           duration_minutes: number
           id: string
           is_featured: boolean | null
+          is_published: boolean
           thumbnail_url: string | null
           title: string
           video_url: string | null
@@ -2001,6 +2038,7 @@ export type Database = {
           duration_minutes: number
           id?: string
           is_featured?: boolean | null
+          is_published?: boolean
           thumbnail_url?: string | null
           title: string
           video_url?: string | null
@@ -2013,6 +2051,7 @@ export type Database = {
           duration_minutes?: number
           id?: string
           is_featured?: boolean | null
+          is_published?: boolean
           thumbnail_url?: string | null
           title?: string
           video_url?: string | null
