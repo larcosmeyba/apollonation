@@ -13,9 +13,9 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type Workout = Tables<"workouts">;
 
-const COACH_BIO = `Coach Marcos Leyba is a certified fitness professional with over a decade of experience in strength training, HIIT, and body transformation coaching. His philosophy centers on sustainable fitness — building programs that fit your life, not the other way around.
+const COACH_BIO = `Marcos Leyba is a NASM Certified Personal Trainer with over a decade coaching strength, HIIT, and body transformation. He's built Apollo Reborn around a simple philosophy: programs should fit your life, not the other way around. No extreme diets, no chaos, no burnout — just structured training that actually works.
 
-Marcos has trained hundreds of clients ranging from beginners to competitive athletes. His approach combines progressive overload principles with functional movement patterns to deliver results that last.
+Marcos has trained hundreds of clients ranging from beginners to competitive athletes, combining progressive overload with functional movement patterns to deliver results that last.
 
 When he's not coaching, Marcos is constantly studying the latest in exercise science and nutrition to bring cutting-edge programming to his clients.`;
 
@@ -90,7 +90,7 @@ const DashboardCoachProfile = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute bottom-5 left-5 right-5">
             <h1 className="text-2xl font-bold text-white">Marcos Leyba</h1>
-            <p className="text-sm text-white/70 mt-1">Founder & Head Coach · Apollo Nation</p>
+            <p className="text-sm text-white/70 mt-1">Founder & Head Coach · Apollo Reborn</p>
           </div>
         </div>
 

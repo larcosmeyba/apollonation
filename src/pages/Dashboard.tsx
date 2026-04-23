@@ -8,7 +8,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { format, startOfWeek } from "date-fns";
+import { format, startOfWeek, subDays } from "date-fns";
+import { Flame } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -99,6 +100,33 @@ const Dashboard = () => {
         .limit(12);
       return data || [];
     },
+  });
+
+  // Streak: consecutive days with workout OR meal log
+  const { data: streak = 0 } = useQuery({
+    queryKey: ["home-streak", user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const since = format(subDays(new Date(), 60), "yyyy-MM-dd");
+      const [sessions, macros] = await Promise.all([
+        supabase.from("workout_session_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
+        supabase.from("macro_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
+      ]);
+      const dates = new Set<string>([
+        ...((sessions.data || []) as any[]).map((s) => s.log_date),
+        ...((macros.data || []) as any[]).map((m) => m.log_date),
+      ]);
+      const today = new Date();
+      let count = 0;
+      for (let i = 0; i < 60; i++) {
+        const d = format(subDays(today, i), "yyyy-MM-dd");
+        if (i === 0 && !dates.has(d)) continue;
+        if (dates.has(d)) count++;
+        else if (i > 0) break;
+      }
+      return count;
+    },
+    enabled: !!user,
   });
 
   const { data: favorites = [] } = useQuery({
@@ -239,6 +267,13 @@ const Dashboard = () => {
             <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               {profile?.display_name || "Warrior"}
             </h1>
+            <Link
+              to="/dashboard/profile"
+              className="inline-flex items-center gap-1.5 mt-1 text-xs font-semibold text-foreground/60 hover:text-foreground transition-colors"
+            >
+              <Flame className={`w-3.5 h-3.5 ${streak > 0 ? "text-orange-400" : "text-foreground/40"}`} />
+              {streak > 0 ? `${streak} day streak` : "Start your streak"}
+            </Link>
           </div>
         </div>
 
@@ -246,7 +281,7 @@ const Dashboard = () => {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-foreground uppercase tracking-wide" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              New This Week
+              Latest Classes
             </h2>
             <Link to="/dashboard/workouts">
               <span className="text-sm font-bold text-foreground hover:text-accent transition-colors">View All</span>
