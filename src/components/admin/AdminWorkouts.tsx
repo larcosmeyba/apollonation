@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import WorkoutExerciseLinker from "./WorkoutExerciseLinker";
 
 interface Workout {
@@ -23,6 +24,8 @@ interface Workout {
   video_url: string | null;
   thumbnail_url: string | null;
   is_featured: boolean | null;
+  is_published?: boolean;
+  created_at?: string;
 }
 
 const CATEGORIES = [
@@ -53,8 +56,15 @@ const AdminWorkouts = () => {
     video_url: "",
     thumbnail_url: "",
     is_featured: false,
+    is_published: true,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Library mgmt: search, filter, sort
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [publishFilter, setPublishFilter] = useState<"all" | "published" | "draft">("all");
+  const [sortBy, setSortBy] = useState<"newest" | "title" | "duration">("newest");
 
   const { data: workouts, isLoading } = useQuery({
     queryKey: ["admin-workouts"],
