@@ -534,7 +534,9 @@ const DashboardProfile = () => {
                       {(weeklyActivity?.activeDays || 0) > 0 ? (
                         <span className="text-xs font-semibold" style={{ color: 'hsl(142, 71%, 55%)' }}>▲ {weeklyActivity?.activeDays} Day{weeklyActivity?.activeDays === 1 ? '' : 's'}</span>
                       ) : (
-                        <span className="text-xs font-semibold text-muted-foreground">No activity yet this week</span>
+                        <Link to="/dashboard/workouts" className="text-xs font-semibold text-foreground/80 hover:text-foreground underline-offset-2 hover:underline">
+                          Complete your first class to start your streak →
+                        </Link>
                       )}
                     </div>
                     <div className="flex items-center justify-between gap-2 mt-4">
