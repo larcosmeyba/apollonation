@@ -311,8 +311,6 @@ const Index = () => {
                 </div>
               </a>
             </div>
-
-            <p className="text-white/60 text-xs">Coming soon to iOS and Android</p>
           </div>
         </div>
       </section>
