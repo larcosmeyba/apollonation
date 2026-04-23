@@ -636,64 +636,109 @@ const DashboardProfile = () => {
 
           {/* SETTINGS TAB */}
           {activeTab === "settings" && (
-            <div className="space-y-0">
-              <h2 className="text-lg font-bold text-foreground mb-4" style={{ fontFamily: "'DM Sans', sans-serif" }}>Settings</h2>
+            <div className="space-y-6">
+              <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>Settings</h2>
 
+              {/* Account */}
               <div>
-                <h3 className="text-sm font-bold text-foreground mb-2">Account</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/50 mb-1">Account</h3>
                 <button onClick={() => setSettingsView("profile-edit")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
-                  <span className="text-sm text-foreground">Profile</span>
+                  <span className="flex items-center gap-3 text-sm text-foreground"><User className="w-4 h-4 text-foreground/60" /> Profile</span>
                   <ChevronRight className="w-4 h-4 text-foreground/30" />
                 </button>
                 <button onClick={() => setSettingsView("account")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
-                  <span className="text-sm text-foreground">Account Settings</span>
+                  <span className="flex items-center gap-3 text-sm text-foreground"><Settings className="w-4 h-4 text-foreground/60" /> Account Settings</span>
                   <ChevronRight className="w-4 h-4 text-foreground/30" />
                 </button>
-                <button onClick={() => setSettingsView("preferences")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
-                  <span className="text-sm text-foreground">Preferences</span>
-                  <ChevronRight className="w-4 h-4 text-foreground/30" />
+                <button
+                  onClick={() => openExternal(APP_STORE_SUBSCRIPTIONS_URL, PLAY_STORE_SUBSCRIPTIONS_URL)}
+                  className="flex items-center justify-between w-full py-3.5 border-b border-border"
+                >
+                  <span className="flex items-center gap-3 text-sm text-foreground"><CreditCard className="w-4 h-4 text-foreground/60" /> Manage Subscription</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-foreground/30" />
                 </button>
-                <button onClick={() => setSettingsView("privacy")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
-                  <span className="text-sm text-foreground">Privacy & Data</span>
-                  <ChevronRight className="w-4 h-4 text-foreground/30" />
-                </button>
-                <button onClick={() => setSettingsView("report-bug")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
-                  <span className="text-sm text-foreground">Report a Bug</span>
+                <button
+                  onClick={() => {
+                    openExternal(APP_STORE_SUBSCRIPTIONS_URL, PLAY_STORE_SUBSCRIPTIONS_URL);
+                    toast({ title: "Restoring purchases", description: "Sign in with the same Apple ID or Google account used to subscribe." });
+                  }}
+                  className="flex items-center justify-between w-full py-3.5 border-b border-border"
+                >
+                  <span className="flex items-center gap-3 text-sm text-foreground"><RefreshCw className="w-4 h-4 text-foreground/60" /> Restore Purchases</span>
                   <ChevronRight className="w-4 h-4 text-foreground/30" />
                 </button>
               </div>
 
-              <div className="mt-6">
+              {/* Preferences */}
+              <div>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/50 mb-1">Preferences</h3>
+                <button onClick={() => setSettingsView("preferences")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="flex items-center gap-3 text-sm text-foreground"><Target className="w-4 h-4 text-foreground/60" /> Training & Goals</span>
+                  <ChevronRight className="w-4 h-4 text-foreground/30" />
+                </button>
+                <button onClick={() => setSettingsView("account")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="flex items-center gap-3 text-sm text-foreground"><Bell className="w-4 h-4 text-foreground/60" /> Notifications</span>
+                  <ChevronRight className="w-4 h-4 text-foreground/30" />
+                </button>
+              </div>
+
+              {/* Privacy & Legal */}
+              <div>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/50 mb-1">Privacy & Legal</h3>
+                <button onClick={() => setSettingsView("privacy")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="flex items-center gap-3 text-sm text-foreground"><ShieldCheck className="w-4 h-4 text-foreground/60" /> Privacy & Data</span>
+                  <ChevronRight className="w-4 h-4 text-foreground/30" />
+                </button>
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="flex items-center gap-3 text-sm text-foreground"><FileText className="w-4 h-4 text-foreground/60" /> Terms of Service</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-foreground/30" />
+                </a>
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="flex items-center gap-3 text-sm text-foreground"><Shield className="w-4 h-4 text-foreground/60" /> Privacy Policy</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-foreground/30" />
+                </a>
+              </div>
+
+              {/* Support */}
+              <div>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/50 mb-1">Support</h3>
+                <button onClick={() => setSettingsView("report-bug")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="flex items-center gap-3 text-sm text-foreground"><Bug className="w-4 h-4 text-foreground/60" /> Report a Bug</span>
+                  <ChevronRight className="w-4 h-4 text-foreground/30" />
+                </button>
+                <a href="/faq" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="flex items-center gap-3 text-sm text-foreground"><HelpCircle className="w-4 h-4 text-foreground/60" /> FAQ / Help</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-foreground/30" />
+                </a>
                 <button
-                  onClick={signOut}
+                  onClick={() => openExternal(APP_STORE_RATE_URL, PLAY_STORE_RATE_URL)}
                   className="flex items-center justify-between w-full py-3.5 border-b border-border"
                 >
-                  <span className="text-sm text-foreground">Logout</span>
-                  <LogOut className="w-4 h-4 text-foreground/30" />
+                  <span className="flex items-center gap-3 text-sm text-foreground"><Star className="w-4 h-4 text-foreground/60" /> Rate the App</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-foreground/30" />
+                </button>
+              </div>
+
+              {/* Subscription disclosure */}
+              <div className="rounded-xl border border-border bg-card p-4">
+                <p className="text-[11px] text-foreground/60 leading-relaxed">
+                  Subscriptions are billed through your Apple ID or Google Play account and renew automatically unless cancelled at least 24 hours before the end of the current period. Manage or cancel anytime in App Store / Google Play settings — your Apollo Reborn access remains active until the end of the billing period.
+                </p>
+              </div>
+
+              {/* Account Actions */}
+              <div className="pt-2">
+                <button
+                  onClick={() => setSignOutOpen(true)}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border text-sm font-bold text-foreground hover:bg-foreground/5 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" /> Sign Out
                 </button>
                 <button
-                  onClick={async () => {
-                    if (!user) return;
-                    const confirmed = window.confirm(
-                      "Are you sure you want to request account deletion? This will submit a request to permanently delete your account and all associated data. This action cannot be undone once processed."
-                    );
-                    if (!confirmed) return;
-                    const { error } = await supabase.from("support_tickets").insert({
-                      user_id: user.id,
-                      type: "account_deletion",
-                      subject: "Account Deletion Request",
-                      message: `User ${user.email} has requested full account and data deletion.`,
-                    });
-                    if (error) {
-                      toast({ title: "Error", description: "Could not submit request. Please try again.", variant: "destructive" });
-                    } else {
-                      toast({ title: "Request Submitted", description: "Your account deletion request has been received. We will process it within 30 days." });
-                    }
-                  }}
-                  className="flex items-center justify-between w-full py-3.5 border-b border-border"
+                  onClick={() => setDeleteOpen(true)}
+                  className="flex items-center justify-center gap-2 w-full py-3 mt-3 rounded-xl border border-destructive/40 text-sm font-bold text-destructive hover:bg-destructive/5 transition-colors"
                 >
-                  <span className="text-sm text-destructive">Request Account Deletion</span>
-                  <ChevronRight className="w-4 h-4 text-destructive/50" />
+                  <Trash2 className="w-4 h-4" /> Delete Account
                 </button>
               </div>
             </div>
