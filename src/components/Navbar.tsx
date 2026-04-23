@@ -12,7 +12,10 @@ const Navbar = () => {
   const { isAdmin } = useAdminStatus();
 
   const navLinks = [
-    { href: "/contact", label: "Contact Portal" },
+    { href: "#pillars", label: "The Platform", isAnchor: true },
+    { href: "#programs", label: "Programs", isAnchor: true },
+    { href: "#nutrition", label: "Nutrition", isAnchor: true },
+    { href: "/contact", label: "Contact" },
     { href: "#download", label: "Download the App", isAnchor: true },
   ];
 

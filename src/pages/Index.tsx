@@ -18,17 +18,17 @@ const FEATURES = [
   {
     icon: Dumbbell,
     title: "Structured Training",
-    desc: "100+ guided workouts designed to help you build strength, endurance, and mobility.",
+    desc: "A focused library of guided workouts — every one filmed, programmed, and coached by Marcos. Built with intent, not filler.",
   },
   {
     icon: Target,
-    title: "Elite Programming",
-    desc: "Training programs designed by experienced fitness professionals to keep you progressing.",
+    title: "Progressive Programming",
+    desc: "Multi-week programs that progress with you — built to prevent plateaus and match your schedule.",
   },
   {
     icon: Heart,
     title: "Sustainable Nutrition",
-    desc: "Simple nutrition guidance that supports real results without extreme dieting.",
+    desc: "Macro-tracked meal plans that match your grocery store and weekly budget. No extreme diets.",
   },
 ];
 
@@ -55,14 +55,14 @@ const Index = () => {
     <main className="min-h-screen overflow-x-hidden w-full bg-background">
       <SEOHead
         path="/"
-        description="Apollo Reborn — premium fitness platform with 100+ structured workouts, training programs, and nutrition guidance. Download the app today."
+        description="Guided workouts, progressive programs, and budget-friendly meal plans — all in one premium training app. Built by coach Marcos Leyba. Download for iOS & Android."
         jsonLd={[
           {
             "@context": "https://schema.org",
             "@type": "Organization",
             name: "Apollo Reborn",
-            url: "https://www.www-apollo.com",
-            logo: "https://www.www-apollo.com/favicon.png",
+            url: "https://www.apolloreborn.com",
+            logo: "https://www.apolloreborn.com/favicon.png",
             description: "Premium on-demand fitness platform.",
           },
         ]}
@@ -104,7 +104,7 @@ const Index = () => {
             <p
               className={`text-lg md:text-xl text-white max-w-xl mx-auto mb-10 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
-              Apollo Reborn is a modern training platform designed to help you build strength, discipline, and longevity.
+              Guided workouts, structured programs, and personalized nutrition — all in one app. Built by Marcos Leyba, designed to fit your life.
             </p>
 
             <div
@@ -159,7 +159,7 @@ const Index = () => {
               On-Demand Workout Library
             </h2>
             <p className="text-white max-w-lg mx-auto text-base">
-              Train anytime with guided workouts designed to challenge you and keep your training fresh.
+              A focused library of guided workouts — every one filmed, programmed, and coached by Marcos. Built with intent, not filler.
             </p>
           </div>
 
@@ -242,7 +242,7 @@ const Index = () => {
               Fuel Your Training
             </h2>
             <p className="text-white max-w-lg mx-auto text-base">
-              Simple nutrition tools to help you make better food choices, track macros, and stay consistent with your goals.
+              Macro-tracked meal plans that match your grocery store and your weekly budget. No extreme diets, no $300 grocery runs.
             </p>
           </div>
 
@@ -268,14 +268,35 @@ const Index = () => {
       {/* ═══ 7. FOUNDER ═══ */}
       <section className="py-16 md:py-24 border-t border-border/30">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">The Founder</span>
-            <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-6">
-              Built By a Coach Who Understands Training
-            </h2>
-            <p className="text-white text-base leading-relaxed mb-8">
-              Apollo Reborn was founded by Marcos Leyba to create a budget-friendly way to help people get fit at home and achieve their nutrition goals. Every workout, program, and meal plan is built with purpose — structured training that delivers real results without the chaos of traditional gym culture.
-            </p>
+          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 md:gap-14 items-center">
+            <div className="rounded-2xl overflow-hidden aspect-[4/5] shadow-[0_16px_50px_rgba(0,0,0,0.6)]">
+              <img
+                src={marcosAction1}
+                alt="Marcos Leyba, founder of Apollo Reborn, training"
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">The Founder</span>
+              <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-6">
+                Built By a Coach Who Understands Training
+              </h2>
+              <p className="text-white text-base leading-relaxed mb-5">
+                Apollo Reborn exists because fitness shouldn't require a $200/month gym, a nutritionist, and three separate apps. Every workout, program, and meal plan is built with purpose — structured training that delivers real results without the chaos of traditional gym culture or the noise of influencer fitness.
+              </p>
+              <p className="text-white text-base leading-relaxed mb-6">
+                Founded by Marcos Leyba, a coach with over a decade of experience in strength training and body transformation. His philosophy: build programs that fit your life, not the other way around.
+              </p>
+              <a
+                href="https://www.instagram.com/larcosfit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-white text-sm font-semibold hover:text-white/70 transition-colors"
+              >
+                Follow @larcosfit →
+              </a>
+            </div>
           </div>
         </div>
       </section>
