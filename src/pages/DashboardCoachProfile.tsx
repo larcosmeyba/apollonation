@@ -90,7 +90,7 @@ const DashboardCoachProfile = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute bottom-5 left-5 right-5">
             <h1 className="text-2xl font-bold text-white">Marcos Leyba</h1>
-            <p className="text-sm text-white/70 mt-1">Founder & Head Coach · Apollo Nation</p>
+            <p className="text-sm text-white/70 mt-1">Founder & Head Coach · Apollo Reborn</p>
           </div>
         </div>
 
