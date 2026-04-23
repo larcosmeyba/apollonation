@@ -64,6 +64,30 @@ const Index = () => {
             url: "https://www.apolloreborn.com",
             logo: "https://www.apolloreborn.com/favicon.png",
             description: "Premium on-demand fitness platform.",
+            sameAs: [
+              "https://www.instagram.com/larcosfit",
+              "https://www.tiktok.com/@larcosfitness",
+              "https://www.youtube.com/@larcosfitness",
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: "Apollo Reborn",
+            operatingSystem: "iOS, Android",
+            applicationCategory: "HealthApplication",
+            description:
+              "Guided workouts, progressive programs, and budget-friendly meal plans in one premium training app.",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "USD",
+            },
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: "5",
+              ratingCount: "1",
+            },
           },
         ]}
       />
