@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, Search, Bookmark } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import NotificationCenter from "@/components/dashboard/NotificationCenter";
 
 const DashboardMobileNav = () => {
   const [open, setOpen] = useState(false);
@@ -28,7 +29,6 @@ const DashboardMobileNav = () => {
                 {[
                   { label: "About", to: "/about" },
                   { label: "FAQ", to: "/faq" },
-                  { label: "Settings", to: "/dashboard/profile" },
                 ].map((item) => (
                   <Link
                     key={item.label}
@@ -60,8 +60,9 @@ const DashboardMobileNav = () => {
           </SheetContent>
         </Sheet>
 
-        {/* Right: Search + Saved */}
-        <div className="flex items-center gap-2">
+        {/* Right: Notifications + Search + Saved */}
+        <div className="flex items-center gap-1">
+          <NotificationCenter />
           <Link
             to="/dashboard/workouts?search=true"
             className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-foreground/5 transition-colors"

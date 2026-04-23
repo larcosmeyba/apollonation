@@ -52,7 +52,7 @@ const PrivacyDataView = ({ onBack }: { onBack: () => void }) => {
     <div className="max-w-lg mx-auto">
       <button onClick={onBack} className="text-foreground mb-4 text-sm font-bold">← Back</button>
       <h1 className="text-3xl font-bold text-foreground mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>Privacy & Data</h1>
-      <p className="text-sm text-muted-foreground mb-8">Control how your information is used inside Apollo Nation.</p>
+      <p className="text-sm text-muted-foreground mb-8">Control how your information is used inside Apollo Reborn.</p>
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
@@ -102,7 +102,7 @@ const PrivacyDataView = ({ onBack }: { onBack: () => void }) => {
               <h3 className="text-sm font-bold text-foreground">Where your data lives</h3>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Your data is stored in Apollo Nation's encrypted backend (TLS in transit, AES-256 at rest). Row-level security ensures only you and authorized coaches can read your personal records. Data is retained until you request deletion.
+              Your data is stored in Apollo Reborn's encrypted backend (TLS in transit, AES-256 at rest). Row-level security ensures only you and authorized coaches can read your personal records. Data is retained until you request deletion.
             </p>
             <Link to="/privacy" className="inline-flex items-center gap-1.5 text-xs text-primary font-bold">
               <FileText className="w-3.5 h-3.5" /> Read our full Privacy Policy
