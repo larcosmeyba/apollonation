@@ -104,7 +104,7 @@ const Index = () => {
             <p
               className={`text-lg md:text-xl text-white max-w-xl mx-auto mb-10 font-light leading-relaxed transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
-              Apollo Reborn is a modern training platform designed to help you build strength, discipline, and longevity.
+              Guided workouts, structured programs, and personalized nutrition — all in one app. Built by Marcos Leyba, designed to fit your life.
             </p>
 
             <div
