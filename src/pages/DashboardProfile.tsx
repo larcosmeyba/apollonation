@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Save, LogOut, ChevronRight, Settings, Star, Dumbbell, Heart, Trophy, Moon, Sun, Shield, Zap, Target, Award, Camera, Bell, Loader2, User } from "lucide-react";
+import { Save, LogOut, ChevronRight, Settings, Star, Dumbbell, Heart, Trophy, Moon, Sun, Shield, Zap, Target, Award, Camera, Bell, Loader2, User, CreditCard, RefreshCw, FileText, ShieldCheck, HelpCircle, Bug, MessageCircle, Trash2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +14,29 @@ import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { Switch } from "@/components/ui/switch";
 import PrivacyDataView from "@/components/dashboard/PrivacyDataView";
 import ReportBugView from "@/components/dashboard/ReportBugView";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+// Apple App Store + Google Play subscription management deep links
+const APP_STORE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
+const PLAY_STORE_SUBSCRIPTIONS_URL = "https://play.google.com/store/account/subscriptions?package=com.apollonation.app";
+const APP_STORE_RATE_URL = "itms-apps://itunes.apple.com/app/id0000000000?action=write-review";
+const PLAY_STORE_RATE_URL = "https://play.google.com/store/apps/details?id=com.apollonation.app";
+
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+const openExternal = (iosUrl: string, androidUrl: string) => {
+  const url = isIOS() ? iosUrl : androidUrl;
+  window.open(url, "_blank", "noopener,noreferrer");
+};
 
 const WORKOUT_TYPES = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Core", "Senior"];
 
