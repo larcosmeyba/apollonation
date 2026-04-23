@@ -69,5 +69,3 @@ verify_jwt = false
 [functions.process-email-queue]
 verify_jwt = true
 
-[functions.bulk-update-recipe-thumbnails]
-verify_jwt = false
