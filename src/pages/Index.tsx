@@ -55,14 +55,14 @@ const Index = () => {
     <main className="min-h-screen overflow-x-hidden w-full bg-background">
       <SEOHead
         path="/"
-        description="Apollo Reborn — premium fitness platform with 100+ structured workouts, training programs, and nutrition guidance. Download the app today."
+        description="Guided workouts, progressive programs, and budget-friendly meal plans — all in one premium training app. Built by coach Marcos Leyba. Download for iOS & Android."
         jsonLd={[
           {
             "@context": "https://schema.org",
             "@type": "Organization",
             name: "Apollo Reborn",
-            url: "https://www.www-apollo.com",
-            logo: "https://www.www-apollo.com/favicon.png",
+            url: "https://www.apolloreborn.com",
+            logo: "https://www.apolloreborn.com/favicon.png",
             description: "Premium on-demand fitness platform.",
           },
         ]}
