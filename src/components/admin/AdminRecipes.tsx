@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, Sparkles, FileText, Loader2, Upload, Library } from "lucide-react";
+import { Plus, Pencil, Trash2, Sparkles, FileText, Loader2, Upload, Library, Search, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import BulkPdfImport from "./BulkPdfImport";
 
@@ -42,6 +43,10 @@ const AdminRecipes = () => {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [pdfProcessing, setPdfProcessing] = useState(false);
   const [bulkImportOpen, setBulkImportOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortBy, setSortBy] = useState<"newest" | "title" | "calories">("newest");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -153,6 +158,51 @@ const AdminRecipes = () => {
       toast({ title: "Error deleting recipe", description: error.message, variant: "destructive" });
     },
   });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("recipes").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: (_, ids) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-recipes"] });
+      toast({ title: `Deleted ${ids.length} recipe(s)` });
+      setSelectedIds(new Set());
+    },
+    onError: (error) => {
+      toast({ title: "Bulk delete failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const filteredRecipes = (recipes || [])
+    .filter((r) => {
+      if (categoryFilter !== "all" && r.category !== categoryFilter) return false;
+      if (searchQuery && !r.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "title") return a.title.localeCompare(b.title);
+      if (sortBy === "calories") return (b.calories_per_serving || 0) - (a.calories_per_serving || 0);
+      return 0; // newest is the default order from query
+    });
+
+  const allFilteredSelected = filteredRecipes.length > 0 && filteredRecipes.every((r) => selectedIds.has(r.id));
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredRecipes.map((r) => r.id)));
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -443,25 +493,43 @@ const AdminRecipes = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Recipe Table Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="font-heading text-xl">Nutrition Recipes</h2>
-          <p className="text-sm text-muted-foreground">
-            {recipes?.length || 0} recipes in library
-          </p>
-        </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="apollo" onClick={() => resetForm()}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Manually
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingRecipe ? "Edit Recipe" : "Add New Recipe"}</DialogTitle>
-            </DialogHeader>
+      {/* Recipe Library Header */}
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-between items-start gap-3 flex-wrap">
+          <div>
+            <h2 className="font-heading text-xl">Nutrition Recipes</h2>
+            <p className="text-sm text-muted-foreground">
+              {filteredRecipes.length} of {recipes?.length || 0} recipes
+              {selectedIds.size > 0 && ` · ${selectedIds.size} selected`}
+            </p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  if (confirm(`Delete ${selectedIds.size} recipe(s)? This cannot be undone.`)) {
+                    bulkDeleteMutation.mutate(Array.from(selectedIds));
+                  }
+                }}
+                disabled={bulkDeleteMutation.isPending}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete {selectedIds.size}
+              </Button>
+            )}
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="apollo" onClick={() => resetForm()}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Manually
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{editingRecipe ? "Edit Recipe" : "Add New Recipe"}</DialogTitle>
+                </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="title">Title</Label>
@@ -614,50 +682,127 @@ const AdminRecipes = () => {
                 </Button>
               </div>
             </form>
-          </DialogContent>
-        </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        {/* Search / Filter / Sort row */}
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search recipes by title..."
+              className="pl-9 pr-9"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="breakfast">Breakfast</SelectItem>
+              <SelectItem value="main">Main</SelectItem>
+              <SelectItem value="snack">Snack</SelectItem>
+              <SelectItem value="dessert">Dessert</SelectItem>
+              <SelectItem value="smoothie">Smoothie</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="title">Title (A–Z)</SelectItem>
+              <SelectItem value="calories">Calories (high)</SelectItem>
+            </SelectContent>
+          </Select>
+          {filteredRecipes.length > 0 && (
+            <Button variant="outline" size="sm" onClick={toggleSelectAll}>
+              {allFilteredSelected ? "Clear selection" : "Select all"}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Recipe Card Grid */}
       {isLoading ? (
         <p className="text-center py-8 text-muted-foreground">Loading...</p>
-      ) : recipes?.length === 0 ? (
-        <p className="text-center py-8 text-muted-foreground">No recipes yet. Use AI or add one manually!</p>
+      ) : filteredRecipes.length === 0 ? (
+        <p className="text-center py-8 text-muted-foreground">
+          {recipes?.length === 0
+            ? "No recipes yet. Use AI or add one manually!"
+            : "No recipes match your filters."}
+        </p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {recipes?.map((recipe) => (
-            <div key={recipe.id} className="card-apollo overflow-hidden group">
-              <div className="aspect-video bg-muted relative">
-                {recipe.thumbnail_url ? (
-                  <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-muted-foreground/30" />
+          {filteredRecipes.map((recipe) => {
+            const isSelected = selectedIds.has(recipe.id);
+            return (
+              <div
+                key={recipe.id}
+                className={`card-apollo overflow-hidden relative ${isSelected ? "ring-2 ring-primary" : ""}`}
+              >
+                <div className="absolute top-2 right-2 z-10">
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() => toggleSelect(recipe.id)}
+                    className="bg-background/80 border-foreground/40"
+                  />
+                </div>
+                <div className="aspect-video bg-muted relative">
+                  {recipe.thumbnail_url ? (
+                    <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Sparkles className="w-8 h-8 text-muted-foreground/30" />
+                    </div>
+                  )}
+                  {recipe.category && (
+                    <span className="absolute top-2 left-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded capitalize">{recipe.category}</span>
+                  )}
+                  {recipe.calories_per_serving && (
+                    <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{recipe.calories_per_serving} cal</span>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="font-medium text-sm truncate">{recipe.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {recipe.protein_grams || 0}g P · {recipe.carbs_grams || 0}g C · {recipe.fat_grams || 0}g F
+                  </p>
+                  <div className="flex gap-1 mt-2">
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(recipe)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => {
+                        if (confirm(`Delete "${recipe.title}"?`)) deleteMutation.mutate(recipe.id);
+                      }}
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                    </Button>
                   </div>
-                )}
-                {recipe.category && (
-                  <span className="absolute top-2 left-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded capitalize">{recipe.category}</span>
-                )}
-                {recipe.calories_per_serving && (
-                  <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{recipe.calories_per_serving} cal</span>
-                )}
-              </div>
-              <div className="p-3">
-                <p className="font-medium text-sm truncate">{recipe.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {recipe.protein_grams || 0}g P · {recipe.carbs_grams || 0}g C · {recipe.fat_grams || 0}g F
-                </p>
-                <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(recipe)}>
-                    <Pencil className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => deleteMutation.mutate(recipe.id)} disabled={deleteMutation.isPending}>
-                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                  </Button>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
