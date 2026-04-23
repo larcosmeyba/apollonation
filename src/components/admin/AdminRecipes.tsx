@@ -43,6 +43,10 @@ const AdminRecipes = () => {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [pdfProcessing, setPdfProcessing] = useState(false);
   const [bulkImportOpen, setBulkImportOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortBy, setSortBy] = useState<"newest" | "title" | "calories">("newest");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     title: "",
     description: "",
