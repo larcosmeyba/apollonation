@@ -39,7 +39,7 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
       const { data: proEliteClients } = await supabase
         .from("profiles")
         .select("user_id, is_test_account")
-        .in("subscription_tier", ["pro", "elite"])
+        .eq("is_subscribed", true)
         .eq("account_status", "active");
       const real = (proEliteClients || []).filter((c: any) => !c.is_test_account);
       if (!real.length) return 0;
@@ -115,7 +115,7 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("user_id, display_name, subscription_tier, avatar_url, is_test_account")
+        .select("user_id, display_name, avatar_url, is_test_account")
         .eq("account_status", "active")
         .order("updated_at", { ascending: false })
         .limit(20);

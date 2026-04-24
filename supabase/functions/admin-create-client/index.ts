@@ -62,7 +62,7 @@ serve(async (req) => {
       });
     }
 
-    const { email, password, display_name, subscription_tier } = await req.json();
+    const { email, password, display_name, grant_subscription } = await req.json();
 
     // Validate inputs
     if (!email || !password || !display_name) {
@@ -78,9 +78,6 @@ serve(async (req) => {
         status: 400,
       });
     }
-
-    const validTiers = ["basic", "pro", "elite"];
-    const tier = validTiers.includes(subscription_tier) ? subscription_tier : "basic";
 
     // Create the user via admin API (auto-confirms email)
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -98,17 +95,24 @@ serve(async (req) => {
       });
     }
 
-    // Update subscription tier and mark as manual subscription
-    const { error: tierError } = await supabaseAdmin
-      .from("profiles")
-      .update({ subscription_tier: tier, manual_subscription: true })
-      .eq("user_id", newUser.user.id);
+    // Optional: grant a manual (admin-issued) subscription on creation.
+    // Manual grants are authoritative — they are not overwritten by the RevenueCat webhook.
+    if (grant_subscription) {
+      const { error: grantError } = await supabaseAdmin
+        .from("profiles")
+        .update({
+          manual_subscription: true,
+          is_subscribed: true,
+          subscription_store: "manual",
+        })
+        .eq("user_id", newUser.user.id);
 
-    if (tierError) {
-      console.error("[ADMIN-CREATE-CLIENT] Tier update error:", tierError.message);
+      if (grantError) {
+        console.error("[ADMIN-CREATE-CLIENT] Grant subscription error:", grantError.message);
+      }
     }
 
-    console.log("[ADMIN-CREATE-CLIENT] Client created:", { userId: newUser.user.id, email, tier });
+    console.log("[ADMIN-CREATE-CLIENT] Client created:", { userId: newUser.user.id, email, granted: !!grant_subscription });
 
     return new Response(
       JSON.stringify({ success: true, user_id: newUser.user.id }),

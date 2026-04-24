@@ -51,7 +51,7 @@ const AdminNutrition = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("user_id, display_name, subscription_tier")
+        .select("user_id, display_name, is_subscribed")
         .order("display_name");
       if (error) throw error;
       return data;
@@ -257,7 +257,7 @@ const AdminNutrition = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate">{u.display_name || "Unnamed"}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{u.subscription_tier}</p>
+                  <p className="text-xs text-muted-foreground">{u.is_subscribed ? "Member" : "Free"}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </button>

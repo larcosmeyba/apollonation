@@ -34,7 +34,7 @@ const DashboardMacros = () => {
     meal_name: "", calories: "", protein: "", carbs: "", fat: "",
   });
 
-  const isElite = profile?.subscription_tier === "elite";
+  const isElite = profile?.is_subscribed === true;
 
   // Fetch macro logs from DB - persisted!
   const { data: entries = [] } = useQuery({

@@ -1110,11 +1110,16 @@ export type Database = {
           hero_image_url: string | null
           id: string
           instagram_handle: string | null
+          is_subscribed: boolean
           is_test_account: boolean
           long_bio: string | null
           manual_subscription: boolean
+          revenuecat_app_user_id: string | null
           specialties: string[]
           status_changed_at: string | null
+          subscription_expires_at: string | null
+          subscription_plan: string | null
+          subscription_store: string | null
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
           user_id: string
@@ -1132,11 +1137,16 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           instagram_handle?: string | null
+          is_subscribed?: boolean
           is_test_account?: boolean
           long_bio?: string | null
           manual_subscription?: boolean
+          revenuecat_app_user_id?: string | null
           specialties?: string[]
           status_changed_at?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan?: string | null
+          subscription_store?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id: string
@@ -1154,11 +1164,16 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           instagram_handle?: string | null
+          is_subscribed?: boolean
           is_test_account?: boolean
           long_bio?: string | null
           manual_subscription?: boolean
+          revenuecat_app_user_id?: string | null
           specialties?: string[]
           status_changed_at?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan?: string | null
+          subscription_store?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
           user_id?: string
