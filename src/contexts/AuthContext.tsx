@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { initPurchases, logOutPurchases } from "@/lib/purchases";
 
 interface Profile {
   id: string;
@@ -78,6 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
 
         if (session?.user) {
+          initPurchases(session.user.id).catch((e) => console.warn("[Auth] initPurchases", e));
           const profileData = await fetchProfile(session.user.id);
           if (!mountedRef.current) return;
           setProfile(profileData);
@@ -95,6 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
 
       if (session?.user) {
+        initPurchases(session.user.id).catch((e) => console.warn("[Auth] initPurchases", e));
         fetchProfile(session.user.id).then((profileData) => {
           if (!mountedRef.current) return;
           setProfile(profileData);
@@ -143,6 +146,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
+    await logOutPurchases().catch((e) => console.warn("[Auth] logOutPurchases", e));
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
