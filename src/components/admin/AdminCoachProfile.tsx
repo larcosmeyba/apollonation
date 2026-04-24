@@ -69,7 +69,7 @@ const AdminCoachProfile = () => {
     }
     setIsUploading(true);
     const ext = file.name.split(".").pop();
-    const fileName = `coach-${user.id}.${ext}`;
+    const fileName = `${user.id}/coach.${ext}`;
     const { error } = await supabase.storage.from("avatars").upload(fileName, file, { contentType: file.type, upsert: true });
     if (error) {
       toast({ title: "Upload failed", description: error.message, variant: "destructive" });
@@ -99,7 +99,7 @@ const AdminCoachProfile = () => {
     }
     setIsUploadingHero(true);
     const ext = file.name.split(".").pop();
-    const fileName = `coach-hero-${user.id}-${Date.now()}.${ext}`;
+    const fileName = `${user.id}/hero-${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("avatars").upload(fileName, file, { contentType: file.type, upsert: true });
     if (error) {
       toast({ title: "Upload failed", description: error.message, variant: "destructive" });

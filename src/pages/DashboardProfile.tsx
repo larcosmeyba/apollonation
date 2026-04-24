@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Save, LogOut, ChevronRight, Settings, Star, Dumbbell, Heart, Trophy, Moon, Sun, Shield, Zap, Target, Award, Camera, Bell, Loader2, User, CreditCard, RefreshCw, FileText, ShieldCheck, HelpCircle, Bug, MessageCircle, Trash2, ExternalLink } from "lucide-react";
@@ -48,6 +48,9 @@ const DashboardProfile = () => {
   const [settingsView, setSettingsView] = useState<string | null>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
@@ -775,36 +778,59 @@ const DashboardProfile = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Delete Account Confirmation */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      {/* Delete Account Confirmation — requires re-entering password */}
+      <AlertDialog open={deleteOpen} onOpenChange={(o) => { setDeleteOpen(o); if (!o) { setDeletePassword(""); setIsDeleting(false); } }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete your Apollo Reborn account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently removes your profile, workout history, nutrition logs, progress photos, and subscription data. This cannot be undone. If you have an active subscription, cancel it through the App Store or Google Play first.
+              This permanently removes your profile, workout history, nutrition logs, progress photos, and messages. <strong className="text-foreground">Deletion is immediate and cannot be undone.</strong> If you have an active subscription, cancel it through the App Store or Google Play first.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="space-y-2 py-2">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground">Confirm with your password</label>
+            <Input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Your current password"
+              className="bg-muted border-border h-11 text-foreground"
+              autoComplete="current-password"
+            />
+          </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={async () => {
-                if (!user) return;
-                const { error } = await supabase.from("support_tickets").insert({
-                  user_id: user.id,
-                  type: "account_deletion",
-                  subject: "Account Deletion Request",
-                  message: `User ${user.email} has requested full account and data deletion.`,
-                });
-                if (error) {
-                  toast({ title: "Error", description: "Could not submit request. Please try again.", variant: "destructive" });
-                } else {
-                  toast({ title: "Request submitted", description: "Your account will be deleted within 30 days. You'll receive a confirmation email." });
-                  setDeleteOpen(false);
+              disabled={isDeleting || !deletePassword.trim()}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!user || !deletePassword.trim()) return;
+                setIsDeleting(true);
+                try {
+                  const { data, error } = await supabase.functions.invoke("delete-account", {
+                    body: { password: deletePassword },
+                  });
+                  if (error || (data && (data as any).error)) {
+                    const msg = (data as any)?.error || error?.message || "Could not delete account.";
+                    toast({
+                      title: "Deletion failed",
+                      description: msg.toLowerCase().includes("password") ? "Password incorrect." : "Could not delete account. Please try again.",
+                      variant: "destructive",
+                    });
+                    setIsDeleting(false);
+                    return;
+                  }
+                  toast({ title: "Account deleted", description: "Your account and data have been permanently removed." });
+                  await signOut();
+                  navigate("/");
+                } catch (err: any) {
+                  toast({ title: "Deletion failed", description: "Could not delete account. Please try again.", variant: "destructive" });
+                  setIsDeleting(false);
                 }
               }}
             >
-              Delete Account
+              {isDeleting ? "Deleting..." : "Delete Account"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
