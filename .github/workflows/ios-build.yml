@@ -200,6 +200,7 @@ jobs:
             PROVISIONING_PROFILE_SPECIFIER="$PROVISIONING_PROFILE_NAME" \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             OTHER_CODE_SIGN_FLAGS="--keychain $CI_KEYCHAIN_PATH" \
+            CODE_SIGNING_ALLOWED_FOR_PACKAGES=NO \
             | tee "$RUNNER_TEMP/xcodebuild-archive.log"
 
           test -d "$ARCHIVE_PATH"
