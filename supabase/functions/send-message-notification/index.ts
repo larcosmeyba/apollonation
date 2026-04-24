@@ -1,11 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
 
 function buildEmail(name: string, body: string, link: string) {
   return `
@@ -28,136 +24,99 @@ function buildEmail(name: string, body: string, link: string) {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const pre = handlePreflight(req);
+  if (pre) return pre;
+  const corsHeaders = buildCorsHeaders(req);
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse(req, { error: "Unauthorized" }, 401);
     }
 
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const token = authHeader.replace("Bearer ", "");
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { recipientId, senderId: triggerSenderId, fromTrigger } = body;
 
     let senderId: string;
     let senderIsAdmin = false;
 
     if (fromTrigger) {
-      // Called from database trigger with service role key — senderId is provided
       senderId = triggerSenderId;
-      if (!senderId) {
-        return new Response(JSON.stringify({ error: "Missing senderId" }), {
-          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      // Check if sender is admin
+      if (!senderId) return jsonResponse(req, { error: "Missing senderId" }, 400);
       const { data: roleData } = await supabaseAdmin
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", senderId)
-        .eq("role", "admin")
-        .single();
+        .from("user_roles").select("role").eq("user_id", senderId).eq("role", "admin").single();
       senderIsAdmin = !!roleData;
     } else {
-      // Called from client-side with user JWT
       const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
-      if (userError || !userData.user) {
-        return new Response(JSON.stringify({ error: "Invalid token" }), {
-          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      if (userError || !userData.user) return jsonResponse(req, { error: "Invalid token" }, 401);
       senderId = userData.user.id;
       const { data: roleData } = await supabaseAdmin
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", senderId)
-        .eq("role", "admin")
-        .single();
+        .from("user_roles").select("role").eq("user_id", senderId).eq("role", "admin").single();
       senderIsAdmin = !!roleData;
     }
 
-    if (!recipientId) {
-      return new Response(JSON.stringify({ error: "Missing recipientId" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!recipientId) return jsonResponse(req, { error: "Missing recipientId" }, 400);
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendApiKey) {
-      throw new Error("RESEND_API_KEY is not configured");
-    }
+    if (!resendApiKey) throw new Error("RESEND_API_KEY is not configured");
     const resend = new Resend(resendApiKey);
 
-    const ADMIN_EMAIL = "mleyba.cpt@gmail.com";
+    const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL");
+    if (!ADMIN_EMAIL) {
+      console.error("[send-message-notification] ADMIN_EMAIL not configured");
+      return jsonResponse(req, { error: "Server not configured" }, 500);
+    }
 
     if (senderIsAdmin) {
-      // Admin sending to client — notify the client
       const { data: recipientData, error: recipientError } = await supabaseAdmin.auth.admin.getUserById(recipientId);
       if (recipientError || !recipientData.user?.email) {
-        return new Response(JSON.stringify({ error: "Recipient not found" }), {
-          status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return jsonResponse(req, { error: "Recipient not found" }, 404);
       }
 
       const { data: profileData } = await supabaseAdmin
-        .from("profiles")
-        .select("display_name")
-        .eq("user_id", recipientId)
-        .maybeSingle();
+        .from("profiles").select("display_name").eq("user_id", recipientId).maybeSingle();
 
       const recipientName = profileData?.display_name || "there";
       const recipientEmail = recipientData.user.email;
 
-      const emailResponse = await resend.emails.send({
+      await resend.emails.send({
         from: "Apollo Reborn <onboarding@resend.dev>",
         to: [recipientEmail],
         subject: "Coach Marcos sent you a message",
         html: buildEmail(recipientName, "Coach Marcos just sent you a new message. Log in to your dashboard to read and reply.", "https://apollonation.lovable.app/dashboard/messages"),
       });
 
-      console.log("[EMAIL] Sent client notification to", recipientEmail, emailResponse);
+      // PII-free log: do not log recipient email.
+      console.log("[EMAIL] Sent client notification", { recipientId });
 
-      return new Response(JSON.stringify({ success: true, message: `Notification sent to ${recipientEmail}` }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse(req, { success: true });
     } else {
-      // Client sending to admin — notify the admin
       const { data: senderProfile } = await supabaseAdmin
-        .from("profiles")
-        .select("display_name")
-        .eq("user_id", senderId)
-        .maybeSingle();
+        .from("profiles").select("display_name").eq("user_id", senderId).maybeSingle();
 
       const clientName = senderProfile?.display_name || "A client";
 
-      const emailResponse = await resend.emails.send({
+      await resend.emails.send({
         from: "Apollo Reborn <onboarding@resend.dev>",
         to: [ADMIN_EMAIL],
         subject: `${clientName} sent you a message`,
         html: buildEmail("Coach", `${clientName} just sent you a new message. Log in to your admin panel to read and reply.`, "https://apollonation.lovable.app/admin"),
       });
 
-      console.log("[EMAIL] Sent admin notification for client", clientName, emailResponse);
+      // PII-free log: senderId only, no name/email.
+      console.log("[EMAIL] Sent admin notification", { senderId });
 
-      return new Response(JSON.stringify({ success: true, message: `Admin notification sent` }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse(req, { success: true });
     }
   } catch (error) {
-    console.error("send-message-notification error:", error);
-    return new Response(JSON.stringify({
-      error: error instanceof Error ? error.message : "Unknown error",
-    }), {
+    console.error("send-message-notification error:", error instanceof Error ? error.message : String(error));
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
