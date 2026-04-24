@@ -41,9 +41,9 @@ BUG DETECTION:
 - Acknowledge bugs empathetically: "I'm sorry about that! I've logged this issue and our team will look into it."`;
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const pre = handlePreflight(req);
+  if (pre) return pre;
+  const corsHeaders = buildCorsHeaders(req);
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -79,8 +79,13 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    // Keep only last 20 messages to save tokens
-    const recentMessages = messages.slice(-20);
+    // Keep only last 20 messages; wrap each user message in <user_input> guard.
+    const recentMessages = messages.slice(-20).map((m: any) => {
+      if (m?.role === "user" && typeof m.content === "string") {
+        return { role: "user", content: wrapUserInput(m.content) };
+      }
+      return m;
+    });
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -91,7 +96,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-lite",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: `${SYSTEM_PROMPT}\n\n${PROMPT_INJECTION_GUARD}` },
           ...recentMessages,
           {
             role: "system",

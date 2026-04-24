@@ -1,12 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { PROMPT_INJECTION_GUARD } from "../_shared/prompt-safety.ts";
 
 interface ParsedRecipe {
   title: string;
@@ -27,7 +23,9 @@ interface ParsedRecipe {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const pre = handlePreflight(req);
+  if (pre) return pre;
+  const corsHeaders = buildCorsHeaders(req);
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -100,6 +98,8 @@ serve(async (req) => {
           {
             role: "system",
             content: `You are a professional nutrition data extractor for a premium fitness coaching platform.
+
+${PROMPT_INJECTION_GUARD}
 
 You will be given a cookbook-style PDF that contains multiple recipes with photos and macro information.
 

@@ -1,16 +1,31 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
+import { z } from "https://esm.sh/zod@3.23.8";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+// Strict input validation: numbers in human ranges, capped array sizes.
+const ProfileSchema = z.object({
+  age: z.number().int().min(10).max(120).optional().nullable(),
+  weight_lbs: z.number().min(50).max(500).optional().nullable(),
+  height_inches: z.number().min(36).max(108).optional().nullable(),
+  activity_level: z.enum(["sedentary", "light", "moderate", "active", "very_active"]).optional().nullable(),
+  goals: z.string().max(500).optional().nullable(),
+  dietary_preferences: z.array(z.string().max(100)).max(50).optional().nullable(),
+  food_restrictions: z.array(z.string().max(100)).max(50).optional().nullable(),
+  notes: z.string().max(2000).optional().nullable(),
+}).passthrough();
+
+const BodySchema = z.object({
+  profile: ProfileSchema,
+  clientUserId: z.string().uuid(),
+  planTitle: z.string().max(200).optional(),
+});
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const pre = handlePreflight(req);
+  if (pre) return pre;
+  const corsHeaders = buildCorsHeaders(req);
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -58,14 +73,11 @@ serve(async (req) => {
     const allowed = await checkRateLimit(adminId as string, "generate-meal-plan", 5, 1440);
     if (!allowed) return rateLimitResponse(corsHeaders);
 
-    const { profile, clientUserId, planTitle } = await req.json();
-
-    if (!profile || !clientUserId) {
-      return new Response(
-        JSON.stringify({ error: "Missing profile data or client user ID" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const parsed = BodySchema.safeParse(await req.json().catch(() => ({})));
+    if (!parsed.success) {
+      return jsonResponse(req, { error: "Invalid input", issues: parsed.error.flatten() }, 400);
     }
+    const { profile, clientUserId, planTitle } = parsed.data;
 
     // Calculate macros based on profile
     const { age, weight_lbs, height_inches, activity_level, goals } = profile;
