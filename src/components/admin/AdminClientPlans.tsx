@@ -19,7 +19,7 @@ import ClientNotesPanel from "./ClientNotesPanel";
 interface Profile {
   user_id: string;
   display_name: string | null;
-  subscription_tier: string;
+  is_subscribed: boolean;
 }
 
 interface TrainingPlan {
@@ -76,8 +76,8 @@ const AdminClientPlans = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("user_id, display_name, subscription_tier")
-        .in("subscription_tier", ["pro", "elite"])
+        .select("user_id, display_name, is_subscribed")
+        .eq("is_subscribed", true)
         .eq("account_status", "active")
         .order("display_name");
       if (error) throw error;
@@ -279,11 +279,11 @@ const AdminClientPlans = () => {
                 {loadingClients ? (
                   <TableRow><TableCell colSpan={4} className="text-center py-8">Loading...</TableCell></TableRow>
                 ) : filteredClients?.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No pro/elite clients found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No subscribed clients found.</TableCell></TableRow>
                 ) : filteredClients?.map(c => (
                   <TableRow key={c.user_id}>
                     <TableCell className="font-medium">{c.display_name || "—"}</TableCell>
-                    <TableCell><Badge variant="outline" className="capitalize">{c.subscription_tier}</Badge></TableCell>
+                    <TableCell><Badge variant="outline">Member</Badge></TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {lastActiveMap?.[c.user_id]
                         ? formatDistanceToNow(new Date(lastActiveMap[c.user_id]), { addSuffix: true })

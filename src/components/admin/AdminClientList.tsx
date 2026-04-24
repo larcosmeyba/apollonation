@@ -19,7 +19,7 @@ interface Profile {
   id: string;
   user_id: string;
   display_name: string | null;
-  subscription_tier: "basic" | "pro" | "elite";
+  is_subscribed: boolean;
   account_status: string;
   created_at: string;
   is_test_account?: boolean;
@@ -37,7 +37,7 @@ const AdminClientList = () => {
     email: "",
     password: "",
     display_name: "",
-    subscription_tier: "basic" as "basic" | "pro" | "elite",
+    grant_subscription: false,
   });
 
   const { data: profiles, isLoading } = useQuery({
@@ -115,21 +115,14 @@ const AdminClientList = () => {
       queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
       toast({ title: "Client created successfully" });
       setIsCreateDialogOpen(false);
-      setCreateFormData({ email: "", password: "", display_name: "", subscription_tier: "basic" });
+      setCreateFormData({ email: "", password: "", display_name: "", grant_subscription: false });
     },
     onError: (error) => {
       toast({ title: "Error creating client", description: error.message, variant: "destructive" });
     },
   });
 
-  const getTierBadge = (tier: string) => {
-    const colors: Record<string, string> = {
-      elite: "bg-primary/20 text-primary",
-      pro: "bg-purple-500/20 text-purple-400",
-      basic: "bg-muted text-muted-foreground",
-    };
-    return colors[tier] || colors.basic;
-  };
+  const getTierBadge = (_tier?: string) => "bg-primary/20 text-primary";
 
   // If a client is selected, show their unified profile
   if (selectedClient) {

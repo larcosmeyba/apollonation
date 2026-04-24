@@ -26,7 +26,7 @@ const DashboardNutritionCard = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const selectedDate = format(new Date(), "yyyy-MM-dd");
-  const isElite = profile?.subscription_tier === "elite";
+  const isElite = profile?.is_subscribed === true;
 
   const [manualEntry, setManualEntry] = useState({
     meal_name: "",
