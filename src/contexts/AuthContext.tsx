@@ -79,6 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
 
         if (session?.user) {
+          initPurchases(session.user.id).catch((e) => console.warn("[Auth] initPurchases", e));
           const profileData = await fetchProfile(session.user.id);
           if (!mountedRef.current) return;
           setProfile(profileData);
