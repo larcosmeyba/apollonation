@@ -133,14 +133,31 @@ jobs:
           security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST"
           PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" "$PROFILE_PLIST")
           PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" "$PROFILE_PLIST")
+          PROFILE_APPID=$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" "$PROFILE_PLIST")
+          PROFILE_TEAM=$(/usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" "$PROFILE_PLIST")
 
+          echo "Profile UUID:   $PROFILE_UUID"
+          echo "Profile name:   $PROFILE_NAME"
+          echo "Profile app-id: $PROFILE_APPID"
+          echo "Profile team:   $PROFILE_TEAM"
+
+          EXPECTED_APPID="${PROFILE_TEAM}.${BUNDLE_ID}"
+          if [ "$PROFILE_APPID" != "$EXPECTED_APPID" ]; then
+            echo "::error::Provisioning profile is for '$PROFILE_APPID' but the app bundle ID is '$EXPECTED_APPID'. Regenerate the profile in App Store Connect for bundle id $BUNDLE_ID and re-upload as APPLE_PROVISIONING_PROFILE."
+            exit 1
+          fi
           if [ "$PROFILE_NAME" != "$PROVISIONING_PROFILE_NAME" ]; then
-            echo "Profile name mismatch: expected '$PROVISIONING_PROFILE_NAME' got '$PROFILE_NAME'"
+            echo "::error::Profile name mismatch: expected '$PROVISIONING_PROFILE_NAME' got '$PROFILE_NAME'"
             exit 1
           fi
 
-          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          OLD_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          NEW_DIR="$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
+          mkdir -p "$OLD_DIR" "$NEW_DIR"
+          cp "$PROFILE_PATH" "$OLD_DIR/$PROFILE_UUID.mobileprovision"
+          cp "$PROFILE_PATH" "$NEW_DIR/$PROFILE_UUID.mobileprovision"
+
+          ls -la "$OLD_DIR" "$NEW_DIR"
 
           echo "CI_KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
           echo "INSTALLED_PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
