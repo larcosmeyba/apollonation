@@ -79,95 +79,55 @@ const App = () => {
               <Route path="/plan-ready" element={<ProtectedRoute><PlanReady /></ProtectedRoute>} />
               <Route
                 path="/dashboard/transformation"
-                element={<ProtectedRoute><DashboardTransformation /></ProtectedRoute>}
+                element={<ProtectedRoute>{eb(<DashboardTransformation />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/recovery"
-                element={<ProtectedRoute><DashboardRecovery /></ProtectedRoute>}
+                element={<ProtectedRoute>{eb(<DashboardRecovery />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/challenges"
-                element={<ProtectedRoute><DashboardChallenges /></ProtectedRoute>}
+                element={<ProtectedRoute>{eb(<DashboardChallenges />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<Dashboard />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/workouts"
-                element={
-                  <ProtectedRoute>
-                    <DashboardWorkouts />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<DashboardWorkouts />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/recipes"
-                element={
-                  <ProtectedRoute>
-                    <DashboardRecipes />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<DashboardRecipes />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/macros"
-                element={
-                  <ProtectedRoute>
-                    <DashboardMacros />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<DashboardMacros />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/profile"
-                element={
-                  <ProtectedRoute>
-                    <DashboardProfile />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<DashboardProfile />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/nutrition"
-                element={
-                  <ProtectedRoute>
-                    <DashboardNutrition />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<DashboardNutrition />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/training"
-                element={
-                  <ProtectedRoute>
-                    <DashboardTraining />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<DashboardTraining />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/training/workout"
-                element={
-                  <ProtectedRoute>
-                    <DashboardWorkoutDetail />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<DashboardWorkoutDetail />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/calendar"
-                element={
-                  <ProtectedRoute>
-                    <DashboardCalendar />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<DashboardCalendar />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/coach/:coachId"
-                element={
-                  <ProtectedRoute>
-                    <DashboardCoachProfile />
-                  </ProtectedRoute>
-                }
+                element={<ProtectedRoute>{eb(<DashboardCoachProfile />)}</ProtectedRoute>}
               />
               <Route
                 path="/admin"
