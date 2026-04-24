@@ -4,18 +4,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Pencil, Smartphone, Copy, Check, UserPlus, Snowflake, Archive, RotateCcw, Search, XCircle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Smartphone, Copy, Check, UserPlus, Snowflake, Archive, RotateCcw, Search, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs } from "@/components/ui/tabs";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Profile {
   id: string;
   user_id: string;
   display_name: string | null;
-  subscription_tier: "basic" | "pro" | "elite";
+  is_subscribed: boolean;
+  manual_subscription: boolean;
+  subscription_store: string | null;
+  subscription_plan: string | null;
+  subscription_expires_at: string | null;
   account_status: string;
   status_changed_at: string | null;
   created_at: string;
@@ -24,22 +29,17 @@ interface Profile {
 const AdminUsers = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [editingUser, setEditingUser] = useState<Profile | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAppDialogOpen, setIsAppDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedUserForApp, setSelectedUserForApp] = useState<Profile | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("active");
   const [searchQuery, setSearchQuery] = useState("");
-  const [formData, setFormData] = useState({
-    subscription_tier: "basic" as "basic" | "pro" | "elite",
-  });
   const [createFormData, setCreateFormData] = useState({
     email: "",
     password: "",
     display_name: "",
-    subscription_tier: "basic" as "basic" | "pro" | "elite",
+    grant_subscription: false,
   });
 
   const { data: profiles, isLoading } = useQuery({
@@ -50,13 +50,13 @@ const AdminUsers = () => {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as Profile[];
+      return data as unknown as Profile[];
     },
   });
 
   const filteredProfiles = profiles?.filter((p) => {
     const matchesStatus = p.account_status === statusFilter;
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       (p.display_name || "").toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
@@ -68,23 +68,26 @@ const AdminUsers = () => {
     archived: profiles?.filter((p) => p.account_status === "archived").length || 0,
   };
 
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
+  // Manual grant toggle (admin override; webhook respects manual_subscription)
+  const grantMutation = useMutation({
+    mutationFn: async ({ userId, grant }: { userId: string; grant: boolean }) => {
       const { error } = await supabase
         .from("profiles")
-        .update({ subscription_tier: data.subscription_tier })
-        .eq("id", id);
+        .update({
+          manual_subscription: grant,
+          is_subscribed: grant,
+          subscription_store: grant ? "manual" : null,
+          subscription_plan: grant ? "annual" : null,
+          subscription_expires_at: null,
+        })
+        .eq("user_id", userId);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      toast({ title: "User updated successfully" });
-      setIsEditDialogOpen(false);
-      setEditingUser(null);
+      toast({ title: "Subscription updated" });
     },
-    onError: (error) => {
-      toast({ title: "Error updating user", description: error.message, variant: "destructive" });
-    },
+    onError: (error) => toast({ title: "Error", description: error.message, variant: "destructive" }),
   });
 
   const statusMutation = useMutation({
@@ -96,18 +99,15 @@ const AdminUsers = () => {
       if (data?.error) throw new Error(data.error);
       return data;
     },
-    onSuccess: (data, { status }) => {
+    onSuccess: (_data, { status }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       const labels: Record<string, string> = {
-        active: "Account reactivated — billing resumed",
-        frozen: "Account frozen — billing paused",
-        cancelled: "Membership cancelled — billing stopped",
-        archived: "Client archived — removed from active list",
+        active: "Account reactivated",
+        frozen: "Account frozen",
+        cancelled: "Membership cancelled",
+        archived: "Client archived",
       };
-      const stripeInfo = data?.stripe_action === "no_stripe_customer"
-        ? " (no Stripe billing found)"
-        : "";
-      toast({ title: (labels[status] || "Status updated") + stripeInfo });
+      toast({ title: labels[status] || "Status updated" });
     },
     onError: (error) => {
       toast({ title: "Error updating status", description: error.message, variant: "destructive" });
@@ -125,31 +125,18 @@ const AdminUsers = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      toast({ title: "Client created successfully", description: "They can now log in with the credentials you set." });
+      toast({ title: "Client created successfully" });
       setIsCreateDialogOpen(false);
-      setCreateFormData({ email: "", password: "", display_name: "", subscription_tier: "basic" });
+      setCreateFormData({ email: "", password: "", display_name: "", grant_subscription: false });
     },
     onError: (error) => {
       toast({ title: "Error creating client", description: error.message, variant: "destructive" });
     },
   });
 
-  const handleEdit = (user: Profile) => {
-    setEditingUser(user);
-    setFormData({ subscription_tier: user.subscription_tier });
-    setIsEditDialogOpen(true);
-  };
-
   const handleAppAccess = (user: Profile) => {
     setSelectedUserForApp(user);
     setIsAppDialogOpen(true);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingUser) {
-      updateMutation.mutate({ id: editingUser.id, data: formData });
-    }
   };
 
   const handleCreateSubmit = (e: React.FormEvent) => {
@@ -161,17 +148,6 @@ const AdminUsers = () => {
     await navigator.clipboard.writeText(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2000);
-  };
-
-  const getTierBadgeColor = (tier: string) => {
-    switch (tier) {
-      case "elite":
-        return "bg-primary/20 text-primary";
-      case "pro":
-        return "bg-purple-500/20 text-purple-400";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -187,13 +163,21 @@ const AdminUsers = () => {
     }
   };
 
+  const getSubscriptionLabel = (p: Profile) => {
+    if (!p.is_subscribed) return { label: "Free", className: "bg-muted text-muted-foreground" };
+    if (p.manual_subscription) return { label: "Manual", className: "bg-purple-500/20 text-purple-400" };
+    if (p.subscription_store === "app_store") return { label: "App Store", className: "bg-primary/20 text-primary" };
+    if (p.subscription_store === "play_store") return { label: "Play Store", className: "bg-primary/20 text-primary" };
+    return { label: "Subscribed", className: "bg-primary/20 text-primary" };
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="font-heading text-xl">Client Management</h2>
           <p className="text-sm text-muted-foreground">
-            Manage clients, memberships, and account status
+            Manage clients, manual subscription grants, and account status
           </p>
         </div>
         <Button variant="apollo" onClick={() => setIsCreateDialogOpen(true)}>
@@ -236,7 +220,8 @@ const AdminUsers = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Tier</TableHead>
+              <TableHead>Subscription</TableHead>
+              <TableHead className="w-32">Manual Grant</TableHead>
               <TableHead>{statusFilter === "active" ? "Joined" : "Status Changed"}</TableHead>
               <TableHead className="w-40">Actions</TableHead>
             </TableRow>
@@ -244,104 +229,104 @@ const AdminUsers = () => {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">Loading...</TableCell>
+                <TableCell colSpan={5} className="text-center py-8">Loading...</TableCell>
               </TableRow>
             ) : filteredProfiles?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                   {statusFilter === "active" ? "No active clients." : 
-                    statusFilter === "frozen" ? "No frozen accounts." : 
-                    statusFilter === "cancelled" ? "No cancelled memberships." : "No archived clients."}
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  No clients in this status.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredProfiles?.map((profile) => (
-                <TableRow key={profile.id} className={profile.account_status !== "active" ? "opacity-70" : ""}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{profile.display_name || "—"}</span>
-                      {getStatusBadge(profile.account_status)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs uppercase ${getTierBadgeColor(profile.subscription_tier)}`}>
-                      {profile.subscription_tier}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {statusFilter !== "active" && profile.status_changed_at
-                      ? new Date(profile.status_changed_at).toLocaleDateString()
-                      : new Date(profile.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      {/* Edit tier */}
-                      <Button size="icon" variant="ghost" onClick={() => handleEdit(profile)} title="Edit subscription">
-                        <Pencil className="w-4 h-4" />
-                      </Button>
+              filteredProfiles?.map((profile) => {
+                const sub = getSubscriptionLabel(profile);
+                return (
+                  <TableRow key={profile.id} className={profile.account_status !== "active" ? "opacity-70" : ""}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{profile.display_name || "—"}</span>
+                        {getStatusBadge(profile.account_status)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded text-xs uppercase ${sub.className}`}>
+                        {sub.label}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={profile.manual_subscription}
+                        onCheckedChange={(v) =>
+                          grantMutation.mutate({ userId: profile.user_id, grant: v })
+                        }
+                        disabled={grantMutation.isPending}
+                      />
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {statusFilter !== "active" && profile.status_changed_at
+                        ? new Date(profile.status_changed_at).toLocaleDateString()
+                        : new Date(profile.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        {profile.is_subscribed && profile.account_status === "active" && (
+                          <Button size="icon" variant="ghost" onClick={() => handleAppAccess(profile)} title="App access info">
+                            <Smartphone className="w-4 h-4 text-primary" />
+                          </Button>
+                        )}
 
-                      {/* App access info */}
-                      {(profile.subscription_tier === "pro" || profile.subscription_tier === "elite") && profile.account_status === "active" && (
-                        <Button size="icon" variant="ghost" onClick={() => handleAppAccess(profile)} title="App access info">
-                          <Smartphone className="w-4 h-4 text-primary" />
-                        </Button>
-                      )}
+                        {profile.account_status === "active" && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title="Freeze account"
+                            onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "frozen" })}
+                            disabled={statusMutation.isPending}
+                          >
+                            <Snowflake className="w-4 h-4 text-blue-400" />
+                          </Button>
+                        )}
 
-                      {/* Freeze */}
-                      {profile.account_status === "active" && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          title="Freeze account"
-                          onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "frozen" })}
-                          disabled={statusMutation.isPending}
-                        >
-                          <Snowflake className="w-4 h-4 text-blue-400" />
-                        </Button>
-                      )}
+                        {(profile.account_status === "active" || profile.account_status === "frozen") && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title="Cancel membership"
+                            onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "cancelled" })}
+                            disabled={statusMutation.isPending}
+                          >
+                            <XCircle className="w-4 h-4 text-red-400" />
+                          </Button>
+                        )}
 
-                      {/* Cancel membership */}
-                      {(profile.account_status === "active" || profile.account_status === "frozen") && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          title="Cancel membership (stops billing)"
-                          onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "cancelled" })}
-                          disabled={statusMutation.isPending}
-                        >
-                          <XCircle className="w-4 h-4 text-red-400" />
-                        </Button>
-                      )}
+                        {profile.account_status !== "archived" && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title="Archive"
+                            onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "archived" })}
+                            disabled={statusMutation.isPending}
+                          >
+                            <Archive className="w-4 h-4 text-muted-foreground" />
+                          </Button>
+                        )}
 
-                      {/* Archive (hide from list) */}
-                      {profile.account_status !== "archived" && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          title="Archive (remove from list)"
-                          onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "archived" })}
-                          disabled={statusMutation.isPending}
-                        >
-                          <Archive className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                      )}
-
-                      {/* Reactivate */}
-                      {profile.account_status !== "active" && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          title="Reactivate account"
-                          onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "active" })}
-                          disabled={statusMutation.isPending}
-                        >
-                          <RotateCcw className="w-4 h-4 text-primary" />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+                        {profile.account_status !== "active" && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title="Reactivate"
+                            onClick={() => statusMutation.mutate({ userId: profile.user_id, status: "active" })}
+                            disabled={statusMutation.isPending}
+                          >
+                            <RotateCcw className="w-4 h-4 text-primary" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
@@ -353,7 +338,7 @@ const AdminUsers = () => {
           <DialogHeader>
             <DialogTitle>Create New Client</DialogTitle>
             <DialogDescription>
-              Set up a new client account with login credentials and membership tier.
+              Set up a new client account with login credentials.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreateSubmit} className="space-y-4">
@@ -363,7 +348,6 @@ const AdminUsers = () => {
                 id="create-name"
                 value={createFormData.display_name}
                 onChange={(e) => setCreateFormData((p) => ({ ...p, display_name: e.target.value }))}
-                placeholder="Client's full name"
                 required
               />
             </div>
@@ -374,7 +358,6 @@ const AdminUsers = () => {
                 type="email"
                 value={createFormData.email}
                 onChange={(e) => setCreateFormData((p) => ({ ...p, email: e.target.value }))}
-                placeholder="client@example.com"
                 required
               />
             </div>
@@ -385,29 +368,21 @@ const AdminUsers = () => {
                 type="text"
                 value={createFormData.password}
                 onChange={(e) => setCreateFormData((p) => ({ ...p, password: e.target.value }))}
-                placeholder="At least 6 characters"
                 minLength={6}
                 required
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Share this with the client so they can log in. They can change it later.
-              </p>
             </div>
-            <div>
-              <Label htmlFor="create-tier">Membership Tier</Label>
-              <Select
-                value={createFormData.subscription_tier}
-                onValueChange={(v) => setCreateFormData((p) => ({ ...p, subscription_tier: v as "basic" | "pro" | "elite" }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="basic">Essential - On-demand workouts + recipes</SelectItem>
-                  <SelectItem value="pro">Premier - Mobile app + coaching access</SelectItem>
-                  <SelectItem value="elite">Elite - Full access including AI features</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-center justify-between rounded-lg border border-border p-3">
+              <div>
+                <Label className="text-sm">Grant subscription manually</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Bypasses App Store / Play Store billing.
+                </p>
+              </div>
+              <Switch
+                checked={createFormData.grant_subscription}
+                onCheckedChange={(v) => setCreateFormData((p) => ({ ...p, grant_subscription: v }))}
+              />
             </div>
             <div className="flex gap-2 justify-end">
               <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
@@ -421,51 +396,13 @@ const AdminUsers = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Subscription</DialogTitle>
-            <DialogDescription>
-              Update {editingUser?.display_name || "user"}'s subscription tier
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="tier">Subscription Tier</Label>
-              <Select
-                value={formData.subscription_tier}
-                onValueChange={(v) => setFormData((p) => ({ ...p, subscription_tier: v as "basic" | "pro" | "elite" }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="basic">Essential - On-demand workouts + recipes</SelectItem>
-                  <SelectItem value="pro">Premier - Mobile app + coaching access</SelectItem>
-                  <SelectItem value="elite">Elite - Full access including AI features</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-2 justify-end">
-              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="apollo" disabled={updateMutation.isPending}>
-                Update
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
       {/* App Access Dialog */}
       <Dialog open={isAppDialogOpen} onOpenChange={setIsAppDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Apollo Reborn App Access</DialogTitle>
             <DialogDescription>
-              Use these credentials to manually set up app access for {selectedUserForApp?.display_name || "this user"}
+              Reference info for {selectedUserForApp?.display_name || "this user"}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -490,7 +427,7 @@ const AdminUsers = () => {
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              💡 The user will use the same email/password they created on the website to log into the Apollo Reborn mobile app.
+              💡 The user logs into the mobile app with the same email/password they were given.
             </p>
           </div>
         </DialogContent>

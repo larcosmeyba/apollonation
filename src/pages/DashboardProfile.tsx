@@ -658,9 +658,22 @@ const DashboardProfile = () => {
                   <ExternalLink className="w-3.5 h-3.5 text-foreground/30" />
                 </button>
                 <button
-                  onClick={() => {
-                    openExternal(APP_STORE_SUBSCRIPTIONS_URL, PLAY_STORE_SUBSCRIPTIONS_URL);
-                    toast({ title: "Restoring purchases", description: "Sign in with the same Apple ID or Google account used to subscribe." });
+                  onClick={async () => {
+                    try {
+                      const { restorePurchases } = await import("@/lib/purchases");
+                      await restorePurchases();
+                      // Force server-side refresh of entitlement state
+                      await supabase.functions.invoke("sync-entitlement");
+                      await refreshProfile();
+                      toast({ title: "Purchases restored", description: "Your subscription has been refreshed." });
+                    } catch (err: any) {
+                      // Web/dev fallback or no active purchases — open store as a backup
+                      openExternal(APP_STORE_SUBSCRIPTIONS_URL, PLAY_STORE_SUBSCRIPTIONS_URL);
+                      toast({
+                        title: "Restore via store",
+                        description: "Sign in with the Apple ID or Google account used to subscribe.",
+                      });
+                    }
                   }}
                   className="flex items-center justify-between w-full py-3.5 border-b border-border"
                 >
