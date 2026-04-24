@@ -434,6 +434,27 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_client_assignments: {
+        Row: {
+          client_user_id: string
+          coach_user_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          client_user_id: string
+          coach_user_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          client_user_id?: string
+          coach_user_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       coach_insights: {
         Row: {
           category: string
@@ -957,6 +978,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      message_reports: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          reason: string | null
+          reporter_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          reason?: string | null
+          reporter_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          reason?: string | null
+          reporter_user_id?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -1760,6 +1805,24 @@ export type Database = {
           is_seen?: boolean
           unlocked_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_blocks: {
+        Row: {
+          blocked_user_id: string
+          blocker_user_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_user_id: string
+          blocker_user_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_user_id?: string
+          blocker_user_id?: string
+          created_at?: string
         }
         Relationships: []
       }
