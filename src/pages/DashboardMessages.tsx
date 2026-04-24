@@ -2,6 +2,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardBottomTabs from "@/components/dashboard/DashboardBottomTabs";
 import ChatView from "@/components/dashboard/ChatView";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
+import { useAssignedCoach } from "@/hooks/useAssignedCoach";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
 import { useState, useEffect } from "react";
@@ -9,12 +10,11 @@ import { useSearchParams } from "react-router-dom";
 import { MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-const COACH_USER_ID = "b1427538-a690-4cd4-8e34-423602562f4a";
-
 const DashboardMessages = () => {
   const { isAdmin, loading } = useAdminStatus();
+  const { coach, loading: coachLoading } = useAssignedCoach();
 
-  if (loading) {
+  if (loading || (!isAdmin && coachLoading)) {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -24,22 +24,38 @@ const DashboardMessages = () => {
 
   // Non-admin clients go straight to coach DM
   if (!isAdmin) {
+    if (!coach) {
+      return (
+        <div className="fixed inset-0 bg-background flex flex-col">
+          <div className="flex-1 flex items-center justify-center p-6 text-center">
+            <div className="max-w-xs space-y-3">
+              <MessageSquare className="w-10 h-10 text-muted-foreground/30 mx-auto" />
+              <p className="text-sm text-muted-foreground">
+                You don't have a coach assigned yet. Once a coach is paired with your account, you'll be able to message them here.
+              </p>
+            </div>
+          </div>
+          <DashboardBottomTabs />
+        </div>
+      );
+    }
+    const coachInitial = (coach.display_name || "C").charAt(0).toUpperCase();
     return (
       <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
         {/* Coach name header */}
         <div className="flex items-center gap-3 p-4 border-b border-border bg-card/95 backdrop-blur-lg flex-shrink-0">
           <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-sm font-medium text-primary">M</span>
+            <span className="text-sm font-medium text-primary">{coachInitial}</span>
           </div>
           <div>
-            <p className="font-heading text-sm tracking-wide">Marcos Leyba</p>
+            <p className="font-heading text-sm tracking-wide">{coach.display_name || "Coach"}</p>
             <p className="text-[11px] text-muted-foreground">Coach</p>
           </div>
         </div>
 
         {/* Chat takes remaining space above bottom tabs */}
         <div className="flex-1 overflow-hidden min-h-0 mb-16">
-          <ChatView partnerId={COACH_USER_ID} showHeader={false} />
+          <ChatView partnerId={coach.user_id} showHeader={false} />
         </div>
 
         {/* Bottom tabs */}

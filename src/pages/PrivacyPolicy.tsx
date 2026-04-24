@@ -109,9 +109,9 @@ const PrivacyPolicy = () => {
             responses are stored while the user account remains active.
           </p>
           <p>
-            If a user deletes their account or submits a request to delete their data, Apollo Reborn will permanently 
-            delete all associated personal data from our systems within 30 days unless retention is required for legal, 
-            financial, or security obligations.
+            <strong className="text-foreground">Deletion is immediate and permanent.</strong> When you delete your account from
+            within the app, your profile, plans, logs, photos, and messages are removed from our systems right away and cannot
+            be recovered. Limited records may be retained only where required for legal, financial, or security obligations.
           </p>
           <p>
             Inactive accounts may be removed from our systems after an extended period of inactivity.
