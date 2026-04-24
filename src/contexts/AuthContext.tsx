@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { initPurchases, logOutPurchases } from "@/lib/purchases";
 
 interface Profile {
   id: string;
@@ -9,9 +10,12 @@ interface Profile {
   avatar_url: string | null;
   bio: string | null;
   fitness_goals: string | null;
-  subscription_tier: "basic" | "pro" | "elite";
   account_status: string;
   manual_subscription: boolean;
+  is_subscribed: boolean;
+  subscription_plan: "monthly" | "annual" | null;
+  subscription_store: "app_store" | "play_store" | "manual" | null;
+  subscription_expires_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -65,6 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const mountedRef = useRef(true);
+  const purchasesUserRef = useRef<string | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -79,9 +84,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (!mountedRef.current) return;
           setProfile(profileData);
           setLoading(false);
+          // Initialize RevenueCat (no-op on web). Avoid re-init on token refresh.
+          if (purchasesUserRef.current !== session.user.id) {
+            purchasesUserRef.current = session.user.id;
+            initPurchases(session.user.id).catch((e) => console.warn("initPurchases", e));
+          }
         } else {
           setProfile(null);
           setLoading(false);
+          if (purchasesUserRef.current) {
+            purchasesUserRef.current = null;
+            logOutPurchases().catch(() => undefined);
+          }
         }
       }
     );
@@ -96,6 +110,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (!mountedRef.current) return;
           setProfile(profileData);
           setLoading(false);
+          if (purchasesUserRef.current !== session.user.id) {
+            purchasesUserRef.current = session.user.id;
+            initPurchases(session.user.id).catch((e) => console.warn("initPurchases", e));
+          }
         });
       } else {
         setLoading(false);
@@ -144,6 +162,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setSession(null);
     setProfile(null);
+    await logOutPurchases().catch(() => undefined);
   };
 
   return (

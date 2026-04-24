@@ -33,6 +33,7 @@ import PlanReady from "./pages/PlanReady";
 import DashboardTransformation from "./pages/DashboardTransformation";
 import DashboardRecovery from "./pages/DashboardRecovery";
 import DashboardChallenges from "./pages/DashboardChallenges";
+import Subscribe from "./pages/Subscribe";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 
@@ -69,6 +70,7 @@ const App = () => {
               <Route path="/contact" element={<ContactPortal />} />
               <Route path="/apply-coach" element={<ApplyCoach />} />
               <Route path="/account-deletion" element={<AccountDeletion />} />
+              <Route path="/subscribe" element={<Subscribe />} />
               <Route path="/plan-ready" element={<ProtectedRoute><PlanReady /></ProtectedRoute>} />
               <Route
                 path="/dashboard/transformation"
