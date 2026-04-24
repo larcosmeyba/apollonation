@@ -10,13 +10,13 @@ export const useProfileLookup = (userIds: string[]) => {
     queryFn: async () => {
       if (userIds.length === 0) return {};
 
-      const map: Record<string, { display_name: string | null; avatar_url: string | null; subscription_tier: string }> = {};
+      const map: Record<string, { display_name: string | null; avatar_url: string | null; is_subscribed: boolean }> = {};
 
       if (isAdmin) {
         // Admins can query profiles directly via RLS
         const { data, error } = await supabase
           .from("profiles")
-          .select("user_id, display_name, avatar_url, subscription_tier")
+          .select("user_id, display_name, avatar_url, is_subscribed")
           .in("user_id", userIds);
 
         if (error) throw error;
@@ -24,7 +24,7 @@ export const useProfileLookup = (userIds: string[]) => {
           map[p.user_id] = {
             display_name: p.display_name,
             avatar_url: p.avatar_url,
-            subscription_tier: p.subscription_tier,
+            is_subscribed: !!p.is_subscribed,
           };
         });
       } else {
@@ -38,7 +38,7 @@ export const useProfileLookup = (userIds: string[]) => {
           map[p.user_id] = {
             display_name: p.display_name,
             avatar_url: null,
-            subscription_tier: "basic",
+            is_subscribed: false,
           };
         });
       }

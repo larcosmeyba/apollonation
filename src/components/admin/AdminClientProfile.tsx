@@ -102,33 +102,30 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
     onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  // Tier mutation
-  const tierMutation = useMutation({
-    mutationFn: async (tier: string) => {
+  // Manual subscription grant mutation (admin override; webhook respects this flag)
+  const grantMutation = useMutation({
+    mutationFn: async (grant: boolean) => {
       const { error } = await supabase
         .from("profiles")
-        .update({ subscription_tier: tier as any })
+        .update({
+          manual_subscription: grant,
+          is_subscribed: grant,
+          subscription_store: grant ? "manual" : null,
+          subscription_plan: grant ? "annual" : null,
+          subscription_expires_at: null,
+        })
         .eq("user_id", userId);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-client-profile", userId] });
       queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
-      toast({ title: "Tier updated" });
+      toast({ title: "Subscription updated" });
     },
     onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   const formatHeight = (inches: number) => `${Math.floor(inches / 12)}'${inches % 12}"`;
-
-  const getTierBadge = (tier: string) => {
-    const colors: Record<string, string> = {
-      elite: "bg-primary/20 text-primary",
-      pro: "bg-purple-500/20 text-purple-400",
-      basic: "bg-muted text-muted-foreground",
-    };
-    return colors[tier] || colors.basic;
-  };
 
   return (
     <div className="space-y-6">
@@ -150,9 +147,12 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
           <div className="flex-1 min-w-0">
             <h2 className="font-heading text-xl">{profile?.display_name || "Unnamed"}</h2>
             <div className="flex flex-wrap items-center gap-2 mt-1">
-              <span className={`px-2.5 py-1 rounded text-xs uppercase font-medium ${getTierBadge(profile?.subscription_tier || "basic")}`}>
-                {profile?.subscription_tier}
+              <span className={`px-2.5 py-1 rounded text-xs uppercase font-medium ${profile?.is_subscribed ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                {profile?.is_subscribed ? "Subscribed" : "Free"}
               </span>
+              {profile?.manual_subscription && (
+                <Badge variant="outline" className="text-[10px] uppercase">Manual</Badge>
+              )}
               <Badge variant={profile?.account_status === "active" ? "default" : "secondary"} className="capitalize">
                 {profile?.account_status}
               </Badge>
@@ -162,20 +162,17 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            {/* Tier selector */}
-            <Select
-              value={profile?.subscription_tier}
-              onValueChange={(v) => tierMutation.mutate(v)}
+            {/* Manual subscription grant — overrides RevenueCat webhook */}
+            <Button
+              size="sm"
+              variant={profile?.manual_subscription ? "outline" : "apollo"}
+              className="h-8 text-xs"
+              onClick={() => grantMutation.mutate(!profile?.manual_subscription)}
+              disabled={grantMutation.isPending}
+              title={profile?.manual_subscription ? "Revoke manual grant" : "Grant subscription manually"}
             >
-              <SelectTrigger className="w-32 h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="basic">Essential</SelectItem>
-                <SelectItem value="pro">Premier</SelectItem>
-                <SelectItem value="elite">Elite</SelectItem>
-              </SelectContent>
-            </Select>
+              {profile?.manual_subscription ? "Revoke Grant" : "Grant Subscription"}
+            </Button>
 
             {/* Status actions */}
             {profile?.account_status === "active" && (
