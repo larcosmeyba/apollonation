@@ -5,10 +5,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 import heroImage from "@/assets/marcos-1.jpg";
 import { Shield } from "lucide-react";
+
+// Generic, non-leaky messages for auth errors. We deliberately do NOT echo
+// the raw Supabase message so we don't disclose whether an account exists,
+// rate-limit hints, etc.
+const GENERIC_LOGIN_FAILURE = "Invalid email or password.";
+const GENERIC_SIGNUP_FAILURE = "Couldn't create your account. Check your details and try again.";
+const GENERIC_RESET_RESPONSE = "If an account exists, a reset email has been sent.";
+
+const isInvalidEmailFormatError = (msg: string | undefined) => {
+  if (!msg) return false;
+  const m = msg.toLowerCase();
+  return m.includes("invalid email") || m.includes("email address") && m.includes("invalid");
+};
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -18,6 +32,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, loading, signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -41,19 +56,21 @@ const Auth = () => {
 
     try {
       if (mode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        // Always show the same generic message, regardless of outcome,
+        // to avoid leaking whether the email exists.
+        await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/auth`,
         });
-        if (error) {
-          toast({ title: "Error", description: error.message, variant: "destructive" });
-        } else {
-          toast({ title: "Check your email", description: "We've sent you a password reset link." });
-          setMode("login");
-        }
+        toast({ title: "Check your email", description: GENERIC_RESET_RESPONSE });
+        setMode("login");
       } else if (mode === "login") {
         const { error } = await signIn(email, password);
         if (error) {
-          toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
+          toast({
+            title: "Sign in failed",
+            description: GENERIC_LOGIN_FAILURE,
+            variant: "destructive",
+          });
         } else {
           const { data: session } = await supabase.auth.getSession();
           const userId = session?.session?.user?.id;
@@ -87,10 +104,39 @@ const Auth = () => {
           toast({ title: "Not allowed", description: "Admin accounts cannot be created from the login page.", variant: "destructive" });
           return;
         }
+        if (!ageConfirmed) {
+          toast({
+            title: "Confirm age",
+            description: "You must confirm you are 18 or older to create an account.",
+            variant: "destructive",
+          });
+          return;
+        }
         const { error } = await signUp(email, password, displayName);
         if (error) {
-          toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
+          // Show the specific message ONLY for invalid email formatting,
+          // generic message for everything else.
+          if (isInvalidEmailFormatError(error.message)) {
+            toast({ title: "Sign up failed", description: "Please enter a valid email address.", variant: "destructive" });
+          } else {
+            toast({ title: "Sign up failed", description: GENERIC_SIGNUP_FAILURE, variant: "destructive" });
+          }
         } else {
+          // Best-effort: persist age/terms acceptance timestamp on the profile row.
+          // Profile is created by the handle_new_user trigger; this update may run
+          // before the user has a session (email confirmation flow) — that's OK.
+          try {
+            const { data: sess } = await supabase.auth.getSession();
+            const uid = sess?.session?.user?.id;
+            if (uid) {
+              await supabase
+                .from("profiles")
+                .update({ agreed_to_terms_at: new Date().toISOString() })
+                .eq("user_id", uid);
+            }
+          } catch {
+            // Non-fatal — the column has a sensible default of NULL.
+          }
           toast({ title: "Check your email", description: "We've sent you a confirmation link to verify your account." });
         }
       }
@@ -202,6 +248,30 @@ const Auth = () => {
               </div>
             )}
 
+            {mode === "signup" && !isAdminMode && (
+              <div className="flex items-start gap-3 pt-1">
+                <Checkbox
+                  id="ageConfirm"
+                  checked={ageConfirmed}
+                  onCheckedChange={(v) => setAgeConfirmed(v === true)}
+                  className="mt-0.5"
+                />
+                <Label
+                  htmlFor="ageConfirm"
+                  className="text-xs text-muted-foreground leading-relaxed cursor-pointer font-normal"
+                >
+                  I confirm that I am 18 years of age or older and I agree to the{" "}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                    Privacy Policy
+                  </a>.
+                </Label>
+              </div>
+            )}
+
             {mode === "login" && (
               <div className="text-right">
                 <button
@@ -219,7 +289,7 @@ const Auth = () => {
               variant="apollo"
               size="lg"
               className="w-full h-12"
-              disabled={isSubmitting}
+              disabled={isSubmitting || (mode === "signup" && !isAdminMode && !ageConfirmed)}
             >
               {isSubmitting
                 ? "Please wait..."
