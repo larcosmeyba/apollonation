@@ -18,9 +18,24 @@ export const useMessages = (conversationPartnerId?: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
+  // Pull this user's blocklist once. Used to filter messages everywhere.
+  const blocksQuery = useQuery({
+    queryKey: ["my-blocks", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      if (!user) return [] as string[];
+      const { data } = await supabase
+        .from("user_blocks")
+        .select("blocked_user_id")
+        .eq("blocker_user_id", user.id);
+      return (data || []).map((b: any) => b.blocked_user_id) as string[];
+    },
+  });
+  const blockedSet = new Set(blocksQuery.data || []);
+
   // Fetch messages for a specific conversation
   const messagesQuery = useQuery({
-    queryKey: ["messages", conversationPartnerId],
+    queryKey: ["messages", conversationPartnerId, blocksQuery.data?.length ?? 0],
     queryFn: async () => {
       if (!user || !conversationPartnerId) return [];
 
@@ -33,14 +48,15 @@ export const useMessages = (conversationPartnerId?: string) => {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as Message[];
+      // Strip messages from blocked users (defense in depth alongside the UI filter).
+      return (data as Message[]).filter((m) => !blockedSet.has(m.sender_id));
     },
     enabled: !!user && !!conversationPartnerId,
   });
 
   // Fetch all conversations (unique partners)
   const conversationsQuery = useQuery({
-    queryKey: ["conversations"],
+    queryKey: ["conversations", blocksQuery.data?.length ?? 0],
     queryFn: async () => {
       if (!user) return [];
 
@@ -58,21 +74,28 @@ export const useMessages = (conversationPartnerId?: string) => {
         { partnerId: string; lastMessage: Message; unreadCount: number }
       >();
 
-      (data as Message[]).forEach((msg) => {
-        const partnerId =
-          msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
-        if (!conversations.has(partnerId)) {
-          conversations.set(partnerId, {
-            partnerId,
-            lastMessage: msg,
-            unreadCount: 0,
-          });
-        }
-        if (!msg.is_read && msg.recipient_id === user.id) {
-          const conv = conversations.get(partnerId)!;
-          conv.unreadCount += 1;
-        }
-      });
+      (data as Message[])
+        // Hide entire conversations with users we've blocked.
+        .filter((msg) => {
+          const partnerId =
+            msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
+          return !blockedSet.has(partnerId);
+        })
+        .forEach((msg) => {
+          const partnerId =
+            msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
+          if (!conversations.has(partnerId)) {
+            conversations.set(partnerId, {
+              partnerId,
+              lastMessage: msg,
+              unreadCount: 0,
+            });
+          }
+          if (!msg.is_read && msg.recipient_id === user.id) {
+            const conv = conversations.get(partnerId)!;
+            conv.unreadCount += 1;
+          }
+        });
 
       return Array.from(conversations.values());
     },

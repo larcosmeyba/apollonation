@@ -8,7 +8,7 @@ const faqs = [
   },
   {
     q: "How do I subscribe?",
-    a: "You can subscribe directly through the Apple App Store. Once you download the Apollo Reborn app, you'll be able to choose a membership plan and start training immediately.",
+    a: "You can subscribe directly through the Apple App Store or Google Play. Apollo Reborn offers a monthly plan and an annual plan. You can switch or cancel anytime in your App Store or Google Play subscription settings.",
   },
   {
     q: "What types of workouts are available?",

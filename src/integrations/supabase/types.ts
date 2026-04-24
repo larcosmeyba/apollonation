@@ -1180,6 +1180,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           fitness_goals: string | null
+          health_disclaimer_acknowledged_at: string | null
           hero_image_url: string | null
           id: string
           instagram_handle: string | null
@@ -1208,6 +1209,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           fitness_goals?: string | null
+          health_disclaimer_acknowledged_at?: string | null
           hero_image_url?: string | null
           id?: string
           instagram_handle?: string | null
@@ -1236,6 +1238,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           fitness_goals?: string | null
+          health_disclaimer_acknowledged_at?: string | null
           hero_image_url?: string | null
           id?: string
           instagram_handle?: string | null
@@ -1913,6 +1916,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notification_preferences: {
+        Row: {
+          coach_messages: boolean
+          created_at: string
+          id: string
+          meal_reminders: boolean
+          updated_at: string
+          user_id: string
+          weekly_summary: boolean
+          workout_reminders: boolean
+        }
+        Insert: {
+          coach_messages?: boolean
+          created_at?: string
+          id?: string
+          meal_reminders?: boolean
+          updated_at?: string
+          user_id: string
+          weekly_summary?: boolean
+          workout_reminders?: boolean
+        }
+        Update: {
+          coach_messages?: boolean
+          created_at?: string
+          id?: string
+          meal_reminders?: boolean
+          updated_at?: string
+          user_id?: string
+          weekly_summary?: boolean
+          workout_reminders?: boolean
+        }
+        Relationships: []
+      }
       user_privacy_preferences: {
         Row: {
           ai_personalization_opted_out: boolean
@@ -2195,11 +2231,19 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_notification_preference: {
+        Args: { _category: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_blocked: {
+        Args: { _blocked: string; _blocker: string }
         Returns: boolean
       }
       move_to_dlq: {

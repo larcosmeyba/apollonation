@@ -3,11 +3,23 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
-import { Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
+import { Bookmark, BookmarkCheck, Loader2, Ban, ShieldOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAssignedCoach } from "@/hooks/useAssignedCoach";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -21,9 +33,57 @@ When he's not coaching, Marcos is constantly studying the latest in exercise sci
 
 const DashboardCoachProfile = () => {
   const { user } = useAuth();
+  const { coach } = useAssignedCoach();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"bio" | "ondemand">("bio");
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [blockOpen, setBlockOpen] = useState(false);
+
+  // Is the current user blocking this coach?
+  const { data: isCoachBlocked = false } = useQuery({
+    queryKey: ["coach-blocked", user?.id, coach?.user_id],
+    enabled: !!user && !!coach?.user_id,
+    queryFn: async () => {
+      if (!user || !coach?.user_id) return false;
+      const { data } = await supabase
+        .from("user_blocks")
+        .select("blocked_user_id")
+        .eq("blocker_user_id", user.id)
+        .eq("blocked_user_id", coach.user_id)
+        .maybeSingle();
+      return !!data;
+    },
+  });
+
+  const toggleBlock = useMutation({
+    mutationFn: async () => {
+      if (!user || !coach?.user_id) throw new Error("No coach");
+      if (isCoachBlocked) {
+        const { error } = await supabase
+          .from("user_blocks")
+          .delete()
+          .eq("blocker_user_id", user.id)
+          .eq("blocked_user_id", coach.user_id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("user_blocks").insert({
+          blocker_user_id: user.id,
+          blocked_user_id: coach.user_id,
+        });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["coach-blocked"] });
+      queryClient.invalidateQueries({ queryKey: ["my-blocks"] });
+      queryClient.invalidateQueries({ queryKey: ["is-blocked"] });
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      toast.success(isCoachBlocked ? "Coach unblocked" : "Coach blocked");
+      setBlockOpen(false);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Could not update block"),
+  });
 
   const { data: workouts = [] } = useQuery({
     queryKey: ["coach-workouts"],
@@ -118,8 +178,45 @@ const DashboardCoachProfile = () => {
         {activeTab === "bio" && (
           <div className="space-y-4">
             <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">{COACH_BIO}</p>
+            {coach?.user_id && (
+              <div className="pt-4 border-t border-border">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive/80 text-xs"
+                  onClick={() => setBlockOpen(true)}
+                >
+                  {isCoachBlocked ? (
+                    <><ShieldOff className="w-3.5 h-3.5 mr-1.5" /> Unblock coach</>
+                  ) : (
+                    <><Ban className="w-3.5 h-3.5 mr-1.5" /> Block coach</>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
         )}
+
+        <AlertDialog open={blockOpen} onOpenChange={setBlockOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {isCoachBlocked ? "Unblock this coach?" : "Block this coach?"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {isCoachBlocked
+                  ? "You will start seeing their messages again."
+                  : "You won't see messages from this coach. You can unblock anytime from this profile."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => toggleBlock.mutate()}>
+                {isCoachBlocked ? "Unblock" : "Block"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* On-Demand Tab */}
         {activeTab === "ondemand" && (

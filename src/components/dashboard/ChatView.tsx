@@ -6,11 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Send, ArrowLeft } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Send, ArrowLeft, Flag, Ban } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import React from "react";
 
 // Split on whitespace boundaries while keeping the delimiters so we can
@@ -69,6 +80,27 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showCoachProfile, setShowCoachProfile] = useState(false);
 
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [reportTarget, setReportTarget] = useState<{ id: string } | null>(null);
+  const [submittingReport, setSubmittingReport] = useState(false);
+
+  // Has the current user blocked the partner?
+  const { data: isPartnerBlocked = false } = useQuery({
+    queryKey: ["is-blocked", user?.id, partnerId],
+    enabled: !!user && !!partnerId,
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from("user_blocks")
+        .select("blocked_user_id")
+        .eq("blocker_user_id", user.id)
+        .eq("blocked_user_id", partnerId)
+        .maybeSingle();
+      return !!data;
+    },
+  });
+
   // Fetch full partner profile for avatar and bio
   const { data: partnerProfile } = useQuery({
     queryKey: ["partner-full-profile", partnerId],
@@ -121,6 +153,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
   }, [messages]);
 
   const handleSend = () => {
+    if (isPartnerBlocked) return;
     const trimmed = newMessage.trim();
     if (!trimmed) return;
     sendMessage.mutate({ recipientId: partnerId, content: trimmed });
@@ -134,6 +167,30 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
       handleSend();
     }
   };
+
+  const submitReport = async (reason: string) => {
+    if (!user || !reportTarget) return;
+    setSubmittingReport(true);
+    try {
+      const { error } = await supabase.from("message_reports").insert({
+        reporter_user_id: user.id,
+        message_id: reportTarget.id,
+        reason,
+      });
+      if (error) throw error;
+      toast({ title: "Report submitted", description: "Thanks — our team will review this." });
+      setReportTarget(null);
+    } catch (e: any) {
+      toast({ title: "Couldn't submit report", description: e?.message ?? "Try again.", variant: "destructive" });
+    } finally {
+      setSubmittingReport(false);
+    }
+  };
+
+  // Hide messages from blocked users (defensive — list may be cached).
+  const visibleMessages = isPartnerBlocked
+    ? messages.filter((m) => m.sender_id !== partnerId)
+    : messages;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -169,13 +226,14 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
         {messagesLoading ? (
           <p className="text-sm text-muted-foreground text-center py-8">Loading...</p>
-        ) : messages.length === 0 ? (
+        ) : visibleMessages.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">
             No messages yet. Start the conversation!
           </p>
         ) : (
-          messages.map((msg) => {
+          visibleMessages.map((msg) => {
             const isMine = msg.sender_id === user?.id;
+            const canReport = !isMine; // only inbound messages
             return (
               <div
                 key={msg.id}
@@ -191,6 +249,12 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
                   </Avatar>
                 )}
                 <div
+                  // Long-press / right-click on inbound messages opens the report sheet.
+                  onContextMenu={(e) => {
+                    if (!canReport) return;
+                    e.preventDefault();
+                    setReportTarget({ id: msg.id });
+                  }}
                   className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
                     isMine
                       ? "bg-[hsl(210,100%,52%)] text-white rounded-br-sm"
@@ -198,13 +262,24 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{renderMessageContent(msg.content)}</p>
-                  <p
-                    className={`text-[10px] mt-1 ${
-                      isMine ? "text-white/70" : "text-muted-foreground"
-                    }`}
-                  >
-                    {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
-                  </p>
+                  <div className="flex items-center justify-between gap-2 mt-1">
+                    <p
+                      className={`text-[10px] ${
+                        isMine ? "text-white/70" : "text-muted-foreground"
+                      }`}
+                    >
+                      {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
+                    </p>
+                    {canReport && (
+                      <button
+                        onClick={() => setReportTarget({ id: msg.id })}
+                        className="text-[10px] text-muted-foreground/70 hover:text-foreground inline-flex items-center gap-1"
+                        aria-label="Report message"
+                      >
+                        <Flag className="w-3 h-3" /> Report
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -214,25 +289,57 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
 
       {/* Input */}
       <div className="p-4 border-t border-border">
-        <div className="flex gap-2">
-          <Textarea
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            className="min-h-[44px] max-h-32 resize-none bg-muted border-border text-foreground placeholder:text-muted-foreground"
-            rows={1}
-          />
-          <Button
-            variant="apollo"
-            size="icon"
-            onClick={handleSend}
-            disabled={!newMessage.trim() || sendMessage.isPending}
-          >
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
+        {isPartnerBlocked ? (
+          <p className="text-xs text-muted-foreground text-center py-2 inline-flex items-center justify-center gap-2 w-full">
+            <Ban className="w-3.5 h-3.5" />
+            You've blocked this user. Unblock from their profile to resume messaging.
+          </p>
+        ) : (
+          <div className="flex gap-2">
+            <Textarea
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type a message..."
+              className="min-h-[44px] max-h-32 resize-none bg-muted border-border text-foreground placeholder:text-muted-foreground"
+              rows={1}
+            />
+            <Button
+              variant="apollo"
+              size="icon"
+              onClick={handleSend}
+              disabled={!newMessage.trim() || sendMessage.isPending}
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Report message dialog */}
+      <AlertDialog open={!!reportTarget} onOpenChange={(v) => !v && setReportTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Report this message?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Reports are reviewed by our team. We may remove abusive or unsafe content
+              and take action on the account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <AlertDialogAction disabled={submittingReport} onClick={() => submitReport("Abuse or harassment")}>
+              Abuse or harassment
+            </AlertDialogAction>
+            <AlertDialogAction disabled={submittingReport} onClick={() => submitReport("Spam")}>
+              Spam
+            </AlertDialogAction>
+            <AlertDialogAction disabled={submittingReport} onClick={() => submitReport("Inappropriate content")}>
+              Inappropriate content
+            </AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Coach Profile Dialog */}
       <Dialog open={showCoachProfile} onOpenChange={setShowCoachProfile}>

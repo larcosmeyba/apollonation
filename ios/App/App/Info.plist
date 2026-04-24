@@ -27,13 +27,11 @@
   <key>ITSAppUsesNonExemptEncryption</key>
   <false/>
   <key>NSCameraUsageDescription</key>
-  <string>Apollo Reborn uses the camera so you can take a profile photo, log meals, and capture progress photos.</string>
+  <string>Apollo Reborn uses the camera to capture meal photos and progress photos. Photos are uploaded only to your private account.</string>
   <key>NSPhotoLibraryUsageDescription</key>
-  <string>Apollo Reborn needs access to your photo library so you can choose a profile photo, attach meal photos, and upload progress pictures.</string>
+  <string>Apollo Reborn lets you choose meal and progress photos from your library.</string>
   <key>NSPhotoLibraryAddUsageDescription</key>
-  <string>Apollo Reborn saves progress photos and shareable workout cards to your photo library.</string>
-  <key>NSMicrophoneUsageDescription</key>
-  <string>Apollo Reborn may use the microphone when recording workout videos.</string>
+  <string>Apollo Reborn saves workout cards and progress photos to your photo library when you tap Save.</string>
   <key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

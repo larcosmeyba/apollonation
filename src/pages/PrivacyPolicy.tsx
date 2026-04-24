@@ -93,11 +93,17 @@ const PrivacyPolicy = () => {
             If we become aware that we have collected such information, we will take steps to delete it.
           </p>
 
-          <h2 className="font-heading text-2xl text-foreground mt-8">7. Third-Party Links</h2>
+          <h2 className="font-heading text-2xl text-foreground mt-8">7. Third-Party Services</h2>
+          <p>Apollo Reborn relies on the following third-party services to operate. Each handles only the data needed for its function and is bound by its own privacy policy:</p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong>Supabase</strong> — authentication, database, file storage, and serverless backend functions.</li>
+            <li><strong>RevenueCat</strong> — subscription state management and in-app purchase receipt verification.</li>
+            <li><strong>Apple App Store / Google Play</strong> — billing and payment processing for subscriptions.</li>
+            <li><strong>Resend</strong> — transactional email delivery (account, security, and coach messages).</li>
+            <li><strong>Plausible Analytics</strong> — privacy-friendly, cookie-free traffic analytics on our marketing site.</li>
+          </ul>
           <p>
-            Our Services may contain links to third-party websites or services. 
-            We are not responsible for the privacy practices of these third parties. 
-            We encourage you to read their privacy policies.
+            We do not sell your personal information. Our Services may contain links to third-party websites; we are not responsible for their privacy practices.
           </p>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">8. Data Retention</h2>
