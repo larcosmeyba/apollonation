@@ -186,22 +186,6 @@ jobs:
           rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH"
           mkdir -p "$EXPORT_PATH"
 
-          # Write an xcconfig that only the App target inherits via -xcconfig.
-          # Passing signing settings as command-line build settings causes
-          # Xcode 26 to apply them to SPM resource bundle targets (e.g.
-          # RevenueCat_RevenueCat) which do not support provisioning profiles.
-          SIGNING_XCCONFIG="$RUNNER_TEMP/Signing.xcconfig"
-          cat > "$SIGNING_XCCONFIG" <<EOF
-          CODE_SIGN_STYLE = Manual
-          DEVELOPMENT_TEAM = $APPLE_TEAM_ID
-          PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID
-          PROVISIONING_PROFILE_SPECIFIER = $PROVISIONING_PROFILE_NAME
-          CODE_SIGN_IDENTITY = Apple Distribution
-          CODE_SIGN_IDENTITY[sdk=iphoneos*] = Apple Distribution
-          OTHER_CODE_SIGN_FLAGS = --keychain $CI_KEYCHAIN_PATH
-          CODE_SIGNING_ALLOWED_FOR_PACKAGES = NO
-          EOF
-
           xcodebuild \
             -project "$IOS_PROJECT" \
             -scheme "$IOS_SCHEME" \
@@ -209,8 +193,13 @@ jobs:
             -sdk iphoneos \
             -destination "generic/platform=iOS" \
             -archivePath "$ARCHIVE_PATH" \
-            -xcconfig "$SIGNING_XCCONFIG" \
             clean archive \
+            CODE_SIGN_STYLE=Automatic \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $CI_KEYCHAIN_PATH" \
+            CODE_SIGNING_ALLOWED_FOR_PACKAGES=NO \
             | tee "$RUNNER_TEMP/xcodebuild-archive.log"
 
           test -d "$ARCHIVE_PATH"
