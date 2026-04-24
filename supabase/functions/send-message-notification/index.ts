@@ -73,7 +73,27 @@ serve(async (req) => {
       return jsonResponse(req, { error: "Server not configured" }, 500);
     }
 
+    // Respect block: if recipient blocked sender, skip silently.
+    const { data: blocked } = await supabaseAdmin.rpc("is_blocked", {
+      _blocker: recipientId,
+      _blocked: senderId,
+    });
+    if (blocked) {
+      console.log("[EMAIL] Skipped — recipient blocked sender", { recipientId });
+      return jsonResponse(req, { success: true, skipped: "blocked" });
+    }
+
     if (senderIsAdmin) {
+      // Respect coach_messages preference for client recipient.
+      const { data: prefAllowed } = await supabaseAdmin.rpc("get_notification_preference", {
+        _user_id: recipientId,
+        _category: "coach_messages",
+      });
+      if (prefAllowed === false) {
+        console.log("[EMAIL] Skipped — recipient opted out of coach_messages", { recipientId });
+        return jsonResponse(req, { success: true, skipped: "preference" });
+      }
+
       const { data: recipientData, error: recipientError } = await supabaseAdmin.auth.admin.getUserById(recipientId);
       if (recipientError || !recipientData.user?.email) {
         return jsonResponse(req, { error: "Recipient not found" }, 404);
