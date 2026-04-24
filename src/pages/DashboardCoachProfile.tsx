@@ -178,8 +178,45 @@ const DashboardCoachProfile = () => {
         {activeTab === "bio" && (
           <div className="space-y-4">
             <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">{COACH_BIO}</p>
+            {coach?.user_id && (
+              <div className="pt-4 border-t border-border">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive/80 text-xs"
+                  onClick={() => setBlockOpen(true)}
+                >
+                  {isCoachBlocked ? (
+                    <><ShieldOff className="w-3.5 h-3.5 mr-1.5" /> Unblock coach</>
+                  ) : (
+                    <><Ban className="w-3.5 h-3.5 mr-1.5" /> Block coach</>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
         )}
+
+        <AlertDialog open={blockOpen} onOpenChange={setBlockOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {isCoachBlocked ? "Unblock this coach?" : "Block this coach?"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {isCoachBlocked
+                  ? "You will start seeing their messages again."
+                  : "You won't see messages from this coach. You can unblock anytime from this profile."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => toggleBlock.mutate()}>
+                {isCoachBlocked ? "Unblock" : "Block"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* On-Demand Tab */}
         {activeTab === "ondemand" && (
