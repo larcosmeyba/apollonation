@@ -13,25 +13,42 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
-const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+// Split on whitespace boundaries while keeping the delimiters so we can
+// inspect each candidate URL independently and reject anything that isn't
+// a valid http(s) URL.
+const URL_CANDIDATE_REGEX = /(\bhttps?:\/\/\S+)/gi;
+
+function isSafeHttpUrl(candidate: string): string | null {
+  try {
+    // Strip trailing punctuation that often follows URLs in prose.
+    const trimmed = candidate.replace(/[),.!?;:]+$/g, "");
+    const u = new URL(trimmed);
+    if (u.protocol === "http:" || u.protocol === "https:") return trimmed;
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 function renderMessageContent(content: string) {
-  const parts = content.split(URL_REGEX);
-  return parts.map((part, i) =>
-    URL_REGEX.test(part) ? (
-      <a
-        key={i}
-        href={part}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline break-all hover:opacity-80"
-      >
-        {part}
-      </a>
-    ) : (
-      <React.Fragment key={i}>{part}</React.Fragment>
-    )
-  );
+  const parts = content.split(URL_CANDIDATE_REGEX);
+  return parts.map((part, i) => {
+    const safe = isSafeHttpUrl(part);
+    if (safe) {
+      return (
+        <a
+          key={i}
+          href={safe}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline break-all hover:opacity-80"
+        >
+          {safe}
+        </a>
+      );
+    }
+    return <React.Fragment key={i}>{part}</React.Fragment>;
+  });
 }
 
 interface ChatViewProps {
