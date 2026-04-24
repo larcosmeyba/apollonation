@@ -33,7 +33,16 @@ Deno.serve(async (req) => {
       });
     }
 
-    const userIds = profiles.map((p: any) => p.user_id);
+    const allUserIds = profiles.map((p: any) => p.user_id);
+
+    // 1b) Filter to users who opted into meal_reminders
+    const { data: mealOptOuts } = await supabase
+      .from("user_notification_preferences")
+      .select("user_id")
+      .eq("meal_reminders", false)
+      .in("user_id", allUserIds);
+    const mealOptOutSet = new Set((mealOptOuts || []).map((r: any) => r.user_id));
+    const userIds = allUserIds.filter((id: string) => !mealOptOutSet.has(id));
 
     // 2) Get users who HAVE logged meals today
     const { data: loggedUsers, error: logsErr } = await supabase
@@ -137,6 +146,13 @@ Deno.serve(async (req) => {
         // Milestone notifications at 7, 14, 21, 30, 60, 90 days
         const milestones = [7, 14, 21, 30, 60, 90];
         if (milestones.includes(streak)) {
+          // Respect workout_reminders preference
+          const { data: prefAllowed } = await supabase.rpc("get_notification_preference", {
+            _user_id: plan.user_id,
+            _category: "workout_reminders",
+          });
+          if (prefAllowed === false) continue;
+
           // Check if already notified for this milestone
           const milestoneTitle = `${streak}-Day Workout Streak! 🔥`;
           const { data: existing } = await supabase
