@@ -1173,6 +1173,7 @@ export type Database = {
       profiles: {
         Row: {
           account_status: string
+          agreed_to_terms_at: string | null
           avatar_url: string | null
           bio: string | null
           certifications: string[]
@@ -1200,6 +1201,7 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          agreed_to_terms_at?: string | null
           avatar_url?: string | null
           bio?: string | null
           certifications?: string[]
@@ -1227,6 +1229,7 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          agreed_to_terms_at?: string | null
           avatar_url?: string | null
           bio?: string | null
           certifications?: string[]
