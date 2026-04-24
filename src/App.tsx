@@ -36,6 +36,11 @@ import DashboardChallenges from "./pages/DashboardChallenges";
 import Subscribe from "./pages/Subscribe";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
+import ErrorBoundary from "@/components/ErrorBoundary";
+
+// Wrap a route element in an ErrorBoundary so a thrown error in any
+// dashboard page shows a friendly fallback instead of a white screen.
+const eb = (node: React.ReactNode) => <ErrorBoundary>{node}</ErrorBoundary>;
 
 const queryClient = new QueryClient({
   defaultOptions: {
