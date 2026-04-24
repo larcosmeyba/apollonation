@@ -207,10 +207,23 @@ jobs:
             -project "$IOS_PROJECT" \
             -scheme "$IOS_SCHEME" \
             -configuration Release \
+            clean
+
+          xcodebuild \
+            -project "$IOS_PROJECT" \
+            -scheme "$IOS_SCHEME" \
+            -configuration Release \
             -sdk iphoneos \
             -destination "generic/platform=iOS" \
             -archivePath "$ARCHIVE_PATH" \
-            clean archive \
+            -allowProvisioningUpdates \
+            archive \
+            CODE_SIGN_STYLE=Manual \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PROVISIONING_PROFILE_SPECIFIER="$INSTALLED_PROFILE_UUID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $CI_KEYCHAIN_PATH" \
             | tee "$RUNNER_TEMP/xcodebuild-archive.log"
 
           test -d "$ARCHIVE_PATH"
@@ -222,6 +235,7 @@ jobs:
             -archivePath "$ARCHIVE_PATH" \
             -exportPath "$EXPORT_PATH" \
             -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
+            -allowProvisioningUpdates \
             | tee "$RUNNER_TEMP/xcodebuild-export.log"
 
           shopt -s nullglob
