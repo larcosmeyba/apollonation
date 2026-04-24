@@ -37,6 +37,7 @@ import Subscribe from "./pages/Subscribe";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import HealthDisclaimerSheet from "@/components/dashboard/HealthDisclaimerSheet";
 
 // Wrap a route element in an ErrorBoundary so a thrown error in any
 // dashboard page shows a friendly fallback instead of a white screen.
@@ -62,6 +63,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <HealthDisclaimerSheet />
             <Routes>
               <Route path="/" element={<AppEntryRedirect />} />
               <Route path="/home" element={<Index />} />

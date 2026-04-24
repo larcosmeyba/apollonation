@@ -6,11 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Send, ArrowLeft } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Send, ArrowLeft, Flag, Ban } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import React from "react";
 
 // Split on whitespace boundaries while keeping the delimiters so we can
@@ -69,6 +80,27 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showCoachProfile, setShowCoachProfile] = useState(false);
 
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [reportTarget, setReportTarget] = useState<{ id: string } | null>(null);
+  const [submittingReport, setSubmittingReport] = useState(false);
+
+  // Has the current user blocked the partner?
+  const { data: isPartnerBlocked = false } = useQuery({
+    queryKey: ["is-blocked", user?.id, partnerId],
+    enabled: !!user && !!partnerId,
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from("user_blocks")
+        .select("blocked_user_id")
+        .eq("blocker_user_id", user.id)
+        .eq("blocked_user_id", partnerId)
+        .maybeSingle();
+      return !!data;
+    },
+  });
+
   // Fetch full partner profile for avatar and bio
   const { data: partnerProfile } = useQuery({
     queryKey: ["partner-full-profile", partnerId],
@@ -121,6 +153,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
   }, [messages]);
 
   const handleSend = () => {
+    if (isPartnerBlocked) return;
     const trimmed = newMessage.trim();
     if (!trimmed) return;
     sendMessage.mutate({ recipientId: partnerId, content: trimmed });
@@ -134,6 +167,30 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
       handleSend();
     }
   };
+
+  const submitReport = async (reason: string) => {
+    if (!user || !reportTarget) return;
+    setSubmittingReport(true);
+    try {
+      const { error } = await supabase.from("message_reports").insert({
+        reporter_user_id: user.id,
+        message_id: reportTarget.id,
+        reason,
+      });
+      if (error) throw error;
+      toast({ title: "Report submitted", description: "Thanks — our team will review this." });
+      setReportTarget(null);
+    } catch (e: any) {
+      toast({ title: "Couldn't submit report", description: e?.message ?? "Try again.", variant: "destructive" });
+    } finally {
+      setSubmittingReport(false);
+    }
+  };
+
+  // Hide messages from blocked users (defensive — list may be cached).
+  const visibleMessages = isPartnerBlocked
+    ? messages.filter((m) => m.sender_id !== partnerId)
+    : messages;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">

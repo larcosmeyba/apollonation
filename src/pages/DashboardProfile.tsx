@@ -14,6 +14,8 @@ import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { Switch } from "@/components/ui/switch";
 import PrivacyDataView from "@/components/dashboard/PrivacyDataView";
 import ReportBugView from "@/components/dashboard/ReportBugView";
+import PushPermissionModal from "@/components/PushPermissionModal";
+import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -60,7 +62,33 @@ const DashboardProfile = () => {
   const [favoriteTypes, setFavoriteTypes] = useState<string[]>([]);
   const [additionalGoals, setAdditionalGoals] = useState("");
   const [goalFeedback, setGoalFeedback] = useState<string | null>(null);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [pushModalOpen, setPushModalOpen] = useState(false);
+  const { preferences: notifPrefs, update: updateNotifPrefs } = useNotificationPreferences();
+
+  // Trigger the OS push prompt only after the user accepts our pre-permission modal.
+  const handleAllowPush = async () => {
+    setPushModalOpen(false);
+    try {
+      const { Capacitor } = await import("@capacitor/core");
+      if (!Capacitor.isNativePlatform()) {
+        toast({ title: "Open Apollo Reborn on your phone to enable notifications." });
+        return;
+      }
+      const { PushNotifications } = await import("@capacitor/push-notifications");
+      const result = await PushNotifications.requestPermissions();
+      if (result.receive === "granted") {
+        await PushNotifications.register();
+        toast({ title: "Notifications enabled" });
+      } else {
+        toast({
+          title: "Notifications blocked",
+          description: "Enable them anytime in your phone Settings.",
+        });
+      }
+    } catch (e) {
+      console.warn("[Push] permission flow failed", e);
+    }
+  };
 
   const [formData, setFormData] = useState({
     display_name: profile?.display_name || "",
@@ -319,28 +347,70 @@ const DashboardProfile = () => {
 
           <div className="mt-6">
             <h2 className="text-base font-bold text-foreground mb-3">Notifications</h2>
+            <p className="text-xs text-foreground/60 mb-4">
+              Choose what you'd like to hear about. You can toggle each category on or off.
+            </p>
+
+            {/* OS-level enable */}
             <div className="flex items-center justify-between py-3 border-b border-border">
               <div>
-                <span className="text-sm text-foreground">Push Notifications</span>
-                <p className="text-xs text-foreground/60 mt-0.5">Receive workout reminders & achievements</p>
+                <span className="text-sm text-foreground">Enable push notifications</span>
+                <p className="text-xs text-foreground/60 mt-0.5">
+                  We'll explain why before asking the system.
+                </p>
               </div>
-              <Switch checked={notificationsEnabled} onCheckedChange={setNotificationsEnabled} />
+              <Button variant="ghost" size="sm" onClick={() => setPushModalOpen(true)}>
+                Enable
+              </Button>
+            </div>
+
+            <div className="flex items-center justify-between py-3 border-b border-border">
+              <div>
+                <span className="text-sm text-foreground">Workout reminders</span>
+                <p className="text-xs text-foreground/60 mt-0.5">Nudges to keep your training streak alive.</p>
+              </div>
+              <Switch
+                checked={notifPrefs.workout_reminders}
+                onCheckedChange={(v) => updateNotifPrefs.mutate({ workout_reminders: v })}
+              />
             </div>
             <div className="flex items-center justify-between py-3 border-b border-border">
               <div>
-                <span className="text-sm text-foreground">Meal Reminders</span>
-                <p className="text-xs text-foreground/60 mt-0.5">Reminders to log meals & track macros</p>
+                <span className="text-sm text-foreground">Meal reminders</span>
+                <p className="text-xs text-foreground/60 mt-0.5">Reminders to log meals & track macros.</p>
               </div>
-              <Switch checked={notificationsEnabled} onCheckedChange={setNotificationsEnabled} />
+              <Switch
+                checked={notifPrefs.meal_reminders}
+                onCheckedChange={(v) => updateNotifPrefs.mutate({ meal_reminders: v })}
+              />
             </div>
             <div className="flex items-center justify-between py-3 border-b border-border">
               <div>
-                <span className="text-sm text-foreground">Inactivity Alerts</span>
-                <p className="text-xs text-foreground/60 mt-0.5">Nudge after 3+ days without a workout</p>
+                <span className="text-sm text-foreground">Messages from coach</span>
+                <p className="text-xs text-foreground/60 mt-0.5">Email and push when your coach replies.</p>
               </div>
-              <Switch checked={notificationsEnabled} onCheckedChange={setNotificationsEnabled} />
+              <Switch
+                checked={notifPrefs.coach_messages}
+                onCheckedChange={(v) => updateNotifPrefs.mutate({ coach_messages: v })}
+              />
+            </div>
+            <div className="flex items-center justify-between py-3 border-b border-border">
+              <div>
+                <span className="text-sm text-foreground">Weekly progress summary</span>
+                <p className="text-xs text-foreground/60 mt-0.5">A weekly recap of training and meals.</p>
+              </div>
+              <Switch
+                checked={notifPrefs.weekly_summary}
+                onCheckedChange={(v) => updateNotifPrefs.mutate({ weekly_summary: v })}
+              />
             </div>
           </div>
+
+          <PushPermissionModal
+            open={pushModalOpen}
+            onOpenChange={setPushModalOpen}
+            onAllow={handleAllowPush}
+          />
 
           <div className="mt-8">
             <Button variant="ghost" className="w-full text-destructive hover:text-destructive/80 text-sm font-bold" onClick={signOut}>
