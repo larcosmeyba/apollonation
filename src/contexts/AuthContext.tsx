@@ -146,6 +146,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
+    await logOutPurchases().catch((e) => console.warn("[Auth] logOutPurchases", e));
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
