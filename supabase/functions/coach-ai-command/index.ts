@@ -1,13 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { wrapUserInput, PROMPT_INJECTION_GUARD } from "../_shared/prompt-safety.ts";
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const pre = handlePreflight(req);
+  if (pre) return pre;
+  const corsHeaders = buildCorsHeaders(req);
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -67,6 +66,8 @@ serve(async (req) => {
             role: "system",
             content: `You are a fitness coaching assistant. Parse the coach's command and return structured actions to apply to a client's program.
 
+${PROMPT_INJECTION_GUARD}
+
 Client context:
 ${JSON.stringify(context, null, 2)}
 
@@ -92,7 +93,7 @@ Return a JSON object with these possible actions (include only relevant ones):
   "notification_message": "<message to send to the client about the update>"
 }`
           },
-          { role: "user", content: command }
+          { role: "user", content: wrapUserInput(command) }
         ],
         tools: [
           {

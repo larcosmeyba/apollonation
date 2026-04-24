@@ -23,9 +23,10 @@ export async function checkRateLimit(
   });
 
   if (error) {
-    console.error("[RATE-LIMIT] Error:", error.message);
-    // Fail open - allow request if rate limit check fails
-    return true;
+    console.error("[RATE-LIMIT] Error (failing CLOSED):", error.message);
+    // SECURITY: fail closed — deny the request when rate-limit check fails
+    // so a misbehaving rate_limits table can't be used to bypass throttling.
+    return false;
   }
 
   return data === true;

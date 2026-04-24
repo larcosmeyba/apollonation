@@ -1,64 +1,96 @@
 project_id = "zbwwbavqlbxgcfsfacwp"
 
+# ──────────────────────────────────────────────────────────────────
+# User-facing functions (require JWT). Defense in depth — code also
+# validates the bearer token via getClaims() / getUser().
+# ──────────────────────────────────────────────────────────────────
 [functions.analyze-food]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-meal-plan]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-recipes]
-verify_jwt = false
+verify_jwt = true
 
 [functions.admin-create-client]
-verify_jwt = false
-
-[functions.auto-generate-programs]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-message-notification]
-verify_jwt = false
+verify_jwt = true
 
 [functions.suggest-exercise-swap]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-training-plan]
-verify_jwt = false
+verify_jwt = true
 
-[functions.notify-new-signup]
+[functions.client-regenerate-meal-plan]
+verify_jwt = true
+
+[functions.generate-grocery-list]
+verify_jwt = true
+
+[functions.suggest-meal-swap]
+verify_jwt = true
+
+[functions.support-chat]
+verify_jwt = true
+
+[functions.enroll-program]
+verify_jwt = true
+
+[functions.manage-client-status]
+verify_jwt = true
+
+[functions.generate-slideshow]
+verify_jwt = true
+
+[functions.coach-ai-command]
+verify_jwt = true
+
+[functions.bulk-import-recipes-pdf]
+verify_jwt = true
+
+[functions.save-imported-recipes]
+verify_jwt = true
+
+[functions.send-coach-email]
+verify_jwt = true
+
+[functions.generate-marketing-image]
+verify_jwt = true
+
+[functions.generate-marketing-ai-image]
+verify_jwt = true
+
+[functions.report-bug]
+verify_jwt = true
+
+[functions.sync-entitlement]
+verify_jwt = true
+
+[functions.auto-generate-programs]
+verify_jwt = true
+
+# ──────────────────────────────────────────────────────────────────
+# Cron-triggered functions. Use a shared CRON_SECRET header for auth.
+# ──────────────────────────────────────────────────────────────────
+[functions.automated-reminders]
 verify_jwt = false
 
 [functions.weekly-meal-plan-refresh]
 verify_jwt = false
 
-[functions.client-regenerate-meal-plan]
+[functions.notify-new-signup]
 verify_jwt = false
 
-[functions.generate-grocery-list]
-verify_jwt = false
-
-[functions.suggest-meal-swap]
-verify_jwt = false
-
-[functions.support-chat]
-verify_jwt = false
-
-[functions.enroll-program]
-verify_jwt = false
-
-[functions.manage-client-status]
-verify_jwt = false
-
-[functions.generate-slideshow]
-verify_jwt = false
-
-[functions.coach-ai-command]
-verify_jwt = false
-
+# Service-role only (already validates role inside the function).
 [functions.process-email-queue]
 verify_jwt = true
 
+# ──────────────────────────────────────────────────────────────────
+# Public webhook (uses shared bearer secret instead of JWT)
+# ──────────────────────────────────────────────────────────────────
 [functions.revenuecat-webhook]
-verify_jwt = false
-
-[functions.sync-entitlement]
 verify_jwt = false

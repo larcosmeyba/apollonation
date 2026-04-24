@@ -1,60 +1,44 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
-
-// Where bug reports get emailed
-const ADMIN_EMAIL = "marcos@apollonation.com";
+import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const pre = handlePreflight(req);
+  if (pre) return pre;
+  const corsHeaders = buildCorsHeaders(req);
 
   try {
+    const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL");
+    if (!ADMIN_EMAIL) {
+      console.error("[REPORT-BUG] ADMIN_EMAIL not configured");
+      return jsonResponse(req, { error: "Server not configured" }, 500);
+    }
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse(req, { error: "Unauthorized" }, 401);
     }
 
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
-    if (userError || !userData.user) {
-      return new Response(JSON.stringify({ error: "Invalid token" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (userError || !userData.user) return jsonResponse(req, { error: "Invalid token" }, 401);
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const subject: string = (body.subject ?? "").toString().trim().slice(0, 200);
     const message: string = (body.message ?? "").toString().trim().slice(0, 4000);
     const context: string = (body.context ?? "").toString().slice(0, 500);
 
-    if (!message) {
-      return new Response(JSON.stringify({ error: "Message is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!message) return jsonResponse(req, { error: "Message is required" }, 400);
 
     const userEmail = userData.user.email ?? "unknown";
     const userId = userData.user.id;
 
-    // Save to support_tickets
     const { data: ticket, error: ticketError } = await supabaseAdmin
       .from("support_tickets")
       .insert({
@@ -71,7 +55,6 @@ serve(async (req) => {
       throw ticketError;
     }
 
-    // Email admin (best-effort)
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (resendApiKey) {
       try {
@@ -102,18 +85,21 @@ serve(async (req) => {
           html,
         });
       } catch (emailErr) {
-        console.error("[REPORT-BUG] email failed (ticket still saved):", emailErr);
+        console.error("[REPORT-BUG] email failed (ticket still saved)", { ticketId: ticket?.id });
       }
     }
+
+    // PII-free log: ticket id + user id only, no email.
+    console.log("[REPORT-BUG] ticket created", { userId, ticketId: ticket?.id });
 
     return new Response(JSON.stringify({ success: true, ticketId: ticket?.id }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("report-bug error:", error);
+    console.error("report-bug error:", error instanceof Error ? error.message : String(error));
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 });
