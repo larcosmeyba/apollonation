@@ -36,6 +36,19 @@
     </application>
 
     <!-- Permissions -->
-
+    <!-- Network access -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Camera for meal & progress photos. Runtime-requested at point of use. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- Photo library access on Android 13+ (replaces READ_EXTERNAL_STORAGE) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- Push notifications on Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Google Play Billing (RevenueCat) -->
+    <uses-permission android:name="com.android.vending.BILLING" />
 </manifest>
