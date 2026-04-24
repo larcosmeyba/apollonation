@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Save, LogOut, ChevronRight, Settings, Star, Dumbbell, Heart, Trophy, Moon, Sun, Shield, Zap, Target, Award, Camera, Bell, Loader2, User, CreditCard, RefreshCw, FileText, ShieldCheck, HelpCircle, Bug, MessageCircle, Trash2, ExternalLink } from "lucide-react";
+import { Save, LogOut, ChevronRight, Settings, Star, Dumbbell, Heart, Trophy, Moon, Sun, Shield, Zap, Target, Award, Camera, Bell, Loader2, User, CreditCard, FileText, ShieldCheck, HelpCircle, Bug, MessageCircle, Trash2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
