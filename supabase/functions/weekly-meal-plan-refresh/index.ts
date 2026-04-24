@@ -60,10 +60,21 @@ serve(async (req) => {
 
     console.log(`[MEAL-REFRESH] Found ${activePlans.length} active plans to refresh`);
 
-    const results: { success: string[]; failed: string[] } = { success: [], failed: [] };
+    const results: { success: string[]; failed: string[]; skipped: string[] } = { success: [], failed: [], skipped: [] };
 
     for (const plan of activePlans) {
       try {
+        // Respect weekly_summary preference — users opted-out are skipped.
+        const { data: prefAllowed } = await supabaseAdmin.rpc("get_notification_preference", {
+          _user_id: plan.user_id,
+          _category: "weekly_summary",
+        });
+        if (prefAllowed === false) {
+          results.skipped.push(plan.user_id);
+          console.log(`[MEAL-REFRESH] ⏭ Skipped user ${plan.user_id} (opted out of weekly_summary)`);
+          continue;
+        }
+
         // Fetch client's nutrition profile for dietary restrictions
         const { data: profile } = await supabaseAdmin
           .from("client_nutrition_profiles")

@@ -55,17 +55,34 @@ const TermsOfService = () => {
 
           <h2 className="font-heading text-2xl text-foreground mt-8">4. Subscription and Payments</h2>
           <p>
-            Certain features require a paid subscription. By subscribing, you agree to:
+            Apollo Reborn offers a monthly plan and an annual plan. Subscriptions are sold and billed
+            exclusively through the Apple App Store and Google Play. By subscribing, you agree to:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Pay all applicable fees as described at the time of purchase</li>
-            <li>Provide valid payment information</li>
-            <li>Authorize us to charge your payment method for recurring subscriptions</li>
-            <li>Accept that subscriptions auto-renew unless cancelled</li>
+            <li>Pay all applicable fees as displayed in the Apple App Store or Google Play at the time of purchase</li>
+            <li>Accept that subscriptions auto-renew at the end of each billing period unless cancelled at least 24 hours before renewal</li>
+            <li>Manage, switch, or cancel your subscription in your Apple ID or Google Play account settings</li>
+            <li>Understand that uninstalling the app does not cancel your subscription</li>
           </ul>
           <p>
-            Refunds are handled on a case-by-case basis. Please contact us for refund requests.
+            Refunds are governed by Apple's and Google's respective refund policies. We do not process
+            payments directly and cannot issue refunds for store-purchased subscriptions — please contact
+            Apple Support or Google Play Support.
           </p>
+
+          <h2 className="font-heading text-2xl text-foreground mt-8">4a. Third-Party Services</h2>
+          <p>
+            We rely on the following third-party services to operate Apollo Reborn. By using the Services,
+            you also agree to the terms of these providers where applicable:
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong>Supabase</strong> — authentication, database, and file storage</li>
+            <li><strong>RevenueCat</strong> — subscription management and entitlement validation</li>
+            <li><strong>Apple App Store / Google Play</strong> — payment processing and billing</li>
+            <li><strong>Resend</strong> — transactional email delivery</li>
+            <li><strong>Lovable AI Gateway</strong> (Google Gemini, OpenAI) — AI-powered macro estimates and meal planning</li>
+            <li><strong>Capacitor</strong> — native mobile runtime</li>
+          </ul>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">5. Health and Fitness Disclaimer</h2>
           <p className="font-medium text-foreground bg-primary/10 p-4 rounded-lg border border-primary/20">
