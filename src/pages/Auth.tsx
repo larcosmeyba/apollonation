@@ -301,28 +301,6 @@ const Auth = () => {
             </Button>
           </form>
 
-          {/* Restore purchases — must be reachable WITHOUT a signed-in account per Apple guidelines. */}
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  const { restorePurchases } = await import("@/lib/purchases");
-                  await restorePurchases();
-                  toast({ title: "Purchases restored", description: "Sign in to access your subscription." });
-                } catch (e: any) {
-                  toast({
-                    title: "Nothing to restore",
-                    description: e?.message ?? "No active subscriptions found on this device.",
-                    variant: "destructive",
-                  });
-                }
-              }}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors underline"
-            >
-              Already subscribed? Restore purchases
-            </button>
-          </div>
 
           <div className="mt-8 text-center space-y-3">
             {mode === "forgot" ? (

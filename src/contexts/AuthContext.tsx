@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { initPurchases, logOutPurchases } from "@/lib/purchases";
 
 interface Profile {
   id: string;
@@ -69,12 +68,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const mountedRef = useRef(true);
-  const purchasesUserRef = useRef<string | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
         if (!mountedRef.current) return;
         setSession(session);
         setUser(session?.user ?? null);
@@ -84,18 +82,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (!mountedRef.current) return;
           setProfile(profileData);
           setLoading(false);
-          // Initialize RevenueCat (no-op on web). Avoid re-init on token refresh.
-          if (purchasesUserRef.current !== session.user.id) {
-            purchasesUserRef.current = session.user.id;
-            initPurchases(session.user.id).catch((e) => console.warn("initPurchases", e));
-          }
         } else {
           setProfile(null);
           setLoading(false);
-          if (purchasesUserRef.current) {
-            purchasesUserRef.current = null;
-            logOutPurchases().catch(() => undefined);
-          }
         }
       }
     );
@@ -110,10 +99,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (!mountedRef.current) return;
           setProfile(profileData);
           setLoading(false);
-          if (purchasesUserRef.current !== session.user.id) {
-            purchasesUserRef.current = session.user.id;
-            initPurchases(session.user.id).catch((e) => console.warn("initPurchases", e));
-          }
         });
       } else {
         setLoading(false);
@@ -162,7 +147,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setSession(null);
     setProfile(null);
-    await logOutPurchases().catch(() => undefined);
   };
 
   return (
