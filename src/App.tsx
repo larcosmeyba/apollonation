@@ -1,9 +1,12 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import ApplyCoach from "./pages/ApplyCoach";
@@ -54,6 +57,45 @@ const queryClient = new QueryClient({
   },
 });
 
+const NativeDeepLinks = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const appUrlSub = CapacitorApp.addListener("appUrlOpen", ({ url }) => {
+      try {
+        const parsed = new URL(url);
+        const path = parsed.pathname + parsed.search + parsed.hash;
+        if (path) navigate(path);
+      } catch (e) {
+        console.warn("Bad deep link", url, e);
+      }
+    });
+
+    let pushActionSub: Promise<{ remove: () => Promise<void> }> | null = null;
+    (async () => {
+      try {
+        const { PushNotifications } = await import("@capacitor/push-notifications");
+        pushActionSub = PushNotifications.addListener(
+          "pushNotificationActionPerformed",
+          (event: any) => {
+            const url = event?.notification?.data?.url;
+            if (url) navigate(url);
+          }
+        );
+      } catch (e) {
+        console.warn("[Push] action listener failed", e);
+      }
+    })();
+
+    return () => {
+      appUrlSub.then((s) => s.remove()).catch(() => {});
+      if (pushActionSub) pushActionSub.then((s) => s.remove()).catch(() => {});
+    };
+  }, [navigate]);
+  return null;
+};
+
 const App = () => {
   return (
     <HelmetProvider>
@@ -63,6 +105,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <NativeDeepLinks />
             <HealthDisclaimerSheet />
             <Routes>
               <Route path="/" element={<AppEntryRedirect />} />

@@ -19,6 +19,17 @@ import { format } from "date-fns";
 import { useMacroTargets } from "@/hooks/useMacroTargets";
 import FoodBudgetCard from "@/components/dashboard/FoodBudgetCard";
 
+// Returns the user's local calendar date as YYYY-MM-DD.
+// Used for both reads and writes to log_date so meals near midnight
+// always count against the user's local day, not UTC.
+const getLocalDateString = (d: Date = new Date()) => format(d, "yyyy-MM-dd");
+
+const clamp = (v: string, min: number, max: number) => {
+  const n = parseFloat(v);
+  if (Number.isNaN(n)) return 0;
+  return Math.max(min, Math.min(max, n));
+};
+
 const DashboardMacros = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
@@ -28,7 +39,7 @@ const DashboardMacros = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [selectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [selectedDate] = useState(getLocalDateString());
 
   const [manualEntry, setManualEntry] = useState({
     meal_name: "", calories: "", protein: "", carbs: "", fat: "",
@@ -128,10 +139,10 @@ const DashboardMacros = () => {
     try {
       await saveEntry({
         meal_name: manualEntry.meal_name,
-        calories: parseInt(manualEntry.calories) || 0,
-        protein_grams: parseInt(manualEntry.protein) || 0,
-        carbs_grams: parseInt(manualEntry.carbs) || 0,
-        fat_grams: parseInt(manualEntry.fat) || 0,
+        calories: clamp(manualEntry.calories, 0, 10000),
+        protein_grams: clamp(manualEntry.protein, 0, 1000),
+        carbs_grams: clamp(manualEntry.carbs, 0, 1000),
+        fat_grams: clamp(manualEntry.fat, 0, 1000),
         ai_estimated: false,
       });
       setManualEntry({ meal_name: "", calories: "", protein: "", carbs: "", fat: "" });
@@ -263,10 +274,10 @@ const DashboardMacros = () => {
                 <div className="space-y-4">
                   <div><Label>Meal Name</Label><Input placeholder="e.g., Chicken Salad" value={manualEntry.meal_name} onChange={(e) => setManualEntry(p => ({ ...p, meal_name: e.target.value }))} className="bg-muted border-border" /></div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div><Label>Calories</Label><Input type="number" placeholder="0" value={manualEntry.calories} onChange={(e) => setManualEntry(p => ({ ...p, calories: e.target.value }))} className="bg-muted border-border" /></div>
-                    <div><Label>Protein (g)</Label><Input type="number" placeholder="0" value={manualEntry.protein} onChange={(e) => setManualEntry(p => ({ ...p, protein: e.target.value }))} className="bg-muted border-border" /></div>
-                    <div><Label>Carbs (g)</Label><Input type="number" placeholder="0" value={manualEntry.carbs} onChange={(e) => setManualEntry(p => ({ ...p, carbs: e.target.value }))} className="bg-muted border-border" /></div>
-                    <div><Label>Fat (g)</Label><Input type="number" placeholder="0" value={manualEntry.fat} onChange={(e) => setManualEntry(p => ({ ...p, fat: e.target.value }))} className="bg-muted border-border" /></div>
+                    <div><Label>Calories</Label><Input type="number" inputMode="decimal" placeholder="0" value={manualEntry.calories} onChange={(e) => setManualEntry(p => ({ ...p, calories: e.target.value }))} className="bg-muted border-border" /></div>
+                    <div><Label>Protein (g)</Label><Input type="number" inputMode="decimal" placeholder="0" value={manualEntry.protein} onChange={(e) => setManualEntry(p => ({ ...p, protein: e.target.value }))} className="bg-muted border-border" /></div>
+                    <div><Label>Carbs (g)</Label><Input type="number" inputMode="decimal" placeholder="0" value={manualEntry.carbs} onChange={(e) => setManualEntry(p => ({ ...p, carbs: e.target.value }))} className="bg-muted border-border" /></div>
+                    <div><Label>Fat (g)</Label><Input type="number" inputMode="decimal" placeholder="0" value={manualEntry.fat} onChange={(e) => setManualEntry(p => ({ ...p, fat: e.target.value }))} className="bg-muted border-border" /></div>
                   </div>
                   <Button variant="apollo" className="w-full" onClick={handleManualSubmit}>Add Meal</Button>
                 </div>

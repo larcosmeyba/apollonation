@@ -41,14 +41,26 @@ Deno.serve(async (req) => {
     const { mealId, planId } = await req.json();
     if (!mealId || !planId) throw new Error("Missing mealId or planId");
 
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(mealId) || !UUID_RE.test(planId)) {
+      return new Response(JSON.stringify({ error: "Invalid id" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: meal, error: mealError } = await supabase
       .from("nutrition_plan_meals")
       .select("*, nutrition_plans!inner(user_id, daily_calories, protein_grams, carbs_grams, fat_grams)")
       .eq("id", mealId)
       .eq("plan_id", planId)
-      .single();
+      .maybeSingle();
 
-    if (mealError || !meal) throw new Error("Meal not found");
+    if (mealError) throw new Error("Meal lookup failed");
+    if (!meal) {
+      return new Response(JSON.stringify({ error: "Meal not found" }), {
+        status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     if (meal.nutrition_plans.user_id !== user.id) throw new Error("Unauthorized");
 
     const { data: questionnaire } = await supabase

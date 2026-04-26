@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminDashboardHome from "@/components/admin/AdminDashboardHome";
 import AdminWorkouts from "@/components/admin/AdminWorkouts";
@@ -7,9 +9,20 @@ import AdminContactRequests from "@/components/admin/AdminContactRequests";
 import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientList from "@/components/admin/AdminClientList";
 import AdminBugReports from "@/components/admin/AdminBugReports";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 
 const AdminDashboard = () => {
+  const { isAdmin, loading } = useAdminStatus();
   const [activeTab, setActiveTab] = useState("dashboard");
+
+  if (loading) {
+    return (
+      <div className="p-8 flex justify-center">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
+  }
+  if (!isAdmin) return <Navigate to="/dashboard" replace />;
 
   const renderContent = () => {
     switch (activeTab) {

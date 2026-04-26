@@ -714,6 +714,7 @@ const DashboardWorkoutDetail = () => {
             variant="apollo"
             className="w-full gap-2 h-12"
             onClick={() => {
+              if (saveSessionMutation.isPending) return;
               saveSessionMutation.mutate();
               setTimeout(() => setShowComplete(true), 300);
             }}

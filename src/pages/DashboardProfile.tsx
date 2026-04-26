@@ -27,6 +27,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+// Module-level guard so push notification listeners are only attached once
+let pushListenersAttached = false;
+
 // Apple App Store + Google Play subscription management deep links
 const APP_STORE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
 const PLAY_STORE_SUBSCRIPTIONS_URL = "https://play.google.com/store/account/subscriptions?package=com.apollonation.app";
@@ -75,6 +78,30 @@ const DashboardProfile = () => {
         return;
       }
       const { PushNotifications } = await import("@capacitor/push-notifications");
+
+      // Attach listeners exactly once per app session
+      if (!pushListenersAttached) {
+        pushListenersAttached = true;
+        await PushNotifications.addListener("registration", async (token) => {
+          if (!user) return;
+          try {
+            await (supabase as any).from("push_tokens").upsert(
+              {
+                user_id: user.id,
+                token: token.value,
+                platform: Capacitor.getPlatform(),
+              },
+              { onConflict: "user_id,token" }
+            );
+          } catch (e) {
+            console.warn("[Push] failed to save token", e);
+          }
+        });
+        await PushNotifications.addListener("registrationError", (err) => {
+          console.warn("Push registration error", err);
+        });
+      }
+
       const result = await PushNotifications.requestPermissions();
       if (result.receive === "granted") {
         await PushNotifications.register();
