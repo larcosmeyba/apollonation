@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
+import { Capacitor } from "@capacitor/core";
+import { Purchases } from "@revenuecat/purchases-capacitor";
 import { supabase } from "@/integrations/supabase/client";
 import { initPurchases, logOutPurchases } from "@/lib/purchases";
 
@@ -69,6 +71,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const mountedRef = useRef(true);
+  const purchasesListenerIdRef = useRef<string | null>(null);
+
+  const attachPurchasesListener = async (userId: string) => {
+    if (!Capacitor.isNativePlatform()) return;
+    if (purchasesListenerIdRef.current) return;
+    try {
+      const id = await Purchases.addCustomerInfoUpdateListener(() => {
+        fetchProfile(userId).then((profileData) => {
+          if (!mountedRef.current) return;
+          setProfile(profileData);
+        });
+      });
+      purchasesListenerIdRef.current = id;
+    } catch (e) {
+      console.warn("[Auth] addCustomerInfoUpdateListener", e);
+    }
+  };
+
+  const detachPurchasesListener = async () => {
+    if (!Capacitor.isNativePlatform()) return;
+    const id = purchasesListenerIdRef.current;
+    if (!id) return;
+    purchasesListenerIdRef.current = null;
+    try {
+      await Purchases.removeCustomerInfoUpdateListener({ listenerToRemove: id });
+    } catch (e) {
+      console.warn("[Auth] removeCustomerInfoUpdateListener", e);
+    }
+  };
 
   useEffect(() => {
     mountedRef.current = true;
@@ -79,12 +110,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          initPurchases(session.user.id).catch((e) => console.warn("[Auth] initPurchases", e));
-          const profileData = await fetchProfile(session.user.id);
+          const uid = session.user.id;
+          initPurchases(uid)
+            .then(() => attachPurchasesListener(uid))
+            .catch((e) => console.warn("[Auth] initPurchases", e));
+          const profileData = await fetchProfile(uid);
           if (!mountedRef.current) return;
           setProfile(profileData);
           setLoading(false);
         } else {
+          await detachPurchasesListener();
           setProfile(null);
           setLoading(false);
         }
@@ -97,8 +132,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        initPurchases(session.user.id).catch((e) => console.warn("[Auth] initPurchases", e));
-        fetchProfile(session.user.id).then((profileData) => {
+        const uid = session.user.id;
+        initPurchases(uid)
+          .then(() => attachPurchasesListener(uid))
+          .catch((e) => console.warn("[Auth] initPurchases", e));
+        fetchProfile(uid).then((profileData) => {
           if (!mountedRef.current) return;
           setProfile(profileData);
           setLoading(false);
@@ -111,6 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       mountedRef.current = false;
       authSubscription.unsubscribe();
+      detachPurchasesListener();
     };
   }, []);
 
