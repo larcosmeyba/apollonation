@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
+import { Capacitor } from "@capacitor/core";
+import { Purchases } from "@revenuecat/purchases-capacitor";
 import { supabase } from "@/integrations/supabase/client";
 import { initPurchases, logOutPurchases } from "@/lib/purchases";
 
