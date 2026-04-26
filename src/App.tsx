@@ -108,10 +108,7 @@ const App = () => {
                 path="/dashboard/macros"
                 element={<ProtectedRoute>{eb(<DashboardMacros />)}</ProtectedRoute>}
               />
-              <Route
-                path="/dashboard/profile"
-                element={<ProtectedRoute>{eb(<DashboardProfile />)}</ProtectedRoute>}
-              />
+              {/* /dashboard/profile defined above without premium gate so users can manage account / restore */}
               <Route
                 path="/dashboard/nutrition"
                 element={<ProtectedRoute>{eb(<DashboardNutrition />)}</ProtectedRoute>}
