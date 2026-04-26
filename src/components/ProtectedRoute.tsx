@@ -2,12 +2,15 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useQuestionnaire } from "@/hooks/useQuestionnaire";
+import { isPremium, subscriptionFromProfile } from "@/lib/subscription";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  /** Set to false for routes that should be reachable post-questionnaire even without an active subscription (e.g. /plan-ready). Defaults to true. */
+  requirePremium?: boolean;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requirePremium = true }: ProtectedRouteProps) => {
   const { user, profile, loading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminStatus();
   const { hasQuestionnaire, loading: questionnaireLoading } = useQuestionnaire(user?.id);
