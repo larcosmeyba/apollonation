@@ -129,9 +129,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!error) {
       supabase.functions.invoke("notify-new-signup", {
         body: { email, displayName: displayName || "No name" },
-      }).then(({ error: notifError }) => {
-        if (notifError) console.error("Signup notification error:", notifError);
-      });
+      })
+        .then(({ error: notifError }) => {
+          if (notifError) console.error("Signup notification error:", notifError);
+        })
+        .catch((err) => console.warn("notify-new-signup failed", err));
     }
 
     return { error };

@@ -101,10 +101,12 @@ const DashboardProfile = () => {
     queryKey: ["profile-total-classes", user?.id],
     queryFn: async () => {
       if (!user) return 0;
-      const [sessions, onDemand] = await Promise.all([
+      const results = await Promise.allSettled([
         supabase.from("workout_session_logs").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("user_workout_progress").select("id", { count: "exact", head: true }).eq("user_id", user.id),
       ]);
+      const sessions = results[0].status === "fulfilled" ? results[0].value : (console.warn("[profile-total-classes] sessions failed", (results[0] as PromiseRejectedResult).reason), { count: 0 });
+      const onDemand = results[1].status === "fulfilled" ? results[1].value : (console.warn("[profile-total-classes] onDemand failed", (results[1] as PromiseRejectedResult).reason), { count: 0 });
       return (sessions.count || 0) + (onDemand.count || 0);
     },
     enabled: !!user,
@@ -116,10 +118,12 @@ const DashboardProfile = () => {
       if (!user) return { activeDays: 0, totalWorkouts: 0, activeDates: new Set<string>() };
       const today = new Date();
       const last7 = Array.from({ length: 7 }, (_, i) => format(subDays(today, 6 - i), "yyyy-MM-dd"));
-      const [sessions, onDemand] = await Promise.all([
+      const results = await Promise.allSettled([
         supabase.from("workout_session_logs").select("log_date").eq("user_id", user.id).gte("log_date", last7[0]),
         supabase.from("user_workout_progress").select("completed_at").eq("user_id", user.id).gte("completed_at", `${last7[0]}T00:00:00Z`),
       ]);
+      const sessions = results[0].status === "fulfilled" ? results[0].value : (console.warn("[profile-weekly] sessions failed", (results[0] as PromiseRejectedResult).reason), { data: [] as any[] });
+      const onDemand = results[1].status === "fulfilled" ? results[1].value : (console.warn("[profile-weekly] onDemand failed", (results[1] as PromiseRejectedResult).reason), { data: [] as any[] });
       const dates = new Set([
         ...(sessions.data || []).map((s: any) => s.log_date),
         ...(onDemand.data || []).map((s: any) => s.completed_at?.split("T")[0]),
@@ -133,11 +137,14 @@ const DashboardProfile = () => {
     queryKey: ["profile-total-stats", user?.id],
     queryFn: async () => {
       if (!user) return { workouts: 0, favorites: 0 };
-      const [workouts, onDemand, favorites] = await Promise.all([
+      const results = await Promise.allSettled([
         supabase.from("workout_session_logs").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("user_workout_progress").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("user_favorites").select("id", { count: "exact", head: true }).eq("user_id", user.id),
       ]);
+      const workouts = results[0].status === "fulfilled" ? results[0].value : (console.warn("[profile-total-stats] workouts failed", (results[0] as PromiseRejectedResult).reason), { count: 0 });
+      const onDemand = results[1].status === "fulfilled" ? results[1].value : (console.warn("[profile-total-stats] onDemand failed", (results[1] as PromiseRejectedResult).reason), { count: 0 });
+      const favorites = results[2].status === "fulfilled" ? results[2].value : (console.warn("[profile-total-stats] favorites failed", (results[2] as PromiseRejectedResult).reason), { count: 0 });
       return { workouts: (workouts.count || 0) + (onDemand.count || 0), favorites: favorites.count || 0 };
     },
     enabled: !!user,

@@ -40,6 +40,10 @@ const Subscribe = () => {
       try {
         const offering = await getOfferings();
         if (!active) return;
+        if (!offering) {
+          setPackages([]);
+          return;
+        }
         const ui: UiPackage[] = [];
         const monthly = offering?.availablePackages?.find(
           (p: any) => p.identifier === "$rc_monthly" || p.identifier === "monthly"
@@ -94,12 +98,24 @@ const Subscribe = () => {
       toast({ title: "Welcome to Apollo Reborn", description: "Your subscription is active." });
       navigate("/dashboard");
     } catch (err: any) {
-      if (err?.userCancelled) return;
-      toast({
-        title: "Purchase failed",
-        description: err?.message ?? "Try again.",
-        variant: "destructive",
-      });
+      if (err?.userCancelled || err?.code === "PURCHASE_CANCELLED" || err?.code === "USER_CANCELLED") return;
+      let title = "Purchase failed";
+      let description: string = err?.message ?? "Try again.";
+      switch (err?.code) {
+        case "NETWORK_ERROR":
+          title = "Connection issue";
+          description = "Please try again.";
+          break;
+        case "PAYMENT_PENDING":
+          title = "Payment pending";
+          description = "Payment is pending — check back shortly.";
+          break;
+        case "STORE_PROBLEM":
+          title = "Store unavailable";
+          description = "App Store is unavailable. Please try later.";
+          break;
+      }
+      toast({ title, description, variant: "destructive" });
     } finally {
       setPurchasing(null);
     }
