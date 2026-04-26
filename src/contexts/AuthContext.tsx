@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!id) return;
     purchasesListenerIdRef.current = null;
     try {
-      await Purchases.removeCustomerInfoUpdateListener({ callbackID: id });
+      await Purchases.removeCustomerInfoUpdateListener({ listenerToRemove: id });
     } catch (e) {
       console.warn("[Auth] removeCustomerInfoUpdateListener", e);
     }
