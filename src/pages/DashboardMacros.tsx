@@ -139,10 +139,10 @@ const DashboardMacros = () => {
     try {
       await saveEntry({
         meal_name: manualEntry.meal_name,
-        calories: parseInt(manualEntry.calories) || 0,
-        protein_grams: parseInt(manualEntry.protein) || 0,
-        carbs_grams: parseInt(manualEntry.carbs) || 0,
-        fat_grams: parseInt(manualEntry.fat) || 0,
+        calories: clamp(manualEntry.calories, 0, 10000),
+        protein_grams: clamp(manualEntry.protein, 0, 1000),
+        carbs_grams: clamp(manualEntry.carbs, 0, 1000),
+        fat_grams: clamp(manualEntry.fat, 0, 1000),
         ai_estimated: false,
       });
       setManualEntry({ meal_name: "", calories: "", protein: "", carbs: "", fat: "" });
