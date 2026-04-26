@@ -111,11 +111,13 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const dietaryPrefs = profile.dietary_preferences?.length > 0
-      ? `Dietary preferences: ${profile.dietary_preferences.join(", ")}.`
+    const dietaryPreferences = profile.dietary_preferences ?? [];
+    const foodRestrictions = profile.food_restrictions ?? [];
+    const dietaryPrefs = dietaryPreferences.length > 0
+      ? `Dietary preferences: ${dietaryPreferences.join(", ")}.`
       : "";
-    const restrictions = profile.food_restrictions?.length > 0
-      ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${profile.food_restrictions.join(", ")}. Do NOT include these ingredients in ANY meal.`
+    const restrictions = foodRestrictions.length > 0
+      ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${foodRestrictions.join(", ")}. Do NOT include these ingredients in ANY meal.`
       : "";
 
     const prompt = `Generate a complete 28-day meal plan (4 unique weeks) for a client with these specifications:
