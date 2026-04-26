@@ -78,7 +78,8 @@ const App = () => {
               <Route path="/apply-coach" element={<ApplyCoach />} />
               <Route path="/account-deletion" element={<AccountDeletion />} />
               <Route path="/subscribe" element={<Subscribe />} />
-              <Route path="/plan-ready" element={<ProtectedRoute><PlanReady /></ProtectedRoute>} />
+              <Route path="/plan-ready" element={<ProtectedRoute requirePremium={false}><PlanReady /></ProtectedRoute>} />
+              <Route path="/dashboard/profile" element={<ProtectedRoute requirePremium={false}>{eb(<DashboardProfile />)}</ProtectedRoute>} />
               <Route
                 path="/dashboard/transformation"
                 element={<ProtectedRoute>{eb(<DashboardTransformation />)}</ProtectedRoute>}
