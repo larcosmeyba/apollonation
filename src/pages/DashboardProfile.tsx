@@ -27,6 +27,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+// Module-level guard so push notification listeners are only attached once
+let pushListenersAttached = false;
+
 // Apple App Store + Google Play subscription management deep links
 const APP_STORE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
 const PLAY_STORE_SUBSCRIPTIONS_URL = "https://play.google.com/store/account/subscriptions?package=com.apollonation.app";
