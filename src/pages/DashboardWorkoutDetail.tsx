@@ -517,6 +517,7 @@ const DashboardWorkoutDetail = () => {
     },
   });
 
+  const [logging, setLogging] = useState(false);
   const saveSessionMutation = useMutation({
     mutationFn: async () => {
       if (!user || !dayId) return;
@@ -532,6 +533,9 @@ const DashboardWorkoutDetail = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workout-session-log"] });
       queryClient.invalidateQueries({ queryKey: ["completed-sessions-week"] });
+    },
+    onSettled: () => {
+      setLogging(false);
     },
   });
 
