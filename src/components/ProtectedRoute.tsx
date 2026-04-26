@@ -2,12 +2,15 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useQuestionnaire } from "@/hooks/useQuestionnaire";
+import { isPremium, subscriptionFromProfile } from "@/lib/subscription";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  /** Set to false for routes that should be reachable post-questionnaire even without an active subscription (e.g. /plan-ready). Defaults to true. */
+  requirePremium?: boolean;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requirePremium = true }: ProtectedRouteProps) => {
   const { user, profile, loading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminStatus();
   const { hasQuestionnaire, loading: questionnaireLoading } = useQuestionnaire(user?.id);
@@ -46,7 +49,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Admins bypass questionnaire check
+  // Admins bypass questionnaire + subscription checks
   if (isAdmin) {
     return <>{children}</>;
   }
@@ -54,6 +57,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // All users must complete questionnaire before accessing dashboard
   if (!hasQuestionnaire) {
     return <Navigate to="/questionnaire" replace />;
+  }
+
+  // Subscription gate — apollo_premium entitlement required for premium routes.
+  // Manual grants and active RC entitlements both pass; expired/missing -> /subscribe.
+  if (requirePremium && !isPremium(subscriptionFromProfile(profile))) {
+    return <Navigate to="/subscribe" replace state={{ from: location }} />;
   }
 
   return <>{children}</>;

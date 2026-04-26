@@ -78,7 +78,8 @@ const App = () => {
               <Route path="/apply-coach" element={<ApplyCoach />} />
               <Route path="/account-deletion" element={<AccountDeletion />} />
               <Route path="/subscribe" element={<Subscribe />} />
-              <Route path="/plan-ready" element={<ProtectedRoute><PlanReady /></ProtectedRoute>} />
+              <Route path="/plan-ready" element={<ProtectedRoute requirePremium={false}><PlanReady /></ProtectedRoute>} />
+              <Route path="/dashboard/profile" element={<ProtectedRoute requirePremium={false}>{eb(<DashboardProfile />)}</ProtectedRoute>} />
               <Route
                 path="/dashboard/transformation"
                 element={<ProtectedRoute>{eb(<DashboardTransformation />)}</ProtectedRoute>}
@@ -107,10 +108,7 @@ const App = () => {
                 path="/dashboard/macros"
                 element={<ProtectedRoute>{eb(<DashboardMacros />)}</ProtectedRoute>}
               />
-              <Route
-                path="/dashboard/profile"
-                element={<ProtectedRoute>{eb(<DashboardProfile />)}</ProtectedRoute>}
-              />
+              {/* /dashboard/profile defined above without premium gate so users can manage account / restore */}
               <Route
                 path="/dashboard/nutrition"
                 element={<ProtectedRoute>{eb(<DashboardNutrition />)}</ProtectedRoute>}
