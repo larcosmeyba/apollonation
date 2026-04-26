@@ -718,13 +718,14 @@ const DashboardWorkoutDetail = () => {
             variant="apollo"
             className="w-full gap-2 h-12"
             onClick={() => {
-              if (saveSessionMutation.isPending) return;
+              if (logging || saveSessionMutation.isPending) return;
+              setLogging(true);
               saveSessionMutation.mutate();
               setTimeout(() => setShowComplete(true), 300);
             }}
-            disabled={saveSessionMutation.isPending}
+            disabled={logging || saveSessionMutation.isPending}
           >
-            {saveSessionMutation.isPending ? (
+            {(logging || saveSessionMutation.isPending) ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Check className="w-4 h-4" />
