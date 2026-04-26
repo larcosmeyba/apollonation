@@ -19,6 +19,17 @@ import { format } from "date-fns";
 import { useMacroTargets } from "@/hooks/useMacroTargets";
 import FoodBudgetCard from "@/components/dashboard/FoodBudgetCard";
 
+// Returns the user's local calendar date as YYYY-MM-DD.
+// Used for both reads and writes to log_date so meals near midnight
+// always count against the user's local day, not UTC.
+const getLocalDateString = (d: Date = new Date()) => format(d, "yyyy-MM-dd");
+
+const clamp = (v: string, min: number, max: number) => {
+  const n = parseFloat(v);
+  if (Number.isNaN(n)) return 0;
+  return Math.max(min, Math.min(max, n));
+};
+
 const DashboardMacros = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
@@ -28,7 +39,7 @@ const DashboardMacros = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [selectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [selectedDate] = useState(getLocalDateString());
 
   const [manualEntry, setManualEntry] = useState({
     meal_name: "", calories: "", protein: "", carbs: "", fat: "",
