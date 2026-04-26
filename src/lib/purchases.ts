@@ -9,7 +9,7 @@ import {
 
 // RevenueCat public SDK keys are safe to ship in the client.
 // Set these in src/lib/purchases.ts after creating your RevenueCat project.
-const REVENUECAT_IOS_API_KEY = "appl_YOUR_IOS_KEY_HERE";
+const REVENUECAT_IOS_API_KEY = "appl_TWrKBqTDHnLgHAtRygxDhTxsfXv";
 const REVENUECAT_ANDROID_API_KEY = "goog_YOUR_ANDROID_KEY_HERE";
 
 let configured = false;
