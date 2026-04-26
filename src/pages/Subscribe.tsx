@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { Button } from "@/components/ui/button";
