@@ -21,7 +21,7 @@ interface UiPackage {
 }
 
 const Subscribe = () => {
-  const { user, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
