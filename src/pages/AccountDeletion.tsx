@@ -137,11 +137,15 @@ const AccountDeletion = () => {
 
           <h2 className="font-heading text-2xl text-foreground mt-10">Questions?</h2>
           <p>
-            If you have any questions about the deletion process or your data, please visit our{" "}
+            If you have any questions about the deletion process or your data, you can email us directly at{" "}
+            <a href="mailto:support@apolloreborn.com" className="text-primary underline hover:text-primary/80">
+              support@apolloreborn.com
+            </a>
+            , visit our{" "}
             <Link to="/contact" className="text-primary underline hover:text-primary/80">
               Contact Portal
-            </Link>{" "}
-            or review our{" "}
+            </Link>
+            , or review our{" "}
             <Link to="/privacy" className="text-primary underline hover:text-primary/80">
               Privacy Policy
             </Link>.

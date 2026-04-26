@@ -48,7 +48,7 @@ const faqs = [
   },
   {
     q: "How do I contact support?",
-    a: "You can reach out through the in-app messaging system or send us a DM on Instagram @larcosfit or TikTok @larcosfit.",
+    a: "Email us anytime at support@apolloreborn.com — we typically reply within 1–2 business days. You can also reach out through the in-app messaging system or send us a DM on Instagram @larcosfit or TikTok @larcosfit.",
   },
 ];
 
