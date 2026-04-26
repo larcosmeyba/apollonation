@@ -17,7 +17,7 @@ const log = (step: string, details?: unknown) => {
   console.log(`[SYNC-ENTITLEMENT] ${step}${tail}`);
 };
 
-const ENTITLEMENT_ID = "premium";
+const ENTITLEMENT_ID = "apollo_premium";
 
 const mapPlan = (productId: string | undefined): "monthly" | "annual" | null => {
   if (!productId) return null;
