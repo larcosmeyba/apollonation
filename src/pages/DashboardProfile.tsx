@@ -78,6 +78,30 @@ const DashboardProfile = () => {
         return;
       }
       const { PushNotifications } = await import("@capacitor/push-notifications");
+
+      // Attach listeners exactly once per app session
+      if (!pushListenersAttached) {
+        pushListenersAttached = true;
+        await PushNotifications.addListener("registration", async (token) => {
+          if (!user) return;
+          try {
+            await (supabase as any).from("push_tokens").upsert(
+              {
+                user_id: user.id,
+                token: token.value,
+                platform: Capacitor.getPlatform(),
+              },
+              { onConflict: "user_id,token" }
+            );
+          } catch (e) {
+            console.warn("[Push] failed to save token", e);
+          }
+        });
+        await PushNotifications.addListener("registrationError", (err) => {
+          console.warn("Push registration error", err);
+        });
+      }
+
       const result = await PushNotifications.requestPermissions();
       if (result.receive === "granted") {
         await PushNotifications.register();
