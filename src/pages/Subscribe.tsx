@@ -82,6 +82,27 @@ const Subscribe = () => {
     };
   }, [native, toast]);
 
+  if (!user) return <Navigate to="/auth" replace />;
+
+  if (profile?.is_subscribed) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <div
+          className="max-w-lg mx-auto px-5 pt-12 pb-24 text-center"
+          style={{ paddingTop: "calc(env(safe-area-inset-top) + 3rem)" }}
+        >
+          <h1 className="font-heading text-3xl mb-3">You're already a member</h1>
+          <p className="text-sm text-muted-foreground mb-8">
+            Manage your subscription in your device's App Store or Play Store settings.
+          </p>
+          <Button variant="apollo" onClick={() => navigate("/dashboard")}>
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const syncEntitlement = async () => {
     try {
       await supabase.functions.invoke("sync-entitlement");
