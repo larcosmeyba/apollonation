@@ -89,10 +89,12 @@ const Achievements = () => {
     queryFn: async () => {
       if (!user) return [];
       const since = format(subDays(new Date(), 90), "yyyy-MM-dd");
-      const [sessions, macros] = await Promise.all([
+      const results = await Promise.allSettled([
         supabase.from("workout_session_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
         supabase.from("macro_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
       ]);
+      const sessions = results[0].status === "fulfilled" ? results[0].value : (console.warn("[achievement-streak] sessions failed", (results[0] as PromiseRejectedResult).reason), { data: [] as any[] });
+      const macros = results[1].status === "fulfilled" ? results[1].value : (console.warn("[achievement-streak] macros failed", (results[1] as PromiseRejectedResult).reason), { data: [] as any[] });
       const dates = new Set([
         ...(sessions.data || []).map((d: any) => d.log_date),
         ...(macros.data || []).map((d: any) => d.log_date),

@@ -32,6 +32,8 @@
   <string>Apollo Reborn lets you choose meal and progress photos from your library.</string>
   <key>NSPhotoLibraryAddUsageDescription</key>
   <string>Apollo Reborn saves workout cards and progress photos to your photo library when you tap Save.</string>
+  <key>NSUserTrackingUsageDescription</key>
+  <string>This app uses your device identifier to measure subscription performance and personalize content.</string>
   <key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

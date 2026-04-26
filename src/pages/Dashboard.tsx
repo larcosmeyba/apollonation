@@ -108,10 +108,12 @@ const Dashboard = () => {
     queryFn: async () => {
       if (!user) return 0;
       const since = format(subDays(new Date(), 60), "yyyy-MM-dd");
-      const [sessions, macros] = await Promise.all([
+      const results = await Promise.allSettled([
         supabase.from("workout_session_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
         supabase.from("macro_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
       ]);
+      const sessions = results[0].status === "fulfilled" ? results[0].value : (console.warn("[home-streak] sessions failed", (results[0] as PromiseRejectedResult).reason), { data: [] as any[] });
+      const macros = results[1].status === "fulfilled" ? results[1].value : (console.warn("[home-streak] macros failed", (results[1] as PromiseRejectedResult).reason), { data: [] as any[] });
       const dates = new Set<string>([
         ...((sessions.data || []) as any[]).map((s) => s.log_date),
         ...((macros.data || []) as any[]).map((m) => m.log_date),

@@ -209,6 +209,11 @@ jobs:
             -configuration Release \
             clean
 
+          # IMPORTANT: do NOT pass CODE_SIGN_STYLE / PROVISIONING_PROFILE_SPECIFIER /
+          # PRODUCT_BUNDLE_IDENTIFIER / CODE_SIGN_IDENTITY on the CLI here. Those args
+          # apply to ALL targets (including SPM resource bundles like RevenueCat_RevenueCat
+          # which fail with "does not support provisioning profiles"). Signing for the
+          # App target is configured in project.pbxproj and only those settings apply.
           xcodebuild \
             -project "$IOS_PROJECT" \
             -scheme "$IOS_SCHEME" \
