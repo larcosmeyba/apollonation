@@ -21,7 +21,7 @@ interface UiPackage {
 }
 
 const Subscribe = () => {
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -95,6 +95,7 @@ const Subscribe = () => {
     try {
       await purchasePackage(pkg.raw);
       await syncEntitlement();
+      await refreshProfile();
       toast({ title: "Welcome to Apollo Reborn", description: "Your subscription is active." });
       navigate("/dashboard");
     } catch (err: any) {
@@ -126,6 +127,7 @@ const Subscribe = () => {
     try {
       await restorePurchases();
       await syncEntitlement();
+      await refreshProfile();
       toast({ title: "Purchases restored" });
       if (user) navigate("/dashboard");
     } catch (err: any) {
