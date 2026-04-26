@@ -49,7 +49,7 @@ const ProtectedRoute = ({ children, requirePremium = true }: ProtectedRouteProps
     );
   }
 
-  // Admins bypass questionnaire check
+  // Admins bypass questionnaire + subscription checks
   if (isAdmin) {
     return <>{children}</>;
   }
@@ -57,6 +57,12 @@ const ProtectedRoute = ({ children, requirePremium = true }: ProtectedRouteProps
   // All users must complete questionnaire before accessing dashboard
   if (!hasQuestionnaire) {
     return <Navigate to="/questionnaire" replace />;
+  }
+
+  // Subscription gate — apollo_premium entitlement required for premium routes.
+  // Manual grants and active RC entitlements both pass; expired/missing -> /subscribe.
+  if (requirePremium && !isPremium(subscriptionFromProfile(profile))) {
+    return <Navigate to="/subscribe" replace state={{ from: location }} />;
   }
 
   return <>{children}</>;
