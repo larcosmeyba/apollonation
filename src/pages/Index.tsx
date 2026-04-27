@@ -13,6 +13,7 @@ import marcos7 from "@/assets/marcos-9.webp";
 import strengthCard from "@/assets/strength-card.jpg";
 import coreCard from "@/assets/core-card.jpg";
 import cardioCard from "@/assets/cardio-card.jpg";
+import sculptCard from "@/assets/sculpt-card.jpg";
 
 const scrollToDownload = () =>
   document.getElementById("download")?.scrollIntoView({ behavior: "smooth" });
@@ -37,7 +38,7 @@ const FEATURES = [
 
 const WORKOUT_CATEGORIES = [
   { title: "Strength", image: strengthCard },
-  { title: "Sculpt", image: marcosAction7 },
+  { title: "Sculpt", image: sculptCard },
   { title: "Cardio", image: cardioCard },
   { title: "Core", image: coreCard },
 ];
@@ -200,7 +201,7 @@ const Index = () => {
                   src={cat.image}
                   alt={cat.title}
                   loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="absolute inset-0 w-full h-full object-cover object-[center_top] group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
