@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart,
-  Loader2, Store, RefreshCw, Check, Sparkles,
-  ClipboardList, AlertCircle, Plus, Trash2, Upload, Clock, Pencil,
+  Loader2, RefreshCw, Check, Sparkles,
+  ClipboardList, AlertCircle, Plus, Trash2, Upload, Clock, Pencil, DollarSign, ShieldCheck,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "react-router-dom";
@@ -22,6 +22,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
+import { buildGroceryListFromMeals, type PricedGroceryList } from "@/lib/groceryPricing";
+import { normalizeRestrictions, RESTRICTION_LABELS, filterMealsByRestrictions } from "@/lib/dietaryRestrictions";
 
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"];
 const MEAL_TYPE_LABELS: Record<string, string> = {
