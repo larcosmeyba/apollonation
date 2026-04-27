@@ -113,11 +113,53 @@ serve(async (req) => {
 
     const dietaryPreferences = profile.dietary_preferences ?? [];
     const foodRestrictions = profile.food_restrictions ?? [];
-    const dietaryPrefs = dietaryPreferences.length > 0
+
+    // Pull HARD dietary restrictions from the client's active questionnaire
+    const { data: clientQ } = await supabaseClient
+      .from("client_questionnaires")
+      .select("dietary_restrictions, weekly_food_budget")
+      .eq("user_id", clientUserId)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const hardRestrictions: string[] = Array.isArray(clientQ?.dietary_restrictions)
+      ? (clientQ!.dietary_restrictions as string[])
+      : [];
+
+    // Also check user_food_budgets table
+    const { data: budgetRow } = await supabaseClient
+      .from("user_food_budgets")
+      .select("weekly_budget")
+      .eq("user_id", clientUserId)
+      .maybeSingle();
+    const weeklyBudget: number | null = budgetRow?.weekly_budget ?? clientQ?.weekly_food_budget ?? null;
+
+    const dietaryPrefsLine = dietaryPreferences.length > 0
       ? `Dietary preferences: ${dietaryPreferences.join(", ")}.`
       : "";
-    const restrictions = foodRestrictions.length > 0
-      ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${foodRestrictions.join(", ")}. Do NOT include these ingredients in ANY meal.`
+    const dislikesLine = foodRestrictions.length > 0
+      ? `The client DISLIKES these foods — do NOT include them: ${foodRestrictions.join(", ")}.`
+      : "";
+
+    let restrictionsBlock = "";
+    if (hardRestrictions.length > 0) {
+      restrictionsBlock = `\nHARD DIETARY RESTRICTIONS (NEVER violate — allergies / lifestyle):
+${hardRestrictions.map((r: string) => `- ${r}`).join("\n")}
+Apply each across the ENTIRE 28-day plan:
+- vegan → no meat, poultry, fish, shellfish, dairy, eggs, honey
+- vegetarian → no meat, poultry, fish, shellfish
+- pescatarian → no meat or poultry
+- dairy-free → no milk, cream, butter, cheese, yogurt, whey, casein
+- gluten-free → no wheat, barley, rye, regular pasta, bread, oats, soy sauce
+- nut-free → no tree nuts or peanuts
+- shellfish-free → no shrimp/crab/lobster/clam/oyster/mussel/scallop/squid
+- egg-free → no eggs, mayo, meringue
+- soy-free → no soy, tofu, tempeh, edamame, tamari, miso\n`;
+    }
+
+    const budgetLine = weeklyBudget
+      ? `Keep ingredients affordable — total weekly grocery cost should stay under $${weeklyBudget}.`
       : "";
 
     const prompt = `Generate a complete 28-day meal plan (4 unique weeks) for a client with these specifications:
@@ -127,12 +169,14 @@ serve(async (req) => {
 - Carbs: ${carbsGrams}g
 - Fat: ${fatGrams}g
 - Goal: ${goals || "maintain"}
-${dietaryPrefs}
-${restrictions}
+${dietaryPrefsLine}
+${dislikesLine}${restrictionsBlock}
+${budgetLine}
 ${profile.notes ? `Additional notes: ${profile.notes}` : ""}
 
 For EACH of the 28 days, provide exactly 4 meals: breakfast, lunch, dinner, and snack.
-Each week should have DIFFERENT meals — do NOT repeat the same meals across weeks. Vary proteins, cooking methods, cuisines, and ingredients week to week.
+Each week should have DIFFERENT meals — vary proteins, cooking methods, cuisines, and ingredients week to week.
+Each meal MUST list every ingredient with an amount (e.g. "1 cup brown rice", "4 oz chicken breast").
 
 You MUST respond with ONLY valid JSON (no markdown, no code blocks) in this exact format:
 {
@@ -210,6 +254,40 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
     } catch {
       console.error("Failed to parse AI response:", content);
       throw new Error("Failed to parse meal plan from AI response");
+    }
+
+    // Server-side dietary safety check
+    const RESTRICTION_KEYWORDS: Record<string, string[]> = {
+      vegan: ["beef","chicken","pork","turkey","lamb","bacon","ham","sausage","fish","salmon","tuna","shrimp","crab","lobster","milk","cream","butter","cheese","yogurt","egg","honey","gelatin","whey","casein"],
+      vegetarian: ["beef","chicken","pork","turkey","lamb","bacon","ham","sausage","fish","salmon","tuna","shrimp","crab","lobster","anchov"],
+      pescatarian: ["beef","chicken","pork","turkey","lamb","bacon","ham","sausage"],
+      "dairy-free": ["milk","cream","butter","cheese","yogurt","whey","casein","ghee","lactose"],
+      "gluten-free": ["wheat","flour","bread","pasta","noodle","barley","rye","couscous","tortilla","bagel","soy sauce","panko","breadcrumb","oats","oatmeal"],
+      "nut-free": ["almond","walnut","cashew","pecan","pistachio","hazelnut","macadamia","peanut"],
+      "shellfish-free": ["shrimp","crab","lobster","clam","oyster","mussel","scallop","squid","octopus"],
+      "egg-free": ["egg","mayo","mayonnaise","meringue"],
+      "soy-free": ["soy","tofu","tempeh","edamame","miso","tamari"],
+    };
+    const activeBlocks = new Set<string>();
+    for (const r of hardRestrictions) {
+      const norm = String(r).toLowerCase().trim().replace(/\s+/g, "-");
+      const kws = RESTRICTION_KEYWORDS[norm];
+      if (kws) kws.forEach((k) => activeBlocks.add(k));
+    }
+    if (activeBlocks.size > 0) {
+      const offenders: string[] = [];
+      for (const day of mealPlanData.days || []) {
+        for (const meal of day.meals || []) {
+          const text = [meal.meal_name, meal.description, ...(meal.ingredients || [])].join(" ").toLowerCase();
+          for (const kw of activeBlocks) {
+            const re = kw.length <= 4 ? new RegExp(`\\b${kw}s?\\b`, "i") : new RegExp(kw, "i");
+            if (re.test(text)) { offenders.push(`${meal.meal_name} (${kw})`); break; }
+          }
+        }
+      }
+      if (offenders.length > 0) {
+        return jsonResponse(req, { error: `Generated plan violated dietary restrictions (${offenders.slice(0, 3).join(", ")}). Please retry.` }, 422);
+      }
     }
 
     // Use service role to create the plan and meals

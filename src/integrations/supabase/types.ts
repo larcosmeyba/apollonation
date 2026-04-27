@@ -812,6 +812,42 @@ export type Database = {
         }
         Relationships: []
       }
+      grocery_item_states: {
+        Row: {
+          already_have: boolean
+          created_at: string
+          id: string
+          item_key: string
+          plan_id: string
+          purchased: boolean
+          updated_at: string
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          already_have?: boolean
+          created_at?: string
+          id?: string
+          item_key: string
+          plan_id: string
+          purchased?: boolean
+          updated_at?: string
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          already_have?: boolean
+          created_at?: string
+          id?: string
+          item_key?: string
+          plan_id?: string
+          purchased?: boolean
+          updated_at?: string
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
       group_coaching_slideshows: {
         Row: {
           class_type: string
@@ -1897,6 +1933,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_food_budgets: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          weekly_budget: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          weekly_budget?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          weekly_budget?: number
+        }
+        Relationships: []
       }
       user_macro_targets: {
         Row: {
