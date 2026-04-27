@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart,
-  Loader2, DollarSign, Store, RefreshCw, Check, Sparkles,
+  Loader2, Store, RefreshCw, Check, Sparkles,
   ClipboardList, AlertCircle, Plus, Trash2, Upload, Clock, Pencil,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
