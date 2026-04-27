@@ -190,6 +190,43 @@ Respond ONLY with JSON: {"days":[{"day_number":1,"meals":[{"meal_type":"breakfas
     if (clean.endsWith("```")) clean = clean.slice(0, -3);
     mealPlanData = JSON.parse(clean.trim());
 
+    // Server-side safety check: refuse to save the plan if any meal contains
+    // an ingredient that violates a hard dietary restriction.
+    const RESTRICTION_KEYWORDS: Record<string, string[]> = {
+      vegan: ["beef", "chicken", "pork", "turkey", "lamb", "bacon", "ham", "sausage", "fish", "salmon", "tuna", "shrimp", "crab", "lobster", "milk", "cream", "butter", "cheese", "yogurt", "egg", "honey", "gelatin", "whey", "casein"],
+      vegetarian: ["beef", "chicken", "pork", "turkey", "lamb", "bacon", "ham", "sausage", "fish", "salmon", "tuna", "shrimp", "crab", "lobster", "anchov"],
+      pescatarian: ["beef", "chicken", "pork", "turkey", "lamb", "bacon", "ham", "sausage"],
+      "dairy-free": ["milk", "cream", "butter", "cheese", "yogurt", "whey", "casein", "ghee", "lactose"],
+      "gluten-free": ["wheat", "flour", "bread", "pasta", "noodle", "barley", "rye", "couscous", "tortilla", "bagel", "soy sauce", "panko", "breadcrumb", "oats", "oatmeal"],
+      "nut-free": ["almond", "walnut", "cashew", "pecan", "pistachio", "hazelnut", "macadamia", "peanut"],
+      "shellfish-free": ["shrimp", "crab", "lobster", "clam", "oyster", "mussel", "scallop", "squid", "octopus"],
+      "egg-free": ["egg", "mayo", "mayonnaise", "meringue"],
+      "soy-free": ["soy", "tofu", "tempeh", "edamame", "miso", "tamari"],
+    };
+    const activeBlocks = new Set<string>();
+    for (const r of dietaryRestrictions) {
+      const norm = String(r).toLowerCase().trim().replace(/\s+/g, "-");
+      const kws = RESTRICTION_KEYWORDS[norm] || RESTRICTION_KEYWORDS[norm.replace(/-free$/, "-free")];
+      if (kws) kws.forEach((k) => activeBlocks.add(k));
+    }
+    if (activeBlocks.size > 0) {
+      const offenders: string[] = [];
+      for (const day of mealPlanData.days || []) {
+        for (const meal of day.meals || []) {
+          const text = [meal.meal_name, meal.description, ...(meal.ingredients || [])].join(" ").toLowerCase();
+          for (const kw of activeBlocks) {
+            const re = kw.length <= 4 ? new RegExp(`\\b${kw}s?\\b`, "i") : new RegExp(kw, "i");
+            if (re.test(text)) { offenders.push(`${meal.meal_name} (${kw})`); break; }
+          }
+        }
+      }
+      if (offenders.length > 0) {
+        return new Response(JSON.stringify({
+          error: `Generated plan violated your dietary restrictions (${offenders.slice(0, 3).join(", ")}). Please try again.`,
+        }), { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    }
+
     // Delete old meals for this specific week only
     const weekStart = (week - 1) * 7 + 1;
     const weekEnd = week * 7;
