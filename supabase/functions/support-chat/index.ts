@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 import { PROMPT_INJECTION_GUARD, wrapUserInput } from "../_shared/prompt-safety.ts";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 const SYSTEM_PROMPT = `You are Apollo Reborn's app support assistant. You ONLY help users navigate the app and report bugs.
 
@@ -67,6 +68,10 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Rate limit: 60 support-chat messages per user per day.
+    const allowed = await checkRateLimit(userData.user.id, "support-chat", 60, 1440);
+    if (!allowed) return rateLimitResponse(corsHeaders);
 
     const { messages } = await req.json();
     if (!messages || !Array.isArray(messages)) {

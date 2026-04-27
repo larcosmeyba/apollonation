@@ -80,6 +80,15 @@ serve(async (req) => {
       });
     }
 
+    // Reject oversized PDFs (~7.5MB raw / 10MB base64). Prevents an admin
+    // from accidentally — or maliciously — burning AI credits on a huge file.
+    if (pdfBase64.length > 10_000_000) {
+      return new Response(
+        JSON.stringify({ error: "PDF too large. Maximum supported size is ~7.5MB per chunk." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
