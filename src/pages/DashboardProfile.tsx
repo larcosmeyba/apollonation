@@ -422,7 +422,11 @@ const DashboardProfile = () => {
               </Button>
             </div>
 
-            <div className="flex items-center justify-between py-3 border-b border-border">
+            <button
+              type="button"
+              onClick={() => updateNotifPrefs.mutate({ workout_reminders: !notifPrefs.workout_reminders })}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+            >
               <div>
                 <span className="text-sm text-foreground">Workout reminders</span>
                 <p className="text-xs text-foreground/60 mt-0.5">Nudges to keep your training streak alive.</p>
@@ -430,9 +434,14 @@ const DashboardProfile = () => {
               <Switch
                 checked={notifPrefs.workout_reminders}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ workout_reminders: v })}
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-border">
+            </button>
+            <button
+              type="button"
+              onClick={() => updateNotifPrefs.mutate({ meal_reminders: !notifPrefs.meal_reminders })}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+            >
               <div>
                 <span className="text-sm text-foreground">Meal reminders</span>
                 <p className="text-xs text-foreground/60 mt-0.5">Reminders to log meals & track macros.</p>
@@ -440,9 +449,14 @@ const DashboardProfile = () => {
               <Switch
                 checked={notifPrefs.meal_reminders}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ meal_reminders: v })}
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-border">
+            </button>
+            <button
+              type="button"
+              onClick={() => updateNotifPrefs.mutate({ coach_messages: !notifPrefs.coach_messages })}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+            >
               <div>
                 <span className="text-sm text-foreground">Messages from coach</span>
                 <p className="text-xs text-foreground/60 mt-0.5">Email and push when your coach replies.</p>
@@ -450,9 +464,14 @@ const DashboardProfile = () => {
               <Switch
                 checked={notifPrefs.coach_messages}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ coach_messages: v })}
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-border">
+            </button>
+            <button
+              type="button"
+              onClick={() => updateNotifPrefs.mutate({ weekly_summary: !notifPrefs.weekly_summary })}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+            >
               <div>
                 <span className="text-sm text-foreground">Weekly progress summary</span>
                 <p className="text-xs text-foreground/60 mt-0.5">A weekly recap of training and meals.</p>
@@ -460,8 +479,9 @@ const DashboardProfile = () => {
               <Switch
                 checked={notifPrefs.weekly_summary}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ weekly_summary: v })}
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>
+            </button>
           </div>
 
           <PushPermissionModal
