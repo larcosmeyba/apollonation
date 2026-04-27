@@ -435,6 +435,7 @@ const DashboardProfile = () => {
                 checked={notifPrefs.workout_reminders}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ workout_reminders: v })}
                 onClick={(e) => e.stopPropagation()}
+                className="h-7 w-12"
               />
             </button>
             <button
@@ -450,6 +451,7 @@ const DashboardProfile = () => {
                 checked={notifPrefs.meal_reminders}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ meal_reminders: v })}
                 onClick={(e) => e.stopPropagation()}
+                className="h-7 w-12"
               />
             </button>
             <button
@@ -465,6 +467,7 @@ const DashboardProfile = () => {
                 checked={notifPrefs.coach_messages}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ coach_messages: v })}
                 onClick={(e) => e.stopPropagation()}
+                className="h-7 w-12"
               />
             </button>
             <button
@@ -480,6 +483,7 @@ const DashboardProfile = () => {
                 checked={notifPrefs.weekly_summary}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ weekly_summary: v })}
                 onClick={(e) => e.stopPropagation()}
+                className="h-7 w-12"
               />
             </button>
           </div>
