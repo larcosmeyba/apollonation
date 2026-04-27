@@ -1119,46 +1119,67 @@ const DashboardNutrition = () => {
 
                 <TabsContent value="grocery">
                   <div className="space-y-4">
+                    {/* Week selector + running total */}
                     <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="sm" disabled={groceryWeek <= 1} onClick={() => setGroceryWeek(w => w - 1)} className="text-foreground"><ChevronLeft className="w-4 h-4" /></Button>
                         <span className="font-heading text-sm text-foreground">Week {groceryWeek}</span>
                         <Button variant="ghost" size="sm" disabled={groceryWeek >= (activePlan.duration_weeks || 4)} onClick={() => setGroceryWeek(w => w + 1)} className="text-foreground"><ChevronRight className="w-4 h-4" /></Button>
                       </div>
-                      <Button variant="apollo" size="sm" onClick={() => groceryMutation.mutate({ planId: activePlan.id, week: groceryWeek })} disabled={groceryMutation.isPending} className="text-xs gap-1.5">
-                        {groceryMutation.isPending ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating</> : <><ShoppingCart className="w-3.5 h-3.5" /> Generate</>}
-                      </Button>
+                      <div className="text-right">
+                        <p className="text-[10px] uppercase tracking-wider text-foreground/50">Weekly total</p>
+                        <p className={`font-heading text-base ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</p>
+                      </div>
                     </div>
 
-                    {groceryList && (
-                      <>
-                        <div className="bg-card border border-border rounded-lg p-3 flex items-center gap-2">
-                          <Store className="w-4 h-4 text-foreground/50 flex-shrink-0" />
-                          <div><p className="text-[10px] text-foreground/50">Store</p><p className="text-sm font-medium text-foreground truncate">{groceryList.store}</p></div>
-                        </div>
-
-                        {groceryList.categories.map((cat) => (
-                          <div key={cat.name} className="rounded-xl border border-border bg-card overflow-hidden">
-                            <div className="px-4 py-2.5 border-b border-border"><h4 className="font-heading text-sm text-foreground">{cat.name}</h4></div>
-                            <div className="divide-y divide-black/5">
-                              {cat.items.map((item, i) => (
-                                <div key={i} className="px-4 py-2">
-                                  <p className="text-sm text-foreground">{item.name}</p>
-                                  <p className="text-[10px] text-foreground/50">{item.quantity}{item.note ? ` · ${item.note}` : ""}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </>
-                    )}
-
-                    {!groceryList && !groceryMutation.isPending && (
+                    {pricedList.categories.length === 0 ? (
                       <div className="card-apollo py-12 text-center">
                         <ShoppingCart className="w-8 h-8 text-foreground/30 mx-auto mb-3" />
-                        <h3 className="font-heading text-base text-foreground mb-1">Generate Your Grocery List</h3>
-                        <p className="text-muted-foreground text-xs max-w-xs mx-auto">Select a week and generate a shopping list based on your meals, budget, and store.</p>
+                        <h3 className="font-heading text-base text-foreground mb-1">No ingredients yet</h3>
+                        <p className="text-muted-foreground text-xs max-w-xs mx-auto">Generate or regenerate this week's meal plan to populate your grocery list.</p>
                       </div>
+                    ) : (
+                      pricedList.categories.map((cat) => (
+                        <div key={cat.name} className="rounded-xl border border-border bg-card overflow-hidden">
+                          <div className="px-4 py-2.5 border-b border-border flex items-center justify-between">
+                            <h4 className="font-heading text-sm text-foreground">{cat.name}</h4>
+                            <span className="text-[10px] text-foreground/50">{cat.items.length} item{cat.items.length === 1 ? "" : "s"}</span>
+                          </div>
+                          <div className="divide-y divide-black/5">
+                            {cat.items.map((item) => {
+                              const state = stateByKey[item.key] || { already_have: false, purchased: false };
+                              return (
+                                <div key={item.key} className={`px-4 py-3 flex items-start gap-3 ${state.purchased ? "opacity-60" : ""}`}>
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`text-sm text-foreground ${state.purchased ? "line-through" : ""}`}>{item.name}</p>
+                                    <p className="text-[11px] text-foreground/50">
+                                      {item.quantity} · <span className={state.already_have ? "line-through text-foreground/40" : "text-foreground/70 font-medium"}>${item.estimatedPrice.toFixed(2)}</span>
+                                    </p>
+                                    <div className="flex items-center gap-4 mt-2">
+                                      <label className="flex items-center gap-1.5 cursor-pointer">
+                                        <Checkbox
+                                          checked={state.already_have}
+                                          onCheckedChange={(v) => toggleItemState(item.key, "already_have", !!v)}
+                                          className="border-foreground/40"
+                                        />
+                                        <span className="text-[10px] text-foreground/60 uppercase tracking-wider">Already have</span>
+                                      </label>
+                                      <label className="flex items-center gap-1.5 cursor-pointer">
+                                        <Checkbox
+                                          checked={state.purchased}
+                                          onCheckedChange={(v) => toggleItemState(item.key, "purchased", !!v)}
+                                          className="border-foreground/40 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                                        />
+                                        <span className="text-[10px] text-foreground/60 uppercase tracking-wider">Purchased</span>
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))
                     )}
                   </div>
                 </TabsContent>
