@@ -431,18 +431,55 @@ const DashboardNutrition = () => {
     queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan?.id] });
   };
 
-  const groceryMutation = useMutation({
-    mutationFn: async ({ planId, week }: { planId: string; week: number }) => {
-      const body: any = { planId, week };
-      if (clientStore) body.store = clientStore;
-      const { data, error } = await supabase.functions.invoke("generate-grocery-list", { body });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      return data.groceryList as GroceryList;
+  // ── Grocery list (built locally from current meals — always reflects active plan) ──
+  const weekStartDay = (groceryWeek - 1) * 7 + 1;
+  const weekEndDay = groceryWeek * 7;
+  const weekMeals = (meals || []).filter((m) => m.day_number >= weekStartDay && m.day_number <= weekEndDay);
+  const pricedList: PricedGroceryList = buildGroceryListFromMeals(weekMeals);
+
+  // Persisted checkbox state for this plan/week
+  const { data: itemStates = [] } = useQuery({
+    queryKey: ["grocery-item-states", user?.id, activePlan?.id, groceryWeek],
+    queryFn: async () => {
+      if (!user || !activePlan) return [];
+      const { data } = await (supabase as any)
+        .from("grocery_item_states")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("plan_id", activePlan.id)
+        .eq("week_number", groceryWeek);
+      return data || [];
     },
-    onSuccess: (data) => { setGroceryList(data); toast({ title: "Grocery list generated!" }); },
-    onError: (error: Error) => { toast({ title: "Error generating list", description: error.message, variant: "destructive" }); },
+    enabled: !!user && !!activePlan,
   });
+
+  const stateByKey: Record<string, { already_have: boolean; purchased: boolean }> = {};
+  for (const s of itemStates as any[]) stateByKey[s.item_key] = { already_have: !!s.already_have, purchased: !!s.purchased };
+
+  const toggleItemState = async (itemKey: string, field: "already_have" | "purchased", value: boolean) => {
+    if (!user || !activePlan) return;
+    const existing = stateByKey[itemKey] || { already_have: false, purchased: false };
+    const next = { ...existing, [field]: value };
+    await (supabase as any)
+      .from("grocery_item_states")
+      .upsert({
+        user_id: user.id,
+        plan_id: activePlan.id,
+        week_number: groceryWeek,
+        item_key: itemKey,
+        already_have: next.already_have,
+        purchased: next.purchased,
+      }, { onConflict: "user_id,plan_id,week_number,item_key" });
+    queryClient.invalidateQueries({ queryKey: ["grocery-item-states", user.id, activePlan.id, groceryWeek] });
+  };
+
+  // Effective weekly grocery total: exclude "already have" items
+  const effectiveTotal = pricedList.categories.reduce((sum, cat) => {
+    return sum + cat.items.reduce((s, item) => s + (stateByKey[item.key]?.already_have ? 0 : item.estimatedPrice), 0);
+  }, 0);
+  const remainingBudget = weeklyBudget !== null ? weeklyBudget - effectiveTotal : null;
+  const overBudget = remainingBudget !== null && remainingBudget < 0;
+
 
   const openSwap = async (meal: any) => {
     setSwapMeal(meal); setSwapSuggestions([]); setSwapLoading(true);
