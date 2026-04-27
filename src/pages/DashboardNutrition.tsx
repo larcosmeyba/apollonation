@@ -899,22 +899,72 @@ const DashboardNutrition = () => {
                 </div>
               )}
 
-              {/* Store input */}
-              <div className="bg-card rounded-2xl p-4 border border-border">
-                <h3 className="font-heading text-sm tracking-wide text-foreground mb-3">Your Shopping Preferences</h3>
-                <div>
-                  <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Grocery Store</label>
-                  <div className="relative">
-                    <Store className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground/40" />
-                    <Input
-                      type="text"
-                      placeholder="Walmart"
-                      value={clientStore}
-                      onChange={(e) => setClientStore(e.target.value)}
-                      className="pl-8 bg-foreground/5 border-border text-foreground h-9 text-sm"
-                    />
+              {/* Active dietary restrictions badge */}
+              {activeRestrictions.length > 0 && (
+                <div className="bg-card rounded-2xl p-4 border border-border flex items-start gap-3">
+                  <ShieldCheck className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] uppercase tracking-wider text-foreground/60 font-semibold mb-1.5">Active Dietary Restrictions</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {activeRestrictions.map((r) => (
+                        <Badge key={r} variant="outline" className="text-[10px] border-green-500/40 text-green-400 bg-green-500/10">
+                          {RESTRICTION_LABELS[r]}
+                        </Badge>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-foreground/50 mt-1.5">Meals & grocery list automatically exclude these.</p>
                   </div>
                 </div>
+              )}
+
+              {/* Budget card */}
+              <div className="bg-card rounded-2xl p-4 border border-border">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-heading text-sm tracking-wide text-foreground flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" /> Budget
+                  </h3>
+                  {weeklyBudget !== null && (
+                    <span className={`text-[11px] font-semibold ${overBudget ? "text-destructive" : "text-green-500"}`}>
+                      {overBudget
+                        ? `$${Math.abs(remainingBudget!).toFixed(2)} over`
+                        : `$${(remainingBudget ?? 0).toFixed(2)} remaining`}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-end gap-2 mb-2">
+                  <div className="flex-1">
+                    <Label className="text-[10px] font-semibold text-foreground/60 uppercase">Weekly Budget ($)</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="100"
+                      value={budgetInput}
+                      onChange={(e) => setBudgetInput(e.target.value)}
+                      className="bg-foreground/5 border-border text-foreground h-9 text-sm mt-1"
+                    />
+                  </div>
+                  <Button variant="apollo" size="sm" onClick={saveBudget} disabled={budgetSaving} className="h-9">
+                    {budgetSaving ? "Saving…" : "Save"}
+                  </Button>
+                </div>
+                <div className="flex justify-between text-[11px] text-foreground/70 mt-2 pt-2 border-t border-border">
+                  <span>Estimated grocery total (Week {groceryWeek})</span>
+                  <span className={`font-semibold ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</span>
+                </div>
+                {weeklyBudget !== null && weeklyBudget > 0 && (
+                  <div className="h-1.5 rounded-full bg-muted overflow-hidden mt-2">
+                    <div
+                      className={`h-full transition-all ${overBudget ? "bg-destructive" : "bg-primary"}`}
+                      style={{ width: `${Math.min((effectiveTotal / weeklyBudget) * 100, 100)}%` }}
+                    />
+                  </div>
+                )}
+                {overBudget && (
+                  <p className="text-[11px] text-destructive mt-2 flex items-start gap-1">
+                    <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                    This meal plan exceeds your budget by ${Math.abs(remainingBudget!).toFixed(2)}. Adjust meals or raise your budget.
+                  </p>
+                )}
               </div>
 
               {/* Weekly refresh banner */}
