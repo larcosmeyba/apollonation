@@ -951,14 +951,6 @@ const DashboardNutrition = () => {
                                         className={`${isEaten ? "data-[state=checked]:bg-green-500/100 data-[state=checked]:border-green-500" : "border-white"}`}
                                       />
                                     </div>
-                                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                                      <img
-                                        src={getMealImage(meal.meal_name, meal.meal_type)}
-                                        alt={meal.meal_name}
-                                        className="w-full h-full object-cover"
-                                        loading="lazy"
-                                      />
-                                    </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-[10px] text-foreground/50 uppercase tracking-wider mb-0.5">{MEAL_TYPE_LABELS[meal.meal_type] || meal.meal_type}</p>
                                       <p className={`font-medium text-sm text-foreground ${isEaten ? "line-through text-green-600" : ""}`}>{meal.meal_name}</p>
