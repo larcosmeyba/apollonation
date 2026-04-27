@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,8 +29,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// Module-level guard so push notification listeners are only attached once
-let pushListenersAttached = false;
+// Note: push listener handles are stored per-component in a ref so they can
+// be removed on unmount or when the user changes (prevents stale-closure
+// writes against a previous user's id after sign-out → sign-in).
 
 // Apple App Store + Google Play subscription management deep links
 const APP_STORE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
@@ -70,7 +71,20 @@ const DashboardProfile = () => {
   const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const pushListenersRef = useRef<Array<{ remove: () => Promise<void> }>>([]);
   const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
+
+  // Tear down push listeners when the user changes or the component unmounts
+  // so a stale closure doesn't write a token under the old user's id.
+  useEffect(() => {
+    return () => {
+      const handles = pushListenersRef.current;
+      pushListenersRef.current = [];
+      for (const h of handles) {
+        h.remove().catch(() => {});
+      }
+    };
+  }, [user?.id]);
 
   // Preferences state
   const [weeklyGoalText, setWeeklyGoalText] = useState(profile?.fitness_goals || "");
@@ -91,10 +105,9 @@ const DashboardProfile = () => {
       }
       const { PushNotifications } = await import("@capacitor/push-notifications");
 
-      // Attach listeners exactly once per app session
-      if (!pushListenersAttached) {
-        pushListenersAttached = true;
-        await PushNotifications.addListener("registration", async (token) => {
+      // Attach listeners only if we don't already have handles for this user.
+      if (pushListenersRef.current.length === 0) {
+        const regHandle = await PushNotifications.addListener("registration", async (token) => {
           if (!user) return;
           try {
             await (supabase as any).from("push_tokens").upsert(
@@ -109,9 +122,10 @@ const DashboardProfile = () => {
             console.warn("[Push] failed to save token", e);
           }
         });
-        await PushNotifications.addListener("registrationError", (err) => {
+        const errHandle = await PushNotifications.addListener("registrationError", (err) => {
           console.warn("Push registration error", err);
         });
+        pushListenersRef.current.push(regHandle, errHandle);
       }
 
       const result = await PushNotifications.requestPermissions();

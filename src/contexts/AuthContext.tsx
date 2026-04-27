@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Session } from "@supabase/supabase-js";
 import { Capacitor } from "@capacitor/core";
@@ -157,6 +157,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  // If a user's subscription flips from active → inactive (e.g. RevenueCat
+  // expiry listener fires while they're sitting on a premium screen), bounce
+  // them to /subscribe immediately rather than waiting for next navigation.
+  const wasSubscribedRef = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!profile) {
+      wasSubscribedRef.current = null;
+      return;
+    }
+    const prev = wasSubscribedRef.current;
+    wasSubscribedRef.current = profile.is_subscribed;
+    if (prev === true && profile.is_subscribed === false) {
+      const path = window.location.pathname;
+      const exempt = ["/subscribe", "/auth", "/reset-password", "/dashboard/profile", "/account-deletion"];
+      if (path.startsWith("/dashboard") && !exempt.some((p) => path.startsWith(p))) {
+        navigate("/subscribe", { replace: true });
+      }
+    }
+  }, [profile, navigate]);
+
   const signUp = async (email: string, password: string, displayName?: string) => {
     const { error } = await supabase.auth.signUp({
       email,
@@ -197,7 +217,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.warn("[Auth] logOutPurchases failed", e);
     }
     try {
-      await supabase.auth.signOut();
+      // scope: 'global' invalidates the refresh token everywhere — other
+      // browser tabs lose their session on the next auth event.
+      await supabase.auth.signOut({ scope: "global" });
     } catch (e) {
       console.warn("[Auth] supabase signOut failed", e);
     }
@@ -216,20 +238,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        session,
-        profile,
-        loading,
-        signUp,
-        signIn,
-        signOut,
-        refreshProfile,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  // Memoize the context value so consumers don't re-render every time the
+  // AuthProvider itself re-renders (e.g. due to internal state we don't
+  // expose). Only changes to user/session/profile/loading propagate.
+  const value = useMemo(
+    () => ({ user, session, profile, loading, signUp, signIn, signOut, refreshProfile }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [user, session, profile, loading]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

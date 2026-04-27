@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,6 +26,10 @@ Deno.serve(async (req) => {
     ).auth.getUser();
 
     if (userError || !user) throw new Error("Unauthorized");
+
+    // Rate limit: 30 meal-swap suggestions per user per day.
+    const allowed = await checkRateLimit(user.id, "suggest-meal-swap", 30, 1440);
+    if (!allowed) return rateLimitResponse(corsHeaders);
 
     // Privacy: respect AI personalization opt-out
     const { data: privacyPrefs } = await supabase

@@ -14,6 +14,7 @@ import ApplyCoach from "./pages/ApplyCoach";
 import AppEntryRedirect from "@/components/AppEntryRedirect";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Questionnaire from "./pages/Questionnaire";
 import Dashboard from "./pages/Dashboard";
 import DashboardWorkouts from "./pages/DashboardWorkouts";
@@ -112,6 +113,7 @@ const App = () => {
               <Route path="/" element={<AppEntryRedirect />} />
               <Route path="/home" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/questionnaire" element={<Questionnaire />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -37,6 +38,11 @@ serve(async (req) => {
     }
 
     const userId = userData.user.id;
+
+    // Rate limit: 10 grocery-list generations per user per hour.
+    const allowed = await checkRateLimit(userId, "generate-grocery-list", 10, 60);
+    if (!allowed) return rateLimitResponse(corsHeaders);
+
     const { planId, week, store } = await req.json();
 
     if (!planId) {

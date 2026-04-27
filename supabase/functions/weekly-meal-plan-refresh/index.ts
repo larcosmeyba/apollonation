@@ -45,11 +45,18 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    // Find all active nutrition plans
+    // Cap per-run plan count so a large user base can't melt the AI budget
+    // in one cron tick. Remaining plans roll over to the next run.
+    const MAX_PLANS_PER_RUN = 100;
+
+    // Find active nutrition plans, oldest-updated first so the cap rotates
+    // fairly across users across runs.
     const { data: activePlans, error: plansErr } = await supabaseAdmin
       .from("nutrition_plans")
-      .select("id, user_id, title, daily_calories, protein_grams, carbs_grams, fat_grams, duration_weeks")
-      .eq("status", "active");
+      .select("id, user_id, title, daily_calories, protein_grams, carbs_grams, fat_grams, duration_weeks, updated_at")
+      .eq("status", "active")
+      .order("updated_at", { ascending: true, nullsFirst: true })
+      .limit(MAX_PLANS_PER_RUN);
 
     if (plansErr) throw new Error("Failed to fetch active plans");
     if (!activePlans || activePlans.length === 0) {
@@ -58,7 +65,7 @@ serve(async (req) => {
       });
     }
 
-    console.log(`[MEAL-REFRESH] Found ${activePlans.length} active plans to refresh`);
+    console.log(`[MEAL-REFRESH] Found ${activePlans.length} active plans to refresh (cap=${MAX_PLANS_PER_RUN})`);
 
     const results: { success: string[]; failed: string[]; skipped: string[] } = { success: [], failed: [], skipped: [] };
 
