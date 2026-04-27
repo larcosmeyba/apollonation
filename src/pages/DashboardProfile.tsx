@@ -71,7 +71,20 @@ const DashboardProfile = () => {
   const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const pushListenersRef = useRef<Array<{ remove: () => Promise<void> }>>([]);
   const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
+
+  // Tear down push listeners when the user changes or the component unmounts
+  // so a stale closure doesn't write a token under the old user's id.
+  useEffect(() => {
+    return () => {
+      const handles = pushListenersRef.current;
+      pushListenersRef.current = [];
+      for (const h of handles) {
+        h.remove().catch(() => {});
+      }
+    };
+  }, [user?.id]);
 
   // Preferences state
   const [weeklyGoalText, setWeeklyGoalText] = useState(profile?.fitness_goals || "");
@@ -92,10 +105,9 @@ const DashboardProfile = () => {
       }
       const { PushNotifications } = await import("@capacitor/push-notifications");
 
-      // Attach listeners exactly once per app session
-      if (!pushListenersAttached) {
-        pushListenersAttached = true;
-        await PushNotifications.addListener("registration", async (token) => {
+      // Attach listeners only if we don't already have handles for this user.
+      if (pushListenersRef.current.length === 0) {
+        const regHandle = await PushNotifications.addListener("registration", async (token) => {
           if (!user) return;
           try {
             await (supabase as any).from("push_tokens").upsert(
@@ -110,9 +122,10 @@ const DashboardProfile = () => {
             console.warn("[Push] failed to save token", e);
           }
         });
-        await PushNotifications.addListener("registrationError", (err) => {
+        const errHandle = await PushNotifications.addListener("registrationError", (err) => {
           console.warn("Push registration error", err);
         });
+        pushListenersRef.current.push(regHandle, errHandle);
       }
 
       const result = await PushNotifications.requestPermissions();
