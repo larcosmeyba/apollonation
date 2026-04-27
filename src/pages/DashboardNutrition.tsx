@@ -83,7 +83,8 @@ const DashboardNutrition = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [currentWeek, setCurrentWeek] = useState(1);
   const [editingMealId, setEditingMealId] = useState<string | null>(null);
-  const [groceryList, setGroceryList] = useState<GroceryList | null>(null);
+  const [budgetInput, setBudgetInput] = useState("");
+  const [budgetSaving, setBudgetSaving] = useState(false);
   const [groceryWeek, setGroceryWeek] = useState(1);
   const [swapMeal, setSwapMeal] = useState<any | null>(null);
   const [swapSuggestions, setSwapSuggestions] = useState<MealSuggestion[]>([]);
