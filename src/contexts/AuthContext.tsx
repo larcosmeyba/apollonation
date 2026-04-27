@@ -191,12 +191,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    await logOutPurchases().catch((e) => console.warn("[Auth] logOutPurchases", e));
-    await supabase.auth.signOut();
-    queryClient.clear();
+    try {
+      await logOutPurchases();
+    } catch (e) {
+      console.warn("[Auth] logOutPurchases failed", e);
+    }
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn("[Auth] supabase signOut failed", e);
+    }
+    try {
+      queryClient.clear();
+    } catch (e) {
+      console.warn("[Auth] queryClient.clear failed", e);
+    }
     setUser(null);
     setSession(null);
     setProfile(null);
+    try {
+      navigate("/auth", { replace: true });
+    } catch (e) {
+      console.warn("[Auth] navigate failed", e);
+    }
   };
 
   return (
