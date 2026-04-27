@@ -503,6 +503,14 @@ const DashboardNutrition = () => {
 
   const regenerateWeek = async () => {
     if (!activePlan || regenerating) return;
+    if (overBudget) {
+      toast({
+        title: "Over budget",
+        description: `Current plan is $${Math.abs(remainingBudget!).toFixed(2)} over your $${weeklyBudget?.toFixed(2)} weekly budget. Raise your budget or simplify meals before regenerating.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setRegenerating(true);
     try {
       const resp = await supabase.functions.invoke("client-regenerate-meal-plan", { body: { planId: activePlan.id, week: currentWeek } });
