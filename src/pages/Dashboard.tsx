@@ -24,6 +24,7 @@ import catCardio from "@/assets/categories/cardio.jpg";
 import catSculpt from "@/assets/categories/sculpt.jpg";
 import catStrength from "@/assets/categories/strength.png";
 import catHIIT from "@/assets/categories/hiit.png";
+import catCore from "@/assets/core-card.jpg";
 import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/utils/youtube";
 import { toast } from "sonner";
 
@@ -35,7 +36,7 @@ const CATEGORY_IMAGES: Record<string, string> = {
   Sculpt: catSculpt,
   Cardio: catCardio,
   Stretch: catStretch,
-  Core: marcosAction6,
+  Core: catCore,
 };
 
 

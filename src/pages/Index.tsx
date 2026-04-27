@@ -37,7 +37,7 @@ const WORKOUT_CATEGORIES = [
   { title: "Strength", image: strengthCard },
   { title: "Sculpt", image: marcosAction7 },
   { title: "Cardio", image: marcosAction6 },
-  { title: "Core", image: marcos7 },
+  { title: "Core", image: (await import("@/assets/core-card.jpg")).default },
 ];
 
 const APP_FEATURES = [
