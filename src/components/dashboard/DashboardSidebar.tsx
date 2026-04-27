@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
+import { isWeb } from "@/lib/platform";
 import {
   Home, Dumbbell, User, LogOut, Shield, Flame, Play,
   Calendar, BookOpen, Heart, ImageIcon,
@@ -75,7 +76,7 @@ const DashboardSidebar = () => {
           </Link>
         ))}
 
-        {isAdmin && (
+        {isWeb() && isAdmin && (
           <>
             <div className="h-px bg-border/15 my-3" />
             <Link

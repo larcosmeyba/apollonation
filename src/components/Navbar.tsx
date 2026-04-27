@@ -4,6 +4,7 @@ import { Menu, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
+import { isWeb } from "@/lib/platform";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 const Navbar = () => {
@@ -57,7 +58,7 @@ const Navbar = () => {
               <div className="w-20 h-8 bg-muted animate-pulse rounded" />
             ) : user ? (
               <>
-                {isAdmin && (
+                {isWeb() && isAdmin && (
                   <Link to="/admin">
                     <Button variant="ghost" size="sm" className="gap-2">
                       <Shield className="w-3.5 h-3.5" /> Admin
@@ -125,7 +126,7 @@ const Navbar = () => {
             <div className="pt-4 space-y-3 border-t border-border/30">
               {user ? (
                 <>
-                  {isAdmin && (
+                  {isWeb() && isAdmin && (
                     <Link to="/admin" onClick={() => setIsOpen(false)}>
                       <Button variant="ghost" className="w-full gap-2 text-white">
                         <Shield className="w-3.5 h-3.5" /> Admin
