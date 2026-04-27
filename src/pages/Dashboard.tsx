@@ -177,7 +177,7 @@ const Dashboard = () => {
     onError: () => toast.error("Could not update favorite"),
   });
 
-  const categories = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch"];
+  const categories = ["Strength", "Sculpt", "Cardio", "Core", "Stretch"];
 
   const SaveButton = ({ workoutId }: { workoutId: string }) => {
     const isSaved = favorites.includes(workoutId);
