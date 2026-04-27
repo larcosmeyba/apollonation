@@ -54,6 +54,16 @@ const DashboardProfile = () => {
   const [activeTab, setActiveTab] = useState("activity");
   const [settingsView, setSettingsView] = useState<string | null>(null);
   const [signOutOpen, setSignOutOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await signOut();
+    } finally {
+      setSigningOut(false);
+    }
+  };
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -503,8 +513,8 @@ const DashboardProfile = () => {
           />
 
           <div className="mt-8">
-            <Button variant="ghost" className="w-full text-destructive hover:text-destructive/80 text-sm font-bold" onClick={signOut}>
-              <LogOut className="w-4 h-4 mr-2" /> Sign Out
+            <Button variant="ghost" className="w-full text-destructive hover:text-destructive/80 text-sm font-bold" onClick={handleSignOut} disabled={signingOut}>
+              <LogOut className="w-4 h-4 mr-2" /> {signingOut ? "Signing out..." : "Sign Out"}
             </Button>
           </div>
         </div>
@@ -883,9 +893,10 @@ const DashboardProfile = () => {
               <div className="pt-2">
                 <button
                   onClick={() => setSignOutOpen(true)}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border text-sm font-bold text-foreground hover:bg-foreground/5 transition-colors"
+                  disabled={signingOut}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border text-sm font-bold text-foreground hover:bg-foreground/5 transition-colors disabled:opacity-60"
                 >
-                  <LogOut className="w-4 h-4" /> Sign Out
+                  <LogOut className="w-4 h-4" /> {signingOut ? "Signing out..." : "Sign Out"}
                 </button>
                 <button
                   onClick={() => setDeleteOpen(true)}
@@ -910,7 +921,7 @@ const DashboardProfile = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => signOut()}>Sign Out</AlertDialogAction>
+            <AlertDialogAction onClick={handleSignOut} disabled={signingOut}>{signingOut ? "Signing out..." : "Sign Out"}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
