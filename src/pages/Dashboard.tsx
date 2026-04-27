@@ -331,7 +331,9 @@ const Dashboard = () => {
                 <img
                   src={CATEGORY_IMAGES[cat]}
                   alt={cat}
-                  className={`w-full h-full object-cover object-[center_top] group-hover:scale-105 transition-transform duration-500 ${idx % 2 !== 0 ? "grayscale" : ""}`}
+                  className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                    cat === "Strength" || cat === "Cardio" ? "object-[center_30%]" : "object-[center_top]"
+                  } ${idx % 2 !== 0 ? "grayscale" : ""}`}
                 />
                 <div className="absolute inset-0 bg-black/50 group-hover:bg-black/35 transition-colors" />
                 <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white tracking-wide drop-shadow-lg">
