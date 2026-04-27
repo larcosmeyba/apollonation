@@ -13,8 +13,10 @@ import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { isNative } from "@/lib/platform";
 
 const AdminDashboard = () => {
-  if (isNative()) return <Navigate to="/dashboard" replace />;
   const { isAdmin, loading } = useAdminStatus();
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  if (isNative()) return <Navigate to="/dashboard" replace />;
   const [activeTab, setActiveTab] = useState("dashboard");
 
   if (loading) {
