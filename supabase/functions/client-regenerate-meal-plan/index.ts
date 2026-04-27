@@ -94,21 +94,47 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    const dietaryPrefs = profile?.dietary_preferences?.length
-      ? `Dietary preferences: ${profile.dietary_preferences.join(", ")}.`
-      : questionnaire?.dietary_restrictions?.length
-      ? `Dietary restrictions: ${questionnaire.dietary_restrictions.join(", ")}.`
-      : "";
+    // Hard dietary restrictions (allergies + lifestyle): treated as never-include
+    const dietaryRestrictions: string[] = Array.isArray(questionnaire?.dietary_restrictions)
+      ? questionnaire!.dietary_restrictions as string[]
+      : [];
 
-    const restrictions = (profile?.food_restrictions?.length
+    // Disliked foods are softer preferences
+    const dislikes = (profile?.food_restrictions?.length
       ? profile.food_restrictions
       : questionnaire?.disliked_foods || []);
-    const restrictionsText = restrictions.length
-      ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${restrictions.join(", ")}. Do NOT include these ingredients in ANY meal.`
+
+    // Budget cap (used for an explicit prompt instruction, not a hard pre-check here)
+    const { data: budgetRow } = await supabaseAdmin
+      .from("user_food_budgets")
+      .select("weekly_budget")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const weeklyBudget: number | null = budgetRow?.weekly_budget ?? questionnaire?.weekly_food_budget ?? null;
+
+    let restrictionsBlock = "";
+    if (dietaryRestrictions.length > 0) {
+      restrictionsBlock = `\nHARD DIETARY RESTRICTIONS (NEVER violate these — they are allergies or lifestyle requirements):
+${dietaryRestrictions.map((r: string) => `- ${r}`).join("\n")}
+For each restriction, COMPLETELY EXCLUDE the corresponding ingredients across the ENTIRE plan:
+- "vegan" → no meat, poultry, fish, shellfish, dairy, eggs, honey, gelatin
+- "vegetarian" → no meat, poultry, fish, shellfish
+- "pescatarian" → no meat or poultry
+- "dairy-free" → no milk, cream, butter, cheese, yogurt, whey, casein, ghee
+- "gluten-free" → no wheat, barley, rye, regular pasta, bread, oats, soy sauce, breadcrumbs
+- "nut-free" → no tree nuts or peanuts
+- "shellfish-free" → no shrimp, crab, lobster, clam, oyster, mussel, scallop, squid, octopus
+- "egg-free" → no eggs, mayo, meringue
+- "soy-free" → no soy, tofu, tempeh, edamame, tamari, soy sauce, miso
+If a meal would violate ANY of these, choose a different meal instead. Do not substitute partially.\n`;
+    }
+
+    const dislikesText = dislikes.length
+      ? `\nThe client DISLIKES these foods — do NOT include them: ${dislikes.join(", ")}.`
       : "";
 
-    const budgetInfo = questionnaire?.weekly_food_budget
-      ? `Weekly food budget: $${questionnaire.weekly_food_budget}. ${questionnaire.grocery_store ? `Primary grocery store: ${questionnaire.grocery_store}.` : ""}`
+    const budgetInfo = weeklyBudget
+      ? `\nClient's weekly grocery budget is $${weeklyBudget}. Choose affordable, common ingredients that keep the total grocery cost under that budget.`
       : "";
 
     const goal = profile?.goals || questionnaire?.goal_next_4_weeks || "maintain";
@@ -116,9 +142,10 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const prompt = `7-day meal plan, Week ${week}. 4 meals/day (breakfast, lunch, dinner, snack). Varied cuisines & proteins.
-Targets: ${plan.daily_calories}cal, ${plan.protein_grams}g P, ${plan.carbs_grams}g C, ${plan.fat_grams}g F. Goal: ${goal}.
-${dietaryPrefs}${restrictionsText}${budgetInfo}${profile?.notes ? ` Notes: ${profile.notes}` : ""}
+    const prompt = `Generate a 7-day meal plan for Week ${week} with 4 meals/day (breakfast, lunch, dinner, snack). Varied cuisines & proteins.
+Targets: ${plan.daily_calories}cal, ${plan.protein_grams}g P, ${plan.carbs_grams}g C, ${plan.fat_grams}g F. Goal: ${goal}.${restrictionsBlock}${dislikesText}${budgetInfo}${profile?.notes ? `\nAdditional notes: ${profile.notes}` : ""}
+
+Each meal MUST list every ingredient with an amount (e.g. "1 cup brown rice", "4 oz chicken breast"). Be exhaustive — the grocery list is built from these ingredients.
 
 Respond ONLY with JSON: {"days":[{"day_number":1,"meals":[{"meal_type":"breakfast","meal_name":"...","description":"...","ingredients":["item with amount"],"calories":0,"protein_grams":0,"carbs_grams":0,"fat_grams":0}]}]}`;
 
