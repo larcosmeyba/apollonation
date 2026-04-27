@@ -11,6 +11,7 @@ import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
 import marcos7 from "@/assets/marcos-9.webp";
 import strengthCard from "@/assets/strength-card.jpg";
+import coreCard from "@/assets/core-card.jpg";
 
 const scrollToDownload = () =>
   document.getElementById("download")?.scrollIntoView({ behavior: "smooth" });
@@ -37,7 +38,7 @@ const WORKOUT_CATEGORIES = [
   { title: "Strength", image: strengthCard },
   { title: "Sculpt", image: marcosAction7 },
   { title: "Cardio", image: marcosAction6 },
-  { title: "Core", image: (await import("@/assets/core-card.jpg")).default },
+  { title: "Core", image: coreCard },
 ];
 
 const APP_FEATURES = [
