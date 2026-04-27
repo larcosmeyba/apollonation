@@ -110,10 +110,6 @@ const DashboardNutrition = () => {
   const [macroSaving, setMacroSaving] = useState(false);
   const [macroDialogOpen, setMacroDialogOpen] = useState(false);
 
-  // Budget & Store inputs
-  const [clientBudget, setClientBudget] = useState("");
-  const [clientStore, setClientStore] = useState("");
-
   const selectedDate = format(new Date(), "yyyy-MM-dd");
 
   // ── Queries ──
@@ -137,35 +133,69 @@ const DashboardNutrition = () => {
     enabled: !!user,
   });
 
-  // Load questionnaire data for budget/store defaults
+  // Active dietary restrictions from questionnaire
   const { data: questionnaireData } = useQuery({
-    queryKey: ["questionnaire-budget", user?.id],
+    queryKey: ["questionnaire-restrictions", user?.id],
     queryFn: async () => {
       if (!user) return null;
       const { data } = await supabase
         .from("client_questionnaires")
-        .select("grocery_store, weekly_food_budget")
+        .select("dietary_restrictions, weekly_food_budget")
         .eq("user_id", user.id)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       return data;
     },
     enabled: !!user,
   });
 
-  // Initialize budget/store from questionnaire
+  const activeRestrictions = normalizeRestrictions(questionnaireData?.dietary_restrictions);
+
+  // Weekly food budget (own table, falls back to questionnaire seed)
+  const { data: budgetRow } = useQuery({
+    queryKey: ["food-budget", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await (supabase as any)
+        .from("user_food_budgets")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const weeklyBudget: number | null = budgetRow?.weekly_budget
+    ?? (questionnaireData?.weekly_food_budget ? Number(questionnaireData.weekly_food_budget) : null);
+
   useEffect(() => {
-    if (questionnaireData) {
-      if (!clientBudget && questionnaireData.weekly_food_budget) {
-        setClientBudget(String(questionnaireData.weekly_food_budget));
-      }
-      if (!clientStore && questionnaireData.grocery_store) {
-        setClientStore(questionnaireData.grocery_store);
-      }
+    if (weeklyBudget && !budgetInput) setBudgetInput(String(weeklyBudget));
+  }, [weeklyBudget]);
+
+  const saveBudget = async () => {
+    if (!user) return;
+    const v = parseFloat(budgetInput);
+    if (isNaN(v) || v < 0) {
+      toast({ title: "Enter a valid amount", variant: "destructive" });
+      return;
     }
-  }, [questionnaireData]);
+    setBudgetSaving(true);
+    try {
+      const { error } = await (supabase as any)
+        .from("user_food_budgets")
+        .upsert({ user_id: user.id, weekly_budget: v }, { onConflict: "user_id" });
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["food-budget", user.id] });
+      toast({ title: "Budget saved" });
+    } catch (err: any) {
+      toast({ title: "Couldn't save budget", description: err.message, variant: "destructive" });
+    } finally {
+      setBudgetSaving(false);
+    }
+  };
 
   const activePlan = selectedPlanId
     ? plans?.find((p) => p.id === selectedPlanId)
