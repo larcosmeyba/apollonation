@@ -1028,15 +1028,9 @@ const DashboardNutrition = () => {
 
                     {groceryList && (
                       <>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-card border border-border rounded-lg p-3 flex items-center gap-2">
-                            <Store className="w-4 h-4 text-foreground/50 flex-shrink-0" />
-                            <div><p className="text-[10px] text-foreground/50">Store</p><p className="text-sm font-medium text-foreground truncate">{groceryList.store}</p></div>
-                          </div>
-                          <div className={`rounded-lg border p-3 flex items-center gap-2 ${groceryList.budget_status === "over_budget" ? "bg-red-500/10 border-red-500/20" : "bg-card border-border"}`}>
-                            <DollarSign className="w-4 h-4 text-foreground/50 flex-shrink-0" />
-                            <div><p className="text-[10px] text-foreground/50">Est. Total</p><p className="text-sm font-medium text-foreground">${groceryList.estimated_total.toFixed(2)}<span className="text-[10px] text-foreground/50 ml-1">/ {groceryList.budget}</span></p></div>
-                          </div>
+                        <div className="bg-card border border-border rounded-lg p-3 flex items-center gap-2">
+                          <Store className="w-4 h-4 text-foreground/50 flex-shrink-0" />
+                          <div><p className="text-[10px] text-foreground/50">Store</p><p className="text-sm font-medium text-foreground truncate">{groceryList.store}</p></div>
                         </div>
 
                         {groceryList.categories.map((cat) => (
@@ -1044,12 +1038,9 @@ const DashboardNutrition = () => {
                             <div className="px-4 py-2.5 border-b border-border"><h4 className="font-heading text-sm text-foreground">{cat.name}</h4></div>
                             <div className="divide-y divide-black/5">
                               {cat.items.map((item, i) => (
-                                <div key={i} className="flex items-center justify-between px-4 py-2">
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-foreground truncate">{item.name}</p>
-                                    <p className="text-[10px] text-foreground/50">{item.quantity}{item.note ? ` · ${item.note}` : ""}</p>
-                                  </div>
-                                  <span className="text-sm text-foreground/60 ml-2">${item.estimated_price.toFixed(2)}</span>
+                                <div key={i} className="px-4 py-2">
+                                  <p className="text-sm text-foreground">{item.name}</p>
+                                  <p className="text-[10px] text-foreground/50">{item.quantity}{item.note ? ` · ${item.note}` : ""}</p>
                                 </div>
                               ))}
                             </div>
