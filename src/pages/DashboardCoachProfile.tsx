@@ -146,7 +146,7 @@ const DashboardCoachProfile = () => {
       <div className="max-w-xl mx-auto space-y-6">
         {/* Coach Hero — Large square image */}
         <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.08)]">
-          <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
+          <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover object-[center_20%]" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute bottom-5 left-5 right-5">
             <h1 className="text-2xl font-bold text-white">Marcos Leyba</h1>

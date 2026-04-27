@@ -273,11 +273,15 @@ const DashboardWorkouts = () => {
                     onClick={() => setSelectedCategory(type)}
                     className="relative rounded-2xl overflow-hidden h-24 group text-left shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
                   >
-                    <img
-                      src={TYPE_IMAGES[type]}
-                      alt={type}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                    {TYPE_IMAGES[type] ? (
+                      <img
+                        src={TYPE_IMAGES[type]}
+                        alt={type}
+                        className="w-full h-full object-cover object-[center_30%] group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900" />
+                    )}
                     <div className="absolute inset-0 bg-black/50 group-hover:bg-black/35 transition-colors" />
                     <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white drop-shadow-lg">
                       {type}
@@ -309,7 +313,7 @@ const DashboardWorkouts = () => {
               <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                 <Link to="/dashboard/coach/marcos" className="flex flex-col items-center gap-2 flex-shrink-0">
                   <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_25px_rgba(255,255,255,0.25),0_0_50px_rgba(255,255,255,0.1)]">
-                    <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
+                    <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover object-[center_15%]" />
                   </div>
                   <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
                 </Link>
