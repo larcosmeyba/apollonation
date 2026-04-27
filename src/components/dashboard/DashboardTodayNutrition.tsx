@@ -325,15 +325,6 @@ const DashboardTodayNutrition = () => {
           <div className="space-y-1.5">
             {sortedMeals.slice(0, 3).map((meal) => (
               <div key={meal.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 border border-border/50">
-                {/* Food thumbnail */}
-                <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                  <img
-                    src={getMealImage(meal.meal_name, meal.meal_type)}
-                    alt={meal.meal_name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wide flex-shrink-0">
