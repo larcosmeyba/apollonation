@@ -204,7 +204,7 @@ export function parseIngredient(raw: string): { qty: number; unit: string; name:
   s = s.replace(/\(.*?\)/g, " ").replace(/\s+/g, " ").trim();
   // Replace fractions
   for (const [glyph, val] of Object.entries(FRACTION_MAP)) {
-    s = s.replaceAll(glyph, ` ${val} `);
+    s = s.split(glyph).join(` ${val} `);
   }
 
   // Match leading number (incl. fractions like "1 1/2" or "1/2" or "2.5")
@@ -338,7 +338,7 @@ export function buildGroceryListFromMeals(meals: Array<{ ingredients: any }>): P
   const byCategory = new Map<string, PricedGroceryItem[]>();
   let total = 0;
   for (const [key, agg] of aggregator) {
-    const displayName = key.replaceAll("_", " ");
+    const displayName = key.split("_").join(" ");
     const estimatedPrice = round2(Math.max(0.25, agg.qty * agg.price));
     const quantityLabel = `${formatQty(round2(agg.qty))} ${agg.unit}`;
     const category = categorizeIngredient(displayName);
