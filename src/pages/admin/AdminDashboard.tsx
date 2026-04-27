@@ -10,8 +10,10 @@ import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientList from "@/components/admin/AdminClientList";
 import AdminBugReports from "@/components/admin/AdminBugReports";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
+import { isNative } from "@/lib/platform";
 
 const AdminDashboard = () => {
+  if (isNative()) return <Navigate to="/dashboard" replace />;
   const { isAdmin, loading } = useAdminStatus();
   const [activeTab, setActiveTab] = useState("dashboard");
 
