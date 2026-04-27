@@ -17,7 +17,6 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   if (isNative()) return <Navigate to="/dashboard" replace />;
-  const [activeTab, setActiveTab] = useState("dashboard");
 
   if (loading) {
     return (
