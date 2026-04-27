@@ -238,20 +238,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        session,
-        profile,
-        loading,
-        signUp,
-        signIn,
-        signOut,
-        refreshProfile,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  // Memoize the context value so consumers don't re-render every time the
+  // AuthProvider itself re-renders (e.g. due to internal state we don't
+  // expose). Only changes to user/session/profile/loading propagate.
+  const value = useMemo(
+    () => ({ user, session, profile, loading, signUp, signIn, signOut, refreshProfile }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [user, session, profile, loading]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
