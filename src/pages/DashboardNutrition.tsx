@@ -402,7 +402,6 @@ const DashboardNutrition = () => {
     mutationFn: async ({ planId, week }: { planId: string; week: number }) => {
       const body: any = { planId, week };
       if (clientStore) body.store = clientStore;
-      if (clientBudget) body.budget = parseFloat(clientBudget);
       const { data, error } = await supabase.functions.invoke("generate-grocery-list", { body });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
