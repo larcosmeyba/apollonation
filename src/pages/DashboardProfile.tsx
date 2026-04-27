@@ -6,6 +6,8 @@ import { Save, LogOut, ChevronRight, Settings, Star, Dumbbell, Heart, Trophy, Mo
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -345,13 +347,35 @@ const DashboardProfile = () => {
             <div>
               <h2 className="text-base font-bold text-foreground mb-1">Details</h2>
               <p className="text-xs text-foreground/60 mb-3">These details yield more accurate performance metrics.</p>
-              <div className="flex items-center justify-between py-3 border-b border-border">
-                <span className="text-sm text-foreground">Bio</span>
-                <span className="text-sm text-foreground/60">{formData.bio || "Add bio"}</span>
+              <div className="space-y-1 py-3 border-b border-border">
+                <Label htmlFor="bio" className="text-sm text-foreground">Bio</Label>
+                <Textarea
+                  id="bio"
+                  value={formData.bio}
+                  onChange={(e) => setFormData(p => ({ ...p, bio: e.target.value }))}
+                  placeholder="Tell us about yourself"
+                  maxLength={500}
+                  className="bg-foreground/5 border-border text-foreground text-sm min-h-[72px]"
+                />
               </div>
-              <div className="flex items-center justify-between py-3 border-b border-border">
-                <span className="text-sm text-foreground">Fitness Goals</span>
-                <span className="text-sm text-foreground/60">{formData.fitness_goals || "Set goals"}</span>
+              <div className="space-y-1 py-3 border-b border-border">
+                <Label htmlFor="fitness_goals" className="text-sm text-foreground">Fitness Goals</Label>
+                <Select
+                  value={formData.fitness_goals}
+                  onValueChange={(v) => setFormData(p => ({ ...p, fitness_goals: v }))}
+                >
+                  <SelectTrigger id="fitness_goals" className="bg-foreground/5 border-border text-foreground text-sm">
+                    <SelectValue placeholder="Choose a goal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lose_fat">Lose fat</SelectItem>
+                    <SelectItem value="build_muscle">Increase muscle mass</SelectItem>
+                    <SelectItem value="maintain">Maintain</SelectItem>
+                    <SelectItem value="recomp">Body recomposition</SelectItem>
+                    <SelectItem value="endurance">Improve endurance</SelectItem>
+                    <SelectItem value="strength">Build strength</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <Button type="submit" disabled={isLoading} className="w-full bg-foreground text-background hover:bg-foreground/90 font-bold text-sm rounded-xl h-11">
@@ -398,7 +422,11 @@ const DashboardProfile = () => {
               </Button>
             </div>
 
-            <div className="flex items-center justify-between py-3 border-b border-border">
+            <button
+              type="button"
+              onClick={() => updateNotifPrefs.mutate({ workout_reminders: !notifPrefs.workout_reminders })}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+            >
               <div>
                 <span className="text-sm text-foreground">Workout reminders</span>
                 <p className="text-xs text-foreground/60 mt-0.5">Nudges to keep your training streak alive.</p>
@@ -406,9 +434,14 @@ const DashboardProfile = () => {
               <Switch
                 checked={notifPrefs.workout_reminders}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ workout_reminders: v })}
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-border">
+            </button>
+            <button
+              type="button"
+              onClick={() => updateNotifPrefs.mutate({ meal_reminders: !notifPrefs.meal_reminders })}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+            >
               <div>
                 <span className="text-sm text-foreground">Meal reminders</span>
                 <p className="text-xs text-foreground/60 mt-0.5">Reminders to log meals & track macros.</p>
@@ -416,9 +449,14 @@ const DashboardProfile = () => {
               <Switch
                 checked={notifPrefs.meal_reminders}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ meal_reminders: v })}
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-border">
+            </button>
+            <button
+              type="button"
+              onClick={() => updateNotifPrefs.mutate({ coach_messages: !notifPrefs.coach_messages })}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+            >
               <div>
                 <span className="text-sm text-foreground">Messages from coach</span>
                 <p className="text-xs text-foreground/60 mt-0.5">Email and push when your coach replies.</p>
@@ -426,9 +464,14 @@ const DashboardProfile = () => {
               <Switch
                 checked={notifPrefs.coach_messages}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ coach_messages: v })}
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-border">
+            </button>
+            <button
+              type="button"
+              onClick={() => updateNotifPrefs.mutate({ weekly_summary: !notifPrefs.weekly_summary })}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+            >
               <div>
                 <span className="text-sm text-foreground">Weekly progress summary</span>
                 <p className="text-xs text-foreground/60 mt-0.5">A weekly recap of training and meals.</p>
@@ -436,8 +479,9 @@ const DashboardProfile = () => {
               <Switch
                 checked={notifPrefs.weekly_summary}
                 onCheckedChange={(v) => updateNotifPrefs.mutate({ weekly_summary: v })}
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>
+            </button>
           </div>
 
           <PushPermissionModal

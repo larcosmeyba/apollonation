@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { User, Session } from "@supabase/supabase-js";
 import { Capacitor } from "@capacitor/core";
 import { Purchases } from "@revenuecat/purchases-capacitor";
@@ -46,6 +47,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -189,12 +191,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    await logOutPurchases().catch((e) => console.warn("[Auth] logOutPurchases", e));
-    await supabase.auth.signOut();
-    queryClient.clear();
+    try {
+      await logOutPurchases();
+    } catch (e) {
+      console.warn("[Auth] logOutPurchases failed", e);
+    }
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn("[Auth] supabase signOut failed", e);
+    }
+    try {
+      queryClient.clear();
+    } catch (e) {
+      console.warn("[Auth] queryClient.clear failed", e);
+    }
     setUser(null);
     setSession(null);
     setProfile(null);
+    try {
+      navigate("/auth", { replace: true });
+    } catch (e) {
+      console.warn("[Auth] navigate failed", e);
+    }
   };
 
   return (

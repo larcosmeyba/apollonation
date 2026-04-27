@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Utensils, ChevronLeft, ChevronRight, Edit2, Save, X, ShoppingCart,
-  Loader2, DollarSign, Store, RefreshCw, Check, Sparkles,
+  Loader2, Store, RefreshCw, Check, Sparkles,
   ClipboardList, AlertCircle, Plus, Trash2, Upload, Clock, Pencil,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -31,15 +31,11 @@ const MEAL_TYPE_LABELS: Record<string, string> = {
   snack: "Snack",
 };
 
-type GroceryItem = { name: string; quantity: string; estimated_price: number; note?: string };
+type GroceryItem = { name: string; quantity: string; note?: string };
 type GroceryCategory = { name: string; items: GroceryItem[] };
 type GroceryList = {
   store: string;
-  budget: string;
   categories: GroceryCategory[];
-  estimated_total: number;
-  budget_status: string;
-  savings_tips: string[];
 };
 type MealSuggestion = {
   meal_name: string;
@@ -406,7 +402,6 @@ const DashboardNutrition = () => {
     mutationFn: async ({ planId, week }: { planId: string; week: number }) => {
       const body: any = { planId, week };
       if (clientStore) body.store = clientStore;
-      if (clientBudget) body.budget = parseFloat(clientBudget);
       const { data, error } = await supabase.functions.invoke("generate-grocery-list", { body });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -834,35 +829,20 @@ const DashboardNutrition = () => {
                 </div>
               )}
 
-              {/* Budget & Store inputs */}
+              {/* Store input */}
               <div className="bg-card rounded-2xl p-4 border border-border">
                 <h3 className="font-heading text-sm tracking-wide text-foreground mb-3">Your Shopping Preferences</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Weekly Budget ($)</label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground/40" />
-                      <Input
-                        type="number"
-                        placeholder="100"
-                        value={clientBudget}
-                        onChange={(e) => setClientBudget(e.target.value)}
-                        className="pl-8 bg-foreground/5 border-border text-foreground h-9 text-sm"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Grocery Store</label>
-                    <div className="relative">
-                      <Store className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground/40" />
-                      <Input
-                        type="text"
-                        placeholder="Walmart"
-                        value={clientStore}
-                        onChange={(e) => setClientStore(e.target.value)}
-                        className="pl-8 bg-foreground/5 border-border text-foreground h-9 text-sm"
-                      />
-                    </div>
+                <div>
+                  <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Grocery Store</label>
+                  <div className="relative">
+                    <Store className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground/40" />
+                    <Input
+                      type="text"
+                      placeholder="Walmart"
+                      value={clientStore}
+                      onChange={(e) => setClientStore(e.target.value)}
+                      className="pl-8 bg-foreground/5 border-border text-foreground h-9 text-sm"
+                    />
                   </div>
                 </div>
               </div>
@@ -1032,15 +1012,9 @@ const DashboardNutrition = () => {
 
                     {groceryList && (
                       <>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-card border border-border rounded-lg p-3 flex items-center gap-2">
-                            <Store className="w-4 h-4 text-foreground/50 flex-shrink-0" />
-                            <div><p className="text-[10px] text-foreground/50">Store</p><p className="text-sm font-medium text-foreground truncate">{groceryList.store}</p></div>
-                          </div>
-                          <div className={`rounded-lg border p-3 flex items-center gap-2 ${groceryList.budget_status === "over_budget" ? "bg-red-500/10 border-red-500/20" : "bg-card border-border"}`}>
-                            <DollarSign className="w-4 h-4 text-foreground/50 flex-shrink-0" />
-                            <div><p className="text-[10px] text-foreground/50">Est. Total</p><p className="text-sm font-medium text-foreground">${groceryList.estimated_total.toFixed(2)}<span className="text-[10px] text-foreground/50 ml-1">/ {groceryList.budget}</span></p></div>
-                          </div>
+                        <div className="bg-card border border-border rounded-lg p-3 flex items-center gap-2">
+                          <Store className="w-4 h-4 text-foreground/50 flex-shrink-0" />
+                          <div><p className="text-[10px] text-foreground/50">Store</p><p className="text-sm font-medium text-foreground truncate">{groceryList.store}</p></div>
                         </div>
 
                         {groceryList.categories.map((cat) => (
@@ -1048,12 +1022,9 @@ const DashboardNutrition = () => {
                             <div className="px-4 py-2.5 border-b border-border"><h4 className="font-heading text-sm text-foreground">{cat.name}</h4></div>
                             <div className="divide-y divide-black/5">
                               {cat.items.map((item, i) => (
-                                <div key={i} className="flex items-center justify-between px-4 py-2">
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-foreground truncate">{item.name}</p>
-                                    <p className="text-[10px] text-foreground/50">{item.quantity}{item.note ? ` · ${item.note}` : ""}</p>
-                                  </div>
-                                  <span className="text-sm text-foreground/60 ml-2">${item.estimated_price.toFixed(2)}</span>
+                                <div key={i} className="px-4 py-2">
+                                  <p className="text-sm text-foreground">{item.name}</p>
+                                  <p className="text-[10px] text-foreground/50">{item.quantity}{item.note ? ` · ${item.note}` : ""}</p>
                                 </div>
                               ))}
                             </div>
