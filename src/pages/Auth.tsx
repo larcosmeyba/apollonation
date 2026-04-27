@@ -59,7 +59,7 @@ const Auth = () => {
         // Always show the same generic message, regardless of outcome,
         // to avoid leaking whether the email exists.
         await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: `${window.location.origin}/reset-password`,
         });
         toast({ title: "Check your email", description: GENERIC_RESET_RESPONSE });
         setMode("login");
