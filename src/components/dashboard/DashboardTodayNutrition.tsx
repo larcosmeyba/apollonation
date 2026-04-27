@@ -43,7 +43,7 @@ const STORE_OPTIONS = [
   "Other",
 ];
 
-type GroceryItem = { name: string; quantity: string; estimated_price: number; note?: string };
+type GroceryItem = { name: string; quantity: string; note?: string };
 type GroceryCategory = { name: string; items: GroceryItem[] };
 type GroceryList = {
   store: string;
@@ -464,7 +464,6 @@ const DashboardTodayNutrition = () => {
                         <div key={i} className="flex items-center justify-between text-sm py-1 border-b border-border/30 last:border-0">
                           <span className="truncate flex-1">{item.name}</span>
                           <span className="text-muted-foreground text-xs ml-3 flex-shrink-0">{item.quantity}</span>
-                          <span className="text-muted-foreground text-xs ml-3 flex-shrink-0">${item.estimated_price.toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
