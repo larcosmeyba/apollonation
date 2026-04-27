@@ -31,15 +31,11 @@ const MEAL_TYPE_LABELS: Record<string, string> = {
   snack: "Snack",
 };
 
-type GroceryItem = { name: string; quantity: string; estimated_price: number; note?: string };
+type GroceryItem = { name: string; quantity: string; note?: string };
 type GroceryCategory = { name: string; items: GroceryItem[] };
 type GroceryList = {
   store: string;
-  budget: string;
   categories: GroceryCategory[];
-  estimated_total: number;
-  budget_status: string;
-  savings_tips: string[];
 };
 type MealSuggestion = {
   meal_name: string;
