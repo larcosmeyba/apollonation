@@ -201,7 +201,11 @@ const Index = () => {
                   src={cat.image}
                   alt={cat.title}
                   loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover object-[center_top] group-hover:scale-110 transition-transform duration-700"
+                  className={`absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ${
+                    cat.title === "Strength" || cat.title === "Cardio"
+                      ? "object-[center_30%]"
+                      : "object-[center_top]"
+                  }`}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
