@@ -37,7 +37,7 @@ serve(async (req) => {
     }
 
     const userId = userData.user.id;
-    const { planId, week, store, budget } = await req.json();
+    const { planId, week, store } = await req.json();
 
     if (!planId) {
       return new Response(JSON.stringify({ error: "Missing planId" }), {
@@ -46,14 +46,13 @@ serve(async (req) => {
       });
     }
 
-    // Use provided store/budget or fall back to questionnaire
+    // Use provided store or fall back to questionnaire
     let groceryStore = store;
-    let weeklyBudget = budget;
 
-    if (!groceryStore || !weeklyBudget) {
+    if (!groceryStore) {
       const { data: questionnaire } = await supabaseClient
         .from("client_questionnaires")
-        .select("grocery_store, weekly_food_budget, dietary_restrictions")
+        .select("grocery_store, dietary_restrictions")
         .eq("user_id", userId)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
@@ -61,11 +60,9 @@ serve(async (req) => {
         .single();
 
       if (!groceryStore) groceryStore = questionnaire?.grocery_store;
-      if (!weeklyBudget) weeklyBudget = questionnaire?.weekly_food_budget;
     }
 
     if (!groceryStore) groceryStore = "Local Grocery Store";
-    if (!weeklyBudget) weeklyBudget = 100;
 
     // Get dietary restrictions from questionnaire
     const { data: qData } = await supabaseClient
@@ -113,23 +110,14 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const budgetStr = `$${weeklyBudget}`;
+    const prompt = `Consolidate these meal ingredients into a grocery list for "${groceryStore}". ${restrictions}
+Group items by aisle/section. Use realistic unit sizes/quantities.
 
-    const prompt = `Create a consolidated grocery list from these meal ingredients for shopping at "${groceryStore}" with a strict weekly budget of ${budgetStr}. ${restrictions}
-
-IMPORTANT PRICING RULES:
-- Use REALISTIC prices specific to "${groceryStore}" (e.g. Trader Joe's tends to be moderate, Walmart is budget-friendly, Costco has bulk pricing, Whole Foods is premium).
-- The total MUST stay at or under ${budgetStr}.
-- If the total would exceed the budget, suggest cheaper alternatives or smaller quantities.
-- Each item MUST have a realistic non-zero price estimate.
-
-Ingredients from this week's meals:
+Ingredients:
 ${allIngredients.map((i) => `- ${i}`).join("\n")}
 
-Consolidate duplicates, group by store aisle/section, and estimate realistic prices for "${groceryStore}". Respond with ONLY valid JSON:
-{"store":"${groceryStore}","budget":"${budgetStr}","categories":[{"name":"Produce","items":[{"name":"item","quantity":"amount","estimated_price":2.99,"note":""}]}],"estimated_total":45.50,"budget_status":"under_budget","savings_tips":["tip1","tip2"]}
-
-budget_status should be "under_budget" if total <= budget, "over_budget" if total > budget.`;
+Respond with ONLY valid JSON (no markdown):
+{"store":"${groceryStore}","categories":[{"name":"Produce","items":[{"name":"item","quantity":"amount","note":""}]}]}`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -140,15 +128,16 @@ budget_status should be "under_budget" if total <= budget, "over_budget" if tota
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "google/gemini-2.5-flash-lite",
           messages: [
             {
               role: "system",
               content:
-                "You are a grocery list generator that creates budget-conscious shopping lists with REALISTIC store-specific prices. Every item must have a non-zero estimated_price. Respond with ONLY valid JSON, no markdown.",
+                "Generate consolidated grocery lists grouped by aisle. Respond with ONLY valid JSON, no markdown, no prices.",
             },
             { role: "user", content: prompt },
           ],
+          response_format: { type: "json_object" },
         }),
       }
     );
@@ -189,53 +178,6 @@ budget_status should be "under_budget" if total <= budget, "over_budget" if tota
       console.error("Failed to parse AI response:", content);
       throw new Error("Failed to parse grocery list from AI response");
     }
-
-    // Sanitize numeric fields
-    if (groceryData.categories) {
-      for (const cat of groceryData.categories) {
-        if (cat.items) {
-          for (const item of cat.items) {
-            item.estimated_price = typeof item.estimated_price === "number" && item.estimated_price > 0
-              ? item.estimated_price
-              : 1.99;
-          }
-        }
-      }
-    }
-
-    // Recalculate actual total from items
-    let actualTotal = 0;
-    for (const cat of (groceryData.categories || [])) {
-      for (const item of (cat.items || [])) {
-        actualTotal += item.estimated_price || 0;
-      }
-    }
-    actualTotal = Math.round(actualTotal * 100) / 100;
-    groceryData.estimated_total = actualTotal;
-
-    // ENFORCE BUDGET CEILING: If total exceeds budget, scale all prices down proportionally
-    const budgetNum = typeof weeklyBudget === "number" ? weeklyBudget : parseFloat(String(weeklyBudget)) || 100;
-    if (actualTotal > budgetNum) {
-      const scaleFactor = budgetNum / actualTotal;
-      let newTotal = 0;
-      for (const cat of (groceryData.categories || [])) {
-        for (const item of (cat.items || [])) {
-          item.estimated_price = Math.round(item.estimated_price * scaleFactor * 100) / 100;
-          // Ensure minimum price of $0.25
-          if (item.estimated_price < 0.25) item.estimated_price = 0.25;
-          newTotal += item.estimated_price;
-        }
-      }
-      groceryData.estimated_total = Math.round(newTotal * 100) / 100;
-      // Final safety: if still over after rounding, trim last items
-      if (groceryData.estimated_total > budgetNum) {
-        groceryData.estimated_total = budgetNum;
-      }
-      groceryData.budget_status = "under_budget";
-      if (!groceryData.savings_tips) groceryData.savings_tips = [];
-      groceryData.savings_tips.unshift("Prices adjusted to fit your budget — consider buying generic brands for extra savings.");
-    }
-    groceryData.budget_status = groceryData.estimated_total <= budgetNum ? "under_budget" : "over_budget";
 
     return new Response(JSON.stringify({ success: true, groceryList: groceryData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
