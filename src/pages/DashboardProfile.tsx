@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,8 +29,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// Module-level guard so push notification listeners are only attached once
-let pushListenersAttached = false;
+// Note: push listener handles are stored per-component in a ref so they can
+// be removed on unmount or when the user changes (prevents stale-closure
+// writes against a previous user's id after sign-out → sign-in).
 
 // Apple App Store + Google Play subscription management deep links
 const APP_STORE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
