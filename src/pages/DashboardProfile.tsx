@@ -422,10 +422,12 @@ const DashboardProfile = () => {
               </Button>
             </div>
 
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => updateNotifPrefs.mutate({ workout_reminders: !notifPrefs.workout_reminders })}
-              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); updateNotifPrefs.mutate({ workout_reminders: !notifPrefs.workout_reminders }); } }}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left cursor-pointer"
             >
               <div>
                 <span className="text-sm text-foreground">Workout reminders</span>
@@ -437,11 +439,13 @@ const DashboardProfile = () => {
                 onClick={(e) => e.stopPropagation()}
                 className="h-7 w-12"
               />
-            </button>
-            <button
-              type="button"
+            </div>
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => updateNotifPrefs.mutate({ meal_reminders: !notifPrefs.meal_reminders })}
-              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); updateNotifPrefs.mutate({ meal_reminders: !notifPrefs.meal_reminders }); } }}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left cursor-pointer"
             >
               <div>
                 <span className="text-sm text-foreground">Meal reminders</span>
@@ -453,11 +457,13 @@ const DashboardProfile = () => {
                 onClick={(e) => e.stopPropagation()}
                 className="h-7 w-12"
               />
-            </button>
-            <button
-              type="button"
+            </div>
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => updateNotifPrefs.mutate({ coach_messages: !notifPrefs.coach_messages })}
-              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); updateNotifPrefs.mutate({ coach_messages: !notifPrefs.coach_messages }); } }}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left cursor-pointer"
             >
               <div>
                 <span className="text-sm text-foreground">Messages from coach</span>
@@ -469,11 +475,13 @@ const DashboardProfile = () => {
                 onClick={(e) => e.stopPropagation()}
                 className="h-7 w-12"
               />
-            </button>
-            <button
-              type="button"
+            </div>
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => updateNotifPrefs.mutate({ weekly_summary: !notifPrefs.weekly_summary })}
-              className="w-full flex items-center justify-between py-3 border-b border-border text-left"
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); updateNotifPrefs.mutate({ weekly_summary: !notifPrefs.weekly_summary }); } }}
+              className="w-full flex items-center justify-between py-3 border-b border-border text-left cursor-pointer"
             >
               <div>
                 <span className="text-sm text-foreground">Weekly progress summary</span>
@@ -485,7 +493,7 @@ const DashboardProfile = () => {
                 onClick={(e) => e.stopPropagation()}
                 className="h-7 w-12"
               />
-            </button>
+            </div>
           </div>
 
           <PushPermissionModal
