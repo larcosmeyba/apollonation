@@ -830,35 +830,20 @@ const DashboardNutrition = () => {
                 </div>
               )}
 
-              {/* Budget & Store inputs */}
+              {/* Store input */}
               <div className="bg-card rounded-2xl p-4 border border-border">
                 <h3 className="font-heading text-sm tracking-wide text-foreground mb-3">Your Shopping Preferences</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Weekly Budget ($)</label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground/40" />
-                      <Input
-                        type="number"
-                        placeholder="100"
-                        value={clientBudget}
-                        onChange={(e) => setClientBudget(e.target.value)}
-                        className="pl-8 bg-foreground/5 border-border text-foreground h-9 text-sm"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Grocery Store</label>
-                    <div className="relative">
-                      <Store className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground/40" />
-                      <Input
-                        type="text"
-                        placeholder="Walmart"
-                        value={clientStore}
-                        onChange={(e) => setClientStore(e.target.value)}
-                        className="pl-8 bg-foreground/5 border-border text-foreground h-9 text-sm"
-                      />
-                    </div>
+                <div>
+                  <label className="text-[10px] font-semibold text-foreground/60 uppercase mb-1 block">Grocery Store</label>
+                  <div className="relative">
+                    <Store className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-foreground/40" />
+                    <Input
+                      type="text"
+                      placeholder="Walmart"
+                      value={clientStore}
+                      onChange={(e) => setClientStore(e.target.value)}
+                      className="pl-8 bg-foreground/5 border-border text-foreground h-9 text-sm"
+                    />
                   </div>
                 </div>
               </div>
