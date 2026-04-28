@@ -80,6 +80,15 @@ const DashboardNutrition = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Meal plan + grocery list are premium-only.
+  const { canAccessMealPlan, loading: accessLoading } = useAccessControl();
+  useEffect(() => {
+    if (!accessLoading && !canAccessMealPlan) {
+      navigate("/subscribe?reason=nutrition", { replace: true });
+    }
+  }, [accessLoading, canAccessMealPlan]);
+
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [currentWeek, setCurrentWeek] = useState(1);
   const [editingMealId, setEditingMealId] = useState<string | null>(null);
