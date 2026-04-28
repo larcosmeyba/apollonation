@@ -20,6 +20,7 @@ interface Profile {
   subscription_plan: "monthly" | "annual" | null;
   subscription_store: "app_store" | "play_store" | "manual" | null;
   subscription_expires_at: string | null;
+  entitlement: "apollo_premium" | "apollo_elite" | null;
   created_at: string;
   updated_at: string;
 }
