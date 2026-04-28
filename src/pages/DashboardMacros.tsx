@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Camera, Plus, Trash2, Upload, Sparkles } from "lucide-react";
@@ -45,7 +45,14 @@ const DashboardMacros = () => {
     meal_name: "", calories: "", protein: "", carbs: "", fat: "",
   });
 
-  // Macro tracker is free for all tiers — no gating.
+  // Macro tracker is premium-only under the new tier model.
+  const navigate = useNavigate();
+  const { canAccessMacroTracker, loading: accessLoading } = useAccessControl();
+  useEffect(() => {
+    if (!accessLoading && !canAccessMacroTracker) {
+      navigate("/subscribe?reason=nutrition", { replace: true });
+    }
+  }, [accessLoading, canAccessMacroTracker, navigate]);
 
   // Fetch macro logs from DB - persisted!
   const { data: entries = [] } = useQuery({
