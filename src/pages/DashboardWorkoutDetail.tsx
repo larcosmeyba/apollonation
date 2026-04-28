@@ -646,6 +646,12 @@ const DashboardWorkoutDetail = () => {
           Back to Train
         </Link>
 
+        {!hasPremiumAccess && freeWorkoutsRemaining <= 3 && freeWorkoutsRemaining > 0 && (
+          <div className="rounded-lg bg-muted px-4 py-2.5 text-xs text-muted-foreground">
+            You have {freeWorkoutsRemaining} free workout{freeWorkoutsRemaining === 1 ? "" : "s"} left.
+          </div>
+        )}
+
         {!dayId ? (
           <div className="rounded-xl border border-border bg-card p-8 text-center">
             <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
