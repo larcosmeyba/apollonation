@@ -45,7 +45,7 @@ const DashboardMacros = () => {
     meal_name: "", calories: "", protein: "", carbs: "", fat: "",
   });
 
-  const isElite = profile?.is_subscribed === true;
+  // Macro tracker is free for all tiers — no gating.
 
   // Fetch macro logs from DB - persisted!
   const { data: entries = [] } = useQuery({
