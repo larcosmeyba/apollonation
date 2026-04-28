@@ -18,6 +18,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useMacroTargets } from "@/hooks/useMacroTargets";
 import FoodBudgetCard from "@/components/dashboard/FoodBudgetCard";
+import { useNavigate } from "react-router-dom";
+import { useAccessControl } from "@/hooks/useAccessControl";
 
 // Returns the user's local calendar date as YYYY-MM-DD.
 // Used for both reads and writes to log_date so meals near midnight
