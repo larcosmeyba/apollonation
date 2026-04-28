@@ -389,7 +389,7 @@ const Dashboard = () => {
           <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             <Link to="/dashboard/coach/marcos" className="flex flex-col items-center gap-2 flex-shrink-0">
               <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_12px_rgba(255,255,255,0.12),0_0_30px_rgba(255,255,255,0.05)]">
-                <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover" />
+                <img src={marcosCoachPortrait} alt="Marcos Leyba" className="w-full h-full object-cover object-top" />
               </div>
               <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
             </Link>
