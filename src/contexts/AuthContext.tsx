@@ -158,25 +158,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  // If a user's subscription flips from active → inactive (e.g. RevenueCat
-  // expiry listener fires while they're sitting on a premium screen), bounce
-  // them to /subscribe immediately rather than waiting for next navigation.
+  // Subscription expiry no longer kicks users out — free tier is a first-class
+  // experience. Per-feature gates handle premium-only content individually.
   const wasSubscribedRef = useRef<boolean | null>(null);
   useEffect(() => {
     if (!profile) {
       wasSubscribedRef.current = null;
       return;
     }
-    const prev = wasSubscribedRef.current;
     wasSubscribedRef.current = profile.is_subscribed;
-    if (prev === true && profile.is_subscribed === false) {
-      const path = window.location.pathname;
-      const exempt = ["/subscribe", "/auth", "/reset-password", "/dashboard/profile", "/account-deletion"];
-      if (path.startsWith("/dashboard") && !exempt.some((p) => path.startsWith(p))) {
-        navigate("/subscribe", { replace: true });
-      }
-    }
-  }, [profile, navigate]);
+  }, [profile]);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
     const { error } = await supabase.auth.signUp({
