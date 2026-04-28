@@ -46,6 +46,8 @@ interface Program {
 
 const TrainingProgramCards = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { canAccessPrograms } = useAccessControl();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<Program | null>(null);
