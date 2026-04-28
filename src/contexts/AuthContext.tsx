@@ -160,13 +160,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Subscription expiry no longer kicks users out — free tier is a first-class
   // experience. Per-feature gates handle premium-only content individually.
+  // On the true → false transition, fire a one-time toast so the user knows
+  // their membership ended but they can keep using free content.
   const wasSubscribedRef = useRef<boolean | null>(null);
   useEffect(() => {
     if (!profile) {
       wasSubscribedRef.current = null;
       return;
     }
-    wasSubscribedRef.current = profile.is_subscribed;
+    const prev = wasSubscribedRef.current;
+    const now = profile.is_subscribed;
+    if (prev === true && now === false) {
+      toast(
+        "Your Apollo Reborn membership has ended. You can still use the calorie tracker and your remaining free content."
+      );
+    }
+    wasSubscribedRef.current = now;
   }, [profile]);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
