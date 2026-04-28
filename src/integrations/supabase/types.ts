@@ -814,22 +814,31 @@ export type Database = {
       }
       free_usage: {
         Row: {
+          free_programs_used_count: number
           free_recipe_used: boolean
+          free_recipes_viewed_count: number
           free_workouts_used_count: number
           last_updated_at: string
           user_id: string
+          viewed_recipe_ids: string[]
         }
         Insert: {
+          free_programs_used_count?: number
           free_recipe_used?: boolean
+          free_recipes_viewed_count?: number
           free_workouts_used_count?: number
           last_updated_at?: string
           user_id: string
+          viewed_recipe_ids?: string[]
         }
         Update: {
+          free_programs_used_count?: number
           free_recipe_used?: boolean
+          free_recipes_viewed_count?: number
           free_workouts_used_count?: number
           last_updated_at?: string
           user_id?: string
+          viewed_recipe_ids?: string[]
         }
         Relationships: []
       }
