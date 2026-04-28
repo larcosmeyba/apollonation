@@ -4,7 +4,8 @@ import { useSignedUrl } from "@/hooks/useSignedUrl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Play, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAccessControl } from "@/hooks/useAccessControl";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -65,6 +66,8 @@ const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
 
 const Dashboard = () => {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
+  const { hasPremiumAccess, freeWorkoutsRemaining, freeRecipeUsed } = useAccessControl();
   const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
@@ -279,6 +282,19 @@ const Dashboard = () => {
             </Link>
           </div>
         </div>
+
+        {/* Free tier starter banner */}
+        {!hasPremiumAccess && (
+          <div className="rounded-xl bg-muted p-4">
+            <p className="text-sm font-medium">Welcome to Apollo Reborn™</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              You have {freeWorkoutsRemaining} free workout{freeWorkoutsRemaining === 1 ? "" : "s"}, {freeRecipeUsed ? "0" : "1"} recipe, and calorie tracking included.
+            </p>
+            <Button size="sm" variant="apollo" className="mt-3" onClick={() => navigate("/subscribe")}>
+              See Apollo Reborn™ membership
+            </Button>
+          </div>
+        )}
 
         {/* NEW THIS WEEK */}
         <div>
