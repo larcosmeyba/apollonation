@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAccessControl } from "@/hooks/useAccessControl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Search, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
+import { Search, Bookmark, BookmarkCheck, Loader2, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
