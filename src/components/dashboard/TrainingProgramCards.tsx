@@ -151,6 +151,10 @@ const TrainingProgramCards = () => {
             <button
               key={program.id}
               onClick={() => {
+                if (!canAccessPrograms) {
+                  navigate("/subscribe?reason=programs");
+                  return;
+                }
                 setSelected(program);
                 setSelectedDuration(program.durations[0]);
               }}
