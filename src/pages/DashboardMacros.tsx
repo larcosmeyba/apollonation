@@ -45,7 +45,7 @@ const DashboardMacros = () => {
     meal_name: "", calories: "", protein: "", carbs: "", fat: "",
   });
 
-  const isElite = profile?.is_subscribed === true;
+  // Macro tracker is free for all tiers — no gating.
 
   // Fetch macro logs from DB - persisted!
   const { data: entries = [] } = useQuery({
@@ -203,24 +203,7 @@ const DashboardMacros = () => {
     fat: Math.max(0, targets.fat - totals.fat),
   };
 
-  if (!isElite) {
-    return (
-      <DashboardLayout>
-        <div className="max-w-2xl mx-auto text-center py-12">
-          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-            <Camera className="w-10 h-10 text-primary" />
-          </div>
-          <h1 className="font-heading text-3xl mb-4">
-            AI Macro <span className="text-primary">Tracker</span>
-          </h1>
-          <p className="text-muted-foreground mb-8">
-            Snap a photo of your meal and let AI estimate your macros instantly. This feature is exclusive to Elite members.
-          </p>
-          <Button variant="apollo" size="lg">Upgrade to Elite</Button>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // (legacy elite gate removed — tracker is available to all users)
 
   return (
     <DashboardLayout>

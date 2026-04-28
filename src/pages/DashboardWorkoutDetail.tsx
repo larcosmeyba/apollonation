@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useAccessControl } from "@/hooks/useAccessControl";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
@@ -287,12 +288,21 @@ const ExerciseRow = ({
 // ── Main Workout Detail Page ─────────────────────────────────────────
 const DashboardWorkoutDetail = () => {
   const { user } = useAuth();
+  const { canAccessWorkout, recordWorkoutUsage, hasPremiumAccess, freeWorkoutsRemaining, loading: accessLoading } = useAccessControl();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dayId = searchParams.get("day");
   const dateParam = searchParams.get("date") || format(new Date(), "yyyy-MM-dd");
+
+  // Gate: free users beyond their workout quota redirect to /subscribe
+  useEffect(() => {
+    if (accessLoading) return;
+    if (!canAccessWorkout()) {
+      navigate("/subscribe?reason=workouts", { replace: true });
+    }
+  }, [accessLoading, canAccessWorkout, navigate]);
 
   const [localSetLogs, setLocalSetLogs] = useState<Record<string, SetLog[]>>({});
   const [localNotes, setLocalNotes] = useState<Record<string, ExerciseNote>>({});
@@ -533,6 +543,8 @@ const DashboardWorkoutDetail = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workout-session-log"] });
       queryClient.invalidateQueries({ queryKey: ["completed-sessions-week"] });
+      // Increment free-tier counter (no-op for premium users).
+      void recordWorkoutUsage();
     },
     onSettled: () => {
       setLogging(false);
@@ -633,6 +645,12 @@ const DashboardWorkoutDetail = () => {
           <ArrowLeft className="w-4 h-4" />
           Back to Train
         </Link>
+
+        {!hasPremiumAccess && freeWorkoutsRemaining <= 3 && freeWorkoutsRemaining > 0 && (
+          <div className="rounded-lg bg-muted px-4 py-2.5 text-xs text-muted-foreground">
+            You have {freeWorkoutsRemaining} free workout{freeWorkoutsRemaining === 1 ? "" : "s"} left.
+          </div>
+        )}
 
         {!dayId ? (
           <div className="rounded-xl border border-border bg-card p-8 text-center">

@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAccessControl } from "@/hooks/useAccessControl";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Clock, CheckCircle2, ArrowRight } from "lucide-react";
+import { Loader2, Clock, CheckCircle2, ArrowRight, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -44,6 +46,8 @@ interface Program {
 
 const TrainingProgramCards = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { canAccessPrograms } = useAccessControl();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<Program | null>(null);
@@ -147,6 +151,10 @@ const TrainingProgramCards = () => {
             <button
               key={program.id}
               onClick={() => {
+                if (!canAccessPrograms) {
+                  navigate("/subscribe?reason=programs");
+                  return;
+                }
                 setSelected(program);
                 setSelectedDuration(program.durations[0]);
               }}
@@ -164,7 +172,12 @@ const TrainingProgramCards = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
                 {/* Category badge */}
-                <div className="absolute top-3 left-3">
+                <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                  {!canAccessPrograms && (
+                    <span className="w-5 h-5 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/30">
+                      <Lock className="w-2.5 h-2.5 text-white" />
+                    </span>
+                  )}
                   <span className="text-[9px] uppercase tracking-[0.2em] font-medium text-white/70 bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full">
                     {program.category}
                   </span>

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAccessControl } from "@/hooks/useAccessControl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Search, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
+import { Search, Bookmark, BookmarkCheck, Loader2, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -68,6 +69,8 @@ const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch"];
 
 const DashboardWorkouts = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { hasPremiumAccess, freeWorkoutsRemaining } = useAccessControl();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<"explore" | "collections">(
@@ -97,6 +100,14 @@ const DashboardWorkouts = () => {
       return data;
     },
   });
+
+  // Free users see the first N workouts unlocked, the rest locked behind /subscribe.
+  // N = remaining quota (so a user who already used 2 sees 3 unlocked).
+  const lockedWorkoutIds = (() => {
+    if (hasPremiumAccess) return new Set<string>();
+    const unlocked = Math.max(0, freeWorkoutsRemaining);
+    return new Set<string>(workouts.slice(unlocked).map((w: any) => w.id));
+  })();
 
   const { data: workoutExercises = [] } = useQuery({
     queryKey: ["workout-exercises", selectedWorkout?.id],
@@ -185,8 +196,18 @@ const DashboardWorkouts = () => {
 
   const WorkoutCard = ({ workout, index = 0 }: { workout: Workout; index?: number }) => {
     const thumb = getWorkoutThumbnail(workout) || WORKOUT_IMAGES[index % WORKOUT_IMAGES.length];
+    const locked = lockedWorkoutIds.has(workout.id);
     return (
-      <button onClick={() => setSelectedWorkout(workout)} className="group relative overflow-hidden rounded-2xl text-left transition-all w-full">
+      <button
+        onClick={() => {
+          if (locked) {
+            navigate("/subscribe?reason=workouts");
+            return;
+          }
+          setSelectedWorkout(workout);
+        }}
+        className="group relative overflow-hidden rounded-2xl text-left transition-all w-full"
+      >
         <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
           <img
             src={thumb}
@@ -195,9 +216,18 @@ const DashboardWorkouts = () => {
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-          <div className="absolute top-3 right-3">
-            <SaveButton workoutId={workout.id} />
-          </div>
+          {locked && (
+            <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
+              <div className="w-11 h-11 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/30">
+                <Lock className="w-5 h-5 text-white" />
+              </div>
+            </div>
+          )}
+          {!locked && (
+            <div className="absolute top-3 right-3">
+              <SaveButton workoutId={workout.id} />
+            </div>
+          )}
           <div className="absolute bottom-3 left-3 right-3">
             <h3 className="text-sm font-bold text-white uppercase leading-tight truncate">{workout.title}</h3>
             <p className="text-[11px] font-bold text-white mt-0.5">

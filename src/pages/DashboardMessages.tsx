@@ -5,19 +5,43 @@ import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useAssignedCoach } from "@/hooks/useAssignedCoach";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
+import { useAccessControl } from "@/hooks/useAccessControl";
+import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 const DashboardMessages = () => {
   const { isAdmin, loading } = useAdminStatus();
   const { coach, loading: coachLoading } = useAssignedCoach();
+  const { canAccessCoachMessaging, loading: accessLoading } = useAccessControl();
+  const navigate = useNavigate();
 
-  if (loading || (!isAdmin && coachLoading)) {
+  if (loading || (!isAdmin && coachLoading) || (!isAdmin && accessLoading)) {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Elite-only feature for clients — show teaser to everyone else.
+  if (!isAdmin && !canAccessCoachMessaging) {
+    return (
+      <div className="fixed inset-0 bg-background flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="rounded-xl bg-muted p-6 text-center max-w-sm w-full">
+            <h3 className="text-lg font-bold mb-2">Apollo Elite™ — Coming Soon</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Get coach accountability, check-ins, and personalized guidance with Apollo Elite™.
+            </p>
+            <Button variant="outline" onClick={() => navigate("/subscribe?reason=elite")}>
+              Learn more
+            </Button>
+          </div>
+        </div>
+        <DashboardBottomTabs />
       </div>
     );
   }

@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
+import { useAccessControl } from "@/hooks/useAccessControl";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Recipe = Tables<"recipes">;
@@ -32,6 +34,24 @@ const parseIngredients = (ingredients: any): string[] => {
 };
 
 const RecipeDetailSheet = ({ recipe, onClose }: RecipeDetailSheetProps) => {
+  const navigate = useNavigate();
+  const { canAccessRecipe, recordRecipeUsage, hasPremiumAccess, loading: accessLoading } = useAccessControl();
+  const recordedRef = useRef<Set<string>>(new Set());
+
+  // Gate + first-open recording
+  useEffect(() => {
+    if (!recipe || accessLoading) return;
+    if (!canAccessRecipe()) {
+      onClose();
+      navigate("/subscribe?reason=recipes");
+      return;
+    }
+    if (!hasPremiumAccess && !recordedRef.current.has(recipe.id)) {
+      recordedRef.current.add(recipe.id);
+      void recordRecipeUsage();
+    }
+  }, [recipe, accessLoading, canAccessRecipe, recordRecipeUsage, hasPremiumAccess, navigate, onClose]);
+
   useEffect(() => {
     if (recipe) {
       document.body.style.overflow = "hidden";
