@@ -173,6 +173,10 @@ const App = () => {
                 element={<ProtectedRoute>{eb(<DashboardCalendar />)}</ProtectedRoute>}
               />
               <Route
+                path="/dashboard/ai-workout"
+                element={<ProtectedRoute>{eb(<DashboardAIWorkout />)}</ProtectedRoute>}
+              />
+              <Route
                 path="/dashboard/coach/:coachId"
                 element={<ProtectedRoute>{eb(<DashboardCoachProfile />)}</ProtectedRoute>}
               />
