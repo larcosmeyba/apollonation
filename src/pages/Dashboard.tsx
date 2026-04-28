@@ -387,13 +387,22 @@ const Dashboard = () => {
             <span className="text-sm font-bold text-foreground">View All</span>
           </div>
           <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            <Link to="/dashboard/coach/marcos" className="flex flex-col items-center gap-2 flex-shrink-0">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_12px_rgba(255,255,255,0.12),0_0_30px_rgba(255,255,255,0.05)]">
-                <img src={marcosCoachPortrait} alt="Marcos Leyba" className="w-full h-full object-cover object-top" />
-              </div>
+            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+              <Link to="/dashboard/coach/marcos">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_12px_rgba(255,255,255,0.12),0_0_30px_rgba(255,255,255,0.05)]">
+                  <img src={marcosCoachPortrait} alt="Marcos Leyba" className="w-full h-full object-cover object-top" />
+                </div>
+              </Link>
               <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
-            </Link>
+              <Link
+                to="/dashboard/messages"
+                className="text-[11px] uppercase tracking-[0.1em] font-bold text-background bg-foreground rounded-full px-3 py-1.5 hover:opacity-90 transition"
+              >
+                Message Coach
+              </Link>
+            </div>
           </div>
+
         </div>
 
         {/* ALL CLASSES */}
