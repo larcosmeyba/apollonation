@@ -543,6 +543,8 @@ const DashboardWorkoutDetail = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workout-session-log"] });
       queryClient.invalidateQueries({ queryKey: ["completed-sessions-week"] });
+      // Increment free-tier counter (no-op for premium users).
+      void recordWorkoutUsage();
     },
     onSettled: () => {
       setLogging(false);
