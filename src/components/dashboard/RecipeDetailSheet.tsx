@@ -41,14 +41,14 @@ const RecipeDetailSheet = ({ recipe, onClose }: RecipeDetailSheetProps) => {
   // Gate + first-open recording
   useEffect(() => {
     if (!recipe || accessLoading) return;
-    if (!canAccessRecipe()) {
+    if (!canAccessRecipe(recipe.id)) {
       onClose();
       navigate("/subscribe?reason=recipes");
       return;
     }
     if (!hasPremiumAccess && !recordedRef.current.has(recipe.id)) {
       recordedRef.current.add(recipe.id);
-      void recordRecipeUsage();
+      void recordRecipeUsage(recipe.id);
     }
   }, [recipe, accessLoading, canAccessRecipe, recordRecipeUsage, hasPremiumAccess, navigate, onClose]);
 
