@@ -283,6 +283,19 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Free tier starter banner */}
+        {!hasPremiumAccess && (
+          <div className="rounded-xl bg-muted p-4">
+            <p className="text-sm font-medium">Welcome to Apollo Reborn™</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              You have {freeWorkoutsRemaining} free workout{freeWorkoutsRemaining === 1 ? "" : "s"}, {freeRecipeUsed ? "0" : "1"} recipe, and calorie tracking included.
+            </p>
+            <Button size="sm" variant="apollo" className="mt-3" onClick={() => navigate("/subscribe")}>
+              See Apollo Reborn™ membership
+            </Button>
+          </div>
+        )}
+
         {/* NEW THIS WEEK */}
         <div>
           <div className="flex items-center justify-between mb-4">
