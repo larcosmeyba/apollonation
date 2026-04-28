@@ -172,7 +172,12 @@ const TrainingProgramCards = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
                 {/* Category badge */}
-                <div className="absolute top-3 left-3">
+                <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                  {!canAccessPrograms && (
+                    <span className="w-5 h-5 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/30">
+                      <Lock className="w-2.5 h-2.5 text-white" />
+                    </span>
+                  )}
                   <span className="text-[9px] uppercase tracking-[0.2em] font-medium text-white/70 bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full">
                     {program.category}
                   </span>
