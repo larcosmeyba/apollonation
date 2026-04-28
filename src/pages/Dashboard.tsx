@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import stockBack from "@/assets/stock-back.png";
 import stockArms from "@/assets/stock-arms.png";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
+import marcosCoachPortrait from "@/assets/marcos-coach-portrait.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
 import catStretch from "@/assets/categories/stretch.jpg";
