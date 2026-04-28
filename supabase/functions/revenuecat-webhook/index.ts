@@ -188,6 +188,7 @@ serve(async (req) => {
     }
 
     const update: Record<string, unknown> = { is_subscribed: isSubscribed };
+    update.entitlement = isSubscribed ? "apollo_premium" : null;
     if (plan) update.subscription_plan = plan;
     if (store) update.subscription_store = store;
     if (expiresAt) update.subscription_expires_at = expiresAt;

@@ -812,6 +812,27 @@ export type Database = {
         }
         Relationships: []
       }
+      free_usage: {
+        Row: {
+          free_recipe_used: boolean
+          free_workouts_used_count: number
+          last_updated_at: string
+          user_id: string
+        }
+        Insert: {
+          free_recipe_used?: boolean
+          free_workouts_used_count?: number
+          last_updated_at?: string
+          user_id: string
+        }
+        Update: {
+          free_recipe_used?: boolean
+          free_workouts_used_count?: number
+          last_updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       grocery_item_states: {
         Row: {
           already_have: boolean
@@ -1215,6 +1236,7 @@ export type Database = {
           certifications: string[]
           created_at: string
           display_name: string | null
+          entitlement: string | null
           fitness_goals: string | null
           health_disclaimer_acknowledged_at: string | null
           hero_image_url: string | null
@@ -1244,6 +1266,7 @@ export type Database = {
           certifications?: string[]
           created_at?: string
           display_name?: string | null
+          entitlement?: string | null
           fitness_goals?: string | null
           health_disclaimer_acknowledged_at?: string | null
           hero_image_url?: string | null
@@ -1273,6 +1296,7 @@ export type Database = {
           certifications?: string[]
           created_at?: string
           display_name?: string | null
+          entitlement?: string | null
           fitness_goals?: string | null
           health_disclaimer_acknowledged_at?: string | null
           hero_image_url?: string | null
