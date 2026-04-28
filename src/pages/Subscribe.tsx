@@ -275,9 +275,9 @@ const Subscribe = () => {
                 <p className="font-heading text-2xl">$0</p>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <Feature>5 workouts</Feature>
-                <Feature>1 recipe</Feature>
-                <Feature>Calorie tracker</Feature>
+                <Feature>10 on-demand workouts</Feature>
+                <Feature>2 workout programs</Feature>
+                <Feature>10 nutrition recipes</Feature>
               </ul>
               <Button variant="outline" className="w-full" disabled={hasNoEntitlement}>
                 {hasNoEntitlement ? "Current plan" : "Free plan"}
@@ -294,10 +294,10 @@ const Subscribe = () => {
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <Feature>Unlimited workouts</Feature>
-                <Feature>Full programs</Feature>
+                <Feature>All programs</Feature>
                 <Feature>Full recipe library</Feature>
+                <Feature>Meal plan + grocery list + macro tracker</Feature>
                 <Feature>AI daily workouts</Feature>
-                <Feature>Progress tracking</Feature>
               </ul>
 
               {!native ? (
@@ -347,13 +347,13 @@ const Subscribe = () => {
             </div>
 
             {/* Apollo Elite */}
-            <div className="card-apollo p-5 space-y-4">
+            <div id="elite-tier" className="card-apollo p-5 space-y-4">
               <div className="flex items-baseline justify-between">
                 <h2 className="font-heading text-xl">Apollo Elite™</h2>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <Feature>Everything in Apollo Reborn™</Feature>
-                <Feature>Coach messaging</Feature>
+                <Feature>Coach messaging (replies typically within 24h)</Feature>
                 <Feature>Weekly check-ins</Feature>
                 <Feature>Personalized guidance</Feature>
               </ul>
@@ -361,9 +361,13 @@ const Subscribe = () => {
                 <p className="text-xs text-muted-foreground">
                   Open the app on your phone to subscribe.
                 </p>
-              ) : offeringsEmpty || elitePackages.length === 0 ? (
+              ) : !offeringsLoaded ? (
                 <Button variant="outline" className="w-full" disabled>
-                  Coming soon
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Plans loading…
+                </Button>
+              ) : elitePackages.length === 0 ? (
+                <Button variant="outline" className="w-full" disabled>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Plans loading…
                 </Button>
               ) : (
                 <div className="space-y-2">
@@ -380,7 +384,7 @@ const Subscribe = () => {
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
                         </>
                       ) : (
-                        `Unlock Apollo Elite™ — ${pkg.priceString}`
+                        `Start 7-day free trial — Apollo Elite™ ${pkg.priceString}`
                       )}
                     </Button>
                   ))}
