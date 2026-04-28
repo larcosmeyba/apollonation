@@ -296,6 +296,23 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* AI Daily Workout entry */}
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard/ai-workout")}
+          className="w-full text-left rounded-2xl bg-gradient-to-br from-foreground to-foreground/80 text-background p-5 shadow-lg active:scale-[0.99] transition-transform"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">
+            AI · Premium
+          </p>
+          <p className="text-lg font-bold mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            Build Today's Workout
+          </p>
+          <p className="text-xs opacity-80 mt-1">
+            Tell Apollo your time, energy, and gear — get a workout in seconds.
+          </p>
+        </button>
+
         {/* NEW THIS WEEK */}
         <div>
           <div className="flex items-center justify-between mb-4">

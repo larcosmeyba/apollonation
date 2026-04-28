@@ -38,6 +38,7 @@ import PlanReady from "./pages/PlanReady";
 import DashboardTransformation from "./pages/DashboardTransformation";
 import DashboardRecovery from "./pages/DashboardRecovery";
 import DashboardChallenges from "./pages/DashboardChallenges";
+import DashboardAIWorkout from "./pages/DashboardAIWorkout";
 import Subscribe from "./pages/Subscribe";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
@@ -170,6 +171,10 @@ const App = () => {
               <Route
                 path="/dashboard/calendar"
                 element={<ProtectedRoute>{eb(<DashboardCalendar />)}</ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/ai-workout"
+                element={<ProtectedRoute>{eb(<DashboardAIWorkout />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/coach/:coachId"
