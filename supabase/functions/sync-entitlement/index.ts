@@ -17,7 +17,8 @@ const log = (step: string, details?: unknown) => {
   console.log(`[SYNC-ENTITLEMENT] ${step}${tail}`);
 };
 
-const ENTITLEMENT_ID = "apollo_premium";
+const ENTITLEMENT_PREMIUM = "apollo_premium";
+const ENTITLEMENT_ELITE = "apollo_elite";
 
 const mapPlan = (productId: string | undefined): "monthly" | "annual" | null => {
   if (!productId) return null;
@@ -132,25 +133,30 @@ serve(async (req) => {
     }
 
     const rcData = await rcRes.json();
-    const entitlement = rcData?.subscriber?.entitlements?.[ENTITLEMENT_ID];
+    const entitlements = rcData?.subscriber?.entitlements ?? {};
+    const eliteEnt = entitlements[ENTITLEMENT_ELITE];
+    const premiumEnt = entitlements[ENTITLEMENT_PREMIUM];
     const subscriptions = rcData?.subscriber?.subscriptions ?? {};
 
-    const expiresMs = entitlement?.expires_date ? new Date(entitlement.expires_date).getTime() : null;
-    const isSubscribed = !!entitlement && (expiresMs === null || expiresMs > Date.now());
+    const eliteActive = !!eliteEnt && (!eliteEnt.expires_date || new Date(eliteEnt.expires_date).getTime() > Date.now());
+    const premiumActive = !!premiumEnt && (!premiumEnt.expires_date || new Date(premiumEnt.expires_date).getTime() > Date.now());
+    const isSubscribed = eliteActive || premiumActive;
+    const tierEnt = eliteActive ? eliteEnt : premiumActive ? premiumEnt : null;
+    const entitlementValue = eliteActive ? "apollo_elite" : premiumActive ? "apollo_premium" : null;
 
     let plan: "monthly" | "annual" | null = null;
     let store: "app_store" | "play_store" | null = null;
     let expiresAt: string | null = null;
 
-    if (entitlement?.product_identifier) {
-      plan = mapPlan(entitlement.product_identifier);
-      const sub = subscriptions[entitlement.product_identifier];
+    if (tierEnt?.product_identifier) {
+      plan = mapPlan(tierEnt.product_identifier);
+      const sub = subscriptions[tierEnt.product_identifier];
       store = mapStore(sub?.store);
-      expiresAt = entitlement.expires_date ?? null;
+      expiresAt = tierEnt.expires_date ?? null;
     }
 
     const update: Record<string, unknown> = { is_subscribed: isSubscribed };
-    update.entitlement = isSubscribed ? "apollo_premium" : null;
+    update.entitlement = entitlementValue;
     if (plan) update.subscription_plan = plan;
     if (store) update.subscription_store = store;
     if (expiresAt) update.subscription_expires_at = expiresAt;

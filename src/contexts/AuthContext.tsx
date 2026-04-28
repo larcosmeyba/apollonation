@@ -164,19 +164,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // On the true → false transition, fire a one-time toast so the user knows
   // their membership ended but they can keep using free content.
   const wasSubscribedRef = useRef<boolean | null>(null);
+  const wasEliteRef = useRef<boolean | null>(null);
   useEffect(() => {
     if (!profile) {
       wasSubscribedRef.current = null;
+      wasEliteRef.current = null;
       return;
     }
-    const prev = wasSubscribedRef.current;
-    const now = profile.is_subscribed;
-    if (prev === true && now === false) {
+    const prevSub = wasSubscribedRef.current;
+    const nowSub = profile.is_subscribed;
+    const prevElite = wasEliteRef.current;
+    const nowElite = profile.entitlement === "apollo_elite";
+
+    if (prevSub === true && nowSub === false) {
       toast(
-        "Your Apollo Reborn membership has ended. You can still use the calorie tracker and your remaining free content."
+        "Your Apollo membership has ended. You can still use the calorie tracker and your remaining free content."
       );
+    } else if (prevElite === true && nowElite === false && nowSub === true) {
+      toast("Your Apollo Elite™ plan has ended. You still have full Reborn™ access.");
     }
-    wasSubscribedRef.current = now;
+    wasSubscribedRef.current = nowSub;
+    wasEliteRef.current = nowElite;
   }, [profile]);
 
   const signUp = async (email: string, password: string, displayName?: string) => {

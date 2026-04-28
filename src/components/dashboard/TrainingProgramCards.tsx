@@ -47,7 +47,7 @@ interface Program {
 const TrainingProgramCards = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { canAccessPrograms } = useAccessControl();
+  const { canAccessProgram, recordProgramUsage, hasPremiumAccess } = useAccessControl();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<Program | null>(null);
@@ -84,6 +84,11 @@ const TrainingProgramCards = () => {
 
   const handleEnroll = async () => {
     if (!selected || !selectedDuration || !user || !questionnaire) return;
+    // Re-check at enroll time in case quota changed
+    if (!canAccessProgram()) {
+      navigate("/subscribe?reason=programs");
+      return;
+    }
     setEnrolling(true);
     try {
       await (supabase as any)
@@ -107,6 +112,9 @@ const TrainingProgramCards = () => {
       });
 
       if (error) throw error;
+
+      // Count this enrollment against the free-tier program quota
+      if (!hasPremiumAccess) await recordProgramUsage();
 
       queryClient.invalidateQueries({ queryKey: ["my-training-plan-full"] });
       toast({
@@ -151,7 +159,7 @@ const TrainingProgramCards = () => {
             <button
               key={program.id}
               onClick={() => {
-                if (!canAccessPrograms) {
+                if (!canAccessProgram()) {
                   navigate("/subscribe?reason=programs");
                   return;
                 }
@@ -173,7 +181,7 @@ const TrainingProgramCards = () => {
 
                 {/* Category badge */}
                 <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                  {!canAccessPrograms && (
+                  {!canAccessProgram() && (
                     <span className="w-5 h-5 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/30">
                       <Lock className="w-2.5 h-2.5 text-white" />
                     </span>

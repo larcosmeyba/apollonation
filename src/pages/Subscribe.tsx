@@ -26,11 +26,12 @@ interface ElitePackage {
 }
 
 const REASON_BANNERS: Record<string, string> = {
-  workouts: "You've used your 5 free workouts. Unlock unlimited training.",
-  recipes: "You've unlocked your free recipe. Upgrade for full nutrition access.",
-  programs: "Workout programs are included with Apollo Reborn™ membership.",
+  workouts: "You've used your 10 free workouts. Unlock unlimited training.",
+  recipes: "You've used your 10 free recipes. Upgrade for full nutrition access.",
+  programs: "You've enrolled in your 2 free programs. Upgrade for the full library.",
+  nutrition: "Meal plans, grocery lists, and macro tracking are part of Apollo Reborn™.",
   ai: "Your workout, built for today. Unlock AI training with Apollo Reborn™.",
-  elite: "Apollo Elite™ is coming soon. Get notified when coach access launches.",
+  elite: "Apollo Elite™ includes 1:1 async coaching with Marcos.",
 };
 
 const Subscribe = () => {
@@ -122,19 +123,35 @@ const Subscribe = () => {
   if (!user) return <Navigate to="/auth" replace />;
 
   if (profile?.is_subscribed) {
+    const isElite = (profile as any)?.entitlement === "apollo_elite";
     return (
       <div className="min-h-screen bg-background text-foreground">
         <div
           className="max-w-lg mx-auto px-5 pt-12 pb-24 text-center"
           style={{ paddingTop: "calc(env(safe-area-inset-top) + 3rem)" }}
         >
-          <h1 className="font-heading text-3xl mb-3">You're already a member</h1>
+          <h1 className="font-heading text-3xl mb-3">
+            {isElite ? "You're an Apollo Elite™ member" : "You're an Apollo Reborn™ member"}
+          </h1>
           <p className="text-sm text-muted-foreground mb-8">
             Manage your subscription in your device's App Store or Play Store settings.
           </p>
-          <Button variant="apollo" onClick={() => navigate("/dashboard")}>
-            Back to Dashboard
-          </Button>
+          <div className="space-y-3">
+            <Button variant="apollo" className="w-full" onClick={() => navigate("/dashboard")}>
+              Back to Dashboard
+            </Button>
+            {!isElite && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  document.getElementById("elite-tier")?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                Upgrade to Elite
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -258,9 +275,9 @@ const Subscribe = () => {
                 <p className="font-heading text-2xl">$0</p>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <Feature>5 workouts</Feature>
-                <Feature>1 recipe</Feature>
-                <Feature>Calorie tracker</Feature>
+                <Feature>10 on-demand workouts</Feature>
+                <Feature>2 workout programs</Feature>
+                <Feature>10 nutrition recipes</Feature>
               </ul>
               <Button variant="outline" className="w-full" disabled={hasNoEntitlement}>
                 {hasNoEntitlement ? "Current plan" : "Free plan"}
@@ -277,10 +294,10 @@ const Subscribe = () => {
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <Feature>Unlimited workouts</Feature>
-                <Feature>Full programs</Feature>
+                <Feature>All programs</Feature>
                 <Feature>Full recipe library</Feature>
+                <Feature>Meal plan + grocery list + macro tracker</Feature>
                 <Feature>AI daily workouts</Feature>
-                <Feature>Progress tracking</Feature>
               </ul>
 
               {!native ? (
@@ -330,13 +347,13 @@ const Subscribe = () => {
             </div>
 
             {/* Apollo Elite */}
-            <div className="card-apollo p-5 space-y-4">
+            <div id="elite-tier" className="card-apollo p-5 space-y-4">
               <div className="flex items-baseline justify-between">
                 <h2 className="font-heading text-xl">Apollo Elite™</h2>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <Feature>Everything in Apollo Reborn™</Feature>
-                <Feature>Coach messaging</Feature>
+                <Feature>Coach messaging (replies typically within 24h)</Feature>
                 <Feature>Weekly check-ins</Feature>
                 <Feature>Personalized guidance</Feature>
               </ul>
@@ -344,9 +361,13 @@ const Subscribe = () => {
                 <p className="text-xs text-muted-foreground">
                   Open the app on your phone to subscribe.
                 </p>
-              ) : offeringsEmpty || elitePackages.length === 0 ? (
+              ) : !offeringsLoaded ? (
                 <Button variant="outline" className="w-full" disabled>
-                  Coming soon
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Plans loading…
+                </Button>
+              ) : elitePackages.length === 0 ? (
+                <Button variant="outline" className="w-full" disabled>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Plans loading…
                 </Button>
               ) : (
                 <div className="space-y-2">
@@ -363,7 +384,7 @@ const Subscribe = () => {
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
                         </>
                       ) : (
-                        `Unlock Apollo Elite™ — ${pkg.priceString}`
+                        `Start 7-day free trial — Apollo Elite™ ${pkg.priceString}`
                       )}
                     </Button>
                   ))}

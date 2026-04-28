@@ -187,8 +187,12 @@ serve(async (req) => {
       isSubscribed = profile.is_subscribed ?? false;
     }
 
+    // Detect Elite vs Reborn from product id when activating
+    const productIdForTier = (event.new_product_id ?? event.product_id ?? "").toLowerCase();
+    const isElite = isSubscribed && productIdForTier.includes("elite");
+
     const update: Record<string, unknown> = { is_subscribed: isSubscribed };
-    update.entitlement = isSubscribed ? "apollo_premium" : null;
+    update.entitlement = isSubscribed ? (isElite ? "apollo_elite" : "apollo_premium") : null;
     if (plan) update.subscription_plan = plan;
     if (store) update.subscription_store = store;
     if (expiresAt) update.subscription_expires_at = expiresAt;

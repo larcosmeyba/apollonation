@@ -13,7 +13,8 @@ import {
   ClipboardList, AlertCircle, Plus, Trash2, Upload, Clock, Pencil, DollarSign, ShieldCheck,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAccessControl } from "@/hooks/useAccessControl";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -80,6 +81,17 @@ const DashboardNutrition = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  // Meal plan + grocery list are premium-only.
+  const { canAccessMealPlan, loading: accessLoading } = useAccessControl();
+  useEffect(() => {
+    if (!accessLoading && !canAccessMealPlan) {
+      navigate("/subscribe?reason=nutrition", { replace: true });
+    }
+  }, [accessLoading, canAccessMealPlan, navigate]);
+
+
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [currentWeek, setCurrentWeek] = useState(1);
   const [editingMealId, setEditingMealId] = useState<string | null>(null);

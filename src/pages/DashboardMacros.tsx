@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Camera, Plus, Trash2, Upload, Sparkles } from "lucide-react";
@@ -18,6 +18,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useMacroTargets } from "@/hooks/useMacroTargets";
 import FoodBudgetCard from "@/components/dashboard/FoodBudgetCard";
+import { useNavigate } from "react-router-dom";
+import { useAccessControl } from "@/hooks/useAccessControl";
 
 // Returns the user's local calendar date as YYYY-MM-DD.
 // Used for both reads and writes to log_date so meals near midnight
@@ -45,7 +47,14 @@ const DashboardMacros = () => {
     meal_name: "", calories: "", protein: "", carbs: "", fat: "",
   });
 
-  // Macro tracker is free for all tiers — no gating.
+  // Macro tracker is premium-only under the new tier model.
+  const navigate = useNavigate();
+  const { canAccessMacroTracker, loading: accessLoading } = useAccessControl();
+  useEffect(() => {
+    if (!accessLoading && !canAccessMacroTracker) {
+      navigate("/subscribe?reason=nutrition", { replace: true });
+    }
+  }, [accessLoading, canAccessMacroTracker, navigate]);
 
   // Fetch macro logs from DB - persisted!
   const { data: entries = [] } = useQuery({
