@@ -60,10 +60,9 @@ const ProtectedRoute = ({ children, requireElite = false }: ProtectedRouteProps)
     return <Navigate to="/questionnaire" replace />;
   }
 
-  // Subscription gate — apollo_premium entitlement required for premium routes.
-  // Manual grants and active RC entitlements both pass; expired/missing -> /subscribe.
-  if (requirePremium && !isPremium(subscriptionFromProfile(profile))) {
-    return <Navigate to="/subscribe" replace state={{ from: location }} />;
+  // Elite-only gate — restricted features (e.g. coach messaging).
+  if (requireElite && (profile as any)?.entitlement !== "apollo_elite") {
+    return <Navigate to="/subscribe?reason=elite" replace state={{ from: location }} />;
   }
 
   return <>{children}</>;
