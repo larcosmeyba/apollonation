@@ -26,18 +26,18 @@ const DashboardMessages = () => {
     );
   }
 
-  // Elite-only feature for clients — show teaser to everyone else.
+  // Elite-only feature for clients — show paywall to non-Elite users.
   if (!isAdmin && !canAccessCoachMessaging) {
     return (
       <div className="fixed inset-0 bg-background flex flex-col">
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="rounded-xl bg-muted p-6 text-center max-w-sm w-full">
-            <h3 className="text-lg font-bold mb-2">Apollo Elite™ — Coming Soon</h3>
+            <h3 className="text-lg font-bold mb-2">Apollo Elite™</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Get coach accountability, check-ins, and personalized guidance with Apollo Elite™.
+              Get coach accountability, weekly check-ins, and personalized guidance with Apollo Elite™. Coach replies typically within 24 hours.
             </p>
-            <Button variant="outline" onClick={() => navigate("/subscribe?reason=elite")}>
-              Learn more
+            <Button variant="apollo" onClick={() => navigate("/subscribe?reason=elite")}>
+              Upgrade to Elite
             </Button>
           </div>
         </div>
