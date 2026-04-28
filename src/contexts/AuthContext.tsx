@@ -6,6 +6,7 @@ import { Purchases } from "@revenuecat/purchases-capacitor";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { initPurchases, logOutPurchases } from "@/lib/purchases";
+import { toast } from "sonner";
 
 interface Profile {
   id: string;
