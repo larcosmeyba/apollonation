@@ -5,8 +5,10 @@ import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useAssignedCoach } from "@/hooks/useAssignedCoach";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
+import { useAccessControl } from "@/hooks/useAccessControl";
+import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
