@@ -288,12 +288,21 @@ const ExerciseRow = ({
 // ── Main Workout Detail Page ─────────────────────────────────────────
 const DashboardWorkoutDetail = () => {
   const { user } = useAuth();
+  const { canAccessWorkout, recordWorkoutUsage, hasPremiumAccess, freeWorkoutsRemaining, loading: accessLoading } = useAccessControl();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dayId = searchParams.get("day");
   const dateParam = searchParams.get("date") || format(new Date(), "yyyy-MM-dd");
+
+  // Gate: free users beyond their workout quota redirect to /subscribe
+  useEffect(() => {
+    if (accessLoading) return;
+    if (!canAccessWorkout()) {
+      navigate("/subscribe?reason=workouts", { replace: true });
+    }
+  }, [accessLoading, canAccessWorkout, navigate]);
 
   const [localSetLogs, setLocalSetLogs] = useState<Record<string, SetLog[]>>({});
   const [localNotes, setLocalNotes] = useState<Record<string, ExerciseNote>>({});
