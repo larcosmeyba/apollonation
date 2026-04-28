@@ -178,6 +178,10 @@ const App = () => {
                 element={<ProtectedRoute>{eb(<DashboardAIWorkout />)}</ProtectedRoute>}
               />
               <Route
+                path="/dashboard/messages"
+                element={<ProtectedRoute requireElite>{eb(<DashboardMessages />)}</ProtectedRoute>}
+              />
+              <Route
                 path="/dashboard/coach/:coachId"
                 element={<ProtectedRoute>{eb(<DashboardCoachProfile />)}</ProtectedRoute>}
               />
