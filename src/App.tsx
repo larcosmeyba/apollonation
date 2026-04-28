@@ -39,6 +39,7 @@ import DashboardTransformation from "./pages/DashboardTransformation";
 import DashboardRecovery from "./pages/DashboardRecovery";
 import DashboardChallenges from "./pages/DashboardChallenges";
 import DashboardAIWorkout from "./pages/DashboardAIWorkout";
+import DashboardMessages from "./pages/DashboardMessages";
 import Subscribe from "./pages/Subscribe";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
@@ -175,6 +176,10 @@ const App = () => {
               <Route
                 path="/dashboard/ai-workout"
                 element={<ProtectedRoute>{eb(<DashboardAIWorkout />)}</ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/messages"
+                element={<ProtectedRoute requireElite>{eb(<DashboardMessages />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/coach/:coachId"
