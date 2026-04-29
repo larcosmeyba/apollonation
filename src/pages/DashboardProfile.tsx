@@ -39,11 +39,39 @@ const PLAY_STORE_SUBSCRIPTIONS_URL = "https://play.google.com/store/account/subs
 const APP_STORE_RATE_URL = "itms-apps://itunes.apple.com/app/id0000000000?action=write-review";
 const PLAY_STORE_RATE_URL = "https://play.google.com/store/apps/details?id=com.apollonation.app";
 
+// Public website URLs — used for legal/help links so native (Capacitor) users
+// land on the live marketing site instead of an in-app route that may not
+// render correctly in the iOS/Android shell.
+const WEBSITE_BASE = "https://www.apolloreborn.com";
+const HELP_URL = `${WEBSITE_BASE}/contact`;
+const TERMS_URL = `${WEBSITE_BASE}/terms`;
+const PRIVACY_URL = `${WEBSITE_BASE}/privacy`;
+
 const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 const openExternal = (iosUrl: string, androidUrl: string) => {
   const url = isIOS() ? iosUrl : androidUrl;
-  window.open(url, "_blank", "noopener,noreferrer");
+  openUrl(url);
+};
+
+// Open a URL using Capacitor's in-app browser when running natively, falling
+// back to window.open on web. Plain <a target="_blank"> is unreliable inside
+// the native WebView, which is why FAQ/Help, Terms, and Privacy weren't
+// opening from the Profile page on TestFlight.
+const openUrl = (url: string) => {
+  (async () => {
+    try {
+      const { Capacitor } = await import("@capacitor/core");
+      if (Capacitor.isNativePlatform()) {
+        const { Browser } = await import("@capacitor/browser");
+        await Browser.open({ url, presentationStyle: "popover" });
+        return;
+      }
+    } catch {
+      // fall through to web behavior
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
+  })();
 };
 
 const WORKOUT_TYPES = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Core", "Senior"];
