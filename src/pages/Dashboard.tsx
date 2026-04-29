@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Play, Bookmark, BookmarkCheck, Loader2, Lock } from "lucide-react";
+import { Play, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAccessControl } from "@/hooks/useAccessControl";
@@ -68,7 +68,7 @@ const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
 const Dashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { hasPremiumAccess, hasEliteAccess, freeWorkoutsRemaining, freeRecipesRemaining, freeProgramsRemaining } = useAccessControl();
+  const { hasPremiumAccess, freeWorkoutsRemaining, freeRecipesRemaining, freeProgramsRemaining } = useAccessControl();
   const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
