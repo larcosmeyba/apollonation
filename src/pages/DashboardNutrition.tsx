@@ -1144,6 +1144,37 @@ const DashboardNutrition = () => {
 
                 <TabsContent value="grocery">
                   <div className="space-y-4">
+                    {/* Budget header — reconciles total at top of grocery tab so user
+                        never has to scroll back to the budget card to see status. */}
+                    {effectiveBudget !== null && effectiveBudget > 0 && (
+                      <div className={`p-3 rounded-lg border ${overBudget ? "border-destructive/40 bg-destructive/5" : nearBudget ? "border-yellow-500/40 bg-yellow-500/5" : "border-green-500/30 bg-green-500/5"}`}>
+                        <div className="flex items-baseline justify-between gap-2">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Weekly budget</p>
+                            <p className="font-heading text-lg text-foreground">${effectiveBudget.toFixed(2)}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Current total</p>
+                            <p className={`font-heading text-lg ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</p>
+                          </div>
+                        </div>
+                        <div className={`text-[11px] mt-2 flex items-center gap-1.5 ${overBudget ? "text-destructive" : nearBudget ? "text-yellow-500" : "text-green-500"}`}>
+                          {overBudget ? (
+                            <><AlertCircle className="w-3 h-3" /> Over budget by ${Math.abs(remainingBudget!).toFixed(2)}</>
+                          ) : nearBudget ? (
+                            <>⚠ ${remainingBudget!.toFixed(2)} left</>
+                          ) : (
+                            <>✓ ${remainingBudget!.toFixed(2)} under budget</>
+                          )}
+                        </div>
+                        {overBudget && (
+                          <p className="text-[10px] text-foreground/60 mt-2 leading-relaxed">
+                            We list the full plan so you can decide what to swap or skip — items aren't dropped automatically.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     {/* Week selector + running total */}
                     <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
                       <div className="flex items-center gap-2">
@@ -1156,6 +1187,12 @@ const DashboardNutrition = () => {
                         <p className={`font-heading text-base ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</p>
                       </div>
                     </div>
+
+                    {pricedList.unavailableCount > 0 && (
+                      <p className="text-[11px] text-foreground/50 px-1">
+                        {pricedList.unavailableCount} item{pricedList.unavailableCount === 1 ? "" : "s"} couldn't be priced and {pricedList.unavailableCount === 1 ? "is" : "are"} excluded from the total.
+                      </p>
+                    )}
 
                     {pricedList.categories.length === 0 ? (
                       <div className="card-apollo py-12 text-center">
@@ -1173,13 +1210,25 @@ const DashboardNutrition = () => {
                           <div className="divide-y divide-black/5">
                             {cat.items.map((item) => {
                               const state = stateByKey[item.key] || { already_have: false, purchased: false };
+                              const isUnavailable = item.priceSource === "unavailable";
                               return (
                                 <div key={item.key} className={`px-4 py-3 flex items-start gap-3 ${state.purchased ? "opacity-60" : ""}`}>
                                   <div className="flex-1 min-w-0">
                                     <p className={`text-sm text-foreground ${state.purchased ? "line-through" : ""}`}>{item.name}</p>
-                                    <p className="text-[11px] text-foreground/50">
-                                      {item.quantity} · <span className={state.already_have ? "line-through text-foreground/40" : "text-foreground/70 font-medium"}>${item.estimatedPrice.toFixed(2)}</span>
-                                    </p>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <p className="text-[11px] text-foreground/50">
+                                        {item.quantity}
+                                      </p>
+                                      <span className="text-[11px] text-foreground/50">·</span>
+                                      {isUnavailable ? (
+                                        <span className="text-[11px] text-foreground/40 italic">Price unavailable</span>
+                                      ) : (
+                                        <>
+                                          <span className={`text-[11px] ${state.already_have ? "line-through text-foreground/40" : "text-foreground/70 font-medium"}`}>${item.estimatedPrice.toFixed(2)}</span>
+                                          <span className="text-[9px] text-foreground/40 uppercase tracking-wider ml-0.5">Est.</span>
+                                        </>
+                                      )}
+                                    </div>
                                     <div className="flex items-center gap-4 mt-2">
                                       <label className="flex items-center gap-1.5 cursor-pointer">
                                         <Checkbox
