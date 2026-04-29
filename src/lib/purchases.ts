@@ -6,6 +6,7 @@ import {
   type PurchasesPackage,
   type CustomerInfo,
 } from "@revenuecat/purchases-capacitor";
+import { withTimeout } from "@/lib/timeout";
 
 // RevenueCat public SDK keys are safe to ship in the client.
 // Set these in src/lib/purchases.ts after creating your RevenueCat project.
@@ -33,12 +34,12 @@ export const initPurchases = async (userId: string) => {
   }
   try {
     if (!configured) {
-      await Purchases.setLogLevel({ level: LOG_LEVEL.WARN });
-      await Purchases.configure({ apiKey, appUserID: userId });
+      await withTimeout(Purchases.setLogLevel({ level: LOG_LEVEL.WARN }), 5_000, "Purchase setup timed out");
+      await withTimeout(Purchases.configure({ apiKey, appUserID: userId }), 10_000, "Purchase setup timed out");
       configured = true;
       configuringFor = userId;
     } else if (configuringFor !== userId) {
-      await Purchases.logIn({ appUserID: userId });
+      await withTimeout(Purchases.logIn({ appUserID: userId }), 10_000, "Purchase login timed out");
       configuringFor = userId;
     }
   } catch (err) {
@@ -59,7 +60,7 @@ export const logOutPurchases = async () => {
 export const getOfferings = async (): Promise<PurchasesOffering | null> => {
   if (!isPurchasesAvailable()) return null;
   try {
-    const result = await Purchases.getOfferings();
+    const result = await withTimeout(Purchases.getOfferings(), 12_000, "Plans took too long to load");
     return result.current ?? null;
   } catch (err) {
     console.error("[Purchases] getOfferings failed", err);
