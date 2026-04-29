@@ -206,13 +206,21 @@ const DashboardNutrition = () => {
         .upsert({ user_id: user.id, weekly_budget: v }, { onConflict: "user_id" });
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["food-budget", user.id] });
-      toast({ title: "Budget saved" });
+      toast({ title: "Budget saved", description: "Re-optimizing your grocery list…" });
+      setBudgetModalOpen(false);
+      // Server-side enforcement runs on the next render via the useEffect that
+      // watches `effectiveBudget`. We also kick it off explicitly so the user
+      // sees their list reconcile immediately.
+      if (activePlan?.id) {
+        await runBudgetOptimization(activePlan.id, groceryWeek);
+      }
     } catch (err: any) {
       toast({ title: "Couldn't save budget", description: err.message, variant: "destructive" });
     } finally {
       setBudgetSaving(false);
     }
   };
+
 
   const activePlan = selectedPlanId
     ? plans?.find((p) => p.id === selectedPlanId)
