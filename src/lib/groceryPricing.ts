@@ -250,11 +250,19 @@ function lookupPrice(name: string): UnitPrice | null {
 }
 
 // Estimate the price of a parsed ingredient line.
-export function estimateIngredientPrice(raw: string): { name: string; quantity: string; estimatedPrice: number } {
+// `priceSource` is 'estimated' when we matched the ingredient to the static table,
+// or 'unavailable' when we couldn't price it confidently — in which case the caller
+// should display "Price unavailable" and exclude it from totals.
+export function estimateIngredientPrice(raw: string): { name: string; quantity: string; estimatedPrice: number; priceSource: "estimated" | "unavailable" } {
   const { qty, unit, name } = parseIngredient(raw);
   const tableEntry = lookupPrice(name);
-  const targetUnit = tableEntry.unit;
 
+  if (!tableEntry) {
+    const quantityLabel = unit ? `${formatQty(qty)} ${unit}` : `${formatQty(qty)}`;
+    return { name: name || raw, quantity: quantityLabel.trim(), estimatedPrice: 0, priceSource: "unavailable" };
+  }
+
+  const targetUnit = tableEntry.unit;
   let factor = 1;
   const conv = UNIT_CONVERSIONS[targetUnit];
   if (conv) {
@@ -263,10 +271,10 @@ export function estimateIngredientPrice(raw: string): { name: string; quantity: 
     else factor = 1; // Best-effort fallback
   }
 
-  // For "each" type items, ignore tiny gram-based quantities to avoid $0
+  // Floor at $0.25 so a tiny qty doesn't display as $0.00 — but only for matched items.
   const estimatedPrice = Math.max(0.25, qty * factor * tableEntry.price);
   const quantityLabel = unit ? `${formatQty(qty)} ${unit}` : `${formatQty(qty)}`;
-  return { name: name || raw, quantity: quantityLabel.trim(), estimatedPrice: round2(estimatedPrice) };
+  return { name: name || raw, quantity: quantityLabel.trim(), estimatedPrice: round2(estimatedPrice), priceSource: "estimated" };
 }
 
 function formatQty(q: number): string {
