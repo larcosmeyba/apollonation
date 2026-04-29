@@ -139,7 +139,16 @@ export const useMessages = (conversationPartnerId?: string) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // RLS rejects non-Elite client inserts. Surface a clear Elite-required signal.
+        const msg = (error.message || "").toLowerCase();
+        if (msg.includes("row-level security") || msg.includes("policy") || error.code === "42501") {
+          const e: any = new Error("elite_required");
+          e.code = "elite_required";
+          throw e;
+        }
+        throw error;
+      }
 
       // Trigger email notification (fire-and-forget)
       supabase.functions.invoke("send-message-notification", {
