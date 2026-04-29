@@ -310,17 +310,19 @@ export type PricedGroceryItem = {
   quantity: string;
   estimatedPrice: number;
   category: string;
+  priceSource: "estimated" | "unavailable";
 };
 
 export type PricedGroceryList = {
   categories: { name: string; items: PricedGroceryItem[] }[];
-  total: number;
+  total: number;            // sum of priced items only (excludes "unavailable")
+  unavailableCount: number; // # of items we couldn't price
 };
 
 // Build a complete priced grocery list directly from the meals of a given week.
 // Aggregates duplicate ingredients across meals.
 export function buildGroceryListFromMeals(meals: Array<{ ingredients: any }>): PricedGroceryList {
-  const aggregator = new Map<string, { qty: number; rawSamples: string[]; price: number; unit: string }>();
+  const aggregator = new Map<string, { qty: number; rawSamples: string[]; price: number | null; unit: string }>();
 
   for (const meal of meals) {
     const ings = Array.isArray(meal.ingredients) ? (meal.ingredients as string[]) : [];
@@ -328,6 +330,19 @@ export function buildGroceryListFromMeals(meals: Array<{ ingredients: any }>): P
       if (typeof raw !== "string" || !raw.trim()) continue;
       const parsed = parseIngredient(raw);
       const tableEntry = lookupPrice(parsed.name);
+
+      // Unavailable: aggregate by raw display so each mystery item is listed once.
+      if (!tableEntry) {
+        const key = itemKeyFor(parsed.name || raw);
+        const existing = aggregator.get(key);
+        if (existing) {
+          existing.rawSamples.push(raw);
+        } else {
+          aggregator.set(key, { qty: parsed.qty || 1, rawSamples: [raw], price: null, unit: parsed.unit || "" });
+        }
+        continue;
+      }
+
       const conv = UNIT_CONVERSIONS[tableEntry.unit];
       const factor = conv && parsed.unit && conv[parsed.unit] !== undefined ? conv[parsed.unit]
                    : conv && !parsed.unit && conv[""] !== undefined ? conv[""]
@@ -335,7 +350,7 @@ export function buildGroceryListFromMeals(meals: Array<{ ingredients: any }>): P
       const qtyInTableUnit = parsed.qty * factor;
       const key = itemKeyFor(parsed.name || raw);
       const existing = aggregator.get(key);
-      if (existing) {
+      if (existing && existing.price !== null) {
         existing.qty += qtyInTableUnit;
         existing.rawSamples.push(raw);
       } else {
@@ -346,19 +361,25 @@ export function buildGroceryListFromMeals(meals: Array<{ ingredients: any }>): P
 
   const byCategory = new Map<string, PricedGroceryItem[]>();
   let total = 0;
+  let unavailableCount = 0;
   for (const [key, agg] of aggregator) {
     const displayName = key.split("_").join(" ");
-    const estimatedPrice = round2(Math.max(0.25, agg.qty * agg.price));
-    const quantityLabel = `${formatQty(round2(agg.qty))} ${agg.unit}`;
     const category = categorizeIngredient(displayName);
+    const isUnavailable = agg.price === null;
+    const estimatedPrice = isUnavailable ? 0 : round2(Math.max(0.25, agg.qty * (agg.price as number)));
+    const quantityLabel = isUnavailable
+      ? (agg.unit ? `${formatQty(agg.qty)} ${agg.unit}` : formatQty(agg.qty))
+      : `${formatQty(round2(agg.qty))} ${agg.unit}`;
     const item: PricedGroceryItem = {
       key,
       name: displayName.replace(/\b\w/g, (c) => c.toUpperCase()),
-      quantity: quantityLabel,
+      quantity: quantityLabel.trim(),
       estimatedPrice,
       category,
+      priceSource: isUnavailable ? "unavailable" : "estimated",
     };
-    total += estimatedPrice;
+    if (isUnavailable) unavailableCount += 1;
+    else total += estimatedPrice;
     if (!byCategory.has(category)) byCategory.set(category, []);
     byCategory.get(category)!.push(item);
   }
@@ -369,5 +390,5 @@ export function buildGroceryListFromMeals(meals: Array<{ ingredients: any }>): P
     .filter((c) => byCategory.has(c))
     .map((name) => ({ name, items: byCategory.get(name)!.sort((a, b) => a.name.localeCompare(b.name)) }));
 
-  return { categories, total: round2(total) };
+  return { categories, total: round2(total), unavailableCount };
 }
