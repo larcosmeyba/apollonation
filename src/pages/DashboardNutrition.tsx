@@ -1082,10 +1082,23 @@ const DashboardNutrition = () => {
                   </div>
                 )}
                 {overBudget && (
-                  <p className="text-[11px] text-destructive mt-2 flex items-start gap-1">
-                    <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                    This meal plan exceeds your budget by ${Math.abs(remainingBudget!).toFixed(2)}. Adjust meals or raise your budget.
-                  </p>
+                  <div className="mt-3 flex items-start gap-2 p-3 rounded-lg bg-foreground/5 border border-border">
+                    <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-foreground/70" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] text-foreground/80 leading-snug">
+                        Your current meals run a little over budget. Tap "New Meals" below to generate cheaper alternatives that fit your budget.
+                      </p>
+                      <Button
+                        variant="apollo"
+                        size="sm"
+                        className="mt-2 h-7 text-[11px]"
+                        onClick={regenerateWeek}
+                        disabled={regenerating}
+                      >
+                        {regenerating ? "Regenerating…" : "Generate cheaper meals"}
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
 
