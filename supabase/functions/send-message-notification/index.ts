@@ -83,6 +83,37 @@ serve(async (req) => {
       return jsonResponse(req, { success: true, skipped: "blocked" });
     }
 
+    // 5-minute per-thread email rate limit. Pair is sorted so client/coach hit the same row.
+    const [pairA, pairB] = senderId < recipientId ? [senderId, recipientId] : [recipientId, senderId];
+    const { data: state } = await supabaseAdmin
+      .from("message_email_state")
+      .select("last_email_sent_at")
+      .eq("user_a", pairA)
+      .eq("user_b", pairB)
+      .maybeSingle();
+
+    if (state?.last_email_sent_at) {
+      const ageMs = Date.now() - new Date(state.last_email_sent_at).getTime();
+      if (ageMs < 5 * 60 * 1000) {
+        console.log("[EMAIL] Skipped — rate-limited (5 min window)", { senderId, recipientId, ageMs });
+        return jsonResponse(req, { success: true, skipped: "rate_limited" });
+      }
+    }
+
+    // Fetch the most recent message body to build a 200-char preview.
+    const { data: latestMsg } = await supabaseAdmin
+      .from("messages")
+      .select("content")
+      .eq("sender_id", senderId)
+      .eq("recipient_id", recipientId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const rawBody = (latestMsg?.content || "").trim();
+    const preview = rawBody.length > 200 ? rawBody.slice(0, 200) + "…" : rawBody;
+    const escapedPreview = preview
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
     if (senderIsAdmin) {
       // Respect coach_messages preference for client recipient.
       const { data: prefAllowed } = await supabaseAdmin.rpc("get_notification_preference", {
@@ -105,15 +136,25 @@ serve(async (req) => {
       const recipientName = profileData?.display_name || "there";
       const recipientEmail = recipientData.user.email;
 
-      await resend.emails.send({
-        from: "Apollo Reborn <onboarding@resend.dev>",
-        to: [recipientEmail],
-        subject: "Coach Marcos sent you a message",
-        html: buildEmail(recipientName, "Coach Marcos just sent you a new message. Log in to your dashboard to read and reply.", "https://apollonation.lovable.app/dashboard/messages"),
-      });
+      const previewLine = escapedPreview ? `“${escapedPreview}”` : "Coach Marcos just sent you a new message.";
 
-      // PII-free log: do not log recipient email.
-      console.log("[EMAIL] Sent client notification", { recipientId });
+      try {
+        await resend.emails.send({
+          from: "Apollo Reborn <onboarding@resend.dev>",
+          to: [recipientEmail],
+          subject: "Coach Marcos sent you a message",
+          html: buildEmail(recipientName, `${previewLine}<br/><br/>Log in to your dashboard to read and reply.`, "https://apollonation.lovable.app/dashboard/messages"),
+        });
+        // Persist rate-limit timestamp only on successful send.
+        await supabaseAdmin.from("message_email_state").upsert({
+          user_a: pairA, user_b: pairB, last_email_sent_at: new Date().toISOString(),
+        }, { onConflict: "user_a,user_b" });
+        console.log("[EMAIL] Sent client notification", { recipientId });
+      } catch (sendErr) {
+        // Resilient: never let email failure roll back the original message insert.
+        console.error("[EMAIL] Send failed (client notification)", sendErr instanceof Error ? sendErr.message : String(sendErr));
+        return jsonResponse(req, { success: true, email_failed: true });
+      }
 
       return jsonResponse(req, { success: true });
     } else {
@@ -121,16 +162,23 @@ serve(async (req) => {
         .from("profiles").select("display_name").eq("user_id", senderId).maybeSingle();
 
       const clientName = senderProfile?.display_name || "A client";
+      const previewLine = escapedPreview ? `“${escapedPreview}”` : `${clientName} just sent you a new message.`;
 
-      await resend.emails.send({
-        from: "Apollo Reborn <onboarding@resend.dev>",
-        to: [ADMIN_EMAIL],
-        subject: `${clientName} sent you a message`,
-        html: buildEmail("Coach", `${clientName} just sent you a new message. Log in to your admin panel to read and reply.`, "https://apollonation.lovable.app/admin"),
-      });
-
-      // PII-free log: senderId only, no name/email.
-      console.log("[EMAIL] Sent admin notification", { senderId });
+      try {
+        await resend.emails.send({
+          from: "Apollo Reborn <onboarding@resend.dev>",
+          to: [ADMIN_EMAIL],
+          subject: `${clientName} sent you a message`,
+          html: buildEmail("Coach", `${previewLine}<br/><br/>Log in to your admin panel to read and reply.`, "https://apollonation.lovable.app/admin"),
+        });
+        await supabaseAdmin.from("message_email_state").upsert({
+          user_a: pairA, user_b: pairB, last_email_sent_at: new Date().toISOString(),
+        }, { onConflict: "user_a,user_b" });
+        console.log("[EMAIL] Sent admin notification", { senderId });
+      } catch (sendErr) {
+        console.error("[EMAIL] Send failed (admin notification)", sendErr instanceof Error ? sendErr.message : String(sendErr));
+        return jsonResponse(req, { success: true, email_failed: true });
+      }
 
       return jsonResponse(req, { success: true });
     }
