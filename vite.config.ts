@@ -18,4 +18,11 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Strip console.* and debugger from production bundles. Keeps console.error
+  // visible (kept by `pure`) so production crashes still surface to native
+  // logs / Sentry-style sinks.
+  esbuild: {
+    drop: mode === "production" ? ["console", "debugger"] : [],
+    pure: mode === "production" ? ["console.log", "console.info", "console.debug", "console.warn"] : [],
+  },
 }));
