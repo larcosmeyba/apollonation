@@ -98,6 +98,8 @@ const DashboardNutrition = () => {
   const [budgetInput, setBudgetInput] = useState("");
   const [budgetSaving, setBudgetSaving] = useState(false);
   const [groceryWeek, setGroceryWeek] = useState(1);
+  const [budgetModalOpen, setBudgetModalOpen] = useState(false);
+  const [optimizingBudget, setOptimizingBudget] = useState(false);
   const [swapMeal, setSwapMeal] = useState<any | null>(null);
   const [swapSuggestions, setSwapSuggestions] = useState<MealSuggestion[]>([]);
   const [swapLoading, setSwapLoading] = useState(false);
@@ -204,13 +206,21 @@ const DashboardNutrition = () => {
         .upsert({ user_id: user.id, weekly_budget: v }, { onConflict: "user_id" });
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["food-budget", user.id] });
-      toast({ title: "Budget saved" });
+      toast({ title: "Budget saved", description: "Re-optimizing your grocery list…" });
+      setBudgetModalOpen(false);
+      // Server-side enforcement runs on the next render via the useEffect that
+      // watches `effectiveBudget`. We also kick it off explicitly so the user
+      // sees their list reconcile immediately.
+      if (activePlan?.id) {
+        await runBudgetOptimization(activePlan.id, groceryWeek);
+      }
     } catch (err: any) {
       toast({ title: "Couldn't save budget", description: err.message, variant: "destructive" });
     } finally {
       setBudgetSaving(false);
     }
   };
+
 
   const activePlan = selectedPlanId
     ? plans?.find((p) => p.id === selectedPlanId)
@@ -450,9 +460,9 @@ const DashboardNutrition = () => {
   const weekStartDay = (groceryWeek - 1) * 7 + 1;
   const weekEndDay = groceryWeek * 7;
   const weekMeals = (meals || []).filter((m) => m.day_number >= weekStartDay && m.day_number <= weekEndDay);
-  const pricedList: PricedGroceryList = buildGroceryListFromMeals(weekMeals);
 
-  // Persisted checkbox state for this plan/week
+  // Persisted checkbox + budget-swap state for this plan/week (loaded BEFORE
+  // building the priced list so quantity overrides are applied on first render).
   const { data: itemStates = [] } = useQuery({
     queryKey: ["grocery-item-states", user?.id, activePlan?.id, groceryWeek],
     queryFn: async () => {
@@ -468,12 +478,29 @@ const DashboardNutrition = () => {
     enabled: !!user && !!activePlan,
   });
 
-  const stateByKey: Record<string, { already_have: boolean; purchased: boolean }> = {};
-  for (const s of itemStates as any[]) stateByKey[s.item_key] = { already_have: !!s.already_have, purchased: !!s.purchased };
+  const stateByKey: Record<string, { already_have: boolean; purchased: boolean; quantity_factor: number; swapped_for_budget: boolean }> = {};
+  for (const s of itemStates as any[]) {
+    stateByKey[s.item_key] = {
+      already_have: !!s.already_have,
+      purchased: !!s.purchased,
+      quantity_factor: s.quantity_factor != null ? Number(s.quantity_factor) : 1,
+      swapped_for_budget: !!s.swapped_for_budget,
+    };
+  }
+
+  // Build budget-aware overrides map from persisted state.
+  const overrides: Record<string, { quantityFactor: number; swappedForBudget: boolean }> = {};
+  for (const [key, st] of Object.entries(stateByKey)) {
+    if (st.swapped_for_budget && st.quantity_factor < 1) {
+      overrides[key] = { quantityFactor: st.quantity_factor, swappedForBudget: true };
+    }
+  }
+
+  const pricedList: PricedGroceryList = buildGroceryListFromMeals(weekMeals, overrides);
 
   const toggleItemState = async (itemKey: string, field: "already_have" | "purchased", value: boolean) => {
     if (!user || !activePlan) return;
-    const existing = stateByKey[itemKey] || { already_have: false, purchased: false };
+    const existing = stateByKey[itemKey] || { already_have: false, purchased: false, quantity_factor: 1, swapped_for_budget: false };
     const next = { ...existing, [field]: value };
     await (supabase as any)
       .from("grocery_item_states")
@@ -484,6 +511,8 @@ const DashboardNutrition = () => {
         item_key: itemKey,
         already_have: next.already_have,
         purchased: next.purchased,
+        quantity_factor: existing.quantity_factor,
+        swapped_for_budget: existing.swapped_for_budget,
       }, { onConflict: "user_id,plan_id,week_number,item_key" });
     queryClient.invalidateQueries({ queryKey: ["grocery-item-states", user.id, activePlan.id, groceryWeek] });
   };
@@ -491,6 +520,7 @@ const DashboardNutrition = () => {
   // Effective weekly grocery total: excludes "already have" items AND
   // unavailable-priced items (their estimatedPrice is 0 by construction in
   // buildGroceryListFromMeals, so they don't skew the total either way).
+  // estimatedPrice already reflects budget-driven quantity reductions.
   const effectiveTotal = pricedList.categories.reduce((sum, cat) => {
     return sum + cat.items.reduce((s, item) => s + (stateByKey[item.key]?.already_have ? 0 : item.estimatedPrice), 0);
   }, 0);
@@ -504,6 +534,38 @@ const DashboardNutrition = () => {
   const remainingBudget = effectiveBudget !== null ? effectiveBudget - effectiveTotal : null;
   const overBudget = remainingBudget !== null && remainingBudget < 0;
   const nearBudget = remainingBudget !== null && remainingBudget >= 0 && effectiveBudget !== null && effectiveBudget > 0 && (remainingBudget / effectiveBudget) <= 0.1;
+  const swappedItemCount = pricedList.categories.reduce(
+    (n, c) => n + c.items.filter((i) => i.swappedForBudget).length, 0,
+  );
+
+  // Server-side budget enforcement. Idempotent — safe to call on regen, budget
+  // change, week change. Persists per-item quantity_factor.
+  const runBudgetOptimization = async (planIdArg?: string, weekArg?: number) => {
+    const planId = planIdArg ?? activePlan?.id;
+    const week = weekArg ?? groceryWeek;
+    if (!user || !planId) return;
+    setOptimizingBudget(true);
+    try {
+      const { error } = await supabase.functions.invoke("apply-budget-to-grocery-list", {
+        body: { planId, week },
+      });
+      if (error) throw new Error(error.message);
+      queryClient.invalidateQueries({ queryKey: ["grocery-item-states", user.id, planId, week] });
+    } catch (err: any) {
+      console.error("budget optimization failed", err);
+      // Non-blocking: client still shows the un-optimized list with over-budget banner.
+    } finally {
+      setOptimizingBudget(false);
+    }
+  };
+
+  // Re-optimize on budget change, plan change, or week change (debounced via React Query).
+  useEffect(() => {
+    if (activePlan?.id && weekMeals.length > 0) {
+      runBudgetOptimization(activePlan.id, groceryWeek);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePlan?.id, groceryWeek, effectiveBudget, meals?.length]);
 
 
   const openSwap = async (meal: any) => {
@@ -528,14 +590,6 @@ const DashboardNutrition = () => {
 
   const regenerateWeek = async () => {
     if (!activePlan || regenerating) return;
-    if (overBudget) {
-      toast({
-        title: "Over budget",
-        description: `Current plan is $${Math.abs(remainingBudget!).toFixed(2)} over your $${weeklyBudget?.toFixed(2)} weekly budget. Raise your budget or simplify meals before regenerating.`,
-        variant: "destructive",
-      });
-      return;
-    }
     setRegenerating(true);
     try {
       const resp = await supabase.functions.invoke("client-regenerate-meal-plan", { body: { planId: activePlan.id, week: currentWeek } });
@@ -546,11 +600,15 @@ const DashboardNutrition = () => {
       if (resp.data?.error) throw new Error(resp.data.error);
       toast({ title: "Meal plan refreshed!", description: `Week ${currentWeek} has been regenerated.` });
       queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan.id] });
+      // Re-run quantity optimization against the new meal set so the grocery
+      // list reflects the new ingredients within budget.
+      await runBudgetOptimization(activePlan.id, currentWeek);
     } catch (err: any) {
       console.error("Regenerate error:", err);
       toast({ title: "Could not regenerate", description: err.message || "Unknown error", variant: "destructive" });
     }
     finally { setRegenerating(false); }
+
   };
 
   return (
@@ -757,6 +815,45 @@ const DashboardNutrition = () => {
                   {macroSaving ? "Saving..." : "Save"}
                 </Button>
               )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Weekly Budget Modal — sets `user_food_budgets.weekly_budget`, then
+          triggers server-side `apply-budget-to-grocery-list` so the next
+          render of the grocery tab reflects the new cap. */}
+      <Dialog open={budgetModalOpen} onOpenChange={setBudgetModalOpen}>
+        <DialogContent className="sm:max-w-sm bg-background border-border">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">Set weekly food budget</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              We'll keep your weekly grocery list under this number by reducing quantities of pantry, dairy, and starch items — never proteins or produce. If we can't fit the full plan, we'll tell you honestly instead of dropping items.
+            </p>
+            <div>
+              <label className="text-[10px] uppercase tracking-wider text-foreground/60 block mb-1.5">Weekly budget (USD)</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60">$</span>
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="1"
+                  placeholder="100"
+                  value={budgetInput}
+                  onChange={(e) => setBudgetInput(e.target.value)}
+                  className="pl-7 bg-card border-border"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={() => setBudgetModalOpen(false)} disabled={budgetSaving}>Cancel</Button>
+              <Button onClick={saveBudget} disabled={budgetSaving || !budgetInput.trim()}>
+                {budgetSaving ? "Saving…" : "Save budget"}
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -1146,13 +1243,17 @@ const DashboardNutrition = () => {
                   <div className="space-y-4">
                     {/* Budget header — reconciles total at top of grocery tab so user
                         never has to scroll back to the budget card to see status. */}
-                    {effectiveBudget !== null && effectiveBudget > 0 && (
+                    {effectiveBudget !== null && effectiveBudget > 0 ? (
                       <div className={`p-3 rounded-lg border ${overBudget ? "border-destructive/40 bg-destructive/5" : nearBudget ? "border-yellow-500/40 bg-yellow-500/5" : "border-green-500/30 bg-green-500/5"}`}>
                         <div className="flex items-baseline justify-between gap-2">
-                          <div>
-                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Weekly budget</p>
-                            <p className="font-heading text-lg text-foreground">${effectiveBudget.toFixed(2)}</p>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => { setBudgetInput(String(effectiveBudget)); setBudgetModalOpen(true); }}
+                            className="text-left"
+                          >
+                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Weekly budget · tap to edit</p>
+                            <p className="font-heading text-lg text-foreground underline-offset-2 hover:underline">${effectiveBudget.toFixed(2)}</p>
+                          </button>
                           <div className="text-right">
                             <p className="text-[10px] uppercase tracking-wider text-foreground/60">Current total</p>
                             <p className={`font-heading text-lg ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</p>
@@ -1164,16 +1265,46 @@ const DashboardNutrition = () => {
                           ) : nearBudget ? (
                             <>⚠ ${remainingBudget!.toFixed(2)} left</>
                           ) : (
-                            <>✓ ${remainingBudget!.toFixed(2)} under budget</>
+                            <>✓ ${remainingBudget!.toFixed(2)} under budget{swappedItemCount > 0 ? ` · ${swappedItemCount} item${swappedItemCount === 1 ? "" : "s"} reduced` : ""}</>
                           )}
                         </div>
                         {overBudget && (
-                          <p className="text-[10px] text-foreground/60 mt-2 leading-relaxed">
-                            We list the full plan so you can decide what to swap or skip — items aren't dropped automatically.
-                          </p>
+                          <div className="mt-2 space-y-2">
+                            <p className="text-[10px] text-foreground/70 leading-relaxed">
+                              We reduced quantities as much as the recipes allow but still couldn't fit your budget. Increase the budget or remove items manually — we don't drop items silently.
+                            </p>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-[11px]"
+                                onClick={() => { setBudgetInput(String(Math.ceil(effectiveTotal))); setBudgetModalOpen(true); }}
+                              >
+                                Increase budget
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 text-[11px]"
+                                disabled={optimizingBudget}
+                                onClick={() => runBudgetOptimization()}
+                              >
+                                {optimizingBudget ? "Re-optimizing…" : "Re-optimize"}
+                              </Button>
+                            </div>
+                          </div>
                         )}
                       </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => { setBudgetInput(""); setBudgetModalOpen(true); }}
+                        className="w-full p-3 rounded-lg border border-dashed border-foreground/30 text-foreground/70 hover:border-foreground/60 hover:text-foreground transition-colors text-sm"
+                      >
+                        Set a weekly budget — we'll keep your grocery list under it
+                      </button>
                     )}
+
 
                     {/* Week selector + running total */}
                     <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
@@ -1229,6 +1360,11 @@ const DashboardNutrition = () => {
                                         </>
                                       )}
                                     </div>
+                                    {item.swappedForBudget && item.originalQuantity && (
+                                      <p className="text-[10px] text-yellow-600 dark:text-yellow-500 mt-0.5">
+                                        ↓ Reduced from {item.originalQuantity} to fit budget
+                                      </p>
+                                    )}
                                     <div className="flex items-center gap-4 mt-2">
                                       <label className="flex items-center gap-1.5 cursor-pointer">
                                         <Checkbox

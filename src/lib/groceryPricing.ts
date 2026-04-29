@@ -307,10 +307,16 @@ export function itemKeyFor(name: string): string {
 export type PricedGroceryItem = {
   key: string;
   name: string;
-  quantity: string;
-  estimatedPrice: number;
+  quantity: string;          // current display quantity (after any budget-driven reduction)
+  estimatedPrice: number;    // current price (after any reduction)
   category: string;
   priceSource: "estimated" | "unavailable";
+  // Quantity-tier swap fields (Phase 2 budget enforcement)
+  originalQuantity?: string; // recipe-required quantity before reduction
+  originalPrice?: number;    // recipe-required price before reduction
+  quantityFactor: number;    // 1.0 = full recipe amount, < 1.0 = reduced for budget
+  minFactor: number;         // floor — cannot reduce below this without breaking recipe
+  swappedForBudget: boolean;
 };
 
 export type PricedGroceryList = {
@@ -319,9 +325,34 @@ export type PricedGroceryList = {
   unavailableCount: number; // # of items we couldn't price
 };
 
+// Per-category minimum quantity multiplier. The optimizer never reduces an item
+// below `minFactor * originalQty` — that's the recipe's true requirement.
+// Proteins and produce are recipe-critical: zero reduction allowed.
+// Pantry items (oils, sauces) can be bought in smaller containers.
+const MIN_FACTOR_BY_CATEGORY: Record<string, number> = {
+  "Protein": 1.0,
+  "Produce": 1.0,
+  "Dairy": 0.7,
+  "Grains & Starches": 0.7,
+  "Fruit": 0.5,
+  "Nuts & Seeds": 0.5,
+  "Pantry & Condiments": 0.3,
+  "Other": 0.5,
+};
+
+export function minFactorFor(category: string): number {
+  return MIN_FACTOR_BY_CATEGORY[category] ?? 0.5;
+}
+
 // Build a complete priced grocery list directly from the meals of a given week.
 // Aggregates duplicate ingredients across meals.
-export function buildGroceryListFromMeals(meals: Array<{ ingredients: any }>): PricedGroceryList {
+//
+// `overrides` (optional) lets the caller apply per-item quantity reductions
+// produced by the budget optimizer. Keys match `PricedGroceryItem.key`.
+export function buildGroceryListFromMeals(
+  meals: Array<{ ingredients: any }>,
+  overrides?: Record<string, { quantityFactor: number; swappedForBudget?: boolean }>,
+): PricedGroceryList {
   const aggregator = new Map<string, { qty: number; rawSamples: string[]; price: number | null; unit: string }>();
 
   for (const meal of meals) {
@@ -366,17 +397,37 @@ export function buildGroceryListFromMeals(meals: Array<{ ingredients: any }>): P
     const displayName = key.split("_").join(" ");
     const category = categorizeIngredient(displayName);
     const isUnavailable = agg.price === null;
-    const estimatedPrice = isUnavailable ? 0 : round2(Math.max(0.25, agg.qty * (agg.price as number)));
+    const minFactor = minFactorFor(category);
+    const override = overrides?.[key];
+    // Clamp override to [minFactor, 1] so the optimizer can never push us below
+    // recipe minimums even if a stale persisted value is loaded.
+    const rawFactor = override?.quantityFactor ?? 1;
+    const quantityFactor = Math.max(minFactor, Math.min(1, rawFactor));
+    const swappedForBudget = !!override?.swappedForBudget && quantityFactor < 1;
+
+    const originalQtyDisplay = `${formatQty(round2(agg.qty))} ${agg.unit}`.trim();
+    const reducedQty = agg.qty * quantityFactor;
+    const reducedQtyDisplay = `${formatQty(round2(reducedQty))} ${agg.unit}`.trim();
+
+    const originalPrice = isUnavailable ? 0 : round2(Math.max(0.25, agg.qty * (agg.price as number)));
+    const estimatedPrice = isUnavailable ? 0 : round2(Math.max(0.25, reducedQty * (agg.price as number)));
+
     const quantityLabel = isUnavailable
       ? (agg.unit ? `${formatQty(agg.qty)} ${agg.unit}` : formatQty(agg.qty))
-      : `${formatQty(round2(agg.qty))} ${agg.unit}`;
+      : reducedQtyDisplay;
+
     const item: PricedGroceryItem = {
       key,
       name: displayName.replace(/\b\w/g, (c) => c.toUpperCase()),
-      quantity: quantityLabel.trim(),
+      quantity: quantityLabel,
       estimatedPrice,
       category,
       priceSource: isUnavailable ? "unavailable" : "estimated",
+      quantityFactor,
+      minFactor,
+      swappedForBudget,
+      originalQuantity: !isUnavailable && quantityFactor < 1 ? originalQtyDisplay : undefined,
+      originalPrice: !isUnavailable && quantityFactor < 1 ? originalPrice : undefined,
     };
     if (isUnavailable) unavailableCount += 1;
     else total += estimatedPrice;
@@ -391,4 +442,88 @@ export function buildGroceryListFromMeals(meals: Array<{ ingredients: any }>): P
     .map((name) => ({ name, items: byCategory.get(name)!.sort((a, b) => a.name.localeCompare(b.name)) }));
 
   return { categories, total: round2(total), unavailableCount };
+}
+
+// ── Quantity-tier budget optimizer ──
+// Pure function. Same logic runs client-side (preview) and server-side
+// (edge function `apply-budget-to-grocery-list` is the source of truth).
+//
+// Strategy: sort priceable items by max possible savings (price × (1 - minFactor))
+// descending, reduce each to its floor until total ≤ budget OR everything
+// is at its minimum. Never reduces below `minFactor * originalQty`.
+//
+// Returns the new per-item factors and a swap log. The caller persists the
+// factors and re-renders the list with overrides applied.
+export type BudgetOptimizationResult = {
+  factors: Record<string, { quantityFactor: number; swappedForBudget: boolean }>;
+  swapLog: Array<{ key: string; name: string; originalPrice: number; newPrice: number; saved: number }>;
+  optimizedTotal: number;
+  overBudgetBy: number; // 0 if within budget, positive when even max reduction can't fit
+};
+
+export function applyBudgetOptimization(
+  list: PricedGroceryList,
+  weeklyBudgetUsd: number,
+): BudgetOptimizationResult {
+  // Flatten priceable items, capture starting state at full quantity.
+  type Working = {
+    key: string;
+    name: string;
+    fullPrice: number;     // price at quantityFactor = 1
+    minFactor: number;
+    factor: number;        // mutable
+  };
+  const items: Working[] = [];
+  for (const cat of list.categories) {
+    for (const it of cat.items) {
+      if (it.priceSource === "unavailable") continue;
+      // `originalPrice` is set when factor < 1; otherwise estimatedPrice IS the full price.
+      const fullPrice = it.originalPrice ?? it.estimatedPrice;
+      items.push({ key: it.key, name: it.name, fullPrice, minFactor: it.minFactor, factor: 1 });
+    }
+  }
+
+  let total = items.reduce((s, i) => s + i.fullPrice, 0);
+  if (total <= weeklyBudgetUsd) {
+    return { factors: {}, swapLog: [], optimizedTotal: round2(total), overBudgetBy: 0 };
+  }
+
+  // Sort by max savings desc — items with biggest reducible spend get cut first.
+  items.sort((a, b) => (b.fullPrice * (1 - b.minFactor)) - (a.fullPrice * (1 - a.minFactor)));
+
+  for (const it of items) {
+    if (total <= weeklyBudgetUsd) break;
+    if (it.minFactor >= 1) continue; // recipe-locked, can't reduce
+    const overBy = total - weeklyBudgetUsd;
+    const maxReducible = it.fullPrice * (1 - it.minFactor);
+    if (maxReducible <= 0) continue;
+    const reduceBy = Math.min(overBy, maxReducible);
+    const newFactor = Math.max(it.minFactor, (it.fullPrice * it.factor - reduceBy) / it.fullPrice);
+    const delta = it.fullPrice * (it.factor - newFactor);
+    it.factor = newFactor;
+    total -= delta;
+  }
+
+  const factors: BudgetOptimizationResult["factors"] = {};
+  const swapLog: BudgetOptimizationResult["swapLog"] = [];
+  for (const it of items) {
+    if (it.factor < 1) {
+      factors[it.key] = { quantityFactor: round2(it.factor), swappedForBudget: true };
+      const newPrice = round2(Math.max(0.25, it.fullPrice * it.factor));
+      swapLog.push({
+        key: it.key,
+        name: it.name,
+        originalPrice: round2(it.fullPrice),
+        newPrice,
+        saved: round2(it.fullPrice - newPrice),
+      });
+    }
+  }
+
+  return {
+    factors,
+    swapLog,
+    optimizedTotal: round2(total),
+    overBudgetBy: total > weeklyBudgetUsd ? round2(total - weeklyBudgetUsd) : 0,
+  };
 }

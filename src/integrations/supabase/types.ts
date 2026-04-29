@@ -848,8 +848,11 @@ export type Database = {
           created_at: string
           id: string
           item_key: string
+          original_quantity: string | null
           plan_id: string
           purchased: boolean
+          quantity_factor: number
+          swapped_for_budget: boolean
           updated_at: string
           user_id: string
           week_number: number
@@ -859,8 +862,11 @@ export type Database = {
           created_at?: string
           id?: string
           item_key: string
+          original_quantity?: string | null
           plan_id: string
           purchased?: boolean
+          quantity_factor?: number
+          swapped_for_budget?: boolean
           updated_at?: string
           user_id: string
           week_number: number
@@ -870,8 +876,11 @@ export type Database = {
           created_at?: string
           id?: string
           item_key?: string
+          original_quantity?: string | null
           plan_id?: string
           purchased?: boolean
+          quantity_factor?: number
+          swapped_for_budget?: boolean
           updated_at?: string
           user_id?: string
           week_number?: number
