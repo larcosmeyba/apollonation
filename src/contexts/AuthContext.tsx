@@ -197,12 +197,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, displayName?: string) => {
     try {
+      // Native (iOS/Android) WebViews resolve window.location.origin to
+      // capacitor://localhost or https://localhost — Supabase rejects those
+      // as redirect URLs and the confirmation email link dies. Always use
+      // the production web URL on native; web can use the current origin.
+      const emailRedirectTo = Capacitor.isNativePlatform()
+        ? "https://apollonation.lovable.app/auth"
+        : `${window.location.origin}/auth`;
+
       const { error } = await withTimeout(
         supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo,
             data: {
               display_name: displayName,
             },

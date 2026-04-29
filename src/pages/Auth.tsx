@@ -127,13 +127,23 @@ const Auth = () => {
         }
         const { error } = await signUp(email, password, displayName);
         if (error) {
-          // Show the specific message ONLY for invalid email formatting,
-          // generic message for everything else.
-          if (isInvalidEmailFormatError(error.message)) {
-            toast({ title: "Sign up failed", description: "Please enter a valid email address.", variant: "destructive" });
+          const msg = error.message || "";
+          let description = GENERIC_SIGNUP_FAILURE;
+          if (isInvalidEmailFormatError(msg) || msg.includes("Invalid email")) {
+            description = "Please enter a valid email address.";
+          } else if (msg.includes("User already registered") || msg.toLowerCase().includes("already registered")) {
+            description = "An account with this email already exists. Try signing in instead.";
+          } else if (msg.includes("Password should be at least") || msg.toLowerCase().includes("password")) {
+            description = msg; // Echo Supabase's specific password rule
+          } else if (msg.toLowerCase().includes("rate limit")) {
+            description = "Too many attempts. Wait a few minutes and try again.";
+          } else if (msg.toLowerCase().includes("redirect")) {
+            console.error("[Auth] Sign-up redirect misconfiguration:", msg);
+            description = "Sign-up is temporarily misconfigured. Contact support.";
           } else {
-            toast({ title: "Sign up failed", description: GENERIC_SIGNUP_FAILURE, variant: "destructive" });
+            console.error("[Auth] Generic signup failure:", msg, error);
           }
+          toast({ title: "Sign up failed", description, variant: "destructive" });
         } else {
           // Best-effort: persist age/terms acceptance timestamp on the profile row.
           // Profile is created by the handle_new_user trigger; this update may run

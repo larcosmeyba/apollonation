@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/timeout";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Shield, Mail, Sparkles, FileText, Trash2 } from "lucide-react";
@@ -21,13 +22,22 @@ const PrivacyDataView = ({ onBack }: { onBack: () => void }) => {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
-        .from("user_privacy_preferences")
-        .select("ai_personalization_opted_out, marketing_opted_out")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (data) setPrefs(data);
-      setLoading(false);
+      try {
+        const { data } = await withTimeout(
+          supabase
+            .from("user_privacy_preferences")
+            .select("ai_personalization_opted_out, marketing_opted_out")
+            .eq("user_id", user.id)
+            .maybeSingle(),
+          8_000,
+          "Privacy preferences load timed out"
+        );
+        if (data) setPrefs(data);
+      } catch (e) {
+        console.error("[PrivacyDataView] load failed", e);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, [user]);
 

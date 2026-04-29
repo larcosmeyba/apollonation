@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/timeout";
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, subDays } from "date-fns";
@@ -85,25 +86,43 @@ const Dashboard = () => {
   const { data: newThisWeek = [], isLoading: isLoadingNew } = useQuery({
     queryKey: ["new-this-week", weekStart],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("workouts")
-        .select("*")
-        .gte("created_at", weekStart)
-        .order("created_at", { ascending: false })
-        .limit(10);
-      return data || [];
+      try {
+        const { data } = await withTimeout(
+          supabase
+            .from("workouts")
+            .select("*")
+            .gte("created_at", weekStart)
+            .order("created_at", { ascending: false })
+            .limit(10),
+          10_000,
+          "new-this-week timed out"
+        );
+        return data || [];
+      } catch (e) {
+        console.warn("[dashboard] new-this-week failed", e);
+        return [];
+      }
     },
   });
 
   const { data: allWorkouts = [] } = useQuery({
     queryKey: ["all-workouts-home"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("workouts")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(12);
-      return data || [];
+      try {
+        const { data } = await withTimeout(
+          supabase
+            .from("workouts")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(12),
+          10_000,
+          "all-workouts-home timed out"
+        );
+        return data || [];
+      } catch (e) {
+        console.warn("[dashboard] all-workouts-home failed", e);
+        return [];
+      }
     },
   });
 
@@ -114,8 +133,8 @@ const Dashboard = () => {
       if (!user) return 0;
       const since = format(subDays(new Date(), 60), "yyyy-MM-dd");
       const results = await Promise.allSettled([
-        supabase.from("workout_session_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
-        supabase.from("macro_logs").select("log_date").eq("user_id", user.id).gte("log_date", since),
+        withTimeout(supabase.from("workout_session_logs").select("log_date").eq("user_id", user.id).gte("log_date", since), 10_000, "sessions timed out"),
+        withTimeout(supabase.from("macro_logs").select("log_date").eq("user_id", user.id).gte("log_date", since), 10_000, "macros timed out"),
       ]);
       const sessions = results[0].status === "fulfilled" ? results[0].value : (console.warn("[home-streak] sessions failed", (results[0] as PromiseRejectedResult).reason), { data: [] as any[] });
       const macros = results[1].status === "fulfilled" ? results[1].value : (console.warn("[home-streak] macros failed", (results[1] as PromiseRejectedResult).reason), { data: [] as any[] });
@@ -140,12 +159,21 @@ const Dashboard = () => {
     queryKey: ["user-favorites", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data } = await supabase
-        .from("user_favorites")
-        .select("workout_id")
-        .eq("user_id", user.id)
-        .not("workout_id", "is", null);
-      return data?.map(f => f.workout_id).filter(Boolean) as string[] || [];
+      try {
+        const { data } = await withTimeout(
+          supabase
+            .from("user_favorites")
+            .select("workout_id")
+            .eq("user_id", user.id)
+            .not("workout_id", "is", null),
+          10_000,
+          "favorites timed out"
+        );
+        return data?.map(f => f.workout_id).filter(Boolean) as string[] || [];
+      } catch (e) {
+        console.warn("[dashboard] favorites failed", e);
+        return [];
+      }
     },
     enabled: !!user,
   });
