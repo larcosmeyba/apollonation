@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { z } from "https://esm.sh/zod@3.23.8";
