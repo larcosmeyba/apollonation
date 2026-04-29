@@ -1,16 +1,18 @@
-import { Link, useLocation } from "react-router-dom";
-import { Home, Play, Flame, User, Lock } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Home, Play, Flame, MessageCircle, User, Lock } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 
 const tabs = [
   { label: "Home", href: "/dashboard", icon: Home, lockKey: null as null | "premium" | "elite" },
   { label: "On Demand", href: "/dashboard/workouts", icon: Play, lockKey: null },
   { label: "Fuel", href: "/dashboard/nutrition", icon: Flame, lockKey: "premium" as const },
+  { label: "Messages", href: "/dashboard/messages", icon: MessageCircle, lockKey: "elite" as const },
   { label: "Profile", href: "/dashboard/profile", icon: User, lockKey: null },
 ];
 
 const DashboardBottomTabs = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { hasPremiumAccess, hasEliteAccess } = useAccessControl();
 
   const isActive = (href: string) => location.pathname === href;
@@ -30,6 +32,13 @@ const DashboardBottomTabs = () => {
             <Link
               key={tab.href}
               to={tab.href}
+              onClick={(e) => {
+                if (locked) {
+                  e.preventDefault();
+                  const reason = tab.lockKey === "elite" ? "elite" : "premium";
+                  navigate(`/subscribe?reason=${reason}`);
+                }
+              }}
               className="flex flex-col items-center justify-center gap-1 flex-1 py-1.5 transition-all relative min-w-0"
             >
               {active && (
