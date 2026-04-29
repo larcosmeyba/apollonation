@@ -3,6 +3,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
 
+const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "Apollo Reborn™ <noreply@apolloreborn.com>";
+const APP_URL = Deno.env.get("APP_URL") ?? "https://apolloreborn.com";
+
 function buildEmail(name: string, body: string, link: string) {
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #0a0a0a; color: #e5e5e5;">
