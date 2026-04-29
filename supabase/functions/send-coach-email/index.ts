@@ -112,7 +112,7 @@ serve(async (req) => {
       const name = profile?.display_name || "there";
 
       await resend.emails.send({
-        from: "Apollo Reborn <onboarding@resend.dev>",
+        from: (Deno.env.get("EMAIL_FROM") ?? "Apollo Reborn™ <noreply@apolloreborn.com>"),
         to: [recipientAuth.user.email],
         subject: subject || "Message from Your Coach",
         html: buildEmail(name, message, "direct"),
@@ -148,7 +148,7 @@ serve(async (req) => {
           const name = profile?.display_name || "there";
 
           await resend.emails.send({
-            from: "Apollo Reborn <onboarding@resend.dev>",
+            from: (Deno.env.get("EMAIL_FROM") ?? "Apollo Reborn™ <noreply@apolloreborn.com>"),
             to: [recipientAuth.user.email],
             subject: subject || "A Message from the Apollo Team",
             html: buildEmail(name, message, "broadcast"),

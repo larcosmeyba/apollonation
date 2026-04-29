@@ -13,16 +13,53 @@ import {
 } from "@/lib/purchases";
 import { Loader2, Check, RotateCcw, Smartphone } from "lucide-react";
 
+interface IntroOffer {
+  periodLabel: string; // e.g. "7 days"
+  isFree: boolean;
+}
+
 interface UiPackage {
   identifier: "monthly" | "annual";
   priceString: string;
+  periodLabel: "month" | "year";
+  introOffer: IntroOffer | null;
   raw: any;
 }
 
 interface ElitePackage {
   identifier: string;
   priceString: string;
+  periodLabel: "month" | "year";
+  introOffer: IntroOffer | null;
   raw: any;
+}
+
+// Read intro offer from a RevenueCat package. Returns null when no intro exists
+// so we never advertise a trial that isn't actually configured in the store.
+function readIntroOffer(pkg: any): IntroOffer | null {
+  const intro = pkg?.product?.introPrice;
+  if (!intro) return null;
+  // RC normalizes price to a number; 0 means "free trial". Anything > 0 is
+  // a discounted intro, which we conservatively also surface as a trial-like
+  // teaser only if it's free — paid intro pricing has its own disclosure rules.
+  const isFree = typeof intro.price === "number" ? intro.price === 0 : !!intro.price?.amount === false;
+  if (!isFree) return null;
+  // periodNumberOfUnits + periodUnit (DAY/WEEK/MONTH/YEAR)
+  const n: number = intro.periodNumberOfUnits ?? intro.period?.numberOfUnits ?? 0;
+  const unitRaw: string = (intro.periodUnit ?? intro.period?.unit ?? "").toString().toUpperCase();
+  if (!n || !unitRaw) return null;
+  const unitMap: Record<string, string> = {
+    DAY: "day", D: "day",
+    WEEK: "week", W: "week",
+    MONTH: "month", M: "month",
+    YEAR: "year", Y: "year",
+  };
+  const unit = unitMap[unitRaw] ?? unitRaw.toLowerCase();
+  return { periodLabel: `${n} ${unit}${n === 1 ? "" : "s"}`, isFree: true };
+}
+
+function periodFromIdentifier(id: string): "month" | "year" {
+  return id.toLowerCase().includes("annual") || id.toLowerCase().includes("year") ? "year" : "month";
 }
 
 const REASON_BANNERS: Record<string, string> = {
@@ -77,6 +114,8 @@ const Subscribe = () => {
           ui.push({
             identifier: "monthly",
             priceString: monthly.product?.priceString ?? "—",
+            periodLabel: "month",
+            introOffer: readIntroOffer(monthly),
             raw: monthly,
           });
         }
@@ -84,6 +123,8 @@ const Subscribe = () => {
           ui.push({
             identifier: "annual",
             priceString: annual.product?.priceString ?? "—",
+            periodLabel: "year",
+            introOffer: readIntroOffer(annual),
             raw: annual,
           });
         }
@@ -99,6 +140,8 @@ const Subscribe = () => {
           .map((p: any) => ({
             identifier: p.identifier,
             priceString: p.product?.priceString ?? "—",
+            periodLabel: periodFromIdentifier(p.identifier),
+            introOffer: readIntroOffer(p),
             raw: p,
           }));
         setElitePackages(elite);
@@ -171,7 +214,11 @@ const Subscribe = () => {
       await purchasePackage(pkg.raw);
       await syncEntitlement();
       await refreshProfile();
-      toast({ title: "Welcome to Apollo Reborn™", description: "Your subscription is active." });
+      const isElite = String(pkg.identifier).toLowerCase().includes("elite");
+      toast({
+        title: isElite ? "Welcome to Apollo Elite™" : "Welcome to Apollo Reborn™",
+        description: "Your subscription is active.",
+      });
       navigate("/dashboard");
     } catch (err: any) {
       if (err?.userCancelled || err?.code === "PURCHASE_CANCELLED" || err?.code === "USER_CANCELLED") return;
@@ -305,42 +352,69 @@ const Subscribe = () => {
                   Open the app on your phone to subscribe.
                 </p>
               ) : offeringsEmpty ? (
-                <p className="text-sm text-muted-foreground">
-                  Plans unavailable — try again later.
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Plans unavailable — try again later.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => window.location.reload()}
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" /> Retry
+                  </Button>
+                </div>
               ) : (
                 <div className="space-y-2">
                   {monthlyPkg && (
-                    <Button
-                      variant="apollo"
-                      className="w-full"
-                      disabled={purchasing !== null}
-                      onClick={() => handlePurchase(monthlyPkg)}
-                    >
-                      {purchasing === monthlyPkg.identifier ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
-                        </>
-                      ) : (
-                        `Unlock Apollo Reborn™ — ${monthlyPkg.priceString} / month`
-                      )}
-                    </Button>
+                    <>
+                      <Button
+                        variant="apollo"
+                        className="w-full"
+                        disabled={purchasing !== null}
+                        onClick={() => handlePurchase(monthlyPkg)}
+                      >
+                        {purchasing === monthlyPkg.identifier ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
+                          </>
+                        ) : monthlyPkg.introOffer ? (
+                          `Start ${monthlyPkg.introOffer.periodLabel} free — Apollo Reborn™ Monthly`
+                        ) : (
+                          `Unlock Apollo Reborn™ — ${monthlyPkg.priceString} / month`
+                        )}
+                      </Button>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                        {monthlyPkg.introOffer
+                          ? `${monthlyPkg.introOffer.periodLabel} free, then ${monthlyPkg.priceString}/month. Auto-renews monthly until cancelled. Cancel anytime in App Store / Google Play settings.`
+                          : `${monthlyPkg.priceString}/month. Auto-renews monthly until cancelled. Cancel anytime in App Store / Google Play settings.`}
+                      </p>
+                    </>
                   )}
                   {annualPkg && (
-                    <Button
-                      variant="apollo"
-                      className="w-full"
-                      disabled={purchasing !== null}
-                      onClick={() => handlePurchase(annualPkg)}
-                    >
-                      {purchasing === annualPkg.identifier ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
-                        </>
-                      ) : (
-                        `Unlock Apollo Reborn™ — ${annualPkg.priceString} / year`
-                      )}
-                    </Button>
+                    <>
+                      <Button
+                        variant="apollo"
+                        className="w-full"
+                        disabled={purchasing !== null}
+                        onClick={() => handlePurchase(annualPkg)}
+                      >
+                        {purchasing === annualPkg.identifier ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
+                          </>
+                        ) : annualPkg.introOffer ? (
+                          `Start ${annualPkg.introOffer.periodLabel} free — Apollo Reborn™ Annual`
+                        ) : (
+                          `Unlock Apollo Reborn™ — ${annualPkg.priceString} / year`
+                        )}
+                      </Button>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                        {annualPkg.introOffer
+                          ? `${annualPkg.introOffer.periodLabel} free, then ${annualPkg.priceString}/year. Auto-renews yearly until cancelled. Cancel anytime in App Store / Google Play settings.`
+                          : `${annualPkg.priceString}/year. Auto-renews yearly until cancelled. Cancel anytime in App Store / Google Play settings.`}
+                      </p>
+                    </>
                   )}
                 </div>
               )}
@@ -366,27 +440,44 @@ const Subscribe = () => {
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Plans loading…
                 </Button>
               ) : elitePackages.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Elite plan unavailable — try again later.
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Elite plan unavailable — try again later.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => window.location.reload()}
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" /> Retry
+                  </Button>
+                </div>
               ) : (
                 <div className="space-y-2">
                   {elitePackages.map((pkg) => (
-                    <Button
-                      key={pkg.identifier}
-                      variant="apollo"
-                      className="w-full"
-                      disabled={purchasing !== null}
-                      onClick={() => handlePurchase(pkg)}
-                    >
-                      {purchasing === pkg.identifier ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
-                        </>
-                      ) : (
-                        `Start 7-day free trial — Apollo Elite™ ${pkg.priceString}`
-                      )}
-                    </Button>
+                    <div key={pkg.identifier} className="space-y-1">
+                      <Button
+                        variant="apollo"
+                        className="w-full"
+                        disabled={purchasing !== null}
+                        onClick={() => handlePurchase(pkg)}
+                      >
+                        {purchasing === pkg.identifier ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
+                          </>
+                        ) : pkg.introOffer ? (
+                          `Start ${pkg.introOffer.periodLabel} free — Apollo Elite™`
+                        ) : (
+                          `Unlock Apollo Elite™ — ${pkg.priceString} / ${pkg.periodLabel}`
+                        )}
+                      </Button>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                        {pkg.introOffer
+                          ? `${pkg.introOffer.periodLabel} free, then ${pkg.priceString}/${pkg.periodLabel}. Auto-renews ${pkg.periodLabel === "year" ? "yearly" : "monthly"} until cancelled. Cancel anytime in App Store / Google Play settings.`
+                          : `${pkg.priceString}/${pkg.periodLabel}. Auto-renews ${pkg.periodLabel === "year" ? "yearly" : "monthly"} until cancelled. Cancel anytime in App Store / Google Play settings.`}
+                      </p>
+                    </div>
                   ))}
                 </div>
               )}
@@ -394,12 +485,15 @@ const Subscribe = () => {
           </div>
         )}
 
-        {/* Apple-required disclosure */}
+        {/* Apple-required disclosure (general) */}
         <p className="text-[11px] leading-relaxed text-muted-foreground mb-4">
-          Subscriptions are billed through your Apple ID or Google Play account. Apollo
-          Reborn™ Monthly auto-renews monthly at the displayed price. Apollo Reborn™
-          Annual auto-renews yearly. Cancel anytime in App Store / Google Play settings —
-          your access remains active until the end of the billing period.
+          Subscriptions are billed through your Apple ID or Google Play account and
+          auto-renew at the displayed price unless cancelled at least 24 hours before
+          the end of the current period. Manage or cancel anytime in your device's App
+          Store or Google Play settings — access remains active until the end of the
+          billing period. Free-trial periods, when offered, convert automatically to a
+          paid subscription at the displayed price unless cancelled before the trial
+          ends.
         </p>
         <p className="text-[11px] text-muted-foreground mb-6">
           <Link to="/terms" className="underline">Terms of Use</Link>

@@ -3,6 +3,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
 
+const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "Apollo Reborn™ <noreply@apolloreborn.com>";
+const APP_URL = Deno.env.get("APP_URL") ?? "https://apolloreborn.com";
+
 function buildEmail(name: string, body: string, link: string) {
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #0a0a0a; color: #e5e5e5;">
@@ -140,10 +143,10 @@ serve(async (req) => {
 
       try {
         await resend.emails.send({
-          from: "Apollo Reborn <onboarding@resend.dev>",
+          from: EMAIL_FROM,
           to: [recipientEmail],
           subject: "Coach Marcos sent you a message",
-          html: buildEmail(recipientName, `${previewLine}<br/><br/>Log in to your dashboard to read and reply.`, "https://apollonation.lovable.app/dashboard/messages"),
+          html: buildEmail(recipientName, `${previewLine}<br/><br/>Log in to your dashboard to read and reply.`, `${APP_URL}/dashboard/messages`),
         });
         // Persist rate-limit timestamp only on successful send.
         await supabaseAdmin.from("message_email_state").upsert({
@@ -166,10 +169,10 @@ serve(async (req) => {
 
       try {
         await resend.emails.send({
-          from: "Apollo Reborn <onboarding@resend.dev>",
+          from: EMAIL_FROM,
           to: [ADMIN_EMAIL],
           subject: `${clientName} sent you a message`,
-          html: buildEmail("Coach", `${previewLine}<br/><br/>Log in to your admin panel to read and reply.`, "https://apollonation.lovable.app/admin"),
+          html: buildEmail("Coach", `${previewLine}<br/><br/>Log in to your admin panel to read and reply.`, `${APP_URL}/admin`),
         });
         await supabaseAdmin.from("message_email_state").upsert({
           user_a: pairA, user_b: pairB, last_email_sent_at: new Date().toISOString(),
