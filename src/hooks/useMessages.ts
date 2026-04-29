@@ -41,20 +41,26 @@ export const useMessages = (conversationPartnerId?: string) => {
   // Fetch messages for a specific conversation
   const messagesQuery = useQuery({
     queryKey: ["messages", conversationPartnerId, blocksQuery.data?.length ?? 0],
+    retry: false,
     queryFn: async () => {
       if (!user || !conversationPartnerId) return [];
-
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .or(
-          `and(sender_id.eq.${user.id},recipient_id.eq.${conversationPartnerId}),and(sender_id.eq.${conversationPartnerId},recipient_id.eq.${user.id})`
-        )
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-      // Strip messages from blocked users (defense in depth alongside the UI filter).
-      return (data as Message[]).filter((m) => !blockedSet.has(m.sender_id));
+      try {
+        const { data, error } = await supabase
+          .from("messages")
+          .select("*")
+          .or(
+            `and(sender_id.eq.${user.id},recipient_id.eq.${conversationPartnerId}),and(sender_id.eq.${conversationPartnerId},recipient_id.eq.${user.id})`
+          )
+          .order("created_at", { ascending: true });
+        if (error) {
+          console.error("[useMessages] messagesQuery error", error);
+          return [] as Message[];
+        }
+        return (data as Message[] | null ?? []).filter((m) => !blockedSet.has(m.sender_id));
+      } catch (e) {
+        console.error("[useMessages] messagesQuery threw", e);
+        return [] as Message[];
+      }
     },
     enabled: !!user && !!conversationPartnerId,
   });
@@ -62,16 +68,20 @@ export const useMessages = (conversationPartnerId?: string) => {
   // Fetch all conversations (unique partners)
   const conversationsQuery = useQuery({
     queryKey: ["conversations", blocksQuery.data?.length ?? 0],
+    retry: false,
     queryFn: async () => {
       if (!user) return [];
+      try {
+        const { data, error } = await supabase
+          .from("messages")
+          .select("*")
+          .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
+          .order("created_at", { ascending: false });
 
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
+        if (error) {
+          console.error("[useMessages] conversationsQuery error", error);
+          return [];
+        }
 
       // Group by conversation partner
       const conversations = new Map<
@@ -103,6 +113,10 @@ export const useMessages = (conversationPartnerId?: string) => {
         });
 
       return Array.from(conversations.values());
+      } catch (e) {
+        console.error("[useMessages] conversationsQuery threw", e);
+        return [];
+      }
     },
     enabled: !!user,
   });
@@ -110,16 +124,24 @@ export const useMessages = (conversationPartnerId?: string) => {
   // Fetch unread count
   const unreadCountQuery = useQuery({
     queryKey: ["unread-count"],
+    retry: false,
     queryFn: async () => {
       if (!user) return 0;
-      const { count, error } = await supabase
-        .from("messages")
-        .select("*", { count: "exact", head: true })
-        .eq("recipient_id", user.id)
-        .eq("is_read", false);
-
-      if (error) throw error;
-      return count || 0;
+      try {
+        const { count, error } = await supabase
+          .from("messages")
+          .select("*", { count: "exact", head: true })
+          .eq("recipient_id", user.id)
+          .eq("is_read", false);
+        if (error) {
+          console.error("[useMessages] unreadCountQuery error", error);
+          return 0;
+        }
+        return count || 0;
+      } catch (e) {
+        console.error("[useMessages] unreadCountQuery threw", e);
+        return 0;
+      }
     },
     enabled: !!user,
   });
