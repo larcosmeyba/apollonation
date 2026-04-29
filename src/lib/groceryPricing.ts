@@ -236,16 +236,17 @@ export function parseIngredient(raw: string): { qty: number; unit: string; name:
   return { qty: isNaN(qty) ? 1 : qty, unit, name: s };
 }
 
-// Find best price-table key for a given ingredient name
-function lookupPrice(name: string): UnitPrice {
-  if (!name) return { unit: "each", price: FALLBACK_PRICE };
+// Find best price-table key for a given ingredient name.
+// Returns null when the name doesn't match any known ingredient — caller treats this
+// as "Price unavailable" rather than silently substituting a fallback price.
+function lookupPrice(name: string): UnitPrice | null {
+  if (!name) return null;
   if (PRICE_TABLE[name]) return PRICE_TABLE[name];
-  // Try to find a key contained in the name (longest match first)
   const keys = Object.keys(PRICE_TABLE).sort((a, b) => b.length - a.length);
   for (const k of keys) {
     if (name.includes(k)) return PRICE_TABLE[k];
   }
-  return { unit: "each", price: FALLBACK_PRICE };
+  return null;
 }
 
 // Estimate the price of a parsed ingredient line.
