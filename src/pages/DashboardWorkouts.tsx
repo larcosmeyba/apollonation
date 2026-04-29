@@ -15,8 +15,6 @@ import { toast } from "sonner";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
-import stockBack from "@/assets/stock-back.png";
-import stockArms from "@/assets/stock-arms.png";
 import marcos2 from "@/assets/marcos-2.jpg";
 import marcos3 from "@/assets/marcos-3.jpg";
 import marcos5 from "@/assets/marcos-5.jpg";
@@ -25,17 +23,18 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type Workout = Tables<"workouts">;
 
-const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7, marcos2, marcos3, marcos5, marcos8];
+// All Marcos action photos — keeps On-Demand consistent with the rest of the site
+const WORKOUT_IMAGES = [marcosAction1, marcosAction6, marcosAction7, marcos2, marcos3, marcos5, marcos8];
 
 const TYPE_IMAGES: Record<string, string> = {
-  Strength: stockArms,
-  HIIT: marcosAction6,
-  Sculpt: stockBack,
+  Strength: marcosAction6,
+  HIIT: marcosAction7,
+  Sculpt: marcos2,
   Cardio: marcosAction1,
-  Recovery: marcosAction7,
-  Core: marcos2,
+  Recovery: marcos3,
+  Core: marcos5,
   Stretch: marcos3,
-  Yoga: marcos5,
+  Yoga: marcos8,
 };
 
 import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/utils/youtube";
