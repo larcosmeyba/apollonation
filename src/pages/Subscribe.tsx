@@ -114,6 +114,8 @@ const Subscribe = () => {
           ui.push({
             identifier: "monthly",
             priceString: monthly.product?.priceString ?? "—",
+            periodLabel: "month",
+            introOffer: readIntroOffer(monthly),
             raw: monthly,
           });
         }
@@ -121,6 +123,8 @@ const Subscribe = () => {
           ui.push({
             identifier: "annual",
             priceString: annual.product?.priceString ?? "—",
+            periodLabel: "year",
+            introOffer: readIntroOffer(annual),
             raw: annual,
           });
         }
@@ -136,6 +140,8 @@ const Subscribe = () => {
           .map((p: any) => ({
             identifier: p.identifier,
             priceString: p.product?.priceString ?? "—",
+            periodLabel: periodFromIdentifier(p.identifier),
+            introOffer: readIntroOffer(p),
             raw: p,
           }));
         setElitePackages(elite);
