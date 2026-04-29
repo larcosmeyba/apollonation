@@ -13,16 +13,53 @@ import {
 } from "@/lib/purchases";
 import { Loader2, Check, RotateCcw, Smartphone } from "lucide-react";
 
+interface IntroOffer {
+  periodLabel: string; // e.g. "7 days"
+  isFree: boolean;
+}
+
 interface UiPackage {
   identifier: "monthly" | "annual";
   priceString: string;
+  periodLabel: "month" | "year";
+  introOffer: IntroOffer | null;
   raw: any;
 }
 
 interface ElitePackage {
   identifier: string;
   priceString: string;
+  periodLabel: "month" | "year";
+  introOffer: IntroOffer | null;
   raw: any;
+}
+
+// Read intro offer from a RevenueCat package. Returns null when no intro exists
+// so we never advertise a trial that isn't actually configured in the store.
+function readIntroOffer(pkg: any): IntroOffer | null {
+  const intro = pkg?.product?.introPrice;
+  if (!intro) return null;
+  // RC normalizes price to a number; 0 means "free trial". Anything > 0 is
+  // a discounted intro, which we conservatively also surface as a trial-like
+  // teaser only if it's free — paid intro pricing has its own disclosure rules.
+  const isFree = typeof intro.price === "number" ? intro.price === 0 : !!intro.price?.amount === false;
+  if (!isFree) return null;
+  // periodNumberOfUnits + periodUnit (DAY/WEEK/MONTH/YEAR)
+  const n: number = intro.periodNumberOfUnits ?? intro.period?.numberOfUnits ?? 0;
+  const unitRaw: string = (intro.periodUnit ?? intro.period?.unit ?? "").toString().toUpperCase();
+  if (!n || !unitRaw) return null;
+  const unitMap: Record<string, string> = {
+    DAY: "day", D: "day",
+    WEEK: "week", W: "week",
+    MONTH: "month", M: "month",
+    YEAR: "year", Y: "year",
+  };
+  const unit = unitMap[unitRaw] ?? unitRaw.toLowerCase();
+  return { periodLabel: `${n} ${unit}${n === 1 ? "" : "s"}`, isFree: true };
+}
+
+function periodFromIdentifier(id: string): "month" | "year" {
+  return id.toLowerCase().includes("annual") || id.toLowerCase().includes("year") ? "year" : "month";
 }
 
 const REASON_BANNERS: Record<string, string> = {
