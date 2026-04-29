@@ -325,22 +325,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* AI Daily Workout entry */}
-        <button
-          type="button"
-          onClick={() => navigate("/dashboard/ai-workout")}
-          className="w-full text-left rounded-2xl bg-gradient-to-br from-foreground to-foreground/80 text-background p-5 shadow-lg active:scale-[0.99] transition-transform"
-        >
-          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">
-            AI · Premium
-          </p>
-          <p className="text-lg font-bold mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Build Today's Workout
-          </p>
-          <p className="text-xs opacity-80 mt-1">
-            Tell Apollo your time, energy, and gear — get a workout in seconds.
-          </p>
-        </button>
+        {/* AI Daily Workout — temporarily removed; returning in a later build */}
 
         {/* NEW THIS WEEK */}
         <div>
@@ -428,11 +413,10 @@ const Dashboard = () => {
               </Link>
               <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
               <Link
-                to="/dashboard/messages"
+                to="/dashboard/coach/marcos"
                 className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.1em] font-bold text-background bg-foreground rounded-full px-3 py-1.5 hover:opacity-90 transition"
               >
-                {!hasEliteAccess && <Lock className="w-3 h-3" strokeWidth={2.5} />}
-                Message Coach
+                View Profile
               </Link>
             </div>
           </div>
