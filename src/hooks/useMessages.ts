@@ -113,6 +113,10 @@ export const useMessages = (conversationPartnerId?: string) => {
         });
 
       return Array.from(conversations.values());
+      } catch (e) {
+        console.error("[useMessages] conversationsQuery threw", e);
+        return [];
+      }
     },
     enabled: !!user,
   });
@@ -120,16 +124,24 @@ export const useMessages = (conversationPartnerId?: string) => {
   // Fetch unread count
   const unreadCountQuery = useQuery({
     queryKey: ["unread-count"],
+    retry: false,
     queryFn: async () => {
       if (!user) return 0;
-      const { count, error } = await supabase
-        .from("messages")
-        .select("*", { count: "exact", head: true })
-        .eq("recipient_id", user.id)
-        .eq("is_read", false);
-
-      if (error) throw error;
-      return count || 0;
+      try {
+        const { count, error } = await supabase
+          .from("messages")
+          .select("*", { count: "exact", head: true })
+          .eq("recipient_id", user.id)
+          .eq("is_read", false);
+        if (error) {
+          console.error("[useMessages] unreadCountQuery error", error);
+          return 0;
+        }
+        return count || 0;
+      } catch (e) {
+        console.error("[useMessages] unreadCountQuery threw", e);
+        return 0;
+      }
     },
     enabled: !!user,
   });
