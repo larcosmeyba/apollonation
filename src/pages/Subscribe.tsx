@@ -214,7 +214,11 @@ const Subscribe = () => {
       await purchasePackage(pkg.raw);
       await syncEntitlement();
       await refreshProfile();
-      toast({ title: "Welcome to Apollo Reborn™", description: "Your subscription is active." });
+      const isElite = String(pkg.identifier).toLowerCase().includes("elite");
+      toast({
+        title: isElite ? "Welcome to Apollo Elite™" : "Welcome to Apollo Reborn™",
+        description: "Your subscription is active.",
+      });
       navigate("/dashboard");
     } catch (err: any) {
       if (err?.userCancelled || err?.code === "PURCHASE_CANCELLED" || err?.code === "USER_CANCELLED") return;
