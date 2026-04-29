@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { withTimeout } from "@/lib/timeout";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 import heroImage from "@/assets/marcos-1.jpg";
 import { Shield } from "lucide-react";
@@ -58,9 +59,13 @@ const Auth = () => {
       if (mode === "forgot") {
         // Always show the same generic message, regardless of outcome,
         // to avoid leaking whether the email exists.
-        await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
+        await withTimeout(
+          supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/reset-password`,
+          }),
+          12_000,
+          "Password reset timed out"
+        );
         toast({ title: "Check your email", description: GENERIC_RESET_RESPONSE });
         setMode("login");
       } else if (mode === "login") {
@@ -72,15 +77,23 @@ const Auth = () => {
             variant: "destructive",
           });
         } else {
-          const { data: session } = await supabase.auth.getSession();
+          const { data: session } = await withTimeout(
+            supabase.auth.getSession(),
+            8_000,
+            "Session check timed out"
+          );
           const userId = session?.session?.user?.id;
           if (userId) {
-            const { data: roleData } = await supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", userId)
-              .eq("role", "admin")
-              .maybeSingle();
+            const { data: roleData } = await withTimeout<any>(
+              supabase
+                .from("user_roles")
+                .select("role")
+                .eq("user_id", userId)
+                .eq("role", "admin")
+                .maybeSingle(),
+              8_000,
+              "Role check timed out"
+            );
 
             if (isAdminMode) {
               if (roleData) {
@@ -126,13 +139,21 @@ const Auth = () => {
           // Profile is created by the handle_new_user trigger; this update may run
           // before the user has a session (email confirmation flow) — that's OK.
           try {
-            const { data: sess } = await supabase.auth.getSession();
+            const { data: sess } = await withTimeout(
+              supabase.auth.getSession(),
+              8_000,
+              "Session check timed out"
+            );
             const uid = sess?.session?.user?.id;
             if (uid) {
-              await supabase
-                .from("profiles")
-                .update({ agreed_to_terms_at: new Date().toISOString() })
-                .eq("user_id", uid);
+              await withTimeout(
+                supabase
+                  .from("profiles")
+                  .update({ agreed_to_terms_at: new Date().toISOString() })
+                  .eq("user_id", uid),
+                8_000,
+                "Profile update timed out"
+              );
             }
           } catch {
             // Non-fatal — the column has a sensible default of NULL.
