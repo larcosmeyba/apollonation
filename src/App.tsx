@@ -127,7 +127,7 @@ const App = () => {
               <Route path="/contact" element={<ContactPortal />} />
               <Route path="/apply-coach" element={<ApplyCoach />} />
               <Route path="/account-deletion" element={<AccountDeletion />} />
-              <Route path="/subscribe" element={<Subscribe />} />
+              <Route path="/subscribe" element={eb(<Subscribe />)} />
               <Route path="/plan-ready" element={<ProtectedRoute requirePremium={false}><PlanReady /></ProtectedRoute>} />
               <Route path="/dashboard/profile" element={<ProtectedRoute requirePremium={false}>{eb(<DashboardProfile />)}</ProtectedRoute>} />
               <Route
@@ -175,10 +175,8 @@ const App = () => {
                 path="/dashboard/calendar"
                 element={<ProtectedRoute>{eb(<DashboardCalendar />)}</ProtectedRoute>}
               />
-              <Route
-                path="/dashboard/ai-workout"
-                element={<ProtectedRoute>{eb(<DashboardAIWorkout />)}</ProtectedRoute>}
-              />
+              {/* AI Workout Builder temporarily disabled — being fixed in a later build */}
+              <Route path="/dashboard/ai-workout" element={<Navigate to="/dashboard" replace />} />
               <Route
                 path="/dashboard/messages"
                 element={<ProtectedRoute>{eb(<DashboardMessages />)}</ProtectedRoute>}

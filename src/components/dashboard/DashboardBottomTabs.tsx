@@ -1,12 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Play, Flame, MessageCircle, User, Lock } from "lucide-react";
+import { Home, Play, Flame, User, Lock } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 
 const tabs = [
   { label: "Home", href: "/dashboard", icon: Home, lockKey: null as null | "premium" | "elite" },
   { label: "On Demand", href: "/dashboard/workouts", icon: Play, lockKey: null },
   { label: "Fuel", href: "/dashboard/nutrition", icon: Flame, lockKey: "premium" as const },
-  { label: "Messages", href: "/dashboard/messages", icon: MessageCircle, lockKey: "elite" as const },
   { label: "Profile", href: "/dashboard/profile", icon: User, lockKey: null },
 ];
 

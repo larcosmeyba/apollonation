@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Play, Bookmark, BookmarkCheck, Loader2, Lock } from "lucide-react";
+import { Play, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAccessControl } from "@/hooks/useAccessControl";
@@ -22,24 +22,23 @@ import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosCoachPortrait from "@/assets/marcos-coach-portrait.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
-import catStretch from "@/assets/categories/stretch.jpg";
-import catCardio from "@/assets/categories/cardio.jpg";
-import catSculpt from "@/assets/categories/sculpt.jpg";
-import catStrength from "@/assets/categories/strength.png";
-import catHIIT from "@/assets/categories/hiit.png";
-import catCore from "@/assets/core-card.jpg";
+import marcos2 from "@/assets/marcos-2.jpg";
+import marcos3 from "@/assets/marcos-3.jpg";
+import marcos5 from "@/assets/marcos-5.jpg";
+import marcos8 from "@/assets/marcos-8.webp";
 import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/utils/youtube";
 import { toast } from "sonner";
 
-const WORKOUT_IMAGES = [stockBack, stockArms, marcosAction1, marcosAction6, marcosAction7];
+const WORKOUT_IMAGES = [marcosAction1, marcosAction6, marcosAction7, marcos2, marcos3, marcos5, marcos8];
 
+// Use real Marcos photos for category cards so they match the rest of the app
 const CATEGORY_IMAGES: Record<string, string> = {
-  Strength: catStrength,
-  HIIT: catHIIT,
-  Sculpt: catSculpt,
-  Cardio: catCardio,
-  Stretch: catStretch,
-  Core: catCore,
+  Strength: marcosAction6,
+  HIIT: marcosAction7,
+  Sculpt: marcos2,
+  Cardio: marcosAction1,
+  Stretch: marcos3,
+  Core: marcos5,
 };
 
 
@@ -69,7 +68,7 @@ const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
 const Dashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { hasPremiumAccess, hasEliteAccess, freeWorkoutsRemaining, freeRecipesRemaining, freeProgramsRemaining } = useAccessControl();
+  const { hasPremiumAccess, freeWorkoutsRemaining, freeRecipesRemaining, freeProgramsRemaining } = useAccessControl();
   const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
@@ -325,22 +324,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* AI Daily Workout entry */}
-        <button
-          type="button"
-          onClick={() => navigate("/dashboard/ai-workout")}
-          className="w-full text-left rounded-2xl bg-gradient-to-br from-foreground to-foreground/80 text-background p-5 shadow-lg active:scale-[0.99] transition-transform"
-        >
-          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">
-            AI · Premium
-          </p>
-          <p className="text-lg font-bold mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Build Today's Workout
-          </p>
-          <p className="text-xs opacity-80 mt-1">
-            Tell Apollo your time, energy, and gear — get a workout in seconds.
-          </p>
-        </button>
+        {/* AI Daily Workout — temporarily removed; returning in a later build */}
 
         {/* NEW THIS WEEK */}
         <div>
@@ -420,19 +404,13 @@ const Dashboard = () => {
                 <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_12px_rgba(255,255,255,0.12),0_0_30px_rgba(255,255,255,0.05)]">
                   <img src={marcosCoachPortrait} alt="Marcos Leyba" className="w-full h-full object-cover object-top" />
                 </div>
-                {!hasEliteAccess && (
-                  <span className="absolute -top-1 -right-1 text-[9px] uppercase tracking-[0.1em] font-bold bg-amber-500 text-background rounded-full px-1.5 py-0.5">
-                    Elite
-                  </span>
-                )}
               </Link>
               <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
               <Link
-                to="/dashboard/messages"
+                to="/dashboard/coach/marcos"
                 className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.1em] font-bold text-background bg-foreground rounded-full px-3 py-1.5 hover:opacity-90 transition"
               >
-                {!hasEliteAccess && <Lock className="w-3 h-3" strokeWidth={2.5} />}
-                Message Coach
+                View Profile
               </Link>
             </div>
           </div>
