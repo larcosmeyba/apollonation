@@ -34,6 +34,7 @@ import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import ContactPortal from "./pages/ContactPortal";
 import AccountDeletion from "./pages/AccountDeletion";
+import Unsubscribe from "./pages/Unsubscribe";
 import PlanReady from "./pages/PlanReady";
 import DashboardTransformation from "./pages/DashboardTransformation";
 import DashboardRecovery from "./pages/DashboardRecovery";
@@ -127,6 +128,7 @@ const App = () => {
               <Route path="/contact" element={<ContactPortal />} />
               <Route path="/apply-coach" element={<ApplyCoach />} />
               <Route path="/account-deletion" element={<AccountDeletion />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/subscribe" element={eb(<Subscribe />)} />
               <Route path="/plan-ready" element={<ProtectedRoute requirePremium={false}><PlanReady /></ProtectedRoute>} />
               <Route path="/dashboard/profile" element={<ProtectedRoute requirePremium={false}>{eb(<DashboardProfile />)}</ProtectedRoute>} />
