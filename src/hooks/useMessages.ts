@@ -167,6 +167,8 @@ export const useMessages = (conversationPartnerId?: string) => {
         .single();
 
       if (error) {
+        // Always surface the underlying error for prod debugging before translating.
+        console.error("[sendMessage] insert failed", error);
         // RLS rejects non-Elite client inserts. Surface a clear Elite-required signal.
         const msg = (error.message || "").toLowerCase();
         if (msg.includes("row-level security") || msg.includes("policy") || error.code === "42501") {

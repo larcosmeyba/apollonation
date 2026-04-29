@@ -187,9 +187,17 @@ serve(async (req) => {
       isSubscribed = profile.is_subscribed ?? false;
     }
 
-    // Detect Elite vs Reborn from product id when activating
+    // Detect Elite vs Reborn from product id when activating.
+    // Prefer explicit allow-list via PRODUCT_IDS_ELITE env var; fall back to substring check.
     const productIdForTier = (event.new_product_id ?? event.product_id ?? "").toLowerCase();
-    const isElite = isSubscribed && productIdForTier.includes("elite");
+    const eliteProductIds = (Deno.env.get("PRODUCT_IDS_ELITE") || "")
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+    const isElite = isSubscribed && (
+      eliteProductIds.includes(productIdForTier) ||
+      productIdForTier.includes("elite")
+    );
 
     const update: Record<string, unknown> = { is_subscribed: isSubscribed };
     update.entitlement = isSubscribed ? (isElite ? "apollo_elite" : "apollo_premium") : null;
