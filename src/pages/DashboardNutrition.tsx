@@ -1321,6 +1321,11 @@ const DashboardNutrition = () => {
                                         </>
                                       )}
                                     </div>
+                                    {item.swappedForBudget && item.originalQuantity && (
+                                      <p className="text-[10px] text-yellow-600 dark:text-yellow-500 mt-0.5">
+                                        ↓ Reduced from {item.originalQuantity} to fit budget
+                                      </p>
+                                    )}
                                     <div className="flex items-center gap-4 mt-2">
                                       <label className="flex items-center gap-1.5 cursor-pointer">
                                         <Checkbox
