@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Play, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
+import { Play, Bookmark, BookmarkCheck, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAccessControl } from "@/hooks/useAccessControl";
@@ -68,7 +68,7 @@ const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
 const Dashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { hasPremiumAccess, freeWorkoutsRemaining, freeRecipesRemaining, freeProgramsRemaining } = useAccessControl();
+  const { hasPremiumAccess, hasEliteAccess, freeWorkoutsRemaining, freeRecipesRemaining, freeProgramsRemaining } = useAccessControl();
   const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
@@ -388,16 +388,22 @@ const Dashboard = () => {
           </div>
           <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             <div className="flex flex-col items-center gap-2 flex-shrink-0">
-              <Link to="/dashboard/coach/marcos">
+              <Link to="/dashboard/coach/marcos" className="relative">
                 <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_12px_rgba(255,255,255,0.12),0_0_30px_rgba(255,255,255,0.05)]">
                   <img src={marcosCoachPortrait} alt="Marcos Leyba" className="w-full h-full object-cover object-top" />
                 </div>
+                {!hasEliteAccess && (
+                  <span className="absolute -top-1 -right-1 text-[9px] uppercase tracking-[0.1em] font-bold bg-amber-500 text-background rounded-full px-1.5 py-0.5">
+                    Elite
+                  </span>
+                )}
               </Link>
               <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
               <Link
                 to="/dashboard/messages"
-                className="text-[11px] uppercase tracking-[0.1em] font-bold text-background bg-foreground rounded-full px-3 py-1.5 hover:opacity-90 transition"
+                className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.1em] font-bold text-background bg-foreground rounded-full px-3 py-1.5 hover:opacity-90 transition"
               >
+                {!hasEliteAccess && <Lock className="w-3 h-3" strokeWidth={2.5} />}
                 Message Coach
               </Link>
             </div>

@@ -26,19 +26,44 @@ const DashboardMessages = () => {
     );
   }
 
-  // Elite-only feature for clients — show paywall to non-Elite users.
+  // Elite-only feature for clients — show blurred paywall preview to non-Elite users.
   if (!isAdmin && !canAccessCoachMessaging) {
     return (
-      <div className="fixed inset-0 bg-background flex flex-col">
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="rounded-xl bg-muted p-6 text-center max-w-sm w-full">
-            <h3 className="text-lg font-bold mb-2">Apollo Elite™</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Get coach accountability, weekly check-ins, and personalized guidance with Apollo Elite™. Coach replies typically within 24 hours.
-            </p>
-            <Button variant="apollo" onClick={() => navigate("/subscribe?reason=elite")}>
-              Upgrade to Elite
-            </Button>
+      <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
+        {/* Faux conversation, blurred */}
+        <div className="flex-1 relative overflow-hidden">
+          <div className="absolute inset-0 p-4 space-y-3 blur-sm pointer-events-none select-none" aria-hidden>
+            <div className="flex justify-start"><div className="max-w-[75%] rounded-2xl rounded-bl-sm bg-muted px-4 py-2.5 text-sm">Great work this week. Let's adjust your push day — drop the bench volume by 1 set and add tempo work.</div></div>
+            <div className="flex justify-end"><div className="max-w-[75%] rounded-2xl rounded-br-sm bg-[hsl(210,100%,52%)] text-white px-4 py-2.5 text-sm">Sounds good. Should I keep the same RPE target?</div></div>
+            <div className="flex justify-start"><div className="max-w-[75%] rounded-2xl rounded-bl-sm bg-muted px-4 py-2.5 text-sm">Stay at RPE 8. We're building, not testing. Send me a video of your top set on Friday.</div></div>
+            <div className="flex justify-end"><div className="max-w-[75%] rounded-2xl rounded-br-sm bg-[hsl(210,100%,52%)] text-white px-4 py-2.5 text-sm">Will do. Macros felt low on Tuesday — pushing to 220g protein this week?</div></div>
+            <div className="flex justify-start"><div className="max-w-[75%] rounded-2xl rounded-bl-sm bg-muted px-4 py-2.5 text-sm">Yes — 220g protein, keep carbs at 280g. Check in Sunday with weight + waist.</div></div>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
+
+          {/* Overlay card */}
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="rounded-2xl bg-card border border-border/60 p-6 text-center max-w-sm w-full shadow-2xl space-y-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/15 flex items-center justify-center mx-auto">
+                <MessageSquare className="w-6 h-6 text-amber-500" />
+              </div>
+              <span className="inline-block text-[10px] uppercase tracking-[0.15em] font-bold bg-amber-500 text-background rounded-full px-2.5 py-1">
+                Apollo Elite™
+              </span>
+              <h3 className="text-xl font-bold leading-tight">Direct access to Coach Marcos</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Async coaching and personalized program adjustments — typically within 24 hours.
+              </p>
+              <Button variant="apollo" className="w-full" onClick={() => navigate("/subscribe?reason=elite")}>
+                Upgrade to Elite
+              </Button>
+              <button
+                onClick={() => navigate("/dashboard/profile")}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors underline"
+              >
+                Already have Elite? Restore purchases
+              </button>
+            </div>
           </div>
         </div>
         <DashboardBottomTabs />

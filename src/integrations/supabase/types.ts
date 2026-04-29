@@ -1045,6 +1045,24 @@ export type Database = {
           },
         ]
       }
+      message_email_state: {
+        Row: {
+          last_email_sent_at: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          last_email_sent_at?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          last_email_sent_at?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: []
+      }
       message_reports: {
         Row: {
           created_at: string
