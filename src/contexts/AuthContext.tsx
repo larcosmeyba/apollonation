@@ -6,6 +6,7 @@ import { Purchases } from "@revenuecat/purchases-capacitor";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { initPurchases, logOutPurchases } from "@/lib/purchases";
+import { withTimeout } from "@/lib/timeout";
 import { toast } from "sonner";
 
 interface Profile {
@@ -56,11 +57,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
+    const { data, error } = await withTimeout(
+      supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle(),
+      8_000,
+      "Profile load timed out"
+    );
 
     if (error) {
       console.error("Error fetching profile:", error);
@@ -107,50 +112,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const finishSessionRestore = async (nextSession: Session | null) => {
+    if (!mountedRef.current) return;
+    setSession(nextSession);
+    setUser(nextSession?.user ?? null);
+
+    if (nextSession?.user) {
+      const uid = nextSession.user.id;
+      initPurchases(uid)
+        .then(() => attachPurchasesListener(uid))
+        .catch((e) => console.warn("[Auth] initPurchases", e));
+      try {
+        const profileData = await fetchProfile(uid);
+        if (!mountedRef.current) return;
+        setProfile(profileData);
+      } catch (e) {
+        console.warn("[Auth] profile restore failed", e);
+        if (!mountedRef.current) return;
+        setProfile(null);
+      } finally {
+        if (mountedRef.current) setLoading(false);
+      }
+    } else {
+      await detachPurchasesListener();
+      if (!mountedRef.current) return;
+      setProfile(null);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     mountedRef.current = true;
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (!mountedRef.current) return;
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          const uid = session.user.id;
-          initPurchases(uid)
-            .then(() => attachPurchasesListener(uid))
-            .catch((e) => console.warn("[Auth] initPurchases", e));
-          const profileData = await fetchProfile(uid);
-          if (!mountedRef.current) return;
-          setProfile(profileData);
-          setLoading(false);
-        } else {
-          await detachPurchasesListener();
-          setProfile(null);
-          setLoading(false);
-        }
+      (_event, session) => {
+        void finishSessionRestore(session);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mountedRef.current) return;
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        const uid = session.user.id;
-        initPurchases(uid)
-          .then(() => attachPurchasesListener(uid))
-          .catch((e) => console.warn("[Auth] initPurchases", e));
-        fetchProfile(uid).then((profileData) => {
-          if (!mountedRef.current) return;
-          setProfile(profileData);
-          setLoading(false);
-        });
-      } else {
+    withTimeout(supabase.auth.getSession(), 8_000, "Session restore timed out")
+      .then(({ data: { session } }) => finishSessionRestore(session))
+      .catch((e) => {
+        console.warn("[Auth] session restore failed", e);
+        if (!mountedRef.current) return;
+        setSession(null);
+        setUser(null);
+        setProfile(null);
         setLoading(false);
-      }
-    });
+      });
 
     return () => {
       mountedRef.current = false;
