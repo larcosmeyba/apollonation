@@ -199,10 +199,15 @@ const AdminInbox = () => {
                             {name}
                           </p>
                           <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                            {formatDistanceToNow(
-                              new Date(conv.lastMessage.created_at),
-                              { addSuffix: true }
-                            )}
+                            {(() => {
+                              const d = new Date(conv.lastMessage.created_at);
+                              if (Number.isNaN(d.getTime())) return "";
+                              try {
+                                return formatDistanceToNow(d, { addSuffix: true });
+                              } catch {
+                                return "";
+                              }
+                            })()}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground truncate">

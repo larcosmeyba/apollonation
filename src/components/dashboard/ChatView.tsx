@@ -19,6 +19,17 @@ import {
 import { Send, ArrowLeft, Flag, Ban } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
+
+function safeRelativeTime(value: string | null | undefined): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  try {
+    return formatDistanceToNow(d, { addSuffix: true });
+  } catch {
+    return "";
+  }
+}
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -91,27 +102,38 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
     enabled: !!user && !!partnerId,
     queryFn: async () => {
       if (!user) return false;
-      const { data } = await supabase
-        .from("user_blocks")
-        .select("blocked_user_id")
-        .eq("blocker_user_id", user.id)
-        .eq("blocked_user_id", partnerId)
-        .maybeSingle();
-      return !!data;
+      try {
+        const { data } = await supabase
+          .from("user_blocks")
+          .select("blocked_user_id")
+          .eq("blocker_user_id", user.id)
+          .eq("blocked_user_id", partnerId)
+          .maybeSingle();
+        return !!data;
+      } catch {
+        return false;
+      }
     },
   });
 
-  // Fetch full partner profile for avatar and bio
+  // Fetch full partner profile for avatar and bio.
+  // RLS may deny non-admin clients access to a coach's full profile row;
+  // treat any failure as "no extended profile available" instead of crashing.
   const { data: partnerProfile } = useQuery({
     queryKey: ["partner-full-profile", partnerId],
+    enabled: !!partnerId,
+    retry: false,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("display_name, avatar_url, bio, fitness_goals")
-        .eq("user_id", partnerId)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("display_name, avatar_url, bio, fitness_goals")
+          .eq("user_id", partnerId)
+          .maybeSingle();
+        return data ?? null;
+      } catch {
+        return null;
+      }
     },
   });
 
@@ -122,8 +144,12 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
       const url = partnerProfile?.avatar_url;
       if (!url) return null;
       if (url.startsWith("http")) return url;
-      const { data } = await supabase.storage.from("avatars").createSignedUrl(url, 3600);
-      return data?.signedUrl || null;
+      try {
+        const { data } = await supabase.storage.from("avatars").createSignedUrl(url, 3600);
+        return data?.signedUrl || null;
+      } catch {
+        return null;
+      }
     },
     enabled: !!partnerProfile?.avatar_url,
   });
@@ -289,7 +315,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
                         isMine ? "text-white/70" : "text-muted-foreground"
                       }`}
                     >
-                      {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
+                      {safeRelativeTime(msg.created_at)}
                     </p>
                     {canReport && (
                       <button

@@ -22,13 +22,18 @@ export const useMessages = (conversationPartnerId?: string) => {
   const blocksQuery = useQuery({
     queryKey: ["my-blocks", user?.id],
     enabled: !!user,
+    retry: false,
     queryFn: async () => {
       if (!user) return [] as string[];
-      const { data } = await supabase
-        .from("user_blocks")
-        .select("blocked_user_id")
-        .eq("blocker_user_id", user.id);
-      return (data || []).map((b: any) => b.blocked_user_id) as string[];
+      try {
+        const { data } = await supabase
+          .from("user_blocks")
+          .select("blocked_user_id")
+          .eq("blocker_user_id", user.id);
+        return (data || []).map((b: any) => b.blocked_user_id) as string[];
+      } catch {
+        return [] as string[];
+      }
     },
   });
   const blockedSet = new Set(blocksQuery.data || []);
