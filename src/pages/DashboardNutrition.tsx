@@ -488,12 +488,22 @@ const DashboardNutrition = () => {
     queryClient.invalidateQueries({ queryKey: ["grocery-item-states", user.id, activePlan.id, groceryWeek] });
   };
 
-  // Effective weekly grocery total: exclude "already have" items
+  // Effective weekly grocery total: excludes "already have" items AND
+  // unavailable-priced items (their estimatedPrice is 0 by construction in
+  // buildGroceryListFromMeals, so they don't skew the total either way).
   const effectiveTotal = pricedList.categories.reduce((sum, cat) => {
     return sum + cat.items.reduce((s, item) => s + (stateByKey[item.key]?.already_have ? 0 : item.estimatedPrice), 0);
   }, 0);
-  const remainingBudget = weeklyBudget !== null ? weeklyBudget - effectiveTotal : null;
+
+  // Per-plan override beats user-level budget when the coach pins one on the plan.
+  const planBudgetCents = (activePlan as any)?.weekly_budget_cents as number | null | undefined;
+  const effectiveBudget: number | null =
+    (planBudgetCents !== null && planBudgetCents !== undefined)
+      ? planBudgetCents / 100
+      : weeklyBudget;
+  const remainingBudget = effectiveBudget !== null ? effectiveBudget - effectiveTotal : null;
   const overBudget = remainingBudget !== null && remainingBudget < 0;
+  const nearBudget = remainingBudget !== null && remainingBudget >= 0 && effectiveBudget !== null && effectiveBudget > 0 && (remainingBudget / effectiveBudget) <= 0.1;
 
 
   const openSwap = async (meal: any) => {
