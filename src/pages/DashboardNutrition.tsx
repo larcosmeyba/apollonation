@@ -452,9 +452,9 @@ const DashboardNutrition = () => {
   const weekStartDay = (groceryWeek - 1) * 7 + 1;
   const weekEndDay = groceryWeek * 7;
   const weekMeals = (meals || []).filter((m) => m.day_number >= weekStartDay && m.day_number <= weekEndDay);
-  const pricedList: PricedGroceryList = buildGroceryListFromMeals(weekMeals);
 
-  // Persisted checkbox state for this plan/week
+  // Persisted checkbox + budget-swap state for this plan/week (loaded BEFORE
+  // building the priced list so quantity overrides are applied on first render).
   const { data: itemStates = [] } = useQuery({
     queryKey: ["grocery-item-states", user?.id, activePlan?.id, groceryWeek],
     queryFn: async () => {
@@ -470,12 +470,29 @@ const DashboardNutrition = () => {
     enabled: !!user && !!activePlan,
   });
 
-  const stateByKey: Record<string, { already_have: boolean; purchased: boolean }> = {};
-  for (const s of itemStates as any[]) stateByKey[s.item_key] = { already_have: !!s.already_have, purchased: !!s.purchased };
+  const stateByKey: Record<string, { already_have: boolean; purchased: boolean; quantity_factor: number; swapped_for_budget: boolean }> = {};
+  for (const s of itemStates as any[]) {
+    stateByKey[s.item_key] = {
+      already_have: !!s.already_have,
+      purchased: !!s.purchased,
+      quantity_factor: s.quantity_factor != null ? Number(s.quantity_factor) : 1,
+      swapped_for_budget: !!s.swapped_for_budget,
+    };
+  }
+
+  // Build budget-aware overrides map from persisted state.
+  const overrides: Record<string, { quantityFactor: number; swappedForBudget: boolean }> = {};
+  for (const [key, st] of Object.entries(stateByKey)) {
+    if (st.swapped_for_budget && st.quantity_factor < 1) {
+      overrides[key] = { quantityFactor: st.quantity_factor, swappedForBudget: true };
+    }
+  }
+
+  const pricedList: PricedGroceryList = buildGroceryListFromMeals(weekMeals, overrides);
 
   const toggleItemState = async (itemKey: string, field: "already_have" | "purchased", value: boolean) => {
     if (!user || !activePlan) return;
-    const existing = stateByKey[itemKey] || { already_have: false, purchased: false };
+    const existing = stateByKey[itemKey] || { already_have: false, purchased: false, quantity_factor: 1, swapped_for_budget: false };
     const next = { ...existing, [field]: value };
     await (supabase as any)
       .from("grocery_item_states")
@@ -486,6 +503,8 @@ const DashboardNutrition = () => {
         item_key: itemKey,
         already_have: next.already_have,
         purchased: next.purchased,
+        quantity_factor: existing.quantity_factor,
+        swapped_for_budget: existing.swapped_for_budget,
       }, { onConflict: "user_id,plan_id,week_number,item_key" });
     queryClient.invalidateQueries({ queryKey: ["grocery-item-states", user.id, activePlan.id, groceryWeek] });
   };
@@ -493,6 +512,7 @@ const DashboardNutrition = () => {
   // Effective weekly grocery total: excludes "already have" items AND
   // unavailable-priced items (their estimatedPrice is 0 by construction in
   // buildGroceryListFromMeals, so they don't skew the total either way).
+  // estimatedPrice already reflects budget-driven quantity reductions.
   const effectiveTotal = pricedList.categories.reduce((sum, cat) => {
     return sum + cat.items.reduce((s, item) => s + (stateByKey[item.key]?.already_have ? 0 : item.estimatedPrice), 0);
   }, 0);
@@ -506,6 +526,38 @@ const DashboardNutrition = () => {
   const remainingBudget = effectiveBudget !== null ? effectiveBudget - effectiveTotal : null;
   const overBudget = remainingBudget !== null && remainingBudget < 0;
   const nearBudget = remainingBudget !== null && remainingBudget >= 0 && effectiveBudget !== null && effectiveBudget > 0 && (remainingBudget / effectiveBudget) <= 0.1;
+  const swappedItemCount = pricedList.categories.reduce(
+    (n, c) => n + c.items.filter((i) => i.swappedForBudget).length, 0,
+  );
+
+  // Server-side budget enforcement. Idempotent — safe to call on regen, budget
+  // change, week change. Persists per-item quantity_factor.
+  const runBudgetOptimization = async (planIdArg?: string, weekArg?: number) => {
+    const planId = planIdArg ?? activePlan?.id;
+    const week = weekArg ?? groceryWeek;
+    if (!user || !planId) return;
+    setOptimizingBudget(true);
+    try {
+      const { error } = await supabase.functions.invoke("apply-budget-to-grocery-list", {
+        body: { planId, week },
+      });
+      if (error) throw new Error(error.message);
+      queryClient.invalidateQueries({ queryKey: ["grocery-item-states", user.id, planId, week] });
+    } catch (err: any) {
+      console.error("budget optimization failed", err);
+      // Non-blocking: client still shows the un-optimized list with over-budget banner.
+    } finally {
+      setOptimizingBudget(false);
+    }
+  };
+
+  // Re-optimize on budget change, plan change, or week change (debounced via React Query).
+  useEffect(() => {
+    if (activePlan?.id && weekMeals.length > 0) {
+      runBudgetOptimization(activePlan.id, groceryWeek);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePlan?.id, groceryWeek, effectiveBudget, meals?.length]);
 
 
   const openSwap = async (meal: any) => {
