@@ -1219,6 +1219,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          weekly_budget_cents: number | null
         }
         Insert: {
           carbs_grams?: number | null
@@ -1235,6 +1236,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          weekly_budget_cents?: number | null
         }
         Update: {
           carbs_grams?: number | null
@@ -1251,6 +1253,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          weekly_budget_cents?: number | null
         }
         Relationships: []
       }
