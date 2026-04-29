@@ -307,10 +307,16 @@ export function itemKeyFor(name: string): string {
 export type PricedGroceryItem = {
   key: string;
   name: string;
-  quantity: string;
-  estimatedPrice: number;
+  quantity: string;          // current display quantity (after any budget-driven reduction)
+  estimatedPrice: number;    // current price (after any reduction)
   category: string;
   priceSource: "estimated" | "unavailable";
+  // Quantity-tier swap fields (Phase 2 budget enforcement)
+  originalQuantity?: string; // recipe-required quantity before reduction
+  originalPrice?: number;    // recipe-required price before reduction
+  quantityFactor: number;    // 1.0 = full recipe amount, < 1.0 = reduced for budget
+  minFactor: number;         // floor — cannot reduce below this without breaking recipe
+  swappedForBudget: boolean;
 };
 
 export type PricedGroceryList = {
@@ -318,6 +324,25 @@ export type PricedGroceryList = {
   total: number;            // sum of priced items only (excludes "unavailable")
   unavailableCount: number; // # of items we couldn't price
 };
+
+// Per-category minimum quantity multiplier. The optimizer never reduces an item
+// below `minFactor * originalQty` — that's the recipe's true requirement.
+// Proteins and produce are recipe-critical: zero reduction allowed.
+// Pantry items (oils, sauces) can be bought in smaller containers.
+const MIN_FACTOR_BY_CATEGORY: Record<string, number> = {
+  "Protein": 1.0,
+  "Produce": 1.0,
+  "Dairy": 0.7,
+  "Grains & Starches": 0.7,
+  "Fruit": 0.5,
+  "Nuts & Seeds": 0.5,
+  "Pantry & Condiments": 0.3,
+  "Other": 0.5,
+};
+
+export function minFactorFor(category: string): number {
+  return MIN_FACTOR_BY_CATEGORY[category] ?? 0.5;
+}
 
 // Build a complete priced grocery list directly from the meals of a given week.
 // Aggregates duplicate ingredients across meals.
