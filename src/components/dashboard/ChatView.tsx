@@ -156,7 +156,28 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
     if (isPartnerBlocked) return;
     const trimmed = newMessage.trim();
     if (!trimmed) return;
-    sendMessage.mutate({ recipientId: partnerId, content: trimmed });
+    sendMessage.mutate(
+      { recipientId: partnerId, content: trimmed },
+      {
+        onError: (err: any) => {
+          if (err?.code === "elite_required" || err?.message === "elite_required") {
+            toast({
+              title: "Apollo Elite™ required",
+              description: "Upgrade to Elite to message Coach Marcos.",
+              variant: "destructive",
+            });
+            setNewMessage(trimmed); // restore draft
+            return;
+          }
+          toast({
+            title: "Couldn't send message",
+            description: err?.message ?? "Try again in a moment.",
+            variant: "destructive",
+          });
+          setNewMessage(trimmed);
+        },
+      }
+    );
     setNewMessage("");
     try { localStorage.removeItem(DRAFT_KEY_PREFIX + partnerId); } catch {}
   };
