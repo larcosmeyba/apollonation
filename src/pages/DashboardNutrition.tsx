@@ -1019,15 +1019,7 @@ const DashboardNutrition = () => {
             </div>
           ) : (
             <>
-              {plans && plans.length > 1 && (
-                <div className="flex flex-wrap gap-2">
-                  {plans.map((p) => (
-                    <Button key={p.id} variant={activePlan.id === p.id ? "apollo" : "apollo-outline"} size="sm" onClick={() => { setSelectedPlanId(p.id); setCurrentWeek(1); }}>
-                      {p.title}
-                    </Button>
-                  ))}
-                </div>
-              )}
+              {/* Plan-switcher pill buttons removed — clients only see their active plan now. */}
 
               {/* Active dietary restrictions badge */}
               {activeRestrictions.length > 0 && (
