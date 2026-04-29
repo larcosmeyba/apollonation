@@ -1204,13 +1204,17 @@ const DashboardNutrition = () => {
                   <div className="space-y-4">
                     {/* Budget header — reconciles total at top of grocery tab so user
                         never has to scroll back to the budget card to see status. */}
-                    {effectiveBudget !== null && effectiveBudget > 0 && (
+                    {effectiveBudget !== null && effectiveBudget > 0 ? (
                       <div className={`p-3 rounded-lg border ${overBudget ? "border-destructive/40 bg-destructive/5" : nearBudget ? "border-yellow-500/40 bg-yellow-500/5" : "border-green-500/30 bg-green-500/5"}`}>
                         <div className="flex items-baseline justify-between gap-2">
-                          <div>
-                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Weekly budget</p>
-                            <p className="font-heading text-lg text-foreground">${effectiveBudget.toFixed(2)}</p>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => { setBudgetInput(String(effectiveBudget)); setBudgetModalOpen(true); }}
+                            className="text-left"
+                          >
+                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Weekly budget · tap to edit</p>
+                            <p className="font-heading text-lg text-foreground underline-offset-2 hover:underline">${effectiveBudget.toFixed(2)}</p>
+                          </button>
                           <div className="text-right">
                             <p className="text-[10px] uppercase tracking-wider text-foreground/60">Current total</p>
                             <p className={`font-heading text-lg ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</p>
@@ -1222,16 +1226,46 @@ const DashboardNutrition = () => {
                           ) : nearBudget ? (
                             <>⚠ ${remainingBudget!.toFixed(2)} left</>
                           ) : (
-                            <>✓ ${remainingBudget!.toFixed(2)} under budget</>
+                            <>✓ ${remainingBudget!.toFixed(2)} under budget{swappedItemCount > 0 ? ` · ${swappedItemCount} item${swappedItemCount === 1 ? "" : "s"} reduced` : ""}</>
                           )}
                         </div>
                         {overBudget && (
-                          <p className="text-[10px] text-foreground/60 mt-2 leading-relaxed">
-                            We list the full plan so you can decide what to swap or skip — items aren't dropped automatically.
-                          </p>
+                          <div className="mt-2 space-y-2">
+                            <p className="text-[10px] text-foreground/70 leading-relaxed">
+                              We reduced quantities as much as the recipes allow but still couldn't fit your budget. Increase the budget or remove items manually — we don't drop items silently.
+                            </p>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-[11px]"
+                                onClick={() => { setBudgetInput(String(Math.ceil(effectiveTotal))); setBudgetModalOpen(true); }}
+                              >
+                                Increase budget
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 text-[11px]"
+                                disabled={optimizingBudget}
+                                onClick={() => runBudgetOptimization()}
+                              >
+                                {optimizingBudget ? "Re-optimizing…" : "Re-optimize"}
+                              </Button>
+                            </div>
+                          </div>
                         )}
                       </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => { setBudgetInput(""); setBudgetModalOpen(true); }}
+                        className="w-full p-3 rounded-lg border border-dashed border-foreground/30 text-foreground/70 hover:border-foreground/60 hover:text-foreground transition-colors text-sm"
+                      >
+                        Set a weekly budget — we'll keep your grocery list under it
+                      </button>
                     )}
+
 
                     {/* Week selector + running total */}
                     <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-card border border-border">
