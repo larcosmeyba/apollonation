@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
@@ -17,7 +17,10 @@ import {
  * again on subsequent sessions.
  */
 const HealthDisclaimerSheet = () => {
-  const { user, profile, refreshProfile } = useAuth();
+  const auth = useContext(AuthContext);
+  const user = auth?.user ?? null;
+  const profile = auth?.profile ?? null;
+  const refreshProfile = auth?.refreshProfile;
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -36,7 +39,7 @@ const HealthDisclaimerSheet = () => {
         .from("profiles")
         .update({ health_disclaimer_acknowledged_at: new Date().toISOString() })
         .eq("user_id", user.id);
-      await refreshProfile();
+      await refreshProfile?.();
     } catch (e) {
       console.error("HealthDisclaimerSheet:", e);
     } finally {
