@@ -32,28 +32,9 @@ export const useQuestionnaire = (userId: string | undefined) => {
         }
 
         if (data) {
-          // Check if 4-week cycle has expired
-          const cycleStart = new Date(data.cycle_start_date);
-          const now = new Date();
-          const weeksDiff = (now.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24 * 7);
-
-          if (weeksDiff >= 4) {
-            // Cycle expired — deactivate and require new questionnaire
-            await withTimeout<any>(
-              (supabase as any)
-                .from("client_questionnaires")
-                .update({ is_active: false })
-                .eq("id", data.id),
-              8_000,
-              "Questionnaire renewal timed out"
-            );
-
-            setHasQuestionnaire(false);
-            setNeedsRenewal(true);
-          } else {
-            setHasQuestionnaire(true);
-            setNeedsRenewal(false);
-          }
+          // Questionnaire is one-time. Users update it from their profile if needed.
+          setHasQuestionnaire(true);
+          setNeedsRenewal(false);
         } else {
           setHasQuestionnaire(false);
         }
