@@ -180,7 +180,10 @@ const DashboardNutrition = () => {
     enabled: !!user,
   });
 
-  const weeklyBudget: number | null = budgetRow?.weekly_budget
+  // Budget priority: per-plan override → user_food_budgets → questionnaire seed.
+  // First non-null wins, so coaches/users can pin a budget at the plan level.
+  const weeklyBudget: number | null =
+    budgetRow?.weekly_budget
     ?? (questionnaireData?.weekly_food_budget ? Number(questionnaireData.weekly_food_budget) : null);
 
   useEffect(() => {
