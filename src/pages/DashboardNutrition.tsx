@@ -820,6 +820,45 @@ const DashboardNutrition = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Weekly Budget Modal — sets `user_food_budgets.weekly_budget`, then
+          triggers server-side `apply-budget-to-grocery-list` so the next
+          render of the grocery tab reflects the new cap. */}
+      <Dialog open={budgetModalOpen} onOpenChange={setBudgetModalOpen}>
+        <DialogContent className="sm:max-w-sm bg-background border-border">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">Set weekly food budget</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              We'll keep your weekly grocery list under this number by reducing quantities of pantry, dairy, and starch items — never proteins or produce. If we can't fit the full plan, we'll tell you honestly instead of dropping items.
+            </p>
+            <div>
+              <label className="text-[10px] uppercase tracking-wider text-foreground/60 block mb-1.5">Weekly budget (USD)</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60">$</span>
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="1"
+                  placeholder="100"
+                  value={budgetInput}
+                  onChange={(e) => setBudgetInput(e.target.value)}
+                  className="pl-7 bg-card border-border"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={() => setBudgetModalOpen(false)} disabled={budgetSaving}>Cancel</Button>
+              <Button onClick={saveBudget} disabled={budgetSaving || !budgetInput.trim()}>
+                {budgetSaving ? "Saving…" : "Save budget"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <DashboardLayout>
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
