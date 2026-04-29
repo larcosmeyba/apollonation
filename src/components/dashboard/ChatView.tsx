@@ -315,7 +315,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
                         isMine ? "text-white/70" : "text-muted-foreground"
                       }`}
                     >
-                      {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
+                      {safeRelativeTime(msg.created_at)}
                     </p>
                     {canReport && (
                       <button
