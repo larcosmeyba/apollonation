@@ -98,6 +98,8 @@ const DashboardNutrition = () => {
   const [budgetInput, setBudgetInput] = useState("");
   const [budgetSaving, setBudgetSaving] = useState(false);
   const [groceryWeek, setGroceryWeek] = useState(1);
+  const [budgetModalOpen, setBudgetModalOpen] = useState(false);
+  const [optimizingBudget, setOptimizingBudget] = useState(false);
   const [swapMeal, setSwapMeal] = useState<any | null>(null);
   const [swapSuggestions, setSwapSuggestions] = useState<MealSuggestion[]>([]);
   const [swapLoading, setSwapLoading] = useState(false);
