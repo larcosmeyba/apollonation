@@ -56,7 +56,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: 1,
-      networkMode: "offlineFirst",
+      networkMode: "always",
       staleTime: 1000 * 60 * 5,
       gcTime: 1000 * 60 * 30,
     },
