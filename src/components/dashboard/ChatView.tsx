@@ -91,27 +91,38 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
     enabled: !!user && !!partnerId,
     queryFn: async () => {
       if (!user) return false;
-      const { data } = await supabase
-        .from("user_blocks")
-        .select("blocked_user_id")
-        .eq("blocker_user_id", user.id)
-        .eq("blocked_user_id", partnerId)
-        .maybeSingle();
-      return !!data;
+      try {
+        const { data } = await supabase
+          .from("user_blocks")
+          .select("blocked_user_id")
+          .eq("blocker_user_id", user.id)
+          .eq("blocked_user_id", partnerId)
+          .maybeSingle();
+        return !!data;
+      } catch {
+        return false;
+      }
     },
   });
 
-  // Fetch full partner profile for avatar and bio
+  // Fetch full partner profile for avatar and bio.
+  // RLS may deny non-admin clients access to a coach's full profile row;
+  // treat any failure as "no extended profile available" instead of crashing.
   const { data: partnerProfile } = useQuery({
     queryKey: ["partner-full-profile", partnerId],
+    enabled: !!partnerId,
+    retry: false,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("display_name, avatar_url, bio, fitness_goals")
-        .eq("user_id", partnerId)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("display_name, avatar_url, bio, fitness_goals")
+          .eq("user_id", partnerId)
+          .maybeSingle();
+        return data ?? null;
+      } catch {
+        return null;
+      }
     },
   });
 
@@ -122,8 +133,12 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
       const url = partnerProfile?.avatar_url;
       if (!url) return null;
       if (url.startsWith("http")) return url;
-      const { data } = await supabase.storage.from("avatars").createSignedUrl(url, 3600);
-      return data?.signedUrl || null;
+      try {
+        const { data } = await supabase.storage.from("avatars").createSignedUrl(url, 3600);
+        return data?.signedUrl || null;
+      } catch {
+        return null;
+      }
     },
     enabled: !!partnerProfile?.avatar_url,
   });
