@@ -16,7 +16,7 @@ export const useQuestionnaire = (userId: string | undefined) => {
     const check = async () => {
       setLoading(true);
       try {
-        const { data, error } = await withTimeout(
+        const { data, error } = await withTimeout<any>(
           (supabase as any)
             .from("client_questionnaires")
             .select("id, cycle_start_date, cycle_number")
@@ -39,7 +39,7 @@ export const useQuestionnaire = (userId: string | undefined) => {
 
           if (weeksDiff >= 4) {
             // Cycle expired — deactivate and require new questionnaire
-            await withTimeout(
+            await withTimeout<any>(
               (supabase as any)
                 .from("client_questionnaires")
                 .update({ is_active: false })
