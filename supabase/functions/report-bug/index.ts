@@ -78,7 +78,7 @@ serve(async (req) => {
         `;
 
         await resend.emails.send({
-          from: "Apollo Reborn Bugs <onboarding@resend.dev>",
+          from: (Deno.env.get("EMAIL_FROM") ?? "Apollo Reborn™ Bugs <noreply@apolloreborn.com>"),
           to: [ADMIN_EMAIL],
           reply_to: userEmail !== "unknown" ? userEmail : undefined,
           subject: `🐛 Bug: ${subject || "New report"}`,
