@@ -590,14 +590,6 @@ const DashboardNutrition = () => {
 
   const regenerateWeek = async () => {
     if (!activePlan || regenerating) return;
-    if (overBudget) {
-      toast({
-        title: "Over budget",
-        description: `Current plan is $${Math.abs(remainingBudget!).toFixed(2)} over your $${weeklyBudget?.toFixed(2)} weekly budget. Raise your budget or simplify meals before regenerating.`,
-        variant: "destructive",
-      });
-      return;
-    }
     setRegenerating(true);
     try {
       const resp = await supabase.functions.invoke("client-regenerate-meal-plan", { body: { planId: activePlan.id, week: currentWeek } });
@@ -608,11 +600,15 @@ const DashboardNutrition = () => {
       if (resp.data?.error) throw new Error(resp.data.error);
       toast({ title: "Meal plan refreshed!", description: `Week ${currentWeek} has been regenerated.` });
       queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan.id] });
+      // Re-run quantity optimization against the new meal set so the grocery
+      // list reflects the new ingredients within budget.
+      await runBudgetOptimization(activePlan.id, currentWeek);
     } catch (err: any) {
       console.error("Regenerate error:", err);
       toast({ title: "Could not regenerate", description: err.message || "Unknown error", variant: "destructive" });
     }
     finally { setRegenerating(false); }
+
   };
 
   return (
