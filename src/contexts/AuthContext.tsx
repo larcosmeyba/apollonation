@@ -196,16 +196,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [profile]);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: {
-          display_name: displayName,
+    const { error } = await withTimeout(
+      supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: {
+            display_name: displayName,
+          },
         },
-      },
-    });
+      }),
+      12_000,
+      "Signup timed out"
+    );
 
     if (!error) {
       supabase.functions.invoke("notify-new-signup", {
@@ -221,10 +225,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await withTimeout(
+      supabase.auth.signInWithPassword({
+        email,
+        password,
+      }),
+      12_000,
+      "Signin timed out"
+    );
     return { error };
   };
 
