@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/timeout";
 
 /**
  * Hook to generate signed URLs for private storage buckets.
@@ -39,18 +40,27 @@ export function useSignedUrl(
       setIsLoading(true);
       setError(null);
 
-      const { data, error: signError } = await supabase.storage
-        .from(bucket)
-        .createSignedUrl(filePath, expiresIn);
+      try {
+        const { data, error: signError } = await withTimeout(
+          supabase.storage
+            .from(bucket)
+            .createSignedUrl(filePath, expiresIn),
+          8_000,
+          "Media load timed out"
+        );
 
-      if (signError) {
-        setError(signError.message);
+        if (signError) {
+          setError(signError.message);
+          setSignedUrl(null);
+        } else {
+          setSignedUrl(data.signedUrl);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Media failed to load");
         setSignedUrl(null);
-      } else {
-        setSignedUrl(data.signedUrl);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
     fetchSignedUrl();

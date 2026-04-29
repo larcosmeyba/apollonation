@@ -10,6 +10,7 @@ import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { withTimeout } from "@/lib/timeout";
 
 const FREE_WORKOUT_LIMIT = 10;
 const FREE_RECIPE_LIMIT = 10;
@@ -74,24 +75,32 @@ export function useAccessControl(): AccessControl {
     staleTime: 60_000,
     queryFn: async (): Promise<FreeUsageRow | null> => {
       if (!userId) return null;
-      const { data, error } = await supabase
-        .from("free_usage" as any)
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
+      const { data, error } = await withTimeout<any>(
+        supabase
+          .from("free_usage" as any)
+          .select("*")
+          .eq("user_id", userId)
+          .maybeSingle(),
+        8_000,
+        "Free usage load timed out"
+      );
       if (error) {
         console.error("[useAccessControl] fetch failed", error.message);
         return null;
       }
       if (data) return data as unknown as FreeUsageRow;
-      const { data: inserted, error: insertErr } = await (supabase as any)
-        .from("free_usage")
-        .upsert(
-          { user_id: userId },
-          { onConflict: "user_id" }
-        )
-        .select()
-        .maybeSingle();
+      const { data: inserted, error: insertErr } = await withTimeout<any>(
+        (supabase as any)
+          .from("free_usage")
+          .upsert(
+            { user_id: userId },
+            { onConflict: "user_id" }
+          )
+          .select()
+          .maybeSingle(),
+        8_000,
+        "Free usage setup timed out"
+      );
       if (insertErr) {
         console.error("[useAccessControl] upsert failed", insertErr.message);
         return null;

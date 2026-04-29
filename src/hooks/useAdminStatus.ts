@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { App } from "@capacitor/app";
+import { withTimeout } from "@/lib/timeout";
 
 const TTL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -17,21 +18,31 @@ export const useAdminStatus = () => {
       setLoading(false);
       return;
     }
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle();
+    try {
+      const { data, error } = await withTimeout(
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "admin")
+          .maybeSingle(),
+        8_000,
+        "Admin check timed out"
+      );
 
-    if (error) {
+      if (error) {
+        console.error("Error checking admin status:", error);
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(!!data);
+      }
+      lastFetchedRef.current = Date.now();
+    } catch (error) {
       console.error("Error checking admin status:", error);
       setIsAdmin(false);
-    } else {
-      setIsAdmin(!!data);
+    } finally {
+      setLoading(false);
     }
-    lastFetchedRef.current = Date.now();
-    setLoading(false);
   }, [user]);
 
   const refetch = useCallback(() => {

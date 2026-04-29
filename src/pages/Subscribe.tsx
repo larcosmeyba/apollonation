@@ -366,9 +366,9 @@ const Subscribe = () => {
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Plans loading…
                 </Button>
               ) : elitePackages.length === 0 ? (
-                <Button variant="outline" className="w-full" disabled>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Plans loading…
-                </Button>
+                <p className="text-sm text-muted-foreground">
+                  Elite plan unavailable — try again later.
+                </p>
               ) : (
                 <div className="space-y-2">
                   {elitePackages.map((pkg) => (

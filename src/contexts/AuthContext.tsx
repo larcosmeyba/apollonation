@@ -6,6 +6,7 @@ import { Purchases } from "@revenuecat/purchases-capacitor";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { initPurchases, logOutPurchases } from "@/lib/purchases";
+import { withTimeout } from "@/lib/timeout";
 import { toast } from "sonner";
 
 interface Profile {
@@ -56,11 +57,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
+    const { data, error } = await withTimeout(
+      supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle(),
+      8_000,
+      "Profile load timed out"
+    );
 
     if (error) {
       console.error("Error fetching profile:", error);
@@ -107,50 +112,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const finishSessionRestore = async (nextSession: Session | null) => {
+    if (!mountedRef.current) return;
+    setSession(nextSession);
+    setUser(nextSession?.user ?? null);
+
+    if (nextSession?.user) {
+      const uid = nextSession.user.id;
+      initPurchases(uid)
+        .then(() => attachPurchasesListener(uid))
+        .catch((e) => console.warn("[Auth] initPurchases", e));
+      try {
+        const profileData = await fetchProfile(uid);
+        if (!mountedRef.current) return;
+        setProfile(profileData);
+      } catch (e) {
+        console.warn("[Auth] profile restore failed", e);
+        if (!mountedRef.current) return;
+        setProfile(null);
+      } finally {
+        if (mountedRef.current) setLoading(false);
+      }
+    } else {
+      await detachPurchasesListener();
+      if (!mountedRef.current) return;
+      setProfile(null);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     mountedRef.current = true;
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (!mountedRef.current) return;
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          const uid = session.user.id;
-          initPurchases(uid)
-            .then(() => attachPurchasesListener(uid))
-            .catch((e) => console.warn("[Auth] initPurchases", e));
-          const profileData = await fetchProfile(uid);
-          if (!mountedRef.current) return;
-          setProfile(profileData);
-          setLoading(false);
-        } else {
-          await detachPurchasesListener();
-          setProfile(null);
-          setLoading(false);
-        }
+      (_event, session) => {
+        void finishSessionRestore(session);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mountedRef.current) return;
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        const uid = session.user.id;
-        initPurchases(uid)
-          .then(() => attachPurchasesListener(uid))
-          .catch((e) => console.warn("[Auth] initPurchases", e));
-        fetchProfile(uid).then((profileData) => {
-          if (!mountedRef.current) return;
-          setProfile(profileData);
-          setLoading(false);
-        });
-      } else {
+    withTimeout(supabase.auth.getSession(), 8_000, "Session restore timed out")
+      .then(({ data: { session } }) => finishSessionRestore(session))
+      .catch((e) => {
+        console.warn("[Auth] session restore failed", e);
+        if (!mountedRef.current) return;
+        setSession(null);
+        setUser(null);
+        setProfile(null);
         setLoading(false);
-      }
-    });
+      });
 
     return () => {
       mountedRef.current = false;
@@ -188,36 +196,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [profile]);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: {
-          display_name: displayName,
-        },
-      },
-    });
+    try {
+      const { error } = await withTimeout(
+        supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: {
+              display_name: displayName,
+            },
+          },
+        }),
+        12_000,
+        "Signup timed out"
+      );
 
-    if (!error) {
-      supabase.functions.invoke("notify-new-signup", {
-        body: { email, displayName: displayName || "No name" },
-      })
-        .then(({ error: notifError }) => {
-          if (notifError) console.error("Signup notification error:", notifError);
+      if (!error) {
+        supabase.functions.invoke("notify-new-signup", {
+          body: { email, displayName: displayName || "No name" },
         })
-        .catch((err) => console.warn("notify-new-signup failed", err));
-    }
+          .then(({ error: notifError }) => {
+            if (notifError) console.error("Signup notification error:", notifError);
+          })
+          .catch((err) => console.warn("notify-new-signup failed", err));
+      }
 
-    return { error };
+      return { error };
+    } catch (error) {
+      return { error: error as Error };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const { error } = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email,
+          password,
+        }),
+        12_000,
+        "Signin timed out"
+      );
+      return { error };
+    } catch (error) {
+      return { error: error as Error };
+    }
   };
 
   const signOut = async () => {
