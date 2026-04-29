@@ -196,44 +196,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [profile]);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    const { error } = await withTimeout(
-      supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: {
-            display_name: displayName,
+    try {
+      const { error } = await withTimeout(
+        supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: {
+              display_name: displayName,
+            },
           },
-        },
-      }),
-      12_000,
-      "Signup timed out"
-    );
+        }),
+        12_000,
+        "Signup timed out"
+      );
 
-    if (!error) {
-      supabase.functions.invoke("notify-new-signup", {
-        body: { email, displayName: displayName || "No name" },
-      })
-        .then(({ error: notifError }) => {
-          if (notifError) console.error("Signup notification error:", notifError);
+      if (!error) {
+        supabase.functions.invoke("notify-new-signup", {
+          body: { email, displayName: displayName || "No name" },
         })
-        .catch((err) => console.warn("notify-new-signup failed", err));
-    }
+          .then(({ error: notifError }) => {
+            if (notifError) console.error("Signup notification error:", notifError);
+          })
+          .catch((err) => console.warn("notify-new-signup failed", err));
+      }
 
-    return { error };
+      return { error };
+    } catch (error) {
+      return { error: error as Error };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await withTimeout(
-      supabase.auth.signInWithPassword({
-        email,
-        password,
-      }),
-      12_000,
-      "Signin timed out"
-    );
-    return { error };
+    try {
+      const { error } = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email,
+          password,
+        }),
+        12_000,
+        "Signin timed out"
+      );
+      return { error };
+    } catch (error) {
+      return { error: error as Error };
+    }
   };
 
   const signOut = async () => {
