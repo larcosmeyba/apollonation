@@ -3,6 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
+const canUseRealtime = () => {
+  if (typeof window === "undefined") return false;
+  if (typeof window.WebSocket === "undefined") return false;
+  return window.isSecureContext || window.location.protocol === "https:";
+};
+
 export interface Message {
   id: string;
   sender_id: string;
@@ -216,29 +222,43 @@ export const useMessages = (conversationPartnerId?: string) => {
     },
   });
 
-  // Realtime subscription
+  // Realtime subscription. Some embedded app/webview contexts block WebSocket and
+  // supabase-js throws synchronously; messaging must still work without realtime.
   useEffect(() => {
     if (!user) return;
+    if (!canUseRealtime()) return;
 
-    const channel = supabase
-      .channel("messages-realtime")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "messages",
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["messages"] });
-          queryClient.invalidateQueries({ queryKey: ["conversations"] });
-          queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    try {
+      channel = supabase
+        .channel(`messages-realtime-${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "messages",
+          },
+          () => {
+            queryClient.invalidateQueries({ queryKey: ["messages"] });
+            queryClient.invalidateQueries({ queryKey: ["conversations"] });
+            queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+          }
+        );
+
+      channel.subscribe((status) => {
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          console.warn("[useMessages] realtime unavailable; falling back to manual refresh");
         }
-      )
-      .subscribe();
+      });
+    } catch (error) {
+      console.warn("[useMessages] realtime disabled", error);
+      channel = null;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
   }, [user, queryClient]);
 
