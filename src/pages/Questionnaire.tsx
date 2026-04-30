@@ -106,6 +106,23 @@ const Questionnaire = () => {
     const age = parseInt(form.age) || 25;
 
     try {
+      // Ensure we have a fresh, valid auth session before writing — otherwise PostgREST
+      // falls back to the publishable key, auth.uid() is null, and RLS rejects with 42501.
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) {
+        const { data: refreshed, error: refreshErr } = await supabase.auth.refreshSession();
+        if (refreshErr || !refreshed?.session) {
+          toast({
+            title: "Session expired",
+            description: "Please sign in again to submit your questionnaire.",
+            variant: "destructive",
+          });
+          setSubmitting(false);
+          navigate("/auth");
+          return;
+        }
+      }
+
       const payload = {
         user_id: user.id,
         sex: form.sex,
