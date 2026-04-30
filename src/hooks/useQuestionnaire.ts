@@ -16,23 +16,28 @@ export const useQuestionnaire = (userId: string | undefined) => {
     const check = async () => {
       setLoading(true);
       try {
+        // Questionnaire is one-time per user. ANY row (active or not) means they've completed it.
+        // This prevents users from being prompted repeatedly if `is_active` ever gets toggled off.
         const { data, error } = await withTimeout<any>(
           (supabase as any)
             .from("client_questionnaires")
-            .select("id, cycle_start_date, cycle_number")
+            .select("id")
             .eq("user_id", userId)
-            .eq("is_active", true)
-            .maybeSingle(),
+            .limit(1),
           8_000,
           "Questionnaire check timed out"
         );
 
         if (error) {
           console.error("Error checking questionnaire:", error);
+          // On error, fail OPEN — don't trap the user on /questionnaire forever
+          // because of a transient network / RLS hiccup.
+          setHasQuestionnaire(true);
+          setNeedsRenewal(false);
+          return;
         }
 
-        if (data) {
-          // Questionnaire is one-time. Users update it from their profile if needed.
+        if (data && data.length > 0) {
           setHasQuestionnaire(true);
           setNeedsRenewal(false);
         } else {

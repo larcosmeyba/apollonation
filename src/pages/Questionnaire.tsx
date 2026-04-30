@@ -106,29 +106,56 @@ const Questionnaire = () => {
     const age = parseInt(form.age) || 25;
 
     try {
-      const { data: questionnaireData, error } = await (supabase as any)
+      const payload = {
+        user_id: user.id,
+        sex: form.sex,
+        age,
+        height_inches: totalInches,
+        weight_lbs: weightLbs,
+        activity_level: form.activity_level,
+        workout_days_per_week: form.preferred_training_days.length,
+        training_methods: [],
+        preferred_training_days: form.preferred_training_days,
+        goal_next_4_weeks: form.goal,
+        dietary_restrictions: form.dietary_restrictions,
+        disliked_foods: form.disliked_foods
+          ? form.disliked_foods.split(",").map((f: string) => f.trim()).filter(Boolean)
+          : [],
+        weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
+        waiver_accepted: true,
+        waiver_accepted_at: new Date().toISOString(),
+        is_active: true,
+      };
+
+      // Avoid creating duplicate rows on resubmit — update the existing one if present.
+      const { data: existingQ } = await (supabase as any)
         .from("client_questionnaires")
-        .insert({
-          user_id: user.id,
-          sex: form.sex,
-          age,
-          height_inches: totalInches,
-          weight_lbs: weightLbs,
-          activity_level: form.activity_level,
-          workout_days_per_week: form.preferred_training_days.length,
-          training_methods: [],
-          preferred_training_days: form.preferred_training_days,
-          goal_next_4_weeks: form.goal,
-          dietary_restrictions: form.dietary_restrictions,
-          disliked_foods: form.disliked_foods
-            ? form.disliked_foods.split(",").map((f: string) => f.trim()).filter(Boolean)
-            : [],
-          weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
-          waiver_accepted: true,
-          waiver_accepted_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+        .select("id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      let questionnaireData: any;
+      let error: any;
+      if (existingQ?.id) {
+        const res = await (supabase as any)
+          .from("client_questionnaires")
+          .update(payload)
+          .eq("id", existingQ.id)
+          .select()
+          .single();
+        questionnaireData = res.data;
+        error = res.error;
+      } else {
+        const res = await (supabase as any)
+          .from("client_questionnaires")
+          .insert(payload)
+          .select()
+          .single();
+        questionnaireData = res.data;
+        error = res.error;
+      }
 
       if (error) throw error;
 
