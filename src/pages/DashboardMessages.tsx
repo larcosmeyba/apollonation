@@ -97,6 +97,7 @@ const DashboardMessages = () => {
             partnerId={coach.user_id}
             showHeader
             partnerNameOverride="Coach Marcos"
+            partnerProfileHref={`/dashboard/coach/${coach.user_id}`}
           />
         </div>
 
