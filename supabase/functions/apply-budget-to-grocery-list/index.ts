@@ -346,7 +346,7 @@ Deno.serve(async (req) => {
           plan_id: planId,
           week_number: week,
           item_key: i.key,
-          quantity_factor: round2(i.factor),
+          quantity_factor: Math.max(0.01, Math.round(i.factor * 10000) / 10000),
           swapped_for_budget: true,
           already_have: false,
           purchased: false,
