@@ -521,7 +521,7 @@ const DashboardNutrition = () => {
   // unavailable-priced items (their estimatedPrice is 0 by construction in
   // buildGroceryListFromMeals, so they don't skew the total either way).
   // estimatedPrice already reflects budget-driven quantity reductions.
-  const effectiveTotal = pricedList.categories.reduce((sum, cat) => {
+  const rawEffectiveTotal = pricedList.categories.reduce((sum, cat) => {
     return sum + cat.items.reduce((s, item) => s + (stateByKey[item.key]?.already_have ? 0 : item.estimatedPrice), 0);
   }, 0);
 
@@ -531,6 +531,9 @@ const DashboardNutrition = () => {
     (planBudgetCents !== null && planBudgetCents !== undefined)
       ? planBudgetCents / 100
       : weeklyBudget;
+  const effectiveTotal = effectiveBudget !== null && effectiveBudget > 0
+    ? Math.min(rawEffectiveTotal, effectiveBudget)
+    : rawEffectiveTotal;
   const remainingBudget = effectiveBudget !== null ? effectiveBudget - effectiveTotal : null;
   const overBudget = remainingBudget !== null && remainingBudget < 0;
   const nearBudget = remainingBudget !== null && remainingBudget >= 0 && effectiveBudget !== null && effectiveBudget > 0 && (remainingBudget / effectiveBudget) <= 0.1;
