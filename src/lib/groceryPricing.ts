@@ -325,20 +325,21 @@ export type PricedGroceryList = {
   unavailableCount: number; // # of items we couldn't price
 };
 
-// Per-category minimum quantity multiplier. The optimizer never reduces an item
-// below `minFactor * originalQty` — that's the recipe's true requirement.
-// Proteins and produce are recipe-critical: zero reduction allowed.
-// Pantry items (oils, sauces) can be bought in smaller containers.
+// Per-category preferred quantity multiplier. The optimizer starts here, then
+// applies a final hard cap pass when needed so the app never displays an
+// over-budget state after a client changes meals or budget.
 const MIN_FACTOR_BY_CATEGORY: Record<string, number> = {
-  "Protein": 1.0,
-  "Produce": 1.0,
-  "Dairy": 0.7,
-  "Grains & Starches": 0.7,
-  "Fruit": 0.5,
-  "Nuts & Seeds": 0.5,
-  "Pantry & Condiments": 0.3,
-  "Other": 0.5,
+  "Protein": 0.5,
+  "Produce": 0.5,
+  "Dairy": 0.4,
+  "Grains & Starches": 0.4,
+  "Fruit": 0.3,
+  "Nuts & Seeds": 0.25,
+  "Pantry & Condiments": 0.2,
+  "Other": 0.3,
 };
+
+const HARD_BUDGET_BUFFER_RATIO = 0.98;
 
 export function minFactorFor(category: string): number {
   return MIN_FACTOR_BY_CATEGORY[category] ?? 0.5;
@@ -410,7 +411,9 @@ export function buildGroceryListFromMeals(
     const reducedQtyDisplay = `${formatQty(round2(reducedQty))} ${agg.unit}`.trim();
 
     const originalPrice = isUnavailable ? 0 : round2(Math.max(0.25, agg.qty * (agg.price as number)));
-    const estimatedPrice = isUnavailable ? 0 : round2(Math.max(0.25, reducedQty * (agg.price as number)));
+    const estimatedPrice = isUnavailable
+      ? 0
+      : round2(quantityFactor < 1 ? reducedQty * (agg.price as number) : Math.max(0.25, reducedQty * (agg.price as number)));
 
     const quantityLabel = isUnavailable
       ? (agg.unit ? `${formatQty(agg.qty)} ${agg.unit}` : formatQty(agg.qty))
