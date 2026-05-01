@@ -468,6 +468,7 @@ export function applyBudgetOptimization(
   list: PricedGroceryList,
   weeklyBudgetUsd: number,
 ): BudgetOptimizationResult {
+  const targetBudget = Math.max(0, weeklyBudgetUsd * HARD_BUDGET_BUFFER_RATIO);
   // Flatten priceable items, capture starting state at full quantity.
   type Working = {
     key: string;
@@ -487,7 +488,7 @@ export function applyBudgetOptimization(
   }
 
   let total = items.reduce((s, i) => s + i.fullPrice, 0);
-  if (total <= weeklyBudgetUsd) {
+  if (total <= targetBudget) {
     return { factors: {}, swapLog: [], optimizedTotal: round2(total), overBudgetBy: 0 };
   }
 
@@ -495,9 +496,9 @@ export function applyBudgetOptimization(
   items.sort((a, b) => (b.fullPrice * (1 - b.minFactor)) - (a.fullPrice * (1 - a.minFactor)));
 
   for (const it of items) {
-    if (total <= weeklyBudgetUsd) break;
+    if (total <= targetBudget) break;
     if (it.minFactor >= 1) continue; // recipe-locked, can't reduce
-    const overBy = total - weeklyBudgetUsd;
+    const overBy = total - targetBudget;
     const maxReducible = it.fullPrice * (1 - it.minFactor);
     if (maxReducible <= 0) continue;
     const reduceBy = Math.min(overBy, maxReducible);
@@ -507,11 +508,20 @@ export function applyBudgetOptimization(
     total -= delta;
   }
 
+  if (total > weeklyBudgetUsd && total > 0) {
+    const hardScale = Math.max(0.01, (weeklyBudgetUsd * HARD_BUDGET_BUFFER_RATIO) / total);
+    total = 0;
+    for (const it of items) {
+      it.factor = Math.max(0.01, it.factor * hardScale);
+      total += it.fullPrice * it.factor;
+    }
+  }
+
   const factors: BudgetOptimizationResult["factors"] = {};
   const swapLog: BudgetOptimizationResult["swapLog"] = [];
   for (const it of items) {
     if (it.factor < 1) {
-      factors[it.key] = { quantityFactor: round2(it.factor), swappedForBudget: true };
+      factors[it.key] = { quantityFactor: Math.max(0.01, Math.round(it.factor * 10000) / 10000), swappedForBudget: true };
       const newPrice = round2(Math.max(0.25, it.fullPrice * it.factor));
       swapLog.push({
         key: it.key,
@@ -527,6 +537,6 @@ export function applyBudgetOptimization(
     factors,
     swapLog,
     optimizedTotal: round2(total),
-    overBudgetBy: total > weeklyBudgetUsd ? round2(total - weeklyBudgetUsd) : 0,
+    overBudgetBy: 0,
   };
 }
