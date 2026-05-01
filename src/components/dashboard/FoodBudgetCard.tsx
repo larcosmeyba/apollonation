@@ -58,6 +58,11 @@ const FoodBudgetCard = () => {
       toast({ title: "Enter a valid amount", variant: "destructive" });
       return;
     }
+    if (budget && spendThisWeek + value > Number(budget)) {
+      const available = Math.max(0, Number(budget) - spendThisWeek);
+      toast({ title: "Budget limit reached", description: `You have $${available.toFixed(2)} remaining this week.` });
+      return;
+    }
     const { error } = await (supabase as any).from("food_spend_logs").insert({
       user_id: user.id,
       amount_spent: value,
@@ -74,9 +79,9 @@ const FoodBudgetCard = () => {
     queryClient.invalidateQueries({ queryKey: ["spend-week", user.id] });
   };
 
-  const remaining = budget ? Number(budget) - spendThisWeek : null;
-  const overBudget = remaining !== null && remaining < 0;
-  const pct = budget ? Math.min((spendThisWeek / Number(budget)) * 100, 100) : 0;
+  const visibleSpend = budget ? Math.min(spendThisWeek, Number(budget)) : spendThisWeek;
+  const remaining = budget ? Math.max(0, Number(budget) - visibleSpend) : null;
+  const pct = budget ? Math.min((visibleSpend / Number(budget)) * 100, 100) : 0;
 
   return (
     <div className="card-apollo p-5">
@@ -110,21 +115,17 @@ const FoodBudgetCard = () => {
       ) : (
         <>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-heading">${spendThisWeek.toFixed(0)}</span>
+            <span className="text-3xl font-heading">${visibleSpend.toFixed(0)}</span>
             <span className="text-sm text-muted-foreground">/ ${Number(budget).toFixed(0)}</span>
           </div>
           <div className="h-1.5 rounded-full bg-muted overflow-hidden mb-2">
             <div
-              className={`h-full transition-all duration-500 ${overBudget ? "bg-destructive" : "bg-primary"}`}
+              className="h-full transition-all duration-500 bg-primary"
               style={{ width: `${pct}%` }}
             />
           </div>
           <div className="flex items-center gap-1.5 text-xs">
-            {overBudget ? (
-              <><TrendingUp className="w-3 h-3 text-destructive" /><span className="text-destructive">${Math.abs(remaining!).toFixed(0)} over budget</span></>
-            ) : (
-              <><TrendingDown className="w-3 h-3 text-green-500" /><span className="text-green-500">${remaining!.toFixed(0)} remaining this week</span></>
-            )}
+            <><TrendingDown className="w-3 h-3 text-green-500" /><span className="text-green-500">${remaining!.toFixed(0)} remaining this week</span></>
           </div>
         </>
       )}
