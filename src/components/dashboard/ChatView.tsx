@@ -164,7 +164,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride }:
     } catch {}
   }, [newMessage, partnerId]);
 
-  const partnerName = partnerProfile?.display_name || profiles?.[partnerId]?.display_name || "Coach";
+  const partnerName = partnerNameOverride || partnerProfile?.display_name || profiles?.[partnerId]?.display_name || "Coach";
 
   // Mark messages as read when opening conversation
   useEffect(() => {
