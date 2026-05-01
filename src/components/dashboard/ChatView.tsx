@@ -77,11 +77,13 @@ interface ChatViewProps {
   partnerId: string;
   onBack?: () => void;
   showHeader?: boolean;
+  /** Override the displayed partner name (e.g. force "Coach Marcos"). */
+  partnerNameOverride?: string;
 }
 
 const DRAFT_KEY_PREFIX = "chat-draft-";
 
-const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
+const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride }: ChatViewProps) => {
   const { user } = useAuth();
   const { messages, messagesLoading, sendMessage, markAsRead } = useMessages(partnerId);
   const { data: profiles } = useProfileLookup([partnerId]);
@@ -162,7 +164,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
     } catch {}
   }, [newMessage, partnerId]);
 
-  const partnerName = partnerProfile?.display_name || profiles?.[partnerId]?.display_name || "Coach";
+  const partnerName = partnerNameOverride || partnerProfile?.display_name || profiles?.[partnerId]?.display_name || "Coach";
 
   // Mark messages as read when opening conversation
   useEffect(() => {
