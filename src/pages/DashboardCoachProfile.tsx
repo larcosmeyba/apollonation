@@ -121,6 +121,8 @@ const DashboardCoachProfile = () => {
         {activeTab === "bio" && (
           <div className="space-y-4">
             <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">{COACH_BIO}</p>
+          </div>
+        )}
 
         {/* On-Demand Tab */}
         {activeTab === "ondemand" && (
