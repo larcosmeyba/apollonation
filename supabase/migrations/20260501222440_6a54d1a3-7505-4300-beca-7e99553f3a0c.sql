@@ -1,0 +1,1 @@
+UPDATE public.profiles SET entitlement='apollo_elite', is_subscribed=true, manual_subscription=true, subscription_store='manual', subscription_plan='annual', subscription_expires_at=NULL WHERE user_id='aee903fe-f123-4fe3-a9bd-633ddf7508b2';
