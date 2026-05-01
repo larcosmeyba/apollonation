@@ -83,7 +83,7 @@ interface ChatViewProps {
 
 const DRAFT_KEY_PREFIX = "chat-draft-";
 
-const ChatView = ({ partnerId, onBack, showHeader = true }: ChatViewProps) => {
+const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride }: ChatViewProps) => {
   const { user } = useAuth();
   const { messages, messagesLoading, sendMessage, markAsRead } = useMessages(partnerId);
   const { data: profiles } = useProfileLookup([partnerId]);
