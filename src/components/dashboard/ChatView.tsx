@@ -77,6 +77,8 @@ interface ChatViewProps {
   partnerId: string;
   onBack?: () => void;
   showHeader?: boolean;
+  /** Override the displayed partner name (e.g. force "Coach Marcos"). */
+  partnerNameOverride?: string;
 }
 
 const DRAFT_KEY_PREFIX = "chat-draft-";
