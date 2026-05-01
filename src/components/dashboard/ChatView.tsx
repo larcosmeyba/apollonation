@@ -19,6 +19,7 @@ import {
 import { Send, ArrowLeft, Flag, Ban } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 function safeRelativeTime(value: string | null | undefined): string {
   if (!value) return "";
@@ -79,12 +80,15 @@ interface ChatViewProps {
   showHeader?: boolean;
   /** Override the displayed partner name (e.g. force "Coach Marcos"). */
   partnerNameOverride?: string;
+  /** When set, tapping the header avatar/name navigates here instead of opening the in-chat dialog. */
+  partnerProfileHref?: string;
 }
 
 const DRAFT_KEY_PREFIX = "chat-draft-";
 
-const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride }: ChatViewProps) => {
+const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, partnerProfileHref }: ChatViewProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { messages, messagesLoading, sendMessage, markAsRead } = useMessages(partnerId);
   const { data: profiles } = useProfileLookup([partnerId]);
   const [newMessage, setNewMessage] = useState(() => {
@@ -252,7 +256,10 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride }:
             </button>
           )}
           <button
-            onClick={() => setShowCoachProfile(true)}
+            onClick={() => {
+              if (partnerProfileHref) navigate(partnerProfileHref);
+              else setShowCoachProfile(true);
+            }}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <Avatar className="h-9 w-9">
