@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { estimateGroceryTotal } from "../_shared/grocery-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -133,65 +134,29 @@ If a meal would violate ANY of these, choose a different meal instead. Do not su
       ? `\nThe client DISLIKES these foods — do NOT include them: ${dislikes.join(", ")}.`
       : "";
 
-    const budgetInfo = weeklyBudget
-      ? `\nClient's weekly grocery budget is $${weeklyBudget}. Choose affordable, common ingredients that keep the total grocery cost under that budget.`
-      : "";
-
     const goal = profile?.goals || questionnaire?.goal_next_4_weeks || "maintain";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const prompt = `Generate a 7-day meal plan for Week ${week} with 4 meals/day (breakfast, lunch, dinner, snack). Varied cuisines & proteins.
+    // Build a budget instruction with safety margin so the estimated grocery
+    // total reliably lands UNDER the user's cap (10% headroom).
+    const budgetTarget = weeklyBudget ? Math.max(20, Math.floor(weeklyBudget * 0.9)) : null;
+
+    const buildPrompt = (extraConstraint: string) => {
+      const budgetInfo = weeklyBudget
+        ? `\n\nSTRICT BUDGET CAP: The full week's grocery cost MUST stay AT OR UNDER $${budgetTarget} (target) — and absolutely no more than $${weeklyBudget}. Use the cheapest viable ingredients: chicken thigh over breast, ground turkey/eggs/canned tuna/beans/lentils/tofu over steak/salmon/shrimp; rice, oats, pasta, potatoes over quinoa; bananas, apples, oranges, frozen berries over fresh berries; in-season produce; avoid premium items (steak, salmon, shrimp, almond butter, fresh raspberries, cashews) unless essential. Reuse the same affordable proteins across multiple days to minimize variety overhead.${extraConstraint}`
+        : "";
+
+      return `Generate a 7-day meal plan for Week ${week} with 4 meals/day (breakfast, lunch, dinner, snack). Varied cuisines & proteins (within the budget constraint).
 Targets: ${plan.daily_calories}cal, ${plan.protein_grams}g P, ${plan.carbs_grams}g C, ${plan.fat_grams}g F. Goal: ${goal}.${restrictionsBlock}${dislikesText}${budgetInfo}${profile?.notes ? `\nAdditional notes: ${profile.notes}` : ""}
 
 Each meal MUST list every ingredient with an amount (e.g. "1 cup brown rice", "4 oz chicken breast"). Be exhaustive — the grocery list is built from these ingredients.
 
 Respond ONLY with JSON: {"days":[{"day_number":1,"meals":[{"meal_type":"breakfast","meal_name":"...","description":"...","ingredients":["item with amount"],"calories":0,"protein_grams":0,"carbs_grams":0,"fat_grams":0}]}]}`;
+    };
 
-    const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
-        messages: [
-          { role: "system", content: "Expert nutritionist. Return ONLY valid JSON, no markdown." },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.9,
-      }),
-    });
-
-    if (!aiResp.ok) {
-      if (aiResp.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (aiResp.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      throw new Error(`AI error: ${aiResp.status}`);
-    }
-
-    const aiData = await aiResp.json();
-    const content = aiData.choices?.[0]?.message?.content;
-    if (!content) throw new Error("No AI response");
-
-    let mealPlanData;
-    let clean = content.trim();
-    if (clean.startsWith("```json")) clean = clean.slice(7);
-    if (clean.startsWith("```")) clean = clean.slice(3);
-    if (clean.endsWith("```")) clean = clean.slice(0, -3);
-    mealPlanData = JSON.parse(clean.trim());
-
-    // Server-side safety check: refuse to save the plan if any meal contains
-    // an ingredient that violates a hard dietary restriction.
+    // Dietary restriction check (used inside retry loop)
     const RESTRICTION_KEYWORDS: Record<string, string[]> = {
       vegan: ["beef", "chicken", "pork", "turkey", "lamb", "bacon", "ham", "sausage", "fish", "salmon", "tuna", "shrimp", "crab", "lobster", "milk", "cream", "butter", "cheese", "yogurt", "egg", "honey", "gelatin", "whey", "casein"],
       vegetarian: ["beef", "chicken", "pork", "turkey", "lamb", "bacon", "ham", "sausage", "fish", "salmon", "tuna", "shrimp", "crab", "lobster", "anchov"],
@@ -209,9 +174,11 @@ Respond ONLY with JSON: {"days":[{"day_number":1,"meals":[{"meal_type":"breakfas
       const kws = RESTRICTION_KEYWORDS[norm] || RESTRICTION_KEYWORDS[norm.replace(/-free$/, "-free")];
       if (kws) kws.forEach((k) => activeBlocks.add(k));
     }
-    if (activeBlocks.size > 0) {
+
+    const checkDietary = (data: any): string[] => {
+      if (activeBlocks.size === 0) return [];
       const offenders: string[] = [];
-      for (const day of mealPlanData.days || []) {
+      for (const day of data.days || []) {
         for (const meal of day.meals || []) {
           const text = [meal.meal_name, meal.description, ...(meal.ingredients || [])].join(" ").toLowerCase();
           for (const kw of activeBlocks) {
@@ -220,12 +187,101 @@ Respond ONLY with JSON: {"days":[{"day_number":1,"meals":[{"meal_type":"breakfas
           }
         }
       }
-      if (offenders.length > 0) {
-        return new Response(JSON.stringify({
-          error: `Generated plan violated your dietary restrictions (${offenders.slice(0, 3).join(", ")}). Please try again.`,
-        }), { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return offenders;
+    };
+
+    // ── Generate + price-check + retry loop (max 3 attempts) ──
+    let mealPlanData: any = null;
+    let bestPlan: any = null;
+    let bestTotal = Infinity;
+    const MAX_ATTEMPTS = weeklyBudget ? 3 : 1;
+    let extraConstraint = "";
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-lite",
+          messages: [
+            { role: "system", content: "Expert nutritionist who designs budget-conscious meal plans. Return ONLY valid JSON, no markdown." },
+            { role: "user", content: buildPrompt(extraConstraint) },
+          ],
+          // Lower temperature on retry to be more deterministic / conservative.
+          temperature: attempt === 1 ? 0.9 : 0.5,
+        }),
+      });
+
+      if (!aiResp.ok) {
+        if (aiResp.status === 429) {
+          return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (aiResp.status === 402) {
+          return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
+            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        throw new Error(`AI error: ${aiResp.status}`);
       }
+
+      const aiData = await aiResp.json();
+      const content = aiData.choices?.[0]?.message?.content;
+      if (!content) throw new Error("No AI response");
+
+      let clean = content.trim();
+      if (clean.startsWith("```json")) clean = clean.slice(7);
+      if (clean.startsWith("```")) clean = clean.slice(3);
+      if (clean.endsWith("```")) clean = clean.slice(0, -3);
+
+      let parsed: any;
+      try { parsed = JSON.parse(clean.trim()); }
+      catch { throw new Error("AI returned invalid JSON"); }
+
+      // Dietary safety check first — never accept a plan that violates restrictions.
+      const offenders = checkDietary(parsed);
+      if (offenders.length > 0) {
+        if (attempt === MAX_ATTEMPTS) {
+          return new Response(JSON.stringify({
+            error: `Generated plan violated your dietary restrictions (${offenders.slice(0, 3).join(", ")}). Please try again.`,
+          }), { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        extraConstraint = `\nPrevious attempt included forbidden ingredients (${offenders.slice(0, 3).join(", ")}). Strictly exclude them.`;
+        continue;
+      }
+
+      // Estimate grocery total; if no budget, accept first valid plan.
+      if (!weeklyBudget) { mealPlanData = parsed; break; }
+
+      const allMeals = (parsed.days || []).flatMap((d: any) => d.meals || []);
+      const estTotal = estimateGroceryTotal(allMeals);
+      console.log(`[regen] Attempt ${attempt}: estimated $${estTotal} vs budget $${weeklyBudget}`);
+
+      // Track best (cheapest) plan in case all attempts come in over.
+      if (estTotal < bestTotal) { bestTotal = estTotal; bestPlan = parsed; }
+
+      if (estTotal <= weeklyBudget) {
+        mealPlanData = parsed;
+        break;
+      }
+
+      // Over budget → tighten constraints for next attempt.
+      const overBy = Math.round((estTotal - weeklyBudget) * 100) / 100;
+      extraConstraint = `\nPrevious attempt cost $${estTotal} — that is $${overBy} OVER the $${weeklyBudget} cap. You MUST cut cost dramatically: replace any premium proteins with eggs/canned tuna/beans/lentils/chicken thigh, remove nuts/berries/avocado where non-essential, downsize portions of expensive items, and reuse the same cheap proteins across more meals.`;
     }
+
+    // If we exhausted attempts without fitting, fall back to the cheapest plan
+    // produced — the quantity-tier optimizer (apply-budget-to-grocery-list)
+    // will further trim quantities client-side to bring it under budget.
+    if (!mealPlanData) {
+      mealPlanData = bestPlan;
+      console.warn(`[regen] Could not fit budget after ${MAX_ATTEMPTS} attempts; using cheapest ($${bestTotal} vs $${weeklyBudget}).`);
+    }
+    if (!mealPlanData) throw new Error("Failed to generate meal plan");
 
     // Delete old meals for this specific week only
     const weekStart = (week - 1) * 7 + 1;
