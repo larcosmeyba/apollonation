@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -61,6 +61,7 @@ const GROCERY_UPDATE_KEY = "apollo_grocery_last_update";
 const DashboardTodayNutrition = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [groceryList, setGroceryList] = useState<GroceryList | null>(null);
   const [groceryOpen, setGroceryOpen] = useState(false);
   const [selectedStore, setSelectedStore] = useState("");
@@ -211,7 +212,7 @@ const DashboardTodayNutrition = () => {
       setGroceryOpen(true);
       setShowMonthlyReminder(false);
       localStorage.setItem(GROCERY_UPDATE_KEY, new Date().toISOString());
-      // Save to questionnaire
+      // Save to the shared budget source so all nutrition screens use the same cap.
       if (user) {
         supabase
           .from("client_questionnaires")
@@ -219,6 +220,10 @@ const DashboardTodayNutrition = () => {
           .eq("user_id", user.id)
           .eq("is_active", true)
           .then(() => {});
+        (supabase as any)
+          .from("user_food_budgets")
+          .upsert({ user_id: user.id, weekly_budget: parseFloat(weeklyBudget) }, { onConflict: "user_id" })
+          .then(() => queryClient.invalidateQueries({ queryKey: ["food-budget", user.id] }));
       }
       toast({ title: "Grocery list generated!" });
     },
@@ -282,6 +287,10 @@ const DashboardTodayNutrition = () => {
   }
 
   const todayLabel = format(today, "EEEE");
+  const displayBudget = parseFloat(String(groceryList?.budget || weeklyBudget).replace(/[^0-9.]/g, ""));
+  const displayTotal = groceryList
+    ? Math.min(Number(groceryList.estimated_total) || 0, Number.isFinite(displayBudget) ? displayBudget : Number(groceryList.estimated_total) || 0)
+    : 0;
 
   return (
     <>
@@ -440,8 +449,8 @@ const DashboardTodayNutrition = () => {
           <>
             <div className="flex items-center justify-between text-sm mb-3">
               <span className="text-muted-foreground">{groceryList.store}</span>
-              <span className={`font-medium ${groceryList.budget_status === "over" ? "text-destructive" : "text-primary"}`}>
-                ${groceryList.estimated_total.toFixed(2)} / {groceryList.budget}
+              <span className="font-medium text-primary">
+                ${displayTotal.toFixed(2)} / {groceryList.budget}
               </span>
             </div>
 

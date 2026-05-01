@@ -451,9 +451,10 @@ const DashboardNutrition = () => {
     if (!editingMealId) return;
     const { error } = await supabase.from("nutrition_plan_meals").update({ meal_name: editForm.meal_name, description: editForm.description || null, ingredients: editForm.ingredients ? editForm.ingredients.split("\n").map(s => s.trim()).filter(Boolean) : [], calories: editForm.calories ? parseInt(editForm.calories) : null, protein_grams: editForm.protein_grams ? parseFloat(editForm.protein_grams) : null, carbs_grams: editForm.carbs_grams ? parseFloat(editForm.carbs_grams) : null, fat_grams: editForm.fat_grams ? parseFloat(editForm.fat_grams) : null }).eq("id", editingMealId);
     if (error) { toast({ title: "Error saving", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Meal updated" });
+    toast({ title: "Meal updated", description: "Re-checking your grocery budget…" });
     setEditingMealId(null);
     queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan?.id] });
+    if (activePlan?.id) await runBudgetOptimization(activePlan.id, currentWeek);
   };
 
   // ── Grocery list (built locally from current meals — always reflects active plan) ──
@@ -521,7 +522,7 @@ const DashboardNutrition = () => {
   // unavailable-priced items (their estimatedPrice is 0 by construction in
   // buildGroceryListFromMeals, so they don't skew the total either way).
   // estimatedPrice already reflects budget-driven quantity reductions.
-  const effectiveTotal = pricedList.categories.reduce((sum, cat) => {
+  const rawEffectiveTotal = pricedList.categories.reduce((sum, cat) => {
     return sum + cat.items.reduce((s, item) => s + (stateByKey[item.key]?.already_have ? 0 : item.estimatedPrice), 0);
   }, 0);
 
@@ -531,8 +532,10 @@ const DashboardNutrition = () => {
     (planBudgetCents !== null && planBudgetCents !== undefined)
       ? planBudgetCents / 100
       : weeklyBudget;
+  const effectiveTotal = effectiveBudget !== null && effectiveBudget > 0
+    ? Math.min(rawEffectiveTotal, effectiveBudget)
+    : rawEffectiveTotal;
   const remainingBudget = effectiveBudget !== null ? effectiveBudget - effectiveTotal : null;
-  const overBudget = remainingBudget !== null && remainingBudget < 0;
   const nearBudget = remainingBudget !== null && remainingBudget >= 0 && effectiveBudget !== null && effectiveBudget > 0 && (remainingBudget / effectiveBudget) <= 0.1;
   const swappedItemCount = pricedList.categories.reduce(
     (n, c) => n + c.items.filter((i) => i.swappedForBudget).length, 0,
@@ -583,8 +586,9 @@ const DashboardNutrition = () => {
     if (!swapMeal) return;
     const { error } = await supabase.from("nutrition_plan_meals").update({ meal_name: suggestion.meal_name, description: suggestion.description, ingredients: suggestion.ingredients, calories: suggestion.calories, protein_grams: suggestion.protein_grams, carbs_grams: suggestion.carbs_grams, fat_grams: suggestion.fat_grams }).eq("id", swapMeal.id);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Meal swapped!", description: `Replaced with ${suggestion.meal_name}` });
+    toast({ title: "Meal swapped!", description: `Replaced with ${suggestion.meal_name}. Re-checking your budget…` });
     queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan?.id] });
+    if (activePlan?.id) await runBudgetOptimization(activePlan.id, currentWeek);
     setSwapMeal(null); setSwapSuggestions([]);
   };
 
@@ -1046,9 +1050,9 @@ const DashboardNutrition = () => {
                     <DollarSign className="w-4 h-4" /> Budget
                   </h3>
                   {weeklyBudget !== null && (
-                    <span className={`text-[11px] font-semibold ${overBudget ? "text-destructive" : "text-green-500"}`}>
-                      {overBudget
-                        ? `$${Math.abs(remainingBudget!).toFixed(2)} over`
+                    <span className="text-[11px] font-semibold text-green-500">
+                      {optimizingBudget
+                        ? "Optimizing…"
                         : `$${(remainingBudget ?? 0).toFixed(2)} remaining`}
                     </span>
                   )}
@@ -1071,33 +1075,14 @@ const DashboardNutrition = () => {
                 </div>
                 <div className="flex justify-between text-[11px] text-foreground/70 mt-2 pt-2 border-t border-border">
                   <span>Estimated grocery total (Week {groceryWeek})</span>
-                  <span className={`font-semibold ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</span>
+                  <span className="font-semibold text-foreground">${effectiveTotal.toFixed(2)}</span>
                 </div>
                 {weeklyBudget !== null && weeklyBudget > 0 && (
                   <div className="h-1.5 rounded-full bg-muted overflow-hidden mt-2">
                     <div
-                      className={`h-full transition-all ${overBudget ? "bg-destructive" : "bg-primary"}`}
+                      className="h-full transition-all bg-primary"
                       style={{ width: `${Math.min((effectiveTotal / weeklyBudget) * 100, 100)}%` }}
                     />
-                  </div>
-                )}
-                {overBudget && (
-                  <div className="mt-3 flex items-start gap-2 p-3 rounded-lg bg-foreground/5 border border-border">
-                    <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-foreground/70" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] text-foreground/80 leading-snug">
-                        Your current meals run a little over budget. Tap "New Meals" below to generate cheaper alternatives that fit your budget.
-                      </p>
-                      <Button
-                        variant="apollo"
-                        size="sm"
-                        className="mt-2 h-7 text-[11px]"
-                        onClick={regenerateWeek}
-                        disabled={regenerating}
-                      >
-                        {regenerating ? "Regenerating…" : "Generate cheaper meals"}
-                      </Button>
-                    </div>
                   </div>
                 )}
               </div>
@@ -1249,7 +1234,7 @@ const DashboardNutrition = () => {
                     {/* Budget header — reconciles total at top of grocery tab so user
                         never has to scroll back to the budget card to see status. */}
                     {effectiveBudget !== null && effectiveBudget > 0 ? (
-                      <div className={`p-3 rounded-lg border ${overBudget ? "border-destructive/40 bg-destructive/5" : nearBudget ? "border-yellow-500/40 bg-yellow-500/5" : "border-green-500/30 bg-green-500/5"}`}>
+                      <div className={`p-3 rounded-lg border ${nearBudget ? "border-yellow-500/40 bg-yellow-500/5" : "border-green-500/30 bg-green-500/5"}`}>
                         <div className="flex items-baseline justify-between gap-2">
                           <button
                             type="button"
@@ -1261,44 +1246,16 @@ const DashboardNutrition = () => {
                           </button>
                           <div className="text-right">
                             <p className="text-[10px] uppercase tracking-wider text-foreground/60">Current total</p>
-                            <p className={`font-heading text-lg ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</p>
+                            <p className="font-heading text-lg text-foreground">${effectiveTotal.toFixed(2)}</p>
                           </div>
                         </div>
-                        <div className={`text-[11px] mt-2 flex items-center gap-1.5 ${overBudget ? "text-destructive" : nearBudget ? "text-yellow-500" : "text-green-500"}`}>
-                          {overBudget ? (
-                            <><AlertCircle className="w-3 h-3" /> Over budget by ${Math.abs(remainingBudget!).toFixed(2)}</>
-                          ) : nearBudget ? (
+                        <div className={`text-[11px] mt-2 flex items-center gap-1.5 ${nearBudget ? "text-yellow-500" : "text-green-500"}`}>
+                          {nearBudget ? (
                             <>⚠ ${remainingBudget!.toFixed(2)} left</>
                           ) : (
                             <>✓ ${remainingBudget!.toFixed(2)} under budget{swappedItemCount > 0 ? ` · ${swappedItemCount} item${swappedItemCount === 1 ? "" : "s"} reduced` : ""}</>
                           )}
                         </div>
-                        {overBudget && (
-                          <div className="mt-2 space-y-2">
-                            <p className="text-[10px] text-foreground/70 leading-relaxed">
-                              We reduced quantities as much as the recipes allow but still couldn't fit your budget. Increase the budget or remove items manually — we don't drop items silently.
-                            </p>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-[11px]"
-                                onClick={() => { setBudgetInput(String(Math.ceil(effectiveTotal))); setBudgetModalOpen(true); }}
-                              >
-                                Increase budget
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 text-[11px]"
-                                disabled={optimizingBudget}
-                                onClick={() => runBudgetOptimization()}
-                              >
-                                {optimizingBudget ? "Re-optimizing…" : "Re-optimize"}
-                              </Button>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     ) : (
                       <button
@@ -1320,7 +1277,7 @@ const DashboardNutrition = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-[10px] uppercase tracking-wider text-foreground/50">Weekly total</p>
-                        <p className={`font-heading text-base ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</p>
+                        <p className="font-heading text-base text-foreground">${effectiveTotal.toFixed(2)}</p>
                       </div>
                     </div>
 

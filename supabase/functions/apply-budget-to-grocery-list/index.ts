@@ -103,9 +103,10 @@ const FRACTION_MAP: Record<string, number> = {
 };
 
 const MIN_FACTOR_BY_CATEGORY: Record<string, number> = {
-  "Protein": 1.0, "Produce": 1.0, "Dairy": 0.7, "Grains & Starches": 0.7,
-  "Fruit": 0.5, "Nuts & Seeds": 0.5, "Pantry & Condiments": 0.3, "Other": 0.5,
+  "Protein": 0.5, "Produce": 0.5, "Dairy": 0.4, "Grains & Starches": 0.4,
+  "Fruit": 0.3, "Nuts & Seeds": 0.25, "Pantry & Condiments": 0.2, "Other": 0.3,
 };
+const HARD_BUDGET_BUFFER_RATIO = 0.98;
 
 function categorizeIngredient(name: string): string {
   const n = name.toLowerCase();
@@ -188,15 +189,16 @@ function aggregate(meals: Array<{ ingredients: any }>): Item[] {
 }
 
 function optimize(items: Item[], budget: number) {
+  const targetBudget = Math.max(0, budget * HARD_BUDGET_BUFFER_RATIO);
   let total = items.reduce((s, i) => s + i.fullPrice, 0);
-  if (total <= budget) return { items, total: round2(total), overBudgetBy: 0, swapLog: [] as any[] };
+  if (total <= targetBudget) return { items, total: round2(total), overBudgetBy: 0, swapLog: [] as any[] };
 
   // Reduce most-savings items first.
   items.sort((a, b) => (b.fullPrice * (1 - b.minFactor)) - (a.fullPrice * (1 - a.minFactor)));
   for (const it of items) {
-    if (total <= budget) break;
+    if (total <= targetBudget) break;
     if (it.minFactor >= 1) continue;
-    const overBy = total - budget;
+    const overBy = total - targetBudget;
     const maxReducible = it.fullPrice * (1 - it.minFactor);
     if (maxReducible <= 0) continue;
     const reduceBy = Math.min(overBy, maxReducible);
@@ -206,11 +208,20 @@ function optimize(items: Item[], budget: number) {
     total -= delta;
   }
 
+  if (total > budget && total > 0) {
+    const hardScale = Math.max(0.01, (budget * HARD_BUDGET_BUFFER_RATIO) / total);
+    total = 0;
+    for (const it of items) {
+      it.factor = Math.max(0.01, it.factor * hardScale);
+      total += it.fullPrice * it.factor;
+    }
+  }
+
   const swapLog = items.filter((i) => i.factor < 1).map((i) => {
     const newPrice = round2(Math.max(0.25, i.fullPrice * i.factor));
     return { key: i.key, name: i.name, originalPrice: round2(i.fullPrice), newPrice, saved: round2(i.fullPrice - newPrice) };
   });
-  return { items, total: round2(total), overBudgetBy: total > budget ? round2(total - budget) : 0, swapLog };
+  return { items, total: round2(total), overBudgetBy: 0, swapLog };
 }
 
 Deno.serve(async (req) => {
@@ -335,7 +346,7 @@ Deno.serve(async (req) => {
           plan_id: planId,
           week_number: week,
           item_key: i.key,
-          quantity_factor: round2(i.factor),
+          quantity_factor: Math.max(0.01, Math.round(i.factor * 10000) / 10000),
           swapped_for_budget: true,
           already_have: false,
           purchased: false,

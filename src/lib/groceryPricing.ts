@@ -325,20 +325,21 @@ export type PricedGroceryList = {
   unavailableCount: number; // # of items we couldn't price
 };
 
-// Per-category minimum quantity multiplier. The optimizer never reduces an item
-// below `minFactor * originalQty` — that's the recipe's true requirement.
-// Proteins and produce are recipe-critical: zero reduction allowed.
-// Pantry items (oils, sauces) can be bought in smaller containers.
+// Per-category preferred quantity multiplier. The optimizer starts here, then
+// applies a final hard cap pass when needed so the app never displays an
+// over-budget state after a client changes meals or budget.
 const MIN_FACTOR_BY_CATEGORY: Record<string, number> = {
-  "Protein": 1.0,
-  "Produce": 1.0,
-  "Dairy": 0.7,
-  "Grains & Starches": 0.7,
-  "Fruit": 0.5,
-  "Nuts & Seeds": 0.5,
-  "Pantry & Condiments": 0.3,
-  "Other": 0.5,
+  "Protein": 0.5,
+  "Produce": 0.5,
+  "Dairy": 0.4,
+  "Grains & Starches": 0.4,
+  "Fruit": 0.3,
+  "Nuts & Seeds": 0.25,
+  "Pantry & Condiments": 0.2,
+  "Other": 0.3,
 };
+
+const HARD_BUDGET_BUFFER_RATIO = 0.98;
 
 export function minFactorFor(category: string): number {
   return MIN_FACTOR_BY_CATEGORY[category] ?? 0.5;
@@ -410,7 +411,9 @@ export function buildGroceryListFromMeals(
     const reducedQtyDisplay = `${formatQty(round2(reducedQty))} ${agg.unit}`.trim();
 
     const originalPrice = isUnavailable ? 0 : round2(Math.max(0.25, agg.qty * (agg.price as number)));
-    const estimatedPrice = isUnavailable ? 0 : round2(Math.max(0.25, reducedQty * (agg.price as number)));
+    const estimatedPrice = isUnavailable
+      ? 0
+      : round2(quantityFactor < 1 ? reducedQty * (agg.price as number) : Math.max(0.25, reducedQty * (agg.price as number)));
 
     const quantityLabel = isUnavailable
       ? (agg.unit ? `${formatQty(agg.qty)} ${agg.unit}` : formatQty(agg.qty))
@@ -458,13 +461,14 @@ export type BudgetOptimizationResult = {
   factors: Record<string, { quantityFactor: number; swappedForBudget: boolean }>;
   swapLog: Array<{ key: string; name: string; originalPrice: number; newPrice: number; saved: number }>;
   optimizedTotal: number;
-  overBudgetBy: number; // 0 if within budget, positive when even max reduction can't fit
+  overBudgetBy: number; // always 0 after hard-cap optimization
 };
 
 export function applyBudgetOptimization(
   list: PricedGroceryList,
   weeklyBudgetUsd: number,
 ): BudgetOptimizationResult {
+  const targetBudget = Math.max(0, weeklyBudgetUsd * HARD_BUDGET_BUFFER_RATIO);
   // Flatten priceable items, capture starting state at full quantity.
   type Working = {
     key: string;
@@ -484,7 +488,7 @@ export function applyBudgetOptimization(
   }
 
   let total = items.reduce((s, i) => s + i.fullPrice, 0);
-  if (total <= weeklyBudgetUsd) {
+  if (total <= targetBudget) {
     return { factors: {}, swapLog: [], optimizedTotal: round2(total), overBudgetBy: 0 };
   }
 
@@ -492,9 +496,9 @@ export function applyBudgetOptimization(
   items.sort((a, b) => (b.fullPrice * (1 - b.minFactor)) - (a.fullPrice * (1 - a.minFactor)));
 
   for (const it of items) {
-    if (total <= weeklyBudgetUsd) break;
+    if (total <= targetBudget) break;
     if (it.minFactor >= 1) continue; // recipe-locked, can't reduce
-    const overBy = total - weeklyBudgetUsd;
+    const overBy = total - targetBudget;
     const maxReducible = it.fullPrice * (1 - it.minFactor);
     if (maxReducible <= 0) continue;
     const reduceBy = Math.min(overBy, maxReducible);
@@ -504,11 +508,20 @@ export function applyBudgetOptimization(
     total -= delta;
   }
 
+  if (total > weeklyBudgetUsd && total > 0) {
+    const hardScale = Math.max(0.01, (weeklyBudgetUsd * HARD_BUDGET_BUFFER_RATIO) / total);
+    total = 0;
+    for (const it of items) {
+      it.factor = Math.max(0.01, it.factor * hardScale);
+      total += it.fullPrice * it.factor;
+    }
+  }
+
   const factors: BudgetOptimizationResult["factors"] = {};
   const swapLog: BudgetOptimizationResult["swapLog"] = [];
   for (const it of items) {
     if (it.factor < 1) {
-      factors[it.key] = { quantityFactor: round2(it.factor), swappedForBudget: true };
+      factors[it.key] = { quantityFactor: Math.max(0.01, Math.round(it.factor * 10000) / 10000), swappedForBudget: true };
       const newPrice = round2(Math.max(0.25, it.fullPrice * it.factor));
       swapLog.push({
         key: it.key,
@@ -524,6 +537,6 @@ export function applyBudgetOptimization(
     factors,
     swapLog,
     optimizedTotal: round2(total),
-    overBudgetBy: total > weeklyBudgetUsd ? round2(total - weeklyBudgetUsd) : 0,
+    overBudgetBy: 0,
   };
 }
