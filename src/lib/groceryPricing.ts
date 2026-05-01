@@ -461,7 +461,7 @@ export type BudgetOptimizationResult = {
   factors: Record<string, { quantityFactor: number; swappedForBudget: boolean }>;
   swapLog: Array<{ key: string; name: string; originalPrice: number; newPrice: number; saved: number }>;
   optimizedTotal: number;
-  overBudgetBy: number; // 0 if within budget, positive when even max reduction can't fit
+  overBudgetBy: number; // always 0 after hard-cap optimization
 };
 
 export function applyBudgetOptimization(
