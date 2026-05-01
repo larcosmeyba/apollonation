@@ -451,9 +451,10 @@ const DashboardNutrition = () => {
     if (!editingMealId) return;
     const { error } = await supabase.from("nutrition_plan_meals").update({ meal_name: editForm.meal_name, description: editForm.description || null, ingredients: editForm.ingredients ? editForm.ingredients.split("\n").map(s => s.trim()).filter(Boolean) : [], calories: editForm.calories ? parseInt(editForm.calories) : null, protein_grams: editForm.protein_grams ? parseFloat(editForm.protein_grams) : null, carbs_grams: editForm.carbs_grams ? parseFloat(editForm.carbs_grams) : null, fat_grams: editForm.fat_grams ? parseFloat(editForm.fat_grams) : null }).eq("id", editingMealId);
     if (error) { toast({ title: "Error saving", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Meal updated" });
+    toast({ title: "Meal updated", description: "Re-checking your grocery budget…" });
     setEditingMealId(null);
     queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan?.id] });
+    if (activePlan?.id) await runBudgetOptimization(activePlan.id, currentWeek);
   };
 
   // ── Grocery list (built locally from current meals — always reflects active plan) ──
@@ -586,8 +587,9 @@ const DashboardNutrition = () => {
     if (!swapMeal) return;
     const { error } = await supabase.from("nutrition_plan_meals").update({ meal_name: suggestion.meal_name, description: suggestion.description, ingredients: suggestion.ingredients, calories: suggestion.calories, protein_grams: suggestion.protein_grams, carbs_grams: suggestion.carbs_grams, fat_grams: suggestion.fat_grams }).eq("id", swapMeal.id);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Meal swapped!", description: `Replaced with ${suggestion.meal_name}` });
+    toast({ title: "Meal swapped!", description: `Replaced with ${suggestion.meal_name}. Re-checking your budget…` });
     queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan?.id] });
+    if (activePlan?.id) await runBudgetOptimization(activePlan.id, currentWeek);
     setSwapMeal(null); setSwapSuggestions([]);
   };
 
