@@ -1085,25 +1085,6 @@ const DashboardNutrition = () => {
                     />
                   </div>
                 )}
-                {false && overBudget && (
-                  <div className="mt-3 flex items-start gap-2 p-3 rounded-lg bg-foreground/5 border border-border">
-                    <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-foreground/70" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] text-foreground/80 leading-snug">
-                        Your current meals run a little over budget. Tap "New Meals" below to generate cheaper alternatives that fit your budget.
-                      </p>
-                      <Button
-                        variant="apollo"
-                        size="sm"
-                        className="mt-2 h-7 text-[11px]"
-                        onClick={regenerateWeek}
-                        disabled={regenerating}
-                      >
-                        {regenerating ? "Regenerating…" : "Generate cheaper meals"}
-                      </Button>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Weekly refresh banner */}
@@ -1275,32 +1256,6 @@ const DashboardNutrition = () => {
                             <>✓ ${remainingBudget!.toFixed(2)} under budget{swappedItemCount > 0 ? ` · ${swappedItemCount} item${swappedItemCount === 1 ? "" : "s"} reduced` : ""}</>
                           )}
                         </div>
-                        {false && overBudget && (
-                          <div className="mt-2 space-y-2">
-                            <p className="text-[10px] text-foreground/70 leading-relaxed">
-                              We reduced quantities as much as the recipes allow but still couldn't fit your budget. Increase the budget or remove items manually — we don't drop items silently.
-                            </p>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-[11px]"
-                                onClick={() => { setBudgetInput(String(Math.ceil(effectiveTotal))); setBudgetModalOpen(true); }}
-                              >
-                                Increase budget
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 text-[11px]"
-                                disabled={optimizingBudget}
-                                onClick={() => runBudgetOptimization()}
-                              >
-                                {optimizingBudget ? "Re-optimizing…" : "Re-optimize"}
-                              </Button>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     ) : (
                       <button
