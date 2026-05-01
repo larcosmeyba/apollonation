@@ -1051,9 +1051,9 @@ const DashboardNutrition = () => {
                     <DollarSign className="w-4 h-4" /> Budget
                   </h3>
                   {weeklyBudget !== null && (
-                    <span className={`text-[11px] font-semibold ${overBudget ? "text-destructive" : "text-green-500"}`}>
-                      {overBudget
-                        ? `$${Math.abs(remainingBudget!).toFixed(2)} over`
+                    <span className="text-[11px] font-semibold text-green-500">
+                      {optimizingBudget
+                        ? "Optimizing…"
                         : `$${(remainingBudget ?? 0).toFixed(2)} remaining`}
                     </span>
                   )}
@@ -1076,17 +1076,17 @@ const DashboardNutrition = () => {
                 </div>
                 <div className="flex justify-between text-[11px] text-foreground/70 mt-2 pt-2 border-t border-border">
                   <span>Estimated grocery total (Week {groceryWeek})</span>
-                  <span className={`font-semibold ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</span>
+                  <span className="font-semibold text-foreground">${effectiveTotal.toFixed(2)}</span>
                 </div>
                 {weeklyBudget !== null && weeklyBudget > 0 && (
                   <div className="h-1.5 rounded-full bg-muted overflow-hidden mt-2">
                     <div
-                      className={`h-full transition-all ${overBudget ? "bg-destructive" : "bg-primary"}`}
+                      className="h-full transition-all bg-primary"
                       style={{ width: `${Math.min((effectiveTotal / weeklyBudget) * 100, 100)}%` }}
                     />
                   </div>
                 )}
-                {overBudget && (
+                {false && overBudget && (
                   <div className="mt-3 flex items-start gap-2 p-3 rounded-lg bg-foreground/5 border border-border">
                     <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-foreground/70" />
                     <div className="flex-1 min-w-0">
