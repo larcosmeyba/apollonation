@@ -1254,7 +1254,7 @@ const DashboardNutrition = () => {
                     {/* Budget header — reconciles total at top of grocery tab so user
                         never has to scroll back to the budget card to see status. */}
                     {effectiveBudget !== null && effectiveBudget > 0 ? (
-                      <div className={`p-3 rounded-lg border ${overBudget ? "border-destructive/40 bg-destructive/5" : nearBudget ? "border-yellow-500/40 bg-yellow-500/5" : "border-green-500/30 bg-green-500/5"}`}>
+                      <div className={`p-3 rounded-lg border ${nearBudget ? "border-yellow-500/40 bg-yellow-500/5" : "border-green-500/30 bg-green-500/5"}`}>
                         <div className="flex items-baseline justify-between gap-2">
                           <button
                             type="button"
@@ -1266,19 +1266,17 @@ const DashboardNutrition = () => {
                           </button>
                           <div className="text-right">
                             <p className="text-[10px] uppercase tracking-wider text-foreground/60">Current total</p>
-                            <p className={`font-heading text-lg ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</p>
+                            <p className="font-heading text-lg text-foreground">${effectiveTotal.toFixed(2)}</p>
                           </div>
                         </div>
-                        <div className={`text-[11px] mt-2 flex items-center gap-1.5 ${overBudget ? "text-destructive" : nearBudget ? "text-yellow-500" : "text-green-500"}`}>
-                          {overBudget ? (
-                            <><AlertCircle className="w-3 h-3" /> Over budget by ${Math.abs(remainingBudget!).toFixed(2)}</>
-                          ) : nearBudget ? (
+                        <div className={`text-[11px] mt-2 flex items-center gap-1.5 ${nearBudget ? "text-yellow-500" : "text-green-500"}`}>
+                          {nearBudget ? (
                             <>⚠ ${remainingBudget!.toFixed(2)} left</>
                           ) : (
                             <>✓ ${remainingBudget!.toFixed(2)} under budget{swappedItemCount > 0 ? ` · ${swappedItemCount} item${swappedItemCount === 1 ? "" : "s"} reduced` : ""}</>
                           )}
                         </div>
-                        {overBudget && (
+                        {false && overBudget && (
                           <div className="mt-2 space-y-2">
                             <p className="text-[10px] text-foreground/70 leading-relaxed">
                               We reduced quantities as much as the recipes allow but still couldn't fit your budget. Increase the budget or remove items manually — we don't drop items silently.
@@ -1325,7 +1323,7 @@ const DashboardNutrition = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-[10px] uppercase tracking-wider text-foreground/50">Weekly total</p>
-                        <p className={`font-heading text-base ${overBudget ? "text-destructive" : "text-foreground"}`}>${effectiveTotal.toFixed(2)}</p>
+                        <p className="font-heading text-base text-foreground">${effectiveTotal.toFixed(2)}</p>
                       </div>
                     </div>
 
