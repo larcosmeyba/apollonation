@@ -88,23 +88,16 @@ const DashboardMessages = () => {
         </div>
       );
     }
-    const coachInitial = (coach.display_name || "C").charAt(0).toUpperCase();
     return (
       <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
-        {/* Coach name header */}
-        <div className="flex items-center gap-3 p-4 border-b border-border bg-card/95 backdrop-blur-lg flex-shrink-0">
-          <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-sm font-medium text-primary">{coachInitial}</span>
-          </div>
-          <div>
-            <p className="font-heading text-sm tracking-wide">{coach.display_name || "Coach"}</p>
-            <p className="text-[11px] text-muted-foreground">Coach</p>
-          </div>
-        </div>
-
-        {/* Chat takes remaining space above bottom tabs */}
+        {/* Chat takes remaining space above bottom tabs. ChatView's built-in
+            header shows the coach avatar and is tappable to open the profile dialog. */}
         <div className="flex-1 overflow-hidden min-h-0 mb-16">
-          <ChatView partnerId={coach.user_id} showHeader={false} />
+          <ChatView
+            partnerId={coach.user_id}
+            showHeader
+            partnerNameOverride="Coach Marcos"
+          />
         </div>
 
         {/* Bottom tabs */}
