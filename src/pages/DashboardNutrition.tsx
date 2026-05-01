@@ -536,7 +536,6 @@ const DashboardNutrition = () => {
     ? Math.min(rawEffectiveTotal, effectiveBudget)
     : rawEffectiveTotal;
   const remainingBudget = effectiveBudget !== null ? effectiveBudget - effectiveTotal : null;
-  const overBudget = remainingBudget !== null && remainingBudget < 0;
   const nearBudget = remainingBudget !== null && remainingBudget >= 0 && effectiveBudget !== null && effectiveBudget > 0 && (remainingBudget / effectiveBudget) <= 0.1;
   const swappedItemCount = pricedList.categories.reduce(
     (n, c) => n + c.items.filter((i) => i.swappedForBudget).length, 0,
