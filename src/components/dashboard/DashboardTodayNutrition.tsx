@@ -449,8 +449,8 @@ const DashboardTodayNutrition = () => {
           <>
             <div className="flex items-center justify-between text-sm mb-3">
               <span className="text-muted-foreground">{groceryList.store}</span>
-              <span className={`font-medium ${groceryList.budget_status === "over" ? "text-destructive" : "text-primary"}`}>
-                ${groceryList.estimated_total.toFixed(2)} / {groceryList.budget}
+              <span className="font-medium text-primary">
+                ${displayTotal.toFixed(2)} / {groceryList.budget}
               </span>
             </div>
 
