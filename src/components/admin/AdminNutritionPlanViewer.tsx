@@ -301,7 +301,7 @@ const AdminNutritionPlanViewer = ({ planId, onBack, isAdmin }: PlanViewerProps) 
                             <span>F: {meal.fat_grams}g</span>
                           </div>
                         </div>
-                        {(isAdmin || true) && (
+                        {isAdmin && (
                           <Button
                             variant="ghost"
                             size="sm"

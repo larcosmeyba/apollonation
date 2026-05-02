@@ -94,8 +94,18 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const authHeader = req.headers.get("Authorization");
-    if (authHeader !== `Bearer ${expectedAuth}`) {
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const expectedHeader = `Bearer ${expectedAuth}`;
+    const timingSafeEqual = (a: string, b: string): boolean => {
+      const enc = new TextEncoder();
+      const ab = enc.encode(a);
+      const bb = enc.encode(b);
+      if (ab.byteLength !== bb.byteLength) return false;
+      let diff = 0;
+      for (let i = 0; i < ab.byteLength; i++) diff |= ab[i] ^ bb[i];
+      return diff === 0;
+    };
+    if (!timingSafeEqual(authHeader, expectedHeader)) {
       log("Unauthorized webhook call");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,

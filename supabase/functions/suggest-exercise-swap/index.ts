@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { wrapUserInput, PROMPT_INJECTION_GUARD } from "../_shared/prompt-safety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -64,9 +65,9 @@ serve(async (req) => {
       .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
       .join("\n");
 
-    const prompt = `Suggest 3 alternative exercises to replace "${exerciseName}" that target the same movement pattern and muscle group (${muscleGroup || "unknown"}).
+    const prompt = `Suggest 3 alternative exercises to replace ${wrapUserInput(exerciseName)} that target the same movement pattern and muscle group (${wrapUserInput(muscleGroup || "unknown")}).
 
-${availableEquipment ? `Available equipment: ${availableEquipment.join(", ")}` : ""}
+${availableEquipment ? `Available equipment: ${wrapUserInput(Array.isArray(availableEquipment) ? availableEquipment.join(", ") : String(availableEquipment))}` : ""}
 
 CRITICAL RULE: You MUST ONLY suggest exercises from the following exercise library. Do NOT invent or suggest any exercise that is not on this list. Use the EXACT exercise name as written below.
 
@@ -101,7 +102,7 @@ Respond with ONLY valid JSON:
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-lite",
         messages: [
-          { role: "system", content: "You are an expert exercise physiologist. Suggest safe alternative exercises. You MUST ONLY select exercises from the provided exercise library. Never invent exercises. Respond with ONLY valid JSON." },
+          { role: "system", content: `You are an expert exercise physiologist. Suggest safe alternative exercises. You MUST ONLY select exercises from the provided exercise library. Never invent exercises. Respond with ONLY valid JSON.\n\n${PROMPT_INJECTION_GUARD}` },
           { role: "user", content: prompt },
         ],
       }),

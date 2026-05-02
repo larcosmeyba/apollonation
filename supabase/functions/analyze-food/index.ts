@@ -85,6 +85,15 @@ serve(async (req) => {
       );
     }
 
+    // Cap image payload at ~8MB to prevent memory exhaustion and runaway AI costs
+    const MAX_IMAGE_LENGTH = 8 * 1024 * 1024;
+    if (typeof imageBase64 !== "string" || imageBase64.length > MAX_IMAGE_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: "Image is too large. Please use an image under 6MB." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
