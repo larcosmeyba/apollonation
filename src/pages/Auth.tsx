@@ -363,19 +363,49 @@ const Auth = () => {
               </button>
             ) : null}
 
-            {/* Toggle between admin/client login */}
-            <div>
-              <button
-                type="button"
-                onClick={() => {
-                  const newUrl = isAdminMode ? "/auth" : "/auth?role=admin";
-                  navigate(newUrl, { replace: true });
-                }}
-                className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-              >
-                {isAdminMode ? "← Client login" : "Coach login →"}
-              </button>
-            </div>
+            {/* Toggle between admin/client login — hidden on web (web is coach-only) */}
+            {!webOnlyAdmin && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newUrl = isAdminMode ? "/auth" : "/auth?role=admin";
+                    navigate(newUrl, { replace: true });
+                  }}
+                  className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                >
+                  {isAdminMode ? "← Client login" : "Coach login →"}
+                </button>
+              </div>
+            )}
+
+            {webOnlyAdmin && (
+              <div className="pt-6 mt-2 border-t border-border/50 space-y-3">
+                <p className="text-xs text-muted-foreground">
+                  Are you a client? Sign-up and sign-in are only available in the mobile app.
+                </p>
+                <div className="flex items-center justify-center gap-3">
+                  <a
+                    href="https://apps.apple.com/app/apollo-reborn/id6753051692"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-xs"
+                  >
+                    <Apple className="w-4 h-4" />
+                    App Store
+                  </a>
+                  <a
+                    href="https://play.google.com/store/apps/details?id=com.apollonation.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-xs"
+                  >
+                    <Smartphone className="w-4 h-4" />
+                    Google Play
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
