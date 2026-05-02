@@ -42,6 +42,7 @@ import DashboardChallenges from "./pages/DashboardChallenges";
 import DashboardAIWorkout from "./pages/DashboardAIWorkout";
 import DashboardMessages from "./pages/DashboardMessages";
 import Subscribe from "./pages/Subscribe";
+import PaywallPreview from "./pages/PaywallPreview";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
