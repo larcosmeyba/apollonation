@@ -62,9 +62,9 @@ const REASON_BANNERS: Record<string, string> = {
   workouts: "You've used your 10 free workouts. Unlock unlimited training.",
   recipes: "You've used your 10 free recipes. Upgrade for full nutrition access.",
   programs: "You've enrolled in your 2 free programs. Upgrade for the full library.",
-  nutrition: "Meal plans, grocery lists, and macro tracking are part of Apollo Reborn™.",
-  ai: "Your workout, built for today. Unlock AI training with Apollo Reborn™.",
-  elite: "Apollo Elite™ includes 1:1 async coaching with Marcos.",
+  nutrition: "Meal plans, grocery lists, and macro tracking are part of Apollo Reborn.",
+  ai: "Your workout, built for today. Unlock AI training with Apollo Reborn.",
+  elite: "Apollo Elite includes 1:1 async coaching with Marcos.",
 };
 
 const Subscribe = () => {
@@ -131,7 +131,7 @@ const Subscribe = () => {
           className="max-w-lg mx-auto px-5 pt-12 pb-24 text-center"
           style={{ paddingTop: "calc(env(safe-area-inset-top) + 3rem)" }}
         >
-          <h1 className="font-heading text-3xl mb-3">You're an Apollo Elite™ member</h1>
+          <h1 className="font-heading text-3xl mb-3">You're an Apollo Elite member</h1>
           <p className="text-sm text-muted-foreground mb-8">
             Manage your subscription in your device's App Store or Play Store settings.
           </p>
@@ -159,7 +159,7 @@ const Subscribe = () => {
       await refreshProfile();
       const isElite = pkg.tier === "elite";
       toast({
-        title: isElite ? "Welcome to Apollo Elite™" : "Welcome to Apollo Reborn™",
+        title: isElite ? "Welcome to Apollo Elite" : "Welcome to Apollo Reborn",
         description: "Your subscription is active.",
       });
       navigate("/dashboard");
@@ -268,7 +268,7 @@ const Subscribe = () => {
             </div>
             <p className="text-sm text-muted-foreground">
               Memberships are processed through the Apple App Store and Google Play. Open
-              Apollo Reborn™ on your phone to choose a plan.
+              Apollo Reborn on your phone to choose a plan.
             </p>
           </div>
         )}
@@ -290,7 +290,7 @@ const Subscribe = () => {
               </div>
 
               <div className="pt-2">
-                <h2 className="font-heading text-2xl tracking-tight mb-1">Apollo Reborn™</h2>
+                <h2 className="font-heading text-2xl tracking-tight mb-1">Apollo Reborn</h2>
                 <p className="text-xs text-muted-foreground uppercase tracking-[0.15em]">
                   Full Access
                 </p>
@@ -320,7 +320,7 @@ const Subscribe = () => {
                     .map((pkg) =>
                       renderPurchaseButton(
                         pkg,
-                        `Unlock Apollo Reborn™`
+                        `Unlock Apollo Reborn`
                       )
                     )}
                 </div>
@@ -337,7 +337,7 @@ const Subscribe = () => {
                   <div>
                     <h2 className="font-heading text-2xl tracking-tight mb-1 flex items-center gap-2">
                       <Sparkles className="w-5 h-5 opacity-80" />
-                      Apollo Elite™
+                      Apollo Elite
                     </h2>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
                       Limited Coaching Access
@@ -346,7 +346,7 @@ const Subscribe = () => {
                 </div>
 
                 <ul className="text-[13px] text-foreground/80 space-y-2.5">
-                  <Feature>Everything in Apollo Reborn™</Feature>
+                  <Feature>Everything in Apollo Reborn</Feature>
                   <Feature>1:1 coach messaging (24h replies)</Feature>
                   <Feature>Weekly check-ins</Feature>
                   <Feature>Personalized guidance from Marcos</Feature>
@@ -356,7 +356,7 @@ const Subscribe = () => {
                   {elitePackages
                     .slice()
                     .sort((a) => (a.periodLabel === "month" ? -1 : 1))
-                    .map((pkg) => renderPurchaseButton(pkg, `Join Apollo Elite™`))}
+                    .map((pkg) => renderPurchaseButton(pkg, `Join Apollo Elite`))}
                 </div>
               </div>
             )}

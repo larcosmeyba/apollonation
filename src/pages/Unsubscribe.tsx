@@ -52,7 +52,7 @@ export default function Unsubscribe() {
         {state === "loading" && <p className="text-muted-foreground">Validating your request…</p>}
         {state === "valid" && (
           <>
-            <p className="text-muted-foreground">Click below to unsubscribe from Apollo Reborn™ emails.</p>
+            <p className="text-muted-foreground">Click below to unsubscribe from Apollo Reborn emails.</p>
             <Button onClick={confirm} size="lg">Confirm Unsubscribe</Button>
           </>
         )}

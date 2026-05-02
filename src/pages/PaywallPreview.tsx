@@ -36,7 +36,7 @@ const PaywallPreview = () => {
             </div>
 
             <div className="pt-2">
-              <h2 className="font-heading text-2xl tracking-tight mb-1">Apollo Reborn™</h2>
+              <h2 className="font-heading text-2xl tracking-tight mb-1">Apollo Reborn</h2>
               <p className="text-xs text-muted-foreground uppercase tracking-[0.15em]">Full Access</p>
             </div>
 
@@ -51,7 +51,7 @@ const PaywallPreview = () => {
             <div className="space-y-3">
               <div className="space-y-2">
                 <Button variant="apollo" className="w-full rounded-2xl h-14 text-[15px] shadow-[0_8px_30px_rgba(255,255,255,0.08)]">
-                  Unlock Apollo Reborn™ — $9.99 / month
+                  Unlock Apollo Reborn — $9.99 / month
                 </Button>
                 <p className="text-[11px] text-muted-foreground leading-relaxed px-1">
                   $9.99/month. Auto-renews monthly until cancelled. Cancel anytime in App Store / Google Play settings.
@@ -59,7 +59,7 @@ const PaywallPreview = () => {
               </div>
               <div className="space-y-2">
                 <Button variant="apollo" className="w-full rounded-2xl h-14 text-[15px] shadow-[0_8px_30px_rgba(255,255,255,0.08)]">
-                  Unlock Apollo Reborn™ — $69.99 / year
+                  Unlock Apollo Reborn — $69.99 / year
                 </Button>
                 <p className="text-[11px] text-muted-foreground leading-relaxed px-1">
                   $69.99/year. Auto-renews yearly until cancelled. Cancel anytime in App Store / Google Play settings.
@@ -74,7 +74,7 @@ const PaywallPreview = () => {
               <div>
                 <h2 className="font-heading text-2xl tracking-tight mb-1 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 opacity-80" />
-                  Apollo Elite™
+                  Apollo Elite
                 </h2>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
                   Limited Coaching Access
@@ -83,7 +83,7 @@ const PaywallPreview = () => {
             </div>
 
             <ul className="text-[13px] text-foreground/80 space-y-2.5">
-              <Feature>Everything in Apollo Reborn™</Feature>
+              <Feature>Everything in Apollo Reborn</Feature>
               <Feature>1:1 coach messaging (24h replies)</Feature>
               <Feature>Weekly check-ins</Feature>
               <Feature>Personalized guidance from Marcos</Feature>
@@ -92,7 +92,7 @@ const PaywallPreview = () => {
             <div className="space-y-3">
               <div className="space-y-2">
                 <Button variant="apollo" className="w-full rounded-2xl h-14 text-[15px] shadow-[0_8px_30px_rgba(255,255,255,0.08)]">
-                  Join Apollo Elite™ — $29.99 / month
+                  Join Apollo Elite — $29.99 / month
                 </Button>
                 <p className="text-[11px] text-muted-foreground leading-relaxed px-1">
                   $29.99/month. Auto-renews monthly until cancelled. Cancel anytime in App Store / Google Play settings.

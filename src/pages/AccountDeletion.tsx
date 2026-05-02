@@ -9,7 +9,7 @@ const AccountDeletion = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Account Deletion"
-        description="Learn how to request deletion of your Apollo Reborn™ account and all associated data."
+        description="Learn how to request deletion of your Apollo Reborn account and all associated data."
         path="/account-deletion"
       />
       <Navbar />
@@ -22,7 +22,7 @@ const AccountDeletion = () => {
           Account <span className="text-primary">Deletion</span>
         </h1>
         <p className="text-foreground/70 text-lg mb-10">
-          How to request the deletion of your Apollo Reborn™ account and all associated personal data.
+          How to request the deletion of your Apollo Reborn account and all associated personal data.
         </p>
 
         <div className="prose prose-invert max-w-none space-y-8 text-muted-foreground">
@@ -125,10 +125,10 @@ const AccountDeletion = () => {
 
           <h2 className="font-heading text-2xl text-foreground mt-10">Alternative: In-App Deletion</h2>
           <p>
-            If you are logged into the Apollo Reborn™ app, you can also request account deletion from your profile:
+            If you are logged into the Apollo Reborn app, you can also request account deletion from your profile:
           </p>
           <ol className="list-decimal pl-6 space-y-2">
-            <li>Open the Apollo Reborn™ app</li>
+            <li>Open the Apollo Reborn app</li>
             <li>Go to <strong className="text-foreground">Profile</strong> (bottom navigation)</li>
             <li>Tap <strong className="text-foreground">Settings</strong></li>
             <li>Scroll down and tap <strong className="text-foreground">"Delete Account"</strong></li>
@@ -153,7 +153,7 @@ const AccountDeletion = () => {
 
           <div className="mt-10 p-6 bg-muted rounded-lg">
             <p className="text-sm mb-0">
-              Apollo Reborn™ respects your right to data privacy. We comply with applicable data protection 
+              Apollo Reborn respects your right to data privacy. We comply with applicable data protection 
               regulations and are committed to processing all deletion requests promptly and thoroughly.
             </p>
           </div>

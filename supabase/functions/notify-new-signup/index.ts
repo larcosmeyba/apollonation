@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
 
-const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "Apollo Reborn™ <noreply@apolloreborn.com>";
+const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "Apollo Reborn <noreply@apolloreborn.com>";
 const APP_URL = Deno.env.get("APP_URL") ?? "https://apolloreborn.com";
 
 serve(async (req) => {
@@ -53,7 +53,7 @@ serve(async (req) => {
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #0a0a0a; color: #e5e5e5;">
           <div style="text-align: center; margin-bottom: 32px;">
             <h1 style="font-size: 24px; letter-spacing: 0.05em; margin: 0; color: #ffffff;">
-              APOLLO <span style="color: #3b82f6;">REBORN</span>™
+              APOLLO <span style="color: #3b82f6;">REBORN</span>
             </h1>
           </div>
           <div style="background-color: #141414; border: 1px solid #262626; padding: 32px; margin-bottom: 24px;">
@@ -67,7 +67,7 @@ serve(async (req) => {
               <a href="${APP_URL}/admin" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 32px; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.05em;">VIEW IN ADMIN</a>
             </div>
           </div>
-          <p style="text-align: center; font-size: 12px; color: #525252; margin: 0;">© ${new Date().getFullYear()} Apollo Reborn™. All rights reserved.</p>
+          <p style="text-align: center; font-size: 12px; color: #525252; margin: 0;">© ${new Date().getFullYear()} Apollo Reborn. All rights reserved.</p>
         </div>
       `,
     });

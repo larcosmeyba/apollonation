@@ -83,11 +83,11 @@ const DashboardAIWorkout = () => {
             <div>
               <h2 className="text-lg font-bold">Your workout, built for today.</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Unlock AI training with Apollo Reborn™.
+                Unlock AI training with Apollo Reborn.
               </p>
             </div>
             <Button variant="apollo" onClick={() => navigate("/subscribe?reason=ai")}>
-              See Apollo Reborn™ membership
+              See Apollo Reborn membership
             </Button>
           </Card>
           <Disclaimer />

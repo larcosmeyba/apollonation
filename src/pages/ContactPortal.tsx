@@ -81,7 +81,7 @@ const ContactPortal = () => {
     <main className="min-h-screen bg-background">
       <SEOHead
         title="Contact Portal"
-        description="Get in touch with Apollo Reborn™. Submit inquiries, request account deletion, apply to coach, or get support."
+        description="Get in touch with Apollo Reborn. Submit inquiries, request account deletion, apply to coach, or get support."
         path="/contact"
       />
       <Navbar />
@@ -141,7 +141,7 @@ const ContactPortal = () => {
               {form.inquiry_type === "coach_application" && (
                 <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
                   <p className="text-sm text-foreground/80">
-                    <strong>Coach Applications:</strong> Tell us about your experience, social media presence, and why you'd like to join Apollo Reborn™.
+                    <strong>Coach Applications:</strong> Tell us about your experience, social media presence, and why you'd like to join Apollo Reborn.
                   </p>
                 </div>
               )}

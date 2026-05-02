@@ -194,7 +194,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
         onError: (err: any) => {
           if (err?.code === "elite_required" || err?.message === "elite_required") {
             toast({
-              title: "Apollo Elite™ required",
+              title: "Apollo Elite required",
               description: "Upgrade to Elite to message Coach Marcos.",
               variant: "destructive",
             });

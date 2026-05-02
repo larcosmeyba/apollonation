@@ -60,7 +60,7 @@ const ApplyCoach = () => {
             Apply to Become a Coach
           </h1>
           <p className="text-white/70 text-base mb-8">
-            Join the Apollo Reborn™ coaching team. Fill out the form below and we'll review your application.
+            Join the Apollo Reborn coaching team. Fill out the form below and we'll review your application.
           </p>
 
           {submitted ? (
