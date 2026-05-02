@@ -102,7 +102,13 @@ const Auth = () => {
               if (roleData) {
                 navigate("/admin");
               } else {
-                toast({ title: "Access denied", description: "This account does not have admin privileges.", variant: "destructive" });
+                toast({
+                  title: webOnlyAdmin ? "Download the app" : "Access denied",
+                  description: webOnlyAdmin
+                    ? "Client accounts can only sign in through the Apollo Reborn mobile app. Please download it from the App Store or Google Play."
+                    : "This account does not have admin privileges.",
+                  variant: "destructive",
+                });
                 await supabase.auth.signOut();
               }
               return;
