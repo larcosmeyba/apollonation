@@ -42,6 +42,7 @@ import DashboardChallenges from "./pages/DashboardChallenges";
 import DashboardAIWorkout from "./pages/DashboardAIWorkout";
 import DashboardMessages from "./pages/DashboardMessages";
 import Subscribe from "./pages/Subscribe";
+import PaywallPreview from "./pages/PaywallPreview";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -130,6 +131,7 @@ const App = () => {
               <Route path="/account-deletion" element={<AccountDeletion />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/subscribe" element={eb(<Subscribe />)} />
+              <Route path="/paywall-preview" element={eb(<PaywallPreview />)} />
               <Route path="/plan-ready" element={<ProtectedRoute requirePremium={false}><PlanReady /></ProtectedRoute>} />
               <Route path="/dashboard/profile" element={<ProtectedRoute requirePremium={false}>{eb(<DashboardProfile />)}</ProtectedRoute>} />
               <Route
