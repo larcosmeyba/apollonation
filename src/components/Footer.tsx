@@ -59,10 +59,10 @@ const Footer = () => {
 
         <div className="mt-4 text-center">
           <p className="text-white/50 text-xs leading-relaxed max-w-2xl mx-auto">
-            Apollo Reborn™ is not a medical provider. Consult your physician before beginning any exercise or nutrition program. Use of this platform constitutes acceptance of all terms and liability waivers. Results may vary. By creating an account you consent to the collection, storage, and processing of your personal information (including fitness data, nutrition logs, and progress photos) as described in our Privacy Policy. You may request deletion of your data at any time. All content, workouts, and programs are the intellectual property of Apollo Reborn™ and may not be reproduced without written permission.
+            Apollo Reborn is not a medical provider. Consult your physician before beginning any exercise or nutrition program. Use of this platform constitutes acceptance of all terms and liability waivers. Results may vary. By creating an account you consent to the collection, storage, and processing of your personal information (including fitness data, nutrition logs, and progress photos) as described in our Privacy Policy. You may request deletion of your data at any time. All content, workouts, and programs are the intellectual property of Apollo Reborn and may not be reproduced without written permission.
           </p>
           <p className="text-white/40 text-xs mt-4">
-            © {currentYear} Apollo Reborn™. All rights reserved.
+            © {currentYear} Apollo Reborn. All rights reserved.
           </p>
         </div>
       </div>

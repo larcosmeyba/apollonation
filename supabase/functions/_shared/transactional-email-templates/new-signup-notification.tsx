@@ -8,7 +8,7 @@ interface Props { email?: string; tier?: string }
 const NewSignupEmail = ({ email, tier }: Props) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>New signup on Apollo Reborn™</Preview>
+    <Preview>New signup on Apollo Reborn</Preview>
     <Body style={main}>
       <Container style={container}>
         <Heading style={h1}>New Signup 🎉</Heading>
@@ -21,9 +21,9 @@ const NewSignupEmail = ({ email, tier }: Props) => (
 
 export const template = {
   component: NewSignupEmail,
-  subject: 'New Apollo Reborn™ signup',
+  subject: 'New Apollo Reborn signup',
   displayName: 'New signup notification',
-  previewData: { email: 'user@example.com', tier: 'Apollo Elite™' },
+  previewData: { email: 'user@example.com', tier: 'Apollo Elite' },
 } satisfies TemplateEntry
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Inter, Arial, sans-serif' }

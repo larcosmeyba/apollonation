@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         "Your Apollo membership has ended. You can still use the calorie tracker and your remaining free content."
       );
     } else if (prevElite === true && nowElite === false && nowSub === true) {
-      toast("Your Apollo Elite™ plan has ended. You still have full Reborn™ access.");
+      toast("Your Apollo Elite plan has ended. You still have full Reborn access.");
     }
     wasSubscribedRef.current = nowSub;
     wasEliteRef.current = nowElite;

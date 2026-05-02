@@ -5,7 +5,7 @@ import {
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
-const SITE_NAME = 'Apollo Reborn™'
+const SITE_NAME = 'Apollo Reborn'
 
 interface Props {
   heading?: string
@@ -37,7 +37,7 @@ export const template = {
   component: GenericNotificationEmail,
   subject: (d: Record<string, any>) => d?.heading || `An update from ${SITE_NAME}`,
   displayName: 'Generic notification',
-  previewData: { heading: 'Welcome', message: 'Thanks for joining Apollo Reborn™.', ctaUrl: 'https://apolloreborn.com', ctaLabel: 'Open App' },
+  previewData: { heading: 'Welcome', message: 'Thanks for joining Apollo Reborn.', ctaUrl: 'https://apolloreborn.com', ctaLabel: 'Open App' },
 } satisfies TemplateEntry
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Inter, Arial, sans-serif' }

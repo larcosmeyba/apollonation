@@ -314,7 +314,7 @@ const Dashboard = () => {
         {/* Free tier starter banner */}
         {!hasPremiumAccess && (
           <div className="rounded-xl bg-muted p-4">
-            <p className="text-sm font-medium">Welcome to Apollo Reborn™</p>
+            <p className="text-sm font-medium">Welcome to Apollo Reborn</p>
             <p className="text-xs text-muted-foreground mt-1">
               You have {freeWorkoutsRemaining} free workouts, {freeProgramsRemaining} programs, and {freeRecipesRemaining} recipes included.
             </p>

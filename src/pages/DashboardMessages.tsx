@@ -48,7 +48,7 @@ const DashboardMessages = () => {
                 <MessageSquare className="w-6 h-6 text-amber-500" />
               </div>
               <span className="inline-block text-[10px] uppercase tracking-[0.15em] font-bold bg-amber-500 text-background rounded-full px-2.5 py-1">
-                Apollo Elite™
+                Apollo Elite
               </span>
               <h3 className="text-xl font-bold leading-tight">Direct access to Coach Marcos</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">

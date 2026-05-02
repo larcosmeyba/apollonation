@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
 
-const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "Apollo Reborn™ <noreply@apolloreborn.com>";
+const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "Apollo Reborn <noreply@apolloreborn.com>";
 const APP_URL = Deno.env.get("APP_URL") ?? "https://apolloreborn.com";
 
 function buildEmail(name: string, body: string, link: string) {
