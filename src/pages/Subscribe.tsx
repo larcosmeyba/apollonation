@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Navigate, useSearchParams, Link } from "react-router-dom";
-import { Capacitor } from "@capacitor/core";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -11,40 +10,27 @@ import {
   restorePurchases,
   isPurchasesAvailable,
 } from "@/lib/purchases";
-import { Loader2, Check, RotateCcw, Smartphone } from "lucide-react";
+import { Loader2, Check, RotateCcw, Smartphone, Sparkles } from "lucide-react";
 
 interface IntroOffer {
-  periodLabel: string; // e.g. "7 days"
+  periodLabel: string;
   isFree: boolean;
 }
 
 interface UiPackage {
-  identifier: "monthly" | "annual";
-  priceString: string;
-  periodLabel: "month" | "year";
-  introOffer: IntroOffer | null;
-  raw: any;
-}
-
-interface ElitePackage {
   identifier: string;
+  tier: "reborn" | "elite";
   priceString: string;
   periodLabel: "month" | "year";
   introOffer: IntroOffer | null;
   raw: any;
 }
 
-// Read intro offer from a RevenueCat package. Returns null when no intro exists
-// so we never advertise a trial that isn't actually configured in the store.
 function readIntroOffer(pkg: any): IntroOffer | null {
   const intro = pkg?.product?.introPrice;
   if (!intro) return null;
-  // RC normalizes price to a number; 0 means "free trial". Anything > 0 is
-  // a discounted intro, which we conservatively also surface as a trial-like
-  // teaser only if it's free — paid intro pricing has its own disclosure rules.
   const isFree = typeof intro.price === "number" ? intro.price === 0 : !!intro.price?.amount === false;
   if (!isFree) return null;
-  // periodNumberOfUnits + periodUnit (DAY/WEEK/MONTH/YEAR)
   const n: number = intro.periodNumberOfUnits ?? intro.period?.numberOfUnits ?? 0;
   const unitRaw: string = (intro.periodUnit ?? intro.period?.unit ?? "").toString().toUpperCase();
   if (!n || !unitRaw) return null;
@@ -58,8 +44,18 @@ function readIntroOffer(pkg: any): IntroOffer | null {
   return { periodLabel: `${n} ${unit}${n === 1 ? "" : "s"}`, isFree: true };
 }
 
-function periodFromIdentifier(id: string): "month" | "year" {
-  return id.toLowerCase().includes("annual") || id.toLowerCase().includes("year") ? "year" : "month";
+function periodFromPackage(pkg: any): "month" | "year" {
+  const id = String(pkg?.identifier ?? "").toLowerCase();
+  const productId = String(pkg?.product?.identifier ?? "").toLowerCase();
+  const combined = `${id} ${productId}`;
+  if (combined.includes("annual") || combined.includes("year")) return "year";
+  return "month";
+}
+
+function isElitePackage(pkg: any): boolean {
+  const id = String(pkg?.identifier ?? "").toLowerCase();
+  const productId = String(pkg?.product?.identifier ?? "").toLowerCase();
+  return id.includes("elite") || productId.includes("elite");
 }
 
 const REASON_BANNERS: Record<string, string> = {
@@ -82,9 +78,8 @@ const Subscribe = () => {
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
-  const [packages, setPackages] = useState<UiPackage[]>([]);
-  const [elitePackages, setElitePackages] = useState<ElitePackage[]>([]);
-  const [offeringsLoaded, setOfferingsLoaded] = useState(false);
+  const [rebornPackages, setRebornPackages] = useState<UiPackage[]>([]);
+  const [elitePackages, setElitePackages] = useState<UiPackage[]>([]);
   const native = isPurchasesAvailable();
 
   useEffect(() => {
@@ -97,65 +92,29 @@ const Subscribe = () => {
       try {
         const offering = await getOfferings();
         if (!active) return;
-        if (!offering) {
-          setPackages([]);
-          setElitePackages([]);
-          setOfferingsLoaded(true);
-          return;
-        }
-        const ui: UiPackage[] = [];
-        const monthly = offering?.availablePackages?.find(
-          (p: any) => p.identifier === "$rc_monthly" || p.identifier === "monthly"
-        );
-        const annual = offering?.availablePackages?.find(
-          (p: any) => p.identifier === "$rc_annual" || p.identifier === "annual"
-        );
-        if (monthly) {
-          ui.push({
-            identifier: "monthly",
-            priceString: monthly.product?.priceString ?? "—",
-            periodLabel: "month",
-            introOffer: readIntroOffer(monthly),
-            raw: monthly,
-          });
-        }
-        if (annual) {
-          ui.push({
-            identifier: "annual",
-            priceString: annual.product?.priceString ?? "—",
-            periodLabel: "year",
-            introOffer: readIntroOffer(annual),
-            raw: annual,
-          });
-        }
-        setPackages(ui);
+        console.log("[Subscribe] offering", offering);
+        console.log("[Subscribe] availablePackages", offering?.availablePackages);
 
-        // Look for any elite packages by identifier or product id containing "elite"
-        const elite: ElitePackage[] = (offering?.availablePackages ?? [])
-          .filter((p: any) => {
-            const id = String(p.identifier ?? "").toLowerCase();
-            const productId = String(p.product?.identifier ?? "").toLowerCase();
-            return id.includes("elite") || productId.includes("elite");
-          })
-          .map((p: any) => ({
-            identifier: p.identifier,
-            priceString: p.product?.priceString ?? "—",
-            periodLabel: periodFromIdentifier(p.identifier),
-            introOffer: readIntroOffer(p),
-            raw: p,
-          }));
-        setElitePackages(elite);
-        setOfferingsLoaded(true);
+        const all: UiPackage[] = (offering?.availablePackages ?? []).map((p: any) => ({
+          identifier: p.identifier,
+          tier: isElitePackage(p) ? "elite" : "reborn",
+          priceString: p.product?.priceString ?? "—",
+          periodLabel: periodFromPackage(p),
+          introOffer: readIntroOffer(p),
+          raw: p,
+        }));
+        console.log("[Subscribe] mapped packages", all);
+        setRebornPackages(all.filter((p) => p.tier === "reborn"));
+        setElitePackages(all.filter((p) => p.tier === "elite"));
       } catch (err) {
         console.error("[Subscribe] offerings", err);
-        setOfferingsLoaded(true);
         toast({
           title: "Couldn't load plans",
           description: err instanceof Error ? err.message : "Try again.",
           variant: "destructive",
         });
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     })();
     return () => {
@@ -165,8 +124,6 @@ const Subscribe = () => {
 
   if (!user) return <Navigate to="/auth" replace />;
 
-  // Elite members are already at the top tier — show a confirmation screen.
-  // Reborn (basic) members fall through to the full plans page so they can upgrade to Elite.
   if (profile?.is_subscribed && (profile as any)?.entitlement === "apollo_elite") {
     return (
       <div className="min-h-screen bg-background text-foreground">
@@ -178,7 +135,7 @@ const Subscribe = () => {
           <p className="text-sm text-muted-foreground mb-8">
             Manage your subscription in your device's App Store or Play Store settings.
           </p>
-          <Button variant="apollo" className="w-full" onClick={() => navigate("/dashboard")}>
+          <Button variant="apollo" className="w-full rounded-2xl" onClick={() => navigate("/dashboard")}>
             Back to Dashboard
           </Button>
         </div>
@@ -194,13 +151,13 @@ const Subscribe = () => {
     }
   };
 
-  const handlePurchase = async (pkg: UiPackage | ElitePackage) => {
+  const handlePurchase = async (pkg: UiPackage) => {
     setPurchasing(pkg.identifier);
     try {
       await purchasePackage(pkg.raw);
       await syncEntitlement();
       await refreshProfile();
-      const isElite = String(pkg.identifier).toLowerCase().includes("elite");
+      const isElite = pkg.tier === "elite";
       toast({
         title: isElite ? "Welcome to Apollo Elite™" : "Welcome to Apollo Reborn™",
         description: "Your subscription is active.",
@@ -254,34 +211,57 @@ const Subscribe = () => {
     | "apollo_elite"
     | null
     | undefined;
-  const hasNoEntitlement = !entitlement && !profile?.is_subscribed;
 
-  const monthlyPkg = packages.find((p) => p.identifier === "monthly");
-  const annualPkg = packages.find((p) => p.identifier === "annual");
-  const offeringsEmpty =
-    native && offeringsLoaded && packages.length === 0 && elitePackages.length === 0;
+  const renderPurchaseButton = (pkg: UiPackage, label: string) => (
+    <div key={pkg.identifier} className="space-y-2">
+      <Button
+        variant="apollo"
+        className="w-full rounded-2xl h-14 text-[15px] shadow-[0_8px_30px_rgba(255,255,255,0.08)]"
+        disabled={purchasing !== null}
+        onClick={() => handlePurchase(pkg)}
+      >
+        {purchasing === pkg.identifier ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
+          </>
+        ) : pkg.introOffer ? (
+          `Start ${pkg.introOffer.periodLabel} free — ${label}`
+        ) : (
+          `${label} — ${pkg.priceString} / ${pkg.periodLabel}`
+        )}
+      </Button>
+      <p className="text-[11px] text-muted-foreground leading-relaxed px-1">
+        {pkg.introOffer
+          ? `${pkg.introOffer.periodLabel} free, then ${pkg.priceString}/${pkg.periodLabel}. Auto-renews ${pkg.periodLabel === "year" ? "yearly" : "monthly"} until cancelled. Cancel anytime in App Store / Google Play settings.`
+          : `${pkg.priceString}/${pkg.periodLabel}. Auto-renews ${pkg.periodLabel === "year" ? "yearly" : "monthly"} until cancelled. Cancel anytime in App Store / Google Play settings.`}
+      </p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div
-        className="max-w-lg mx-auto px-5 pt-12 pb-24"
+        className="max-w-lg mx-auto px-6 pt-12 pb-24"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 3rem)" }}
       >
-        <h1 className="font-heading text-3xl mb-2">
-          Start free. Unlock the full Apollo system when you're ready.
-        </h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          Train with structure, nutrition, and workouts built for your day.
-        </p>
+        {/* Hero */}
+        <div className="mb-10">
+          <h1 className="font-heading text-[44px] leading-[1.02] tracking-[-0.02em] mb-4">
+            Train like<br />you mean it.
+          </h1>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            Structured training, nutrition, and recovery — engineered for who you're becoming.
+          </p>
+        </div>
 
         {reasonText && (
-          <div className="rounded-xl bg-muted p-4 mb-6">
-            <p className="text-sm font-medium">{reasonText}</p>
+          <div className="rounded-2xl bg-muted/60 border border-border/50 p-4 mb-8">
+            <p className="text-sm">{reasonText}</p>
           </div>
         )}
 
         {!native && (
-          <div className="card-apollo p-5 mb-6 space-y-3">
+          <div className="card-apollo p-6 mb-8 space-y-3 rounded-2xl">
             <div className="flex items-center gap-2 text-primary">
               <Smartphone className="w-5 h-5" />
               <h2 className="font-heading text-base">Open in the app to subscribe</h2>
@@ -294,42 +274,33 @@ const Subscribe = () => {
         )}
 
         {native && loading && (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
         )}
 
         {(!native || !loading) && (
-          <div className="space-y-4 mb-6">
-            {/* Free Starter */}
-            <div className="card-apollo p-5 space-y-4">
-              <div className="flex items-baseline justify-between">
-                <h2 className="font-heading text-xl">Free Starter</h2>
-                <p className="font-heading text-2xl">$0</p>
-              </div>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <Feature>10 on-demand workouts</Feature>
-                <Feature>2 workout programs</Feature>
-                <Feature>10 nutrition recipes</Feature>
-              </ul>
-              <Button variant="outline" className="w-full" disabled={hasNoEntitlement}>
-                {hasNoEntitlement ? "Current plan" : "Free plan"}
-              </Button>
-            </div>
-
-            {/* Apollo Reborn */}
-            <div className="card-apollo p-5 space-y-4 border-primary/40">
-              <div className="flex items-baseline justify-between">
-                <h2 className="font-heading text-xl">Apollo Reborn™</h2>
-                <span className="text-[10px] uppercase tracking-wider text-primary">
-                  {entitlement === "apollo_premium" ? "Current plan" : "Most popular"}
+          <div className="space-y-6 mb-10">
+            {/* Apollo Reborn — featured */}
+            <div className="relative rounded-3xl bg-card border border-primary/30 p-7 space-y-6 shadow-[0_20px_60px_-20px_rgba(255,255,255,0.12)]">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary rounded-full">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-foreground">
+                  {entitlement === "apollo_premium" ? "Current Plan" : "Most Popular"}
                 </span>
               </div>
-              <ul className="text-sm text-muted-foreground space-y-1">
+
+              <div className="pt-2">
+                <h2 className="font-heading text-2xl tracking-tight mb-1">Apollo Reborn™</h2>
+                <p className="text-xs text-muted-foreground uppercase tracking-[0.15em]">
+                  Full Access
+                </p>
+              </div>
+
+              <ul className="text-[13px] text-foreground/80 space-y-2.5">
                 <Feature>Unlimited workouts</Feature>
-                <Feature>All programs</Feature>
+                <Feature>All training programs</Feature>
                 <Feature>Full recipe library</Feature>
-                <Feature>Meal plan + grocery list + macro tracker</Feature>
+                <Feature>Meal plan, grocery list & macro tracker</Feature>
                 <Feature>AI daily workouts</Feature>
               </ul>
 
@@ -337,141 +308,73 @@ const Subscribe = () => {
                 <p className="text-xs text-muted-foreground">
                   Open the app on your phone to subscribe.
                 </p>
-              ) : offeringsEmpty ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Plans unavailable — try again later.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => window.location.reload()}
-                  >
-                    <RotateCcw className="w-4 h-4 mr-2" /> Retry
-                  </Button>
-                </div>
+              ) : rebornPackages.length === 0 ? (
+                <Button variant="outline" className="w-full rounded-2xl" disabled>
+                  Plans loading…
+                </Button>
               ) : (
-                <div className="space-y-2">
-                  {monthlyPkg && (
-                    <>
-                      <Button
-                        variant="apollo"
-                        className="w-full"
-                        disabled={purchasing !== null}
-                        onClick={() => handlePurchase(monthlyPkg)}
-                      >
-                        {purchasing === monthlyPkg.identifier ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
-                          </>
-                        ) : monthlyPkg.introOffer ? (
-                          `Start ${monthlyPkg.introOffer.periodLabel} free — Apollo Reborn™ Monthly`
-                        ) : (
-                          `Unlock Apollo Reborn™ — ${monthlyPkg.priceString} / month`
-                        )}
-                      </Button>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        {monthlyPkg.introOffer
-                          ? `${monthlyPkg.introOffer.periodLabel} free, then ${monthlyPkg.priceString}/month. Auto-renews monthly until cancelled. Cancel anytime in App Store / Google Play settings.`
-                          : `${monthlyPkg.priceString}/month. Auto-renews monthly until cancelled. Cancel anytime in App Store / Google Play settings.`}
-                      </p>
-                    </>
-                  )}
-                  {annualPkg && (
-                    <>
-                      <Button
-                        variant="apollo"
-                        className="w-full"
-                        disabled={purchasing !== null}
-                        onClick={() => handlePurchase(annualPkg)}
-                      >
-                        {purchasing === annualPkg.identifier ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
-                          </>
-                        ) : annualPkg.introOffer ? (
-                          `Start ${annualPkg.introOffer.periodLabel} free — Apollo Reborn™ Annual`
-                        ) : (
-                          `Unlock Apollo Reborn™ — ${annualPkg.priceString} / year`
-                        )}
-                      </Button>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        {annualPkg.introOffer
-                          ? `${annualPkg.introOffer.periodLabel} free, then ${annualPkg.priceString}/year. Auto-renews yearly until cancelled. Cancel anytime in App Store / Google Play settings.`
-                          : `${annualPkg.priceString}/year. Auto-renews yearly until cancelled. Cancel anytime in App Store / Google Play settings.`}
-                      </p>
-                    </>
-                  )}
+                <div className="space-y-3">
+                  {rebornPackages
+                    .slice()
+                    .sort((a) => (a.periodLabel === "month" ? -1 : 1))
+                    .map((pkg) =>
+                      renderPurchaseButton(
+                        pkg,
+                        `Unlock Apollo Reborn™`
+                      )
+                    )}
                 </div>
               )}
             </div>
 
-            {/* Apollo Elite */}
-            <div id="elite-tier" className="card-apollo p-5 space-y-4">
-              <div className="flex items-baseline justify-between">
-                <h2 className="font-heading text-xl">Apollo Elite™</h2>
+            {/* Apollo Elite — exclusive — only render when packages exist */}
+            {elitePackages.length > 0 && (
+              <div
+                id="elite-tier"
+                className="relative rounded-3xl p-7 space-y-6 border border-white/10 bg-gradient-to-b from-[hsl(0_0%_6%)] to-[hsl(0_0%_3%)]"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="font-heading text-2xl tracking-tight mb-1 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 opacity-80" />
+                      Apollo Elite™
+                    </h2>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
+                      Limited Coaching Access
+                    </p>
+                  </div>
+                </div>
+
+                <ul className="text-[13px] text-foreground/80 space-y-2.5">
+                  <Feature>Everything in Apollo Reborn™</Feature>
+                  <Feature>1:1 coach messaging (24h replies)</Feature>
+                  <Feature>Weekly check-ins</Feature>
+                  <Feature>Personalized guidance from Marcos</Feature>
+                </ul>
+
+                <div className="space-y-3">
+                  {elitePackages
+                    .slice()
+                    .sort((a) => (a.periodLabel === "month" ? -1 : 1))
+                    .map((pkg) => renderPurchaseButton(pkg, `Join Apollo Elite™`))}
+                </div>
               </div>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <Feature>Everything in Apollo Reborn™</Feature>
-                <Feature>Coach messaging (replies typically within 24h)</Feature>
-                <Feature>Weekly check-ins</Feature>
-                <Feature>Personalized guidance</Feature>
-              </ul>
-              {!native ? (
-                <p className="text-xs text-muted-foreground">
-                  Open the app on your phone to subscribe.
-                </p>
-              ) : !offeringsLoaded ? (
-                <Button variant="outline" className="w-full" disabled>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Plans loading…
-                </Button>
-              ) : elitePackages.length === 0 ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Elite plan unavailable — try again later.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => window.location.reload()}
-                  >
-                    <RotateCcw className="w-4 h-4 mr-2" /> Retry
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {elitePackages.map((pkg) => (
-                    <div key={pkg.identifier} className="space-y-1">
-                      <Button
-                        variant="apollo"
-                        className="w-full"
-                        disabled={purchasing !== null}
-                        onClick={() => handlePurchase(pkg)}
-                      >
-                        {purchasing === pkg.identifier ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…
-                          </>
-                        ) : pkg.introOffer ? (
-                          `Start ${pkg.introOffer.periodLabel} free — Apollo Elite™`
-                        ) : (
-                          `Unlock Apollo Elite™ — ${pkg.priceString} / ${pkg.periodLabel}`
-                        )}
-                      </Button>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        {pkg.introOffer
-                          ? `${pkg.introOffer.periodLabel} free, then ${pkg.priceString}/${pkg.periodLabel}. Auto-renews ${pkg.periodLabel === "year" ? "yearly" : "monthly"} until cancelled. Cancel anytime in App Store / Google Play settings.`
-                          : `${pkg.priceString}/${pkg.periodLabel}. Auto-renews ${pkg.periodLabel === "year" ? "yearly" : "monthly"} until cancelled. Cancel anytime in App Store / Google Play settings.`}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
+            )}
+
+            {/* Free starter — subtle text link */}
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => navigate("/dashboard")}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+              >
+                Continue with Free Starter →
+              </button>
             </div>
           </div>
         )}
 
-        {/* Apple-required disclosure (general) */}
+        {/* Apple-required disclosure */}
         <p className="text-[11px] leading-relaxed text-muted-foreground mb-4">
           Subscriptions are billed through your Apple ID or Google Play account and
           auto-renew at the displayed price unless cancelled at least 24 hours before
@@ -509,8 +412,9 @@ const Subscribe = () => {
 };
 
 const Feature = ({ children }: { children: React.ReactNode }) => (
-  <li className="flex items-start gap-2">
-    <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" /> {children}
+  <li className="flex items-start gap-2.5">
+    <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={2} />
+    <span>{children}</span>
   </li>
 );
 
