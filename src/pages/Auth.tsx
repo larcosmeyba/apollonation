@@ -11,7 +11,7 @@ import { withTimeout } from "@/lib/timeout";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 import heroImage from "@/assets/marcos-1.jpg";
 import { Shield, Apple, Smartphone } from "lucide-react";
-import { isWeb } from "@/lib/platform";
+import { isWeb, isNative } from "@/lib/platform";
 
 // Generic, non-leaky messages for auth errors. We deliberately do NOT echo
 // the raw Supabase message so we don't disclose whether an account exists,
@@ -111,6 +111,18 @@ const Auth = () => {
                 });
                 await supabase.auth.signOut();
               }
+              return;
+            }
+
+            // Block coaches/admins from signing in on the native mobile app.
+            // Coaches must use the website at apolloreborn.com.
+            if (isNative() && roleData) {
+              toast({
+                title: "Use the website",
+                description: "Coach accounts can only sign in on the Apollo Reborn website at apolloreborn.com, not in the mobile app.",
+                variant: "destructive",
+              });
+              await supabase.auth.signOut();
               return;
             }
 
