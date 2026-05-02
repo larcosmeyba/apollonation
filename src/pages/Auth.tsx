@@ -28,8 +28,10 @@ const isInvalidEmailFormatError = (msg: string | undefined) => {
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
-  const isAdminMode = searchParams.get("role") === "admin";
-  const initialMode = searchParams.get("mode") === "signup" ? "signup" : "login";
+  // On web, the auth page is coach-only. Clients must download the app.
+  const webOnlyAdmin = isWeb();
+  const isAdminMode = webOnlyAdmin || searchParams.get("role") === "admin";
+  const initialMode = (webOnlyAdmin ? "login" : (searchParams.get("mode") === "signup" ? "signup" : "login")) as "login" | "signup";
   const [mode, setMode] = useState<"login" | "signup" | "forgot">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
