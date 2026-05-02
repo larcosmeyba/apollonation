@@ -11,7 +11,7 @@ import { withTimeout } from "@/lib/timeout";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 import heroImage from "@/assets/marcos-1.jpg";
 import { Shield, Apple, Smartphone } from "lucide-react";
-import { isWeb } from "@/lib/platform";
+import { isWeb, isNative } from "@/lib/platform";
 
 // Generic, non-leaky messages for auth errors. We deliberately do NOT echo
 // the raw Supabase message so we don't disclose whether an account exists,
