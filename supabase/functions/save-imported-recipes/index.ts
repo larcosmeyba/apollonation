@@ -99,6 +99,12 @@ serve(async (req) => {
               b64 = match[2];
             }
           }
+          // Cap base64 payload at ~8MB encoded (~6MB decoded) to prevent memory exhaustion
+          const MAX_BASE64_LENGTH = 8 * 1024 * 1024;
+          if (b64.length > MAX_BASE64_LENGTH) {
+            console.error("Image too large, skipping:", b64.length);
+            throw new Error("Image exceeds maximum allowed size (6MB)");
+          }
           const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
           const ext = mime.split("/")[1] || "jpg";
           const path = `${crypto.randomUUID()}.${ext}`;
