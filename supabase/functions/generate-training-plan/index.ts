@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { wrapUserInput, PROMPT_INJECTION_GUARD } from "../_shared/prompt-safety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -134,8 +135,8 @@ AGE-SPECIFIC RULES (Client is ${clientAge} years old - Youth):
 - Weight: ${weight_lbs} lbs
 - Activity level: ${activity_level}
 - Workout days per week: ${workout_days_per_week}
-- Available equipment: ${training_methods?.join(", ") || "bodyweight"}
-- Goal: ${goal_next_4_weeks || "general fitness"}
+- Available equipment: ${wrapUserInput(training_methods?.join(", ") || "bodyweight")}
+- Goal: ${wrapUserInput(goal_next_4_weeks || "general fitness")}
 - Available gym time: ${workoutDuration} minutes per session
 ${ageGuidelines}
 
@@ -201,7 +202,7 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are an expert strength & conditioning coach. Generate safe, evidence-based training programs. You MUST ONLY select exercises from the provided exercise library. Never invent exercises. Use the exact exercise names as given. Respond with ONLY valid JSON." },
+          { role: "system", content: `You are an expert strength & conditioning coach. Generate safe, evidence-based training programs. You MUST ONLY select exercises from the provided exercise library. Never invent exercises. Use the exact exercise names as given. Respond with ONLY valid JSON.\n\n${PROMPT_INJECTION_GUARD}` },
           { role: "user", content: prompt },
         ],
       }),

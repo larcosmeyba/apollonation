@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { wrapUserInput, PROMPT_INJECTION_GUARD } from "../_shared/prompt-safety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -85,11 +86,13 @@ Deno.serve(async (req) => {
   • Protein: ${meal.protein_grams}g
   • Carbs: ${meal.carbs_grams}g
   • Fat: ${meal.fat_grams}g
-- Each is a ${meal.meal_type} meal (same meal type)
-- None contain any of these foods/ingredients: ${avoidList.length > 0 ? avoidList.join(", ") : "none specified"}
+- Each is a ${wrapUserInput(meal.meal_type)} meal (same meal type)
+- None contain any of these foods/ingredients: ${avoidList.length > 0 ? wrapUserInput(avoidList.join(", ")) : "none specified"}
 - All are easy to prepare, healthy, and realistic
-- All are DIFFERENT from each other and from the current meal: "${meal.meal_name}"
+- All are DIFFERENT from each other and from the current meal: ${wrapUserInput(meal.meal_name)}
 - Offer variety in cuisine style and ingredients
+
+${PROMPT_INJECTION_GUARD}
 
 Return ONLY valid JSON (no markdown):
 {
