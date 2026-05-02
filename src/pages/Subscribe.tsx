@@ -335,9 +335,12 @@ const Subscribe = () => {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-heading text-2xl tracking-tight mb-1 flex items-center gap-2">
+                    <h2 className="font-heading text-2xl tracking-tight mb-1 flex items-center gap-2 flex-wrap">
                       <Sparkles className="w-5 h-5 opacity-80" />
                       Apollo Elite
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary border border-primary/40 rounded-full px-2 py-0.5">
+                        1:1 Coaching
+                      </span>
                     </h2>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-[0.18em]">
                       Limited Coaching Access
