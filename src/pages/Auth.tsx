@@ -114,6 +114,18 @@ const Auth = () => {
               return;
             }
 
+            // Block coaches/admins from signing in on the native mobile app.
+            // Coaches must use the website at apolloreborn.com.
+            if (isNative() && roleData) {
+              toast({
+                title: "Use the website",
+                description: "Coach accounts can only sign in on the Apollo Reborn website at apolloreborn.com, not in the mobile app.",
+                variant: "destructive",
+              });
+              await supabase.auth.signOut();
+              return;
+            }
+
             if (roleData) {
               navigate("/admin");
               return;
