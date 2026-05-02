@@ -1,0 +1,1 @@
+UPDATE public.profiles SET entitlement = 'apollo_premium' WHERE user_id = 'aee903fe-f123-4fe3-a9bd-633ddf7508b2';
