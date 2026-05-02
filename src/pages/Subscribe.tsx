@@ -71,7 +71,7 @@ const REASON_BANNERS: Record<string, string> = {
 const CHAMPAGNE = "#F5E6C8";
 
 // Thin custom check
-const ThinCheck = ({ className = "" }: { className?: string }) => (
+const ThinCheck = ({ className = "", style }: { className?: string; style?: React.CSSProperties }) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -80,6 +80,7 @@ const ThinCheck = ({ className = "" }: { className?: string }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     className={className}
+    style={style}
     aria-hidden
   >
     <path d="M4 12.5l5 5L20 6.5" />
