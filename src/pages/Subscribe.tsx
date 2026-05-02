@@ -165,36 +165,22 @@ const Subscribe = () => {
 
   if (!user) return <Navigate to="/auth" replace />;
 
-  if (profile?.is_subscribed) {
-    const isElite = (profile as any)?.entitlement === "apollo_elite";
+  // Elite members are already at the top tier — show a confirmation screen.
+  // Reborn (basic) members fall through to the full plans page so they can upgrade to Elite.
+  if (profile?.is_subscribed && (profile as any)?.entitlement === "apollo_elite") {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <div
           className="max-w-lg mx-auto px-5 pt-12 pb-24 text-center"
           style={{ paddingTop: "calc(env(safe-area-inset-top) + 3rem)" }}
         >
-          <h1 className="font-heading text-3xl mb-3">
-            {isElite ? "You're an Apollo Elite™ member" : "You're an Apollo Reborn™ member"}
-          </h1>
+          <h1 className="font-heading text-3xl mb-3">You're an Apollo Elite™ member</h1>
           <p className="text-sm text-muted-foreground mb-8">
             Manage your subscription in your device's App Store or Play Store settings.
           </p>
-          <div className="space-y-3">
-            <Button variant="apollo" className="w-full" onClick={() => navigate("/dashboard")}>
-              Back to Dashboard
-            </Button>
-            {!isElite && (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  document.getElementById("elite-tier")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Upgrade to Elite
-              </Button>
-            )}
-          </div>
+          <Button variant="apollo" className="w-full" onClick={() => navigate("/dashboard")}>
+            Back to Dashboard
+          </Button>
         </div>
       </div>
     );
@@ -336,7 +322,7 @@ const Subscribe = () => {
               <div className="flex items-baseline justify-between">
                 <h2 className="font-heading text-xl">Apollo Reborn™</h2>
                 <span className="text-[10px] uppercase tracking-wider text-primary">
-                  Most popular
+                  {entitlement === "apollo_premium" ? "Current plan" : "Most popular"}
                 </span>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
