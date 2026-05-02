@@ -322,7 +322,7 @@ const Subscribe = () => {
               <div className="flex items-baseline justify-between">
                 <h2 className="font-heading text-xl">Apollo Reborn™</h2>
                 <span className="text-[10px] uppercase tracking-wider text-primary">
-                  Most popular
+                  {entitlement === "apollo_premium" ? "Current plan" : "Most popular"}
                 </span>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
