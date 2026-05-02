@@ -131,6 +131,7 @@ const App = () => {
               <Route path="/account-deletion" element={<AccountDeletion />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/subscribe" element={eb(<Subscribe />)} />
+              <Route path="/paywall-preview" element={eb(<PaywallPreview />)} />
               <Route path="/plan-ready" element={<ProtectedRoute requirePremium={false}><PlanReady /></ProtectedRoute>} />
               <Route path="/dashboard/profile" element={<ProtectedRoute requirePremium={false}>{eb(<DashboardProfile />)}</ProtectedRoute>} />
               <Route
