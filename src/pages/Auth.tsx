@@ -10,7 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { withTimeout } from "@/lib/timeout";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 import heroImage from "@/assets/marcos-1.jpg";
-import { Shield } from "lucide-react";
+import { Shield, Apple, Smartphone } from "lucide-react";
+import { isWeb } from "@/lib/platform";
 
 // Generic, non-leaky messages for auth errors. We deliberately do NOT echo
 // the raw Supabase message so we don't disclose whether an account exists,
@@ -27,8 +28,10 @@ const isInvalidEmailFormatError = (msg: string | undefined) => {
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
-  const isAdminMode = searchParams.get("role") === "admin";
-  const initialMode = searchParams.get("mode") === "signup" ? "signup" : "login";
+  // On web, the auth page is coach-only. Clients must download the app.
+  const webOnlyAdmin = isWeb();
+  const isAdminMode = webOnlyAdmin || searchParams.get("role") === "admin";
+  const initialMode = (webOnlyAdmin ? "login" : (searchParams.get("mode") === "signup" ? "signup" : "login")) as "login" | "signup";
   const [mode, setMode] = useState<"login" | "signup" | "forgot">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -99,7 +102,13 @@ const Auth = () => {
               if (roleData) {
                 navigate("/admin");
               } else {
-                toast({ title: "Access denied", description: "This account does not have admin privileges.", variant: "destructive" });
+                toast({
+                  title: webOnlyAdmin ? "Download the app" : "Access denied",
+                  description: webOnlyAdmin
+                    ? "Client accounts can only sign in through the Apollo Reborn mobile app. Please download it from the App Store or Google Play."
+                    : "This account does not have admin privileges.",
+                  variant: "destructive",
+                });
                 await supabase.auth.signOut();
               }
               return;
@@ -354,19 +363,49 @@ const Auth = () => {
               </button>
             ) : null}
 
-            {/* Toggle between admin/client login */}
-            <div>
-              <button
-                type="button"
-                onClick={() => {
-                  const newUrl = isAdminMode ? "/auth" : "/auth?role=admin";
-                  navigate(newUrl, { replace: true });
-                }}
-                className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-              >
-                {isAdminMode ? "← Client login" : "Coach login →"}
-              </button>
-            </div>
+            {/* Toggle between admin/client login — hidden on web (web is coach-only) */}
+            {!webOnlyAdmin && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newUrl = isAdminMode ? "/auth" : "/auth?role=admin";
+                    navigate(newUrl, { replace: true });
+                  }}
+                  className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                >
+                  {isAdminMode ? "← Client login" : "Coach login →"}
+                </button>
+              </div>
+            )}
+
+            {webOnlyAdmin && (
+              <div className="pt-6 mt-2 border-t border-border/50 space-y-3">
+                <p className="text-xs text-muted-foreground">
+                  Are you a client? Sign-up and sign-in are only available in the mobile app.
+                </p>
+                <div className="flex items-center justify-center gap-3">
+                  <a
+                    href="https://apps.apple.com/app/apollo-reborn/id6753051692"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-xs"
+                  >
+                    <Apple className="w-4 h-4" />
+                    App Store
+                  </a>
+                  <a
+                    href="https://play.google.com/store/apps/details?id=com.apollonation.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-xs"
+                  >
+                    <Smartphone className="w-4 h-4" />
+                    Google Play
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
