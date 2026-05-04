@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
 const TermsOfService = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -13,6 +15,12 @@ const TermsOfService = () => {
       />
       <Navbar />
       <main className="container mx-auto px-4 py-24 max-w-4xl">
+        <button
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back
+        </button>
         <h1 className="font-heading text-4xl md:text-5xl mb-8">
           Terms of <span className="text-primary">Service</span>
         </h1>
