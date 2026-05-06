@@ -125,114 +125,196 @@ const AdminExerciseLibrary = () => {
                 className="pl-9"
               />
             </div>
-        <select
-          value={filterOrient}
-          onChange={(e) => setFilterOrient(e.target.value as any)}
-          className="bg-card border border-border rounded-md px-3 h-10 text-sm"
-        >
-          <option value="all">All orientations</option>
-          <option value="horizontal">Horizontal</option>
-          <option value="vertical">Vertical</option>
-        </select>
-        <select
-          value={filterMuscle}
-          onChange={(e) => setFilterMuscle(e.target.value)}
-          className="bg-card border border-border rounded-md px-3 h-10 text-sm"
-        >
-          <option value="all">All muscles</option>
-          {muscles.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
-        <span className="text-xs text-muted-foreground ml-auto">
-          {filtered.length} of {exercises.length}
-        </span>
-      </div>
+            <select
+              value={filterOrient}
+              onChange={(e) => setFilterOrient(e.target.value as any)}
+              className="bg-card border border-border rounded-md px-3 h-10 text-sm"
+            >
+              <option value="all">All orientations</option>
+              <option value="horizontal">Horizontal</option>
+              <option value="vertical">Vertical</option>
+            </select>
+            <select
+              value={filterMuscle}
+              onChange={(e) => setFilterMuscle(e.target.value)}
+              className="bg-card border border-border rounded-md px-3 h-10 text-sm"
+            >
+              <option value="all">All muscles</option>
+              {muscles.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+            <span className="text-xs text-muted-foreground ml-auto">
+              {filtered.length} of {exercises.length}
+            </span>
+          </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="animate-spin" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <Card className="p-12 text-center">
-          <p className="text-muted-foreground mb-4">No exercises yet.</p>
-          <Button
-            onClick={() => {
-              setEditing(null);
-              setOpen(true);
-            }}
-            variant="outline"
-          >
-            <Plus className="w-4 h-4" /> Add your first exercise
-          </Button>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((ex) => (
-            <Card key={ex.id} className="overflow-hidden group">
-              <div className="aspect-video bg-muted relative overflow-hidden">
-                {ex.mux_playback_id ? (
-                  <img
-                    src={muxThumb(ex.mux_playback_id)}
-                    alt={ex.name}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                    No video
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="animate-spin" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <Card className="p-12 text-center">
+              <p className="text-muted-foreground mb-4">No premium exercises yet.</p>
+              <Button
+                onClick={() => {
+                  setEditing(null);
+                  setOpen(true);
+                }}
+                variant="outline"
+              >
+                <Plus className="w-4 h-4" /> Add your first exercise
+              </Button>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filtered.map((ex) => (
+                <Card key={ex.id} className="overflow-hidden group">
+                  <div className="aspect-video bg-muted relative overflow-hidden">
+                    {ex.mux_playback_id ? (
+                      <img
+                        src={muxThumb(ex.mux_playback_id)}
+                        alt={ex.name}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                        No video
+                      </div>
+                    )}
+                    <div className="absolute top-2 right-2 flex gap-1">
+                      <Badge variant="secondary" className="text-[10px] uppercase">
+                        {ex.orientation}
+                      </Badge>
+                    </div>
                   </div>
-                )}
-                <div className="absolute top-2 right-2 flex gap-1">
-                  <Badge variant="secondary" className="text-[10px] uppercase">
-                    {ex.orientation}
-                  </Badge>
-                </div>
-              </div>
-              <div className="p-3 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-medium text-sm line-clamp-1">{ex.name}</h3>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => {
-                        setEditing(ex);
-                        setOpen(true);
-                      }}
-                      className="p-1 hover:bg-muted rounded"
-                    >
-                      <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(ex.id)}
-                      className="p-1 hover:bg-muted rounded"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                    </button>
+                  <div className="p-3 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-medium text-sm line-clamp-1">{ex.name}</h3>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => {
+                            setEditing(ex);
+                            setOpen(true);
+                          }}
+                          className="p-1 hover:bg-muted rounded"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(ex.id)}
+                          className="p-1 hover:bg-muted rounded"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {ex.muscle_group && (
+                        <Badge variant="outline" className="text-[10px]">
+                          {ex.muscle_group}
+                        </Badge>
+                      )}
+                      {ex.difficulty && (
+                        <Badge variant="outline" className="text-[10px]">
+                          {ex.difficulty}
+                        </Badge>
+                      )}
+                      {ex.equipment?.slice(0, 2).map((eq) => (
+                        <Badge key={eq} variant="outline" className="text-[10px]">
+                          {eq}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {ex.muscle_group && (
-                    <Badge variant="outline" className="text-[10px]">
-                      {ex.muscle_group}
-                    </Badge>
-                  )}
-                  {ex.difficulty && (
-                    <Badge variant="outline" className="text-[10px]">
-                      {ex.difficulty}
-                    </Badge>
-                  )}
-                  {ex.equipment?.slice(0, 2).map((eq) => (
-                    <Badge key={eq} variant="outline" className="text-[10px]">
-                      {eq}
-                    </Badge>
-                  ))}
-                </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="legacy" className="space-y-4">
+          <div className="flex flex-wrap gap-2 items-center">
+            <div className="relative flex-1 min-w-[220px] max-w-sm">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search legacy exercises..."
+                value={legacySearch}
+                onChange={(e) => setLegacySearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <select
+              value={legacyVideoFilter}
+              onChange={(e) => setLegacyVideoFilter(e.target.value as any)}
+              className="bg-card border border-border rounded-md px-3 h-10 text-sm"
+            >
+              <option value="all">All ({legacy.length})</option>
+              <option value="with">With video ({legacyWithVideo})</option>
+              <option value="without">Missing video ({legacy.length - legacyWithVideo})</option>
+            </select>
+            <span className="text-xs text-muted-foreground ml-auto">
+              {filteredLegacy.length} shown
+            </span>
+          </div>
+
+          {legacyLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="animate-spin" />
+            </div>
+          ) : (
+            <Card className="overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+                    <tr>
+                      <th className="text-left px-4 py-2 w-10">Video</th>
+                      <th className="text-left px-4 py-2">Name</th>
+                      <th className="text-left px-4 py-2">Muscle</th>
+                      <th className="text-left px-4 py-2">Equipment</th>
+                      <th className="text-left px-4 py-2">Difficulty</th>
+                      <th className="text-left px-4 py-2">Link</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredLegacy.map((ex) => (
+                      <tr key={ex.id} className="border-t border-border hover:bg-muted/30">
+                        <td className="px-4 py-2">
+                          {ex.video_url ? (
+                            <Video className="w-4 h-4 text-primary" />
+                          ) : (
+                            <VideoOff className="w-4 h-4 text-muted-foreground/50" />
+                          )}
+                        </td>
+                        <td className="px-4 py-2 font-medium">{ex.title}</td>
+                        <td className="px-4 py-2 text-muted-foreground">{ex.muscle_group || "—"}</td>
+                        <td className="px-4 py-2 text-muted-foreground">{ex.equipment || "—"}</td>
+                        <td className="px-4 py-2 text-muted-foreground">{ex.difficulty || "—"}</td>
+                        <td className="px-4 py-2">
+                          {ex.video_url ? (
+                            <a
+                              href={ex.video_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-primary hover:underline text-xs"
+                            >
+                              Open <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">No video</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </Card>
-          ))}
-        </div>
-      )}
+          )}
+        </TabsContent>
+      </Tabs>
 
       <ExerciseEditorSheet
         open={open}
