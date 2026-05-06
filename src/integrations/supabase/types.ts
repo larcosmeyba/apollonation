@@ -1886,6 +1886,59 @@ export type Database = {
           },
         ]
       }
+      render_jobs: {
+        Row: {
+          class_id: string
+          created_at: string
+          created_by: string | null
+          duration_seconds: number | null
+          error: string | null
+          id: string
+          inputs_json: Json | null
+          mp4_url: string | null
+          mux_asset_id: string | null
+          mux_playback_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          created_by?: string | null
+          duration_seconds?: number | null
+          error?: string | null
+          id?: string
+          inputs_json?: Json | null
+          mp4_url?: string | null
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          created_by?: string | null
+          duration_seconds?: number | null
+          error?: string | null
+          id?: string
+          inputs_json?: Json | null
+          mp4_url?: string | null
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "render_jobs_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "admin_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       secure_contact_info: {
         Row: {
           created_at: string
