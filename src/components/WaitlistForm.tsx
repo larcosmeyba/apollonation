@@ -9,20 +9,18 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 const schema = z.object({
   name: z.string().trim().max(100).optional(),
   email: z.string().trim().email("Enter a valid email").max(255),
-  platform: z.enum(["ios", "android", "both"]),
 });
 
 const WaitlistForm = () => {
   const { toast } = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [platform, setPlatform] = useState<"ios" | "android" | "both">("both");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse({ name: name || undefined, email, platform });
+    const parsed = schema.safeParse({ name: name || undefined, email });
     if (!parsed.success) {
       toast({
         title: "Check your info",
@@ -35,7 +33,7 @@ const WaitlistForm = () => {
     const { error } = await supabase.from("waitlist_signups").insert({
       email: parsed.data.email.toLowerCase(),
       name: parsed.data.name ?? null,
-      platform: parsed.data.platform,
+      platform: "ios",
     });
     setLoading(false);
     if (error) {
@@ -59,7 +57,7 @@ const WaitlistForm = () => {
           You're on the list
         </h2>
         <p className="text-white/70 text-base leading-relaxed max-w-md mx-auto">
-          We'll email you the moment Apollo Reborn launches in the App Store and Google Play.
+          We'll email you the moment Apollo Reborn launches on the App Store.
         </p>
       </div>
     );
@@ -74,7 +72,7 @@ const WaitlistForm = () => {
         Join the Waitlist
       </h2>
       <p className="text-white/80 text-base leading-relaxed mb-8 max-w-md mx-auto">
-        Apollo Reborn launches soon on iOS and Android. Sign up to be notified the day it goes live.
+        Apollo Reborn launches soon on the App Store. Sign up to be notified the day it goes live.
       </p>
 
       <form onSubmit={onSubmit} className="space-y-3 max-w-md mx-auto text-left">
@@ -95,27 +93,6 @@ const WaitlistForm = () => {
           maxLength={255}
           className="bg-white/5 border-white/15 text-white placeholder:text-white/40 h-12"
         />
-
-        <div className="grid grid-cols-3 gap-2 pt-1">
-          {([
-            { v: "ios", l: "iOS" },
-            { v: "android", l: "Android" },
-            { v: "both", l: "Both" },
-          ] as const).map((opt) => (
-            <button
-              type="button"
-              key={opt.v}
-              onClick={() => setPlatform(opt.v)}
-              className={`h-11 rounded-md border text-sm font-medium transition-colors ${
-                platform === opt.v
-                  ? "bg-white text-black border-white"
-                  : "bg-white/5 text-white/80 border-white/15 hover:bg-white/10"
-              }`}
-            >
-              {opt.l}
-            </button>
-          ))}
-        </div>
 
         <Button
           type="submit"

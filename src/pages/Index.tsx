@@ -60,7 +60,7 @@ const Index = () => {
     <main className="min-h-screen overflow-x-hidden w-full bg-background">
       <SEOHead
         path="/"
-        description="Guided workouts, progressive programs, and budget-friendly meal plans — all in one premium training app. Built by coach Marcos Leyba. Download for iOS & Android."
+        description="Guided workouts, progressive programs, and budget-friendly meal plans — all in one premium training app. Built by coach Marcos Leyba. Download on the App Store."
         jsonLd={[
           {
             "@context": "https://schema.org",
@@ -79,7 +79,7 @@ const Index = () => {
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
             name: "Apollo Reborn",
-            operatingSystem: "iOS, Android",
+            operatingSystem: "iOS",
             applicationCategory: "HealthApplication",
             description:
               "Guided workouts, progressive programs, and budget-friendly meal plans in one premium training app.",
