@@ -27,7 +27,7 @@ const PricingSection = () => {
             One Membership.<span className="text-white/70 block mt-2">Unlimited Access.</span>
           </h2>
           <p className="text-white/70 text-base font-light leading-relaxed">
-            Download the app and subscribe through the Apple App Store or Google Play Store.
+            Download the app and subscribe through the Apple App Store.
           </p>
         </div>
 
@@ -45,7 +45,7 @@ const PricingSection = () => {
                 Everything you need to train, fuel, and transform.
               </p>
               <p className="text-foreground/60 text-sm font-light">
-                Available on the App Store & Google Play
+                Available on the App Store
               </p>
             </div>
 
