@@ -61,13 +61,36 @@ const AdminExerciseLibrary = () => {
     }
   };
 
+  // Legacy exercises (existing library you've already populated)
+  const { data: legacy = [], isLoading: legacyLoading } = useQuery({
+    queryKey: ["legacy-exercises"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("exercises")
+        .select("id,title,description,video_url,thumbnail_url,muscle_group,equipment,difficulty")
+        .order("title", { ascending: true });
+      if (error) throw error;
+      return (data || []) as LegacyExercise[];
+    },
+  });
+
+  const [legacySearch, setLegacySearch] = useState("");
+  const [legacyVideoFilter, setLegacyVideoFilter] = useState<"all" | "with" | "without">("all");
+  const filteredLegacy = legacy.filter((e) => {
+    if (legacyVideoFilter === "with" && !e.video_url) return false;
+    if (legacyVideoFilter === "without" && e.video_url) return false;
+    if (legacySearch && !e.title.toLowerCase().includes(legacySearch.toLowerCase())) return false;
+    return true;
+  });
+  const legacyWithVideo = legacy.filter((e) => e.video_url).length;
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-heading text-2xl tracking-wider">EXERCISE LIBRARY</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Premium exercise demos powered by MUX. The class builder pulls only from this library.
+            Premium MUX demos power the class builder. Use the Legacy tab to see exercises already saved with older video links.
           </p>
         </div>
         <Button
@@ -80,17 +103,28 @@ const AdminExerciseLibrary = () => {
         </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <div className="relative flex-1 min-w-[220px] max-w-sm">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search exercises..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+      <Tabs defaultValue="premium" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="premium">
+            Premium (MUX) <Badge variant="secondary" className="ml-2">{exercises.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="legacy">
+            Legacy Library <Badge variant="secondary" className="ml-2">{legacy.length}</Badge>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="premium" className="space-y-4">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <div className="relative flex-1 min-w-[220px] max-w-sm">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search exercises..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
         <select
           value={filterOrient}
           onChange={(e) => setFilterOrient(e.target.value as any)}
