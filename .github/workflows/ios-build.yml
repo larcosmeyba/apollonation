@@ -118,8 +118,20 @@ jobs:
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
           KEYCHAIN_PASSWORD="temp123"
 
-          echo -n "$APPLE_CERTIFICATE" | base64 --decode > "$CERT_PATH"
-          echo -n "$APPLE_PROVISIONING_PROFILE" | base64 --decode > "$PROFILE_PATH"
+          # Strip ALL whitespace (spaces, tabs, newlines, CR) before decoding.
+          # GitHub secrets often pick up stray newlines on paste, which makes
+          # `base64 --decode` fail with "(null): error decoding base64 input stream".
+          printf '%s' "$APPLE_CERTIFICATE" | tr -d '[:space:]' | base64 --decode > "$CERT_PATH"
+          printf '%s' "$APPLE_PROVISIONING_PROFILE" | tr -d '[:space:]' | base64 --decode > "$PROFILE_PATH"
+
+          if [ ! -s "$CERT_PATH" ]; then
+            echo "::error::APPLE_CERTIFICATE secret decoded to an empty file. Re-upload the .p12 base64-encoded with no extra whitespace."
+            exit 1
+          fi
+          if [ ! -s "$PROFILE_PATH" ]; then
+            echo "::error::APPLE_PROVISIONING_PROFILE secret decoded to an empty file. Re-upload the .mobileprovision base64-encoded with no extra whitespace."
+            exit 1
+          fi
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
