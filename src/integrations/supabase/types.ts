@@ -215,6 +215,8 @@ export type Database = {
           mux_playback_id: string | null
           name: string
           orientation: string
+          source_storage_path: string | null
+          source_video_url: string | null
           tags: string[]
           tempo_recommendation: string | null
           thumbnail_url: string | null
@@ -237,6 +239,8 @@ export type Database = {
           mux_playback_id?: string | null
           name: string
           orientation?: string
+          source_storage_path?: string | null
+          source_video_url?: string | null
           tags?: string[]
           tempo_recommendation?: string | null
           thumbnail_url?: string | null
@@ -259,6 +263,8 @@ export type Database = {
           mux_playback_id?: string | null
           name?: string
           orientation?: string
+          source_storage_path?: string | null
+          source_video_url?: string | null
           tags?: string[]
           tempo_recommendation?: string | null
           thumbnail_url?: string | null
