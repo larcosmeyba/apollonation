@@ -15,7 +15,7 @@ import {
   muxMp4,
   muxThumb,
 } from "./exerciseTypes";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Sparkles } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -37,6 +37,7 @@ const blank: Partial<AdminExercise> = {
   coaching_notes: "",
   weight_recommendation: "",
   tempo_recommendation: "",
+  contraindications: "",
   loop_in_seconds: 0,
   loop_out_seconds: null,
   tags: [],
@@ -45,8 +46,32 @@ const blank: Partial<AdminExercise> = {
 const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSaved }: Props) => {
   const [form, setForm] = useState<Partial<AdminExercise>>(blank);
   const [saving, setSaving] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [duration, setDuration] = useState(0);
+
+  const handleAiFill = async () => {
+    if (!form.name?.trim()) return toast.error("Enter the exercise name first");
+    setAiLoading(true);
+    const { data, error } = await supabase.functions.invoke("ai-exercise-fill", {
+      body: { name: form.name.trim() },
+    });
+    setAiLoading(false);
+    if (error) return toast.error(error.message);
+    if (data?.error) return toast.error(data.error);
+    setForm((f) => ({
+      ...f,
+      coaching_notes: data.coaching_notes || f.coaching_notes,
+      weight_recommendation: data.weight_recommendation || f.weight_recommendation,
+      tempo_recommendation: data.tempo_recommendation || f.tempo_recommendation,
+      contraindications: data.contraindications || f.contraindications,
+      equipment: Array.isArray(data.equipment) ? data.equipment : f.equipment,
+      movement_type: data.movement_type || f.movement_type,
+      muscle_group: data.muscle_group || f.muscle_group,
+      difficulty: data.difficulty || f.difficulty,
+    }));
+    toast.success("AI suggestions filled in — review & edit before saving");
+  };
 
   useEffect(() => {
     setForm(exercise ? { ...exercise } : blank);
@@ -92,7 +117,27 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
         <div className="space-y-4 mt-4 pb-12">
           <div>
             <Label>Name *</Label>
-            <Input value={form.name || ""} onChange={(e) => set("name", e.target.value)} />
+            <div className="flex gap-2">
+              <Input
+                value={form.name || ""}
+                onChange={(e) => set("name", e.target.value)}
+                placeholder="e.g. Barbell Back Squat"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAiFill}
+                disabled={aiLoading || !form.name?.trim()}
+                className="shrink-0"
+                title="AI auto-fill all fields from the exercise name"
+              >
+                {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                AI Fill
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Type the exercise name, then click <strong>AI Fill</strong> to auto-generate coaching notes, weight target, tempo, equipment, movement type, and injury warnings.
+            </p>
           </div>
 
           <div>
@@ -231,11 +276,12 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Weight Recommendation</Label>
-              <Input
+              <Label>Weight Recommendation (avg target)</Label>
+              <Textarea
+                rows={3}
                 value={form.weight_recommendation || ""}
                 onChange={(e) => set("weight_recommendation", e.target.value)}
-                placeholder="e.g. 15-25 lbs"
+                placeholder="Beginner: 5-10 lbs · Intermediate: 15-25 lbs · Advanced: 30-45 lbs"
               />
             </div>
             <div>
@@ -243,9 +289,25 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
               <Input
                 value={form.tempo_recommendation || ""}
                 onChange={(e) => set("tempo_recommendation", e.target.value)}
-                placeholder="e.g. 3-1-1"
+                placeholder="e.g. 3-1-1-0"
               />
             </div>
+          </div>
+
+          <div>
+            <Label className="flex items-center gap-2">
+              ⚠️ Contraindications / Injury Warnings
+            </Label>
+            <Textarea
+              rows={2}
+              value={form.contraindications || ""}
+              onChange={(e) => set("contraindications", e.target.value)}
+              placeholder="e.g. Avoid with: lower back pain, shoulder impingement, knee instability"
+              className="border-destructive/30"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Conditions where this exercise should be avoided or modified for clients.
+            </p>
           </div>
 
           <div>

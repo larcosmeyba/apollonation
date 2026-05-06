@@ -202,6 +202,7 @@ export type Database = {
         Row: {
           alternative_exercise_id: string | null
           coaching_notes: string | null
+          contraindications: string | null
           created_at: string
           created_by: string | null
           difficulty: string
@@ -226,6 +227,7 @@ export type Database = {
         Insert: {
           alternative_exercise_id?: string | null
           coaching_notes?: string | null
+          contraindications?: string | null
           created_at?: string
           created_by?: string | null
           difficulty?: string
@@ -250,6 +252,7 @@ export type Database = {
         Update: {
           alternative_exercise_id?: string | null
           coaching_notes?: string | null
+          contraindications?: string | null
           created_at?: string
           created_by?: string | null
           difficulty?: string

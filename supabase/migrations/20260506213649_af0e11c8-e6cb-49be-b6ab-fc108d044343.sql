@@ -1,0 +1,1 @@
+ALTER TABLE public.admin_exercises ADD COLUMN IF NOT EXISTS contraindications text;
