@@ -46,8 +46,32 @@ const blank: Partial<AdminExercise> = {
 const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSaved }: Props) => {
   const [form, setForm] = useState<Partial<AdminExercise>>(blank);
   const [saving, setSaving] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [duration, setDuration] = useState(0);
+
+  const handleAiFill = async () => {
+    if (!form.name?.trim()) return toast.error("Enter the exercise name first");
+    setAiLoading(true);
+    const { data, error } = await supabase.functions.invoke("ai-exercise-fill", {
+      body: { name: form.name.trim() },
+    });
+    setAiLoading(false);
+    if (error) return toast.error(error.message);
+    if (data?.error) return toast.error(data.error);
+    setForm((f) => ({
+      ...f,
+      coaching_notes: data.coaching_notes || f.coaching_notes,
+      weight_recommendation: data.weight_recommendation || f.weight_recommendation,
+      tempo_recommendation: data.tempo_recommendation || f.tempo_recommendation,
+      contraindications: data.contraindications || f.contraindications,
+      equipment: Array.isArray(data.equipment) ? data.equipment : f.equipment,
+      movement_type: data.movement_type || f.movement_type,
+      muscle_group: data.muscle_group || f.muscle_group,
+      difficulty: data.difficulty || f.difficulty,
+    }));
+    toast.success("AI suggestions filled in — review & edit before saving");
+  };
 
   useEffect(() => {
     setForm(exercise ? { ...exercise } : blank);
