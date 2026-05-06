@@ -154,7 +154,7 @@ const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
       toast({ title: "Almost there", description: first.message, variant: "destructive" });
       return;
     }
-    await onComplete(parsed.data);
+    await onComplete(parsed.data as QuestionnairePayload);
   };
 
   // Coaching nudge for unrealistic timeframes when goal is weight loss
