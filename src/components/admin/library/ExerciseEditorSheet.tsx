@@ -276,11 +276,12 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Weight Recommendation</Label>
-              <Input
+              <Label>Weight Recommendation (avg target)</Label>
+              <Textarea
+                rows={3}
                 value={form.weight_recommendation || ""}
                 onChange={(e) => set("weight_recommendation", e.target.value)}
-                placeholder="e.g. 15-25 lbs"
+                placeholder="Beginner: 5-10 lbs · Intermediate: 15-25 lbs · Advanced: 30-45 lbs"
               />
             </div>
             <div>
@@ -288,9 +289,25 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
               <Input
                 value={form.tempo_recommendation || ""}
                 onChange={(e) => set("tempo_recommendation", e.target.value)}
-                placeholder="e.g. 3-1-1"
+                placeholder="e.g. 3-1-1-0"
               />
             </div>
+          </div>
+
+          <div>
+            <Label className="flex items-center gap-2">
+              ⚠️ Contraindications / Injury Warnings
+            </Label>
+            <Textarea
+              rows={2}
+              value={form.contraindications || ""}
+              onChange={(e) => set("contraindications", e.target.value)}
+              placeholder="e.g. Avoid with: lower back pain, shoulder impingement, knee instability"
+              className="border-destructive/30"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Conditions where this exercise should be avoided or modified for clients.
+            </p>
           </div>
 
           <div>
