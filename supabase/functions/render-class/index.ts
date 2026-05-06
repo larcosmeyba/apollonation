@@ -80,23 +80,25 @@ Deno.serve(async (req) => {
     );
     const { data: exRows } = await supabase
       .from("admin_exercises")
-      .select("id, mux_playback_id, loop_in_seconds, loop_out_seconds")
+      .select("id, mux_playback_id, source_video_url, loop_in_seconds, loop_out_seconds")
       .in("id", exerciseIds);
     const exMap = new Map<string, Exercise>(
       (exRows || []).map((e: Exercise) => [e.id, e]),
     );
 
-    // Build the Mux inputs[] array. For each block, repeat the exercise
-    // clip enough times to cover total work duration; rests become silent
-    // black frames (Mux supports a `start_time`/`end_time` slice; rests
-    // get a placeholder loop trim of the same clip frozen at the loop
-    // out point — for v1 we keep it simple and concatenate work clips
-    // only. Rest is enforced by the player overlay.).
     const inputs: Array<Record<string, unknown>> = [];
     for (const b of blocks as Block[]) {
       if (!b.exercise_id) continue;
       const ex = exMap.get(b.exercise_id);
-      if (!ex?.mux_playback_id) continue;
+      if (!ex) continue;
+
+      // Prefer Mux MP4 rendition if available, else fall back to a direct
+      // source URL (Supabase storage public/signed URL works fine — Mux
+      // ingests once and stitches).
+      const sourceUrl = ex.mux_playback_id
+        ? muxMp4(ex.mux_playback_id)
+        : ex.source_video_url;
+      if (!sourceUrl) continue;
 
       const loopIn = ex.loop_in_seconds ?? 0;
       const loopOut = ex.loop_out_seconds ?? loopIn + 4;
@@ -106,7 +108,7 @@ Deno.serve(async (req) => {
 
       for (let i = 0; i < reps; i++) {
         inputs.push({
-          url: muxMp4(ex.mux_playback_id),
+          url: sourceUrl,
           start_time: loopIn,
           end_time: loopOut,
         });
