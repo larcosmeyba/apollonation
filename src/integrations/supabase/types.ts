@@ -1160,6 +1160,93 @@ export type Database = {
         }
         Relationships: []
       }
+      health_connection_status: {
+        Row: {
+          apple_health_connected: boolean
+          created_at: string
+          last_sync_at: string | null
+          last_sync_error: string | null
+          permissions_granted: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          apple_health_connected?: boolean
+          created_at?: string
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          permissions_granted?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          apple_health_connected?: boolean
+          created_at?: string
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          permissions_granted?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      health_data_logs: {
+        Row: {
+          active_calories: number | null
+          avg_workout_heart_rate: number | null
+          created_at: string
+          id: string
+          log_date: string
+          raw_workouts: Json | null
+          resting_heart_rate: number | null
+          sleep_minutes: number | null
+          source: string
+          steps: number | null
+          synced_at: string
+          updated_at: string
+          user_id: string
+          weight_kg: number | null
+          workout_count: number | null
+          workout_duration_minutes: number | null
+        }
+        Insert: {
+          active_calories?: number | null
+          avg_workout_heart_rate?: number | null
+          created_at?: string
+          id?: string
+          log_date: string
+          raw_workouts?: Json | null
+          resting_heart_rate?: number | null
+          sleep_minutes?: number | null
+          source?: string
+          steps?: number | null
+          synced_at?: string
+          updated_at?: string
+          user_id: string
+          weight_kg?: number | null
+          workout_count?: number | null
+          workout_duration_minutes?: number | null
+        }
+        Update: {
+          active_calories?: number | null
+          avg_workout_heart_rate?: number | null
+          created_at?: string
+          id?: string
+          log_date?: string
+          raw_workouts?: Json | null
+          resting_heart_rate?: number | null
+          sleep_minutes?: number | null
+          source?: string
+          steps?: number | null
+          synced_at?: string
+          updated_at?: string
+          user_id?: string
+          weight_kg?: number | null
+          workout_count?: number | null
+          workout_duration_minutes?: number | null
+        }
+        Relationships: []
+      }
       macro_logs: {
         Row: {
           ai_estimated: boolean | null

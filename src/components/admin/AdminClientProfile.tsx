@@ -17,6 +17,8 @@ import ClientActivityLogs from "./ClientActivityLogs";
 import ClientBodyMetrics from "./ClientBodyMetrics";
 import ClientQuickActions from "./ClientQuickActions";
 import AdminClientInsights from "./AdminClientInsights";
+import ClientHealthData from "./ClientHealthData";
+import { Heart } from "lucide-react";
 
 interface Props {
   userId: string;
@@ -218,6 +220,7 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
           <TabsTrigger value="nutrition" className="gap-1.5 text-xs"><Utensils className="w-3.5 h-3.5" /> Nutrition</TabsTrigger>
           <TabsTrigger value="metrics" className="gap-1.5 text-xs"><BarChart3 className="w-3.5 h-3.5" /> Body Metrics</TabsTrigger>
           <TabsTrigger value="activity" className="gap-1.5 text-xs"><Activity className="w-3.5 h-3.5" /> Activity</TabsTrigger>
+          <TabsTrigger value="health" className="gap-1.5 text-xs"><Heart className="w-3.5 h-3.5" /> Health</TabsTrigger>
           <TabsTrigger value="notes" className="gap-1.5 text-xs"><StickyNote className="w-3.5 h-3.5" /> Notes</TabsTrigger>
           <TabsTrigger value="insights" className="gap-1.5 text-xs"><Eye className="w-3.5 h-3.5" /> Insights</TabsTrigger>
         </TabsList>
@@ -393,6 +396,11 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
         {/* ── ACTIVITY ── */}
         <TabsContent value="activity" className="mt-4">
           <ClientActivityLogs userId={userId} />
+        </TabsContent>
+
+        {/* ── HEALTH (Apple Health) ── */}
+        <TabsContent value="health" className="mt-4">
+          <ClientHealthData clientUserId={userId} />
         </TabsContent>
 
         {/* ── NOTES ── */}

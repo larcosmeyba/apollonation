@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import AppleHealthCard from "@/components/dashboard/AppleHealthCard";
 import { Play, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -323,6 +324,9 @@ const Dashboard = () => {
             </Button>
           </div>
         )}
+
+        {/* Apple Health (iOS only — auto-hides on web/Android) */}
+        <AppleHealthCard />
 
         {/* AI Daily Workout — temporarily removed; returning in a later build */}
 
