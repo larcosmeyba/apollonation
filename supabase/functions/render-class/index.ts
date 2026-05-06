@@ -26,6 +26,7 @@ interface Block {
 interface Exercise {
   id: string;
   mux_playback_id: string | null;
+  source_video_url: string | null;
   loop_in_seconds: number | null;
   loop_out_seconds: number | null;
 }
