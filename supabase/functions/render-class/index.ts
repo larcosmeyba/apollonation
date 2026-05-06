@@ -92,12 +92,8 @@ Deno.serve(async (req) => {
       const ex = exMap.get(b.exercise_id);
       if (!ex) continue;
 
-      // Prefer Mux MP4 rendition if available, else fall back to a direct
-      // source URL (Supabase storage public/signed URL works fine — Mux
-      // ingests once and stitches).
-      const sourceUrl = ex.mux_playback_id
-        ? muxMp4(ex.mux_playback_id)
-        : ex.source_video_url;
+      const isMux = !!ex.mux_playback_id;
+      const sourceUrl = isMux ? muxMp4(ex.mux_playback_id!) : ex.source_video_url;
       if (!sourceUrl) continue;
 
       const loopIn = ex.loop_in_seconds ?? 0;
@@ -107,11 +103,14 @@ Deno.serve(async (req) => {
       const reps = Math.max(1, Math.ceil(totalWork / loopLen));
 
       for (let i = 0; i < reps; i++) {
-        inputs.push({
-          url: sourceUrl,
-          start_time: loopIn,
-          end_time: loopOut,
-        });
+        const input: Record<string, unknown> = { url: sourceUrl };
+        // start_time/end_time clipping is only supported when the source is
+        // already a Mux asset. External URLs ingest the full clip.
+        if (isMux) {
+          input.start_time = loopIn;
+          input.end_time = loopOut;
+        }
+        inputs.push(input);
       }
     }
 
@@ -140,8 +139,8 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         inputs,
         playback_policy: ["public"],
-        mp4_support: "standard",
-        passthrough: job.id, // travels back via webhook
+        mp4_support: "capped-1080p",
+        passthrough: job.id,
         max_resolution_tier: "1080p",
       }),
     });
