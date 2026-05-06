@@ -35,6 +35,10 @@ const AdminDashboard = () => {
         return <AdminDashboardHome onNavigate={setActiveTab} />;
       case "clients":
         return <AdminClientList />;
+      case "exercises":
+        return <AdminExerciseLibrary />;
+      case "class-builder":
+        return <AdminClassBuilder />;
       case "workouts":
         return <AdminWorkouts />;
       case "recipes":
