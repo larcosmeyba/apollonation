@@ -15,6 +15,7 @@ export interface AdminExercise {
   coaching_notes: string | null;
   weight_recommendation: string | null;
   tempo_recommendation: string | null;
+  contraindications: string | null;
   loop_in_seconds: number | null;
   loop_out_seconds: number | null;
   tags: string[];
