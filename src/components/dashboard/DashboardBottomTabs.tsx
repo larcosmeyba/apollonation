@@ -1,14 +1,20 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Play, Flame, MessageCircle, User, Lock } from "lucide-react";
+import { Home, Play, Flame, MessageCircle, User, Lock, Dumbbell } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
+import { isWeb } from "@/lib/platform";
 
-const tabs = [
+const baseTabs = [
   { label: "Home", href: "/dashboard", icon: Home, lockKey: null as null | "premium" | "elite" },
   { label: "On Demand", href: "/dashboard/workouts", icon: Play, lockKey: null },
+  ...(isWeb()
+    ? [{ label: "My Workouts", href: "/dashboard/my-workouts", icon: Dumbbell, lockKey: null as null | "premium" | "elite" }]
+    : []),
   { label: "Fuel", href: "/dashboard/nutrition", icon: Flame, lockKey: "premium" as const },
   { label: "Messages", href: "/dashboard/messages", icon: MessageCircle, lockKey: "elite" as const },
   { label: "Profile", href: "/dashboard/profile", icon: User, lockKey: null },
 ];
+
+const tabs = baseTabs;
 
 const DashboardBottomTabs = () => {
   const location = useLocation();
