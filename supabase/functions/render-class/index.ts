@@ -140,8 +140,8 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         inputs,
         playback_policy: ["public"],
-        mp4_support: "standard",
-        passthrough: job.id, // travels back via webhook
+        mp4_support: "capped-1080p",
+        passthrough: job.id,
         max_resolution_tier: "1080p",
       }),
     });
