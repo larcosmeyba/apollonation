@@ -118,20 +118,54 @@ jobs:
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
           KEYCHAIN_PASSWORD="temp123"
 
-          # Strip ALL whitespace (spaces, tabs, newlines, CR) before decoding.
-          # GitHub secrets often pick up stray newlines on paste, which makes
-          # `base64 --decode` fail with "(null): error decoding base64 input stream".
-          printf '%s' "$APPLE_CERTIFICATE" | tr -d '[:space:]' | base64 --decode > "$CERT_PATH"
-          printf '%s' "$APPLE_PROVISIONING_PROFILE" | tr -d '[:space:]' | base64 --decode > "$PROFILE_PATH"
+          # Robust decode via Python: strips ALL non-base64 chars, also handles
+          # PEM-wrapped input (-----BEGIN...-----) and URL-safe base64. macOS
+          # `base64 --decode` is strict and fails with "(null): error decoding
+          # base64 input stream" if even one stray character is present.
+          decode_secret() {
+            local var_name="$1"
+            local out_path="$2"
+            local label="$3"
+            python3 - "$var_name" "$out_path" "$label" <<'PY'
+          import base64, os, re, sys
+          var_name, out_path, label = sys.argv[1], sys.argv[2], sys.argv[3]
+          raw = os.environ.get(var_name, "")
+          if not raw:
+              print(f"::error::{label} secret ({var_name}) is empty.", file=sys.stderr)
+              sys.exit(1)
+          # Strip PEM armor if present
+          stripped = re.sub(r"-----[A-Z ]+-----", "", raw)
+          # Keep only base64 alphabet (standard + url-safe) and padding
+          cleaned = re.sub(r"[^A-Za-z0-9+/=_-]", "", stripped)
+          # Normalize url-safe -> standard
+          cleaned = cleaned.replace("-", "+").replace("_", "/")
+          # Pad to multiple of 4
+          pad = (-len(cleaned)) % 4
+          cleaned += "=" * pad
+          try:
+              data = base64.b64decode(cleaned, validate=False)
+          except Exception as e:
+              print(f"::error::{label}: base64 decode failed: {e}. "
+                    f"Raw length={len(raw)}, cleaned length={len(cleaned)}. "
+                    f"Re-upload using: base64 -i your-file.p12 | pbcopy", file=sys.stderr)
+              sys.exit(1)
+          if len(data) < 100:
+              print(f"::error::{label} decoded to only {len(data)} bytes. "
+                    f"Expected a real .p12/.mobileprovision file. "
+                    f"Make sure the secret is the BASE64 of the file, not the raw binary or a path.", file=sys.stderr)
+              sys.exit(1)
+          with open(out_path, "wb") as f:
+              f.write(data)
+          print(f"{label}: decoded {len(data)} bytes -> {out_path}")
+          PY
+          }
 
-          if [ ! -s "$CERT_PATH" ]; then
-            echo "::error::APPLE_CERTIFICATE secret decoded to an empty file. Re-upload the .p12 base64-encoded with no extra whitespace."
-            exit 1
-          fi
-          if [ ! -s "$PROFILE_PATH" ]; then
-            echo "::error::APPLE_PROVISIONING_PROFILE secret decoded to an empty file. Re-upload the .mobileprovision base64-encoded with no extra whitespace."
-            exit 1
-          fi
+          decode_secret APPLE_CERTIFICATE "$CERT_PATH" "APPLE_CERTIFICATE"
+          decode_secret APPLE_PROVISIONING_PROFILE "$PROFILE_PATH" "APPLE_PROVISIONING_PROFILE"
+
+          # Sanity: .p12 starts with 0x30 (DER SEQUENCE); .mobileprovision is CMS/DER also starting with 0x30
+          file "$CERT_PATH" || true
+          file "$PROFILE_PATH" || true
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
