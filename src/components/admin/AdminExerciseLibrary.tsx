@@ -5,10 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Plus, Search, Loader2, Pencil, Trash2, ExternalLink, Video, VideoOff } from "lucide-react";
 import { AdminExercise, muxThumb } from "./library/exerciseTypes";
 import ExerciseEditorSheet from "./library/ExerciseEditorSheet";
 import { toast } from "sonner";
+
+type LegacyExercise = {
+  id: string;
+  title: string;
+  description: string | null;
+  video_url: string | null;
+  thumbnail_url: string | null;
+  muscle_group: string | null;
+  equipment: string | null;
+  difficulty: string | null;
+};
 
 const AdminExerciseLibrary = () => {
   const qc = useQueryClient();
