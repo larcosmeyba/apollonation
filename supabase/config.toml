@@ -109,3 +109,9 @@ verify_jwt = false
 
 [functions.generate-ondemand-class]
 verify_jwt = true
+
+[functions.render-class]
+verify_jwt = true
+
+[functions.mux-webhook]
+verify_jwt = false
