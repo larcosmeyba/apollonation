@@ -7,7 +7,7 @@ const baseTabs = [
   { label: "Home", href: "/dashboard", icon: Home, lockKey: null as null | "premium" | "elite" },
   { label: "On Demand", href: "/dashboard/workouts", icon: Play, lockKey: null },
   ...(isWeb()
-    ? [{ label: "My Workouts", href: "/dashboard/my-workouts", icon: Dumbbell, lockKey: null as null | "premium" | "elite" }]
+    ? [{ label: "My Plan", href: "/dashboard/my-workouts", icon: Dumbbell, lockKey: null as null | "premium" | "elite" }]
     : []),
   { label: "Fuel", href: "/dashboard/nutrition", icon: Flame, lockKey: "premium" as const },
   { label: "Messages", href: "/dashboard/messages", icon: MessageCircle, lockKey: "elite" as const },
