@@ -17,6 +17,8 @@ import {
   Settings,
   Eye,
   Bug,
+  Library,
+  Film,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
