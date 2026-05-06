@@ -1,74 +1,65 @@
+## "My Workouts" Module — Web-Only Build Plan
 
-# Apollo Reborn — Admin: Exercise Library + Workout Builder (Phase 1)
+A new subscriber-facing tab for Apollo Reborn that generates personalized workout plans and guides users through sessions. Scoped to **web only** — gated from native iOS/Android shells until you approve mobile rollout.
 
-Based on your answers: **web admin only**, **no MP4 export**, **trim-to-loop in player**, **MUX stitching deferred**. This phase ships a production-ready library + builder you can use to produce classes immediately. The client app plays the resulting class live (MUX clips + timers + overlays) — no offline render needed.
+---
 
-## What you get this phase
+### Web-Only Gating Strategy
 
-1. **Exercise Library** — CRUD for exercises with MUX playback IDs, full taxonomy, loop in/out points, and a preview player.
-2. **On-Demand Class Builder** — Drag-and-drop class composer that pulls from the library, with per-block timer/rest/cues/alternates and a live preview.
-3. **AI Class Generator** — Lovable AI (Gemini 2.5) auto-sequences a class from your library given duration + style + equipment.
-4. **Cinematic class player** — Reusable Apollo intro, exercise screen with timer / next-up / cues / weight & tempo prompts, split-screen alternate view, seamless loop via in/out trim points.
+We already have `isWeb()` / `isNative()` helpers in `src/lib/platform.ts`. The new tab and route will:
+- Only render in the dashboard nav when `isWeb()` is true (mirrors how the Admin link is gated today).
+- The `/dashboard/my-workouts` route will redirect native users to the existing `/dashboard/training` page.
+- No Capacitor plugins, no IAP touchpoints — purely web React + Supabase.
 
-What's deferred to phase 2: MP4 export through MUX stitched assets, AI motion-matched looping, coach-created classes.
+This keeps native bundles untouched until you give the go-ahead.
 
-## Data model (new tables)
+---
 
-- `admin_exercises` — name, mux_playback_id, mux_asset_id, thumbnail_url, orientation (`horizontal`/`vertical`), muscle_group, equipment[], difficulty, movement_type, alternative_exercise_id (FK self), coaching_notes, weight_recommendation, tempo_recommendation, loop_in_seconds, loop_out_seconds, tags[]
-- `admin_classes` — title, description, duration_minutes (15/20/30), class_type (strength/sculpt/hiit/cycling/recovery/beginner), equipment[], difficulty, status (draft/published), cover_image_url, intro_enabled
-- `admin_class_blocks` — class_id, sort_order, kind (`exercise`/`rest`/`transition`), exercise_id (FK), work_seconds, rest_seconds, sets, set_rest_seconds, cue_overrides (text), weight_prompt, tempo_prompt, drop_set (bool), alt_exercise_id (FK)
-- `admin_class_templates` — saved class scaffolds for reuse
+### Build Order (matches your prompt — milestones to review between)
 
-All admin-only RLS (`has_role(auth.uid(),'admin')`). Authenticated users can `SELECT` published classes + their referenced exercises.
+1. **Data model + seed (PAUSE FOR REVIEW)**
+   - New tables: `mw_exercises`, `mw_plans`, `mw_plan_days`, `mw_plan_exercises`, `mw_set_logs`, `mw_questionnaire_responses`, `mw_trial_status`.
+   - Seed 8 placeholder exercises (real schema, swap-friendly fake data).
+   - RLS: users read/write only their own rows; exercise library readable by authenticated users.
+   - **Stop here, show schema, wait for your OK before UI.**
 
-## Admin UI (extends `AdminDashboard`)
+2. **Onboarding questionnaire (Q1–Q7)**
+   - One question per screen, progress bar, large tap cards, slide transitions.
+   - Unrealistic-timeframe coaching message on Q3.
+   - Auto-skip Q6 when "In a gym" is the only Q5 answer.
 
-Two new tabs added to the existing admin sidebar:
+3. **Plan generation edge function + dashboard**
+   - `generate-my-workout-plan` edge function (server-side logic).
+   - Pulls exclusively from `mw_exercises`.
+   - Dashboard: weekly strip, "Today's Workout" card, quick stats.
 
-- **Exercise Library** (`AdminExerciseLibrary.tsx`)
-  - Grid of exercise cards: thumbnail, MUX preview on hover, title, tag chips
-  - Filters: muscle group, equipment, difficulty, movement type, orientation
-  - Add/Edit sheet: paste MUX playback ID → auto-fetch thumbnail, set in/out loop points by scrubbing, fill metadata, link alternative exercise
-- **On-Demand Builder** (`AdminClassBuilder.tsx`)
-  - Left rail: filtered library (horizontal-only when building)
-  - Center: drag-to-add timeline of blocks with inline edit (work / rest / cues / weight / tempo / drop set / alt)
-  - Right: settings panel (duration, type, equipment, intro on/off) + **AI Generate** button
-  - **Preview** button → opens cinematic player in a modal
+4. **Start Workout flow**
+   - Per-exercise full-screen card, looping demo video, set logging (reps/weight/difficulty 1–10), rest timer ring, resume-in-progress.
 
-## AI Generate (edge function `generate-ondemand-class`)
+5. **Coach prompt layer**
+   - Bubble prompts based on difficulty signal, "Coach intensity" setting (More / Fewer / Silent).
 
-Inputs: duration, class_type, equipment, target difficulty, available exercise IDs (horizontal only).
-Calls Lovable AI Gateway (`google/gemini-2.5-flash`) with a strict JSON schema returning ordered blocks, work/rest, sets, cue and tempo prompts. Result populates the builder timeline (you can edit before saving).
+6. **Rest day, history, end-of-workout summary**
+   - PR badges, trend charts, tomorrow preview.
 
-## Cinematic player (`OnDemandClassPlayer.tsx`)
+7. **Trial gating + paywall**
+   - 2-day free trial tracked in `mw_trial_status`, post-trial upgrade screen pointing to existing `/subscribe`.
 
-Reusable for both admin preview and client playback. Sequence:
+8. **Polish**
+   - Motion, empty/loading/error states, accessibility.
 
-```
-[Apollo Intro clip]  →  [Exercise screen × N]  →  [Outro card]
-```
+---
 
-Exercise screen:
-- MUX HLS video (looped between `loop_in_seconds`/`loop_out_seconds` with crossfade — pure JS via two stacked `<video>` elements)
-- Top: exercise name + set indicator
-- Center-right: large countdown timer + rest timer when active
-- Bottom-left: coaching cue / weight / tempo prompt rotation
-- Bottom-right: "Next: [exercise]" preview thumbnail
-- Toggle button → split-screen with alternative exercise (50/50 layout)
+### Technical Notes
 
-Dark cinematic look, Apollo brand colors, large heading typography, framer-motion fades between blocks.
+- Stack: existing React + TS + Tailwind + Supabase. No new dependencies expected beyond what's installed.
+- All tables prefixed `mw_` to avoid colliding with the existing `admin_exercises` / `admin_classes` library.
+- Edge function follows project conventions: `verify_jwt = true`, `auth.getUser()` validation, Zod input parsing, esm.sh imports.
+- Reuses existing design tokens in `index.css` — no new color system. Dark theme, current accent.
+- Mobile-first responsive layout (browsers on phones), but not packaged into Capacitor builds.
 
-## Technical notes
+---
 
-- MUX clips are referenced by `playback_id` only (you already host on MUX). Player URL: `https://stream.mux.com/{playback_id}.m3u8`. Thumbnails: `https://image.mux.com/{playback_id}/thumbnail.jpg`.
-- Loop blending: two `<video>` elements, swap and crossfade 200ms before `loop_out_seconds`. No FFmpeg needed.
-- Apollo intro: store one MUX playback ID in a `system_settings` row or env constant; reused across all classes.
-- Workout JSON saved to `admin_classes` + `admin_class_blocks` is the single source of truth. The current client "On-Demand Classes" feature can be migrated to read from this in a follow-up.
-- All new admin pages are gated by existing `AdminRoute` + `isNative()` redirect — App Store binary unaffected.
+### What I'll do first if you approve
 
-## Out of scope (call out before starting Phase 2)
-
-- MP4 rendering / download — needs MUX stitched assets API or Shotstack
-- Auto-caption overlays
-- Coach-created classes (non-admin)
-- True AI motion-loop blending
+Step 1 only: create the migration with the seven tables + RLS + 8 seed exercises, then stop and show you the schema for sign-off before any UI work.

@@ -1363,6 +1363,305 @@ export type Database = {
         }
         Relationships: []
       }
+      mw_exercises: {
+        Row: {
+          created_at: string
+          difficulty: number
+          equipment_required: string[] | null
+          id: string
+          instructions: string | null
+          is_active: boolean
+          name: string
+          primary_muscle: string
+          secondary_muscles: string[] | null
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: number
+          equipment_required?: string[] | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          name: string
+          primary_muscle: string
+          secondary_muscles?: string[] | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          difficulty?: number
+          equipment_required?: string[] | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          name?: string
+          primary_muscle?: string
+          secondary_muscles?: string[] | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      mw_plan_days: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          estimated_minutes: number | null
+          id: string
+          is_rest: boolean
+          label: string
+          plan_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          estimated_minutes?: number | null
+          id?: string
+          is_rest?: boolean
+          label: string
+          plan_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          estimated_minutes?: number | null
+          id?: string
+          is_rest?: boolean
+          label?: string
+          plan_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mw_plan_days_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "mw_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mw_plan_exercises: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          id: string
+          notes: string | null
+          plan_day_id: string
+          rest_seconds: number
+          sort_order: number
+          target_reps: number
+          target_sets: number
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          id?: string
+          notes?: string | null
+          plan_day_id: string
+          rest_seconds?: number
+          sort_order?: number
+          target_reps?: number
+          target_sets?: number
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          notes?: string | null
+          plan_day_id?: string
+          rest_seconds?: number
+          sort_order?: number
+          target_reps?: number
+          target_sets?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mw_plan_exercises_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "mw_exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mw_plan_exercises_plan_day_id_fkey"
+            columns: ["plan_day_id"]
+            isOneToOne: false
+            referencedRelation: "mw_plan_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mw_plans: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          rationale: string | null
+          split_type: string | null
+          start_date: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          rationale?: string | null
+          split_type?: string | null
+          start_date?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          rationale?: string | null
+          split_type?: string | null
+          start_date?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mw_questionnaire_responses: {
+        Row: {
+          body_fat_percent: number | null
+          coach_intensity: string
+          created_at: string
+          equipment: string[] | null
+          experience_level: number | null
+          goals: string[]
+          id: string
+          target_date: string | null
+          training_days: string[] | null
+          training_location: string | null
+          updated_at: string
+          user_id: string
+          weight_unit: string | null
+          weight_value: number | null
+        }
+        Insert: {
+          body_fat_percent?: number | null
+          coach_intensity?: string
+          created_at?: string
+          equipment?: string[] | null
+          experience_level?: number | null
+          goals?: string[]
+          id?: string
+          target_date?: string | null
+          training_days?: string[] | null
+          training_location?: string | null
+          updated_at?: string
+          user_id: string
+          weight_unit?: string | null
+          weight_value?: number | null
+        }
+        Update: {
+          body_fat_percent?: number | null
+          coach_intensity?: string
+          created_at?: string
+          equipment?: string[] | null
+          experience_level?: number | null
+          goals?: string[]
+          id?: string
+          target_date?: string | null
+          training_days?: string[] | null
+          training_location?: string | null
+          updated_at?: string
+          user_id?: string
+          weight_unit?: string | null
+          weight_value?: number | null
+        }
+        Relationships: []
+      }
+      mw_set_logs: {
+        Row: {
+          difficulty: number | null
+          exercise_id: string
+          id: string
+          performed_at: string
+          plan_exercise_id: string | null
+          reps: number
+          session_id: string | null
+          set_number: number
+          user_id: string
+          weight: number | null
+          weight_unit: string | null
+        }
+        Insert: {
+          difficulty?: number | null
+          exercise_id: string
+          id?: string
+          performed_at?: string
+          plan_exercise_id?: string | null
+          reps: number
+          session_id?: string | null
+          set_number: number
+          user_id: string
+          weight?: number | null
+          weight_unit?: string | null
+        }
+        Update: {
+          difficulty?: number | null
+          exercise_id?: string
+          id?: string
+          performed_at?: string
+          plan_exercise_id?: string | null
+          reps?: number
+          session_id?: string | null
+          set_number?: number
+          user_id?: string
+          weight?: number | null
+          weight_unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mw_set_logs_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "mw_exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mw_set_logs_plan_exercise_id_fkey"
+            columns: ["plan_exercise_id"]
+            isOneToOne: false
+            referencedRelation: "mw_plan_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mw_trial_status: {
+        Row: {
+          created_at: string
+          trial_ends_at: string
+          trial_started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          trial_ends_at?: string
+          trial_started_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          trial_ends_at?: string
+          trial_started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           action_url: string | null
