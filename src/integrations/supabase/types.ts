@@ -41,6 +41,240 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_class_blocks: {
+        Row: {
+          alt_exercise_id: string | null
+          class_id: string
+          created_at: string
+          cue_overrides: string | null
+          drop_set: boolean
+          exercise_id: string | null
+          id: string
+          kind: string
+          rest_seconds: number
+          set_rest_seconds: number
+          sets: number
+          sort_order: number
+          tempo_prompt: string | null
+          weight_prompt: string | null
+          work_seconds: number
+        }
+        Insert: {
+          alt_exercise_id?: string | null
+          class_id: string
+          created_at?: string
+          cue_overrides?: string | null
+          drop_set?: boolean
+          exercise_id?: string | null
+          id?: string
+          kind?: string
+          rest_seconds?: number
+          set_rest_seconds?: number
+          sets?: number
+          sort_order?: number
+          tempo_prompt?: string | null
+          weight_prompt?: string | null
+          work_seconds?: number
+        }
+        Update: {
+          alt_exercise_id?: string | null
+          class_id?: string
+          created_at?: string
+          cue_overrides?: string | null
+          drop_set?: boolean
+          exercise_id?: string | null
+          id?: string
+          kind?: string
+          rest_seconds?: number
+          set_rest_seconds?: number
+          sets?: number
+          sort_order?: number
+          tempo_prompt?: string | null
+          weight_prompt?: string | null
+          work_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_class_blocks_alt_exercise_id_fkey"
+            columns: ["alt_exercise_id"]
+            isOneToOne: false
+            referencedRelation: "admin_exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_class_blocks_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "admin_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_class_blocks_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "admin_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_class_templates: {
+        Row: {
+          class_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration_minutes: number
+          id: string
+          payload: Json
+          title: string
+        }
+        Insert: {
+          class_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          payload?: Json
+          title: string
+        }
+        Update: {
+          class_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          payload?: Json
+          title?: string
+        }
+        Relationships: []
+      }
+      admin_classes: {
+        Row: {
+          class_type: string
+          cover_image_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          difficulty: string
+          duration_minutes: number
+          equipment: string[]
+          id: string
+          intro_enabled: boolean
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          class_type?: string
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string
+          duration_minutes?: number
+          equipment?: string[]
+          id?: string
+          intro_enabled?: boolean
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          class_type?: string
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string
+          duration_minutes?: number
+          equipment?: string[]
+          id?: string
+          intro_enabled?: boolean
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_exercises: {
+        Row: {
+          alternative_exercise_id: string | null
+          coaching_notes: string | null
+          created_at: string
+          created_by: string | null
+          difficulty: string
+          equipment: string[]
+          id: string
+          loop_in_seconds: number | null
+          loop_out_seconds: number | null
+          movement_type: string | null
+          muscle_group: string | null
+          mux_asset_id: string | null
+          mux_playback_id: string | null
+          name: string
+          orientation: string
+          tags: string[]
+          tempo_recommendation: string | null
+          thumbnail_url: string | null
+          updated_at: string
+          weight_recommendation: string | null
+        }
+        Insert: {
+          alternative_exercise_id?: string | null
+          coaching_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          difficulty?: string
+          equipment?: string[]
+          id?: string
+          loop_in_seconds?: number | null
+          loop_out_seconds?: number | null
+          movement_type?: string | null
+          muscle_group?: string | null
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          name: string
+          orientation?: string
+          tags?: string[]
+          tempo_recommendation?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          weight_recommendation?: string | null
+        }
+        Update: {
+          alternative_exercise_id?: string | null
+          coaching_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          difficulty?: string
+          equipment?: string[]
+          id?: string
+          loop_in_seconds?: number | null
+          loop_out_seconds?: number | null
+          movement_type?: string | null
+          muscle_group?: string | null
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          name?: string
+          orientation?: string
+          tags?: string[]
+          tempo_recommendation?: string | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          weight_recommendation?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_exercises_alternative_exercise_id_fkey"
+            columns: ["alternative_exercise_id"]
+            isOneToOne: false
+            referencedRelation: "admin_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       body_metrics: {
         Row: {
           body_fat_pct: number | null
