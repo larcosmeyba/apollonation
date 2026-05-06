@@ -117,7 +117,27 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
         <div className="space-y-4 mt-4 pb-12">
           <div>
             <Label>Name *</Label>
-            <Input value={form.name || ""} onChange={(e) => set("name", e.target.value)} />
+            <div className="flex gap-2">
+              <Input
+                value={form.name || ""}
+                onChange={(e) => set("name", e.target.value)}
+                placeholder="e.g. Barbell Back Squat"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAiFill}
+                disabled={aiLoading || !form.name?.trim()}
+                className="shrink-0"
+                title="AI auto-fill all fields from the exercise name"
+              >
+                {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                AI Fill
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Type the exercise name, then click <strong>AI Fill</strong> to auto-generate coaching notes, weight target, tempo, equipment, movement type, and injury warnings.
+            </p>
           </div>
 
           <div>
