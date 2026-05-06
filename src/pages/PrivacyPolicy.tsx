@@ -106,7 +106,7 @@ const PrivacyPolicy = () => {
           <ul className="list-disc pl-6 space-y-2">
             <li><strong>Supabase</strong> — authentication, database, file storage, and serverless backend functions.</li>
             <li><strong>RevenueCat</strong> — subscription state management and in-app purchase receipt verification.</li>
-            <li><strong>Apple App Store / Google Play</strong> — billing and payment processing for subscriptions.</li>
+            <li><strong>Apple App Store</strong> — billing and payment processing for subscriptions.</li>
             <li><strong>Resend</strong> — transactional email delivery (account, security, and coach messages).</li>
             <li><strong>Plausible Analytics</strong> — privacy-friendly, cookie-free traffic analytics on our marketing site.</li>
           </ul>

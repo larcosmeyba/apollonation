@@ -927,7 +927,7 @@ const DashboardProfile = () => {
               {/* Subscription disclosure */}
               <div className="rounded-xl border border-border bg-card p-4">
                 <p className="text-[11px] text-foreground/60 leading-relaxed">
-                  Subscriptions are billed through your Apple ID or Google Play account and renew automatically unless cancelled at least 24 hours before the end of the current period. Manage or cancel anytime in App Store / Google Play settings — your Apollo Reborn access remains active until the end of the billing period.
+                  Subscriptions are billed through your Apple ID account and renew automatically unless cancelled at least 24 hours before the end of the current period. Manage or cancel anytime in App Store settings — your Apollo Reborn access remains active until the end of the billing period.
                 </p>
               </div>
 
@@ -974,7 +974,7 @@ const DashboardProfile = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete your Apollo Reborn account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently removes your profile, workout history, nutrition logs, progress photos, and messages. <strong className="text-foreground">Deletion is immediate and cannot be undone.</strong> If you have an active subscription, cancel it through the App Store or Google Play first.
+              This permanently removes your profile, workout history, nutrition logs, progress photos, and messages. <strong className="text-foreground">Deletion is immediate and cannot be undone.</strong> If you have an active subscription, cancel it through the App Store first.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-2 py-2">

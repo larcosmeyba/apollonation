@@ -139,7 +139,7 @@ const PaywallPreview = () => {
             Continue with Free Starter →
           </button>
           <p className="text-[10px] text-white/35 leading-relaxed px-2">
-            Auto-renews until cancelled. Manage in App Store / Google Play settings.
+            Auto-renews until cancelled. Manage in App Store settings.
             <span className="block mt-1">
               <Link to="/terms" className="underline underline-offset-2">Terms</Link>
               <span className="mx-1.5">·</span>

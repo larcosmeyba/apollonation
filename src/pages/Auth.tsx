@@ -105,7 +105,7 @@ const Auth = () => {
                 toast({
                   title: webOnlyAdmin ? "Download the app" : "Access denied",
                   description: webOnlyAdmin
-                    ? "Client accounts can only sign in through the Apollo Reborn mobile app. Please download it from the App Store or Google Play."
+                    ? "Client accounts can only sign in through the Apollo Reborn mobile app. Please download it from the App Store."
                     : "This account does not have admin privileges.",
                   variant: "destructive",
                 });
@@ -405,15 +405,6 @@ const Auth = () => {
                   >
                     <Apple className="w-4 h-4" />
                     App Store
-                  </a>
-                  <a
-                    href="https://play.google.com/store/apps/details?id=com.apollonation.app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-xs"
-                  >
-                    <Smartphone className="w-4 h-4" />
-                    Google Play
                   </a>
                 </div>
               </div>

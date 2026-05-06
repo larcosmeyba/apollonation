@@ -123,7 +123,7 @@ const Subscribe = () => {
           style={{ paddingTop: "calc(env(safe-area-inset-top) + 3rem)" }}>
           <h1 className="font-heading text-3xl mb-3">You're an Apollo Elite member</h1>
           <p className="text-sm text-white/60 mb-8">
-            Manage your subscription in your device's App Store or Play Store settings.
+            Manage your subscription in your device's App Store settings.
           </p>
           <button onClick={() => navigate("/dashboard")}
             className="w-full h-12 rounded-[10px] bg-white text-black font-medium text-[14px]">
@@ -224,7 +224,7 @@ const Subscribe = () => {
               <h2 className="font-heading text-[16px]">Open in the app to subscribe</h2>
             </div>
             <p className="text-[13px] text-white/60 leading-relaxed">
-              Memberships are processed through the Apple App Store and Google Play.
+              Memberships are processed through the Apple App Store.
             </p>
           </div>
         )}
@@ -293,7 +293,7 @@ const Subscribe = () => {
                 Continue with Free Starter →
               </button>
               <p className="text-[10px] text-white/35 leading-relaxed px-2">
-                Auto-renews until cancelled. Manage in App Store / Google Play settings.
+                Auto-renews until cancelled. Manage in App Store settings.
                 <span className="block mt-1">
                   <Link to="/terms" className="underline underline-offset-2">Terms</Link>
                   <span className="mx-1.5">·</span>
