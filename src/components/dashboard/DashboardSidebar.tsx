@@ -21,6 +21,7 @@ const DashboardSidebar = () => {
   ];
 
   const secondaryNav = [
+    ...(isWeb() ? [{ label: "My Workouts", href: "/dashboard/my-workouts", icon: Dumbbell }] : []),
     { label: "Calendar", href: "/dashboard/calendar", icon: Calendar },
     { label: "Recipes", href: "/dashboard/recipes", icon: BookOpen },
     { label: "Transformation", href: "/dashboard/transformation", icon: ImageIcon },

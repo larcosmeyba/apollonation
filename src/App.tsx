@@ -41,6 +41,7 @@ import DashboardRecovery from "./pages/DashboardRecovery";
 import DashboardChallenges from "./pages/DashboardChallenges";
 import DashboardAIWorkout from "./pages/DashboardAIWorkout";
 import DashboardMessages from "./pages/DashboardMessages";
+import DashboardMyWorkouts from "./pages/DashboardMyWorkouts";
 import Subscribe from "./pages/Subscribe";
 import PaywallPreview from "./pages/PaywallPreview";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -185,6 +186,17 @@ const App = () => {
                 path="/dashboard/messages"
                 element={<ProtectedRoute>{eb(<DashboardMessages />)}</ProtectedRoute>}
               />
+              {isWeb() ? (
+                <Route
+                  path="/dashboard/my-workouts"
+                  element={<ProtectedRoute>{eb(<DashboardMyWorkouts />)}</ProtectedRoute>}
+                />
+              ) : (
+                <Route
+                  path="/dashboard/my-workouts"
+                  element={<Navigate to="/dashboard/training" replace />}
+                />
+              )}
               <Route
                 path="/dashboard/coach/:coachId"
                 element={<ProtectedRoute>{eb(<DashboardCoachProfile />)}</ProtectedRoute>}
