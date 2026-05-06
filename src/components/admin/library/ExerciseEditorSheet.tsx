@@ -37,6 +37,7 @@ const blank: Partial<AdminExercise> = {
   coaching_notes: "",
   weight_recommendation: "",
   tempo_recommendation: "",
+  contraindications: "",
   loop_in_seconds: 0,
   loop_out_seconds: null,
   tags: [],
