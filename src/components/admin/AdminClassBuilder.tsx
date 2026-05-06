@@ -584,6 +584,8 @@ const AdminClassBuilder = () => {
               AI sequences exercises, sets, rest, cues, and tempo. You can edit anything after.
             </p>
           </div>
+
+          <RenderMp4Panel classId={classId} hasBlocks={blocks.length > 0} />
         </Card>
       </div>
 
