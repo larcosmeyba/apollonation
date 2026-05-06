@@ -15,7 +15,7 @@ import {
   muxMp4,
   muxThumb,
 } from "./exerciseTypes";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Sparkles } from "lucide-react";
 
 interface Props {
   open: boolean;
