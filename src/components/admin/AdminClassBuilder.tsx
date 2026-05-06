@@ -14,6 +14,7 @@ import {
   muxThumb,
 } from "./library/exerciseTypes";
 import OnDemandClassPlayer, { PlayerBlock } from "./library/OnDemandClassPlayer";
+import RenderMp4Panel from "./library/RenderMp4Panel";
 import {
   Plus, Play, Save, Trash2, GripVertical, Sparkles, Loader2, ChevronUp, ChevronDown, FolderOpen,
 } from "lucide-react";
