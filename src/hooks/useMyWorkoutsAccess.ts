@@ -1,5 +1,5 @@
 // Trial + paywall gating for the My Workouts module (web-only).
-// Subscribers always pass. Non-subscribers get a 2-day trial starting on first open.
+// Subscribers always pass. Non-subscribers get a 7-day trial starting on first open.
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,7 @@ export interface MyWorkoutsAccess {
   trialActive: boolean;
   trialExpired: boolean;
   daysRemaining: number;
-  dayNumber: number; // 1 or 2 during trial
+  dayNumber: number; // 1..7 during trial
   ensureTrialStarted: () => Promise<void>;
 }
 
@@ -49,13 +49,13 @@ export function useMyWorkoutsAccess(): MyWorkoutsAccess {
   const msRemaining = trialEndsAt ? Math.max(0, trialEndsAt.getTime() - now) : 0;
   const daysRemaining = Math.ceil(msRemaining / (1000 * 60 * 60 * 24));
   const dayNumber = trialStartedAt
-    ? Math.min(2, Math.max(1, Math.ceil((now - trialStartedAt.getTime()) / (1000 * 60 * 60 * 24)) || 1))
+    ? Math.min(7, Math.max(1, Math.ceil((now - trialStartedAt.getTime()) / (1000 * 60 * 60 * 24)) || 1))
     : 1;
 
   const ensureTrialStarted = async () => {
     if (!userId || hasPremiumAccess || data) return;
     const startedAt = new Date();
-    const endsAt = new Date(startedAt.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const endsAt = new Date(startedAt.getTime() + 7 * 24 * 60 * 60 * 1000);
     const { error } = await (supabase as any).from("mw_trial_status").insert({
       user_id: userId,
       trial_started_at: startedAt.toISOString(),
