@@ -36,7 +36,10 @@ import {
 // Apple App Store + Google Play subscription management deep links
 const APP_STORE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
 const PLAY_STORE_SUBSCRIPTIONS_URL = "https://play.google.com/store/account/subscriptions?package=com.apollonation.app";
-const APP_STORE_RATE_URL = "itms-apps://itunes.apple.com/app/id0000000000?action=write-review";
+const APP_STORE_ID = import.meta.env.VITE_APP_STORE_ID as string | undefined;
+const APP_STORE_RATE_URL = APP_STORE_ID
+  ? `itms-apps://itunes.apple.com/app/id${APP_STORE_ID}?action=write-review`
+  : null;
 const PLAY_STORE_RATE_URL = "https://play.google.com/store/apps/details?id=com.apollonation.app";
 
 // Public website URLs — used for legal/help links so native (Capacitor) users
