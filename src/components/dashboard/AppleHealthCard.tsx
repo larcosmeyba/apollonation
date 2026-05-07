@@ -18,7 +18,10 @@ interface TodayRow {
 
 const AppleHealthCard = () => {
   const { user } = useAuth();
-  const { available, connected, syncing, lastSyncAt, error, connect, sync } = useAppleHealth();
+  const { available, connected, syncing, lastSyncAt, error: rawError, connect, sync } = useAppleHealth();
+  const error = rawError && /not implemented|not available/i.test(rawError)
+    ? "Apple Health requires the latest app update"
+    : rawError;
   const [today, setToday] = useState<TodayRow | null>(null);
 
   // Apple Health is iOS-only — compute platform but DO NOT early-return before hooks.
