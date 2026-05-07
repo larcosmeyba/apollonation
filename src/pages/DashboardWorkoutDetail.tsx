@@ -557,16 +557,32 @@ const DashboardWorkoutDetail = () => {
     },
   });
 
+  // Per-(exerciseId,setNumber) debounce timers so rapid typing only fires the final upsert.
+  const setLogTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
   const handleSetLogChange = useCallback((exerciseId: string, setNumber: number, field: "weight" | "reps_completed", value: number | null) => {
+    let nextWeight: number | null = null;
+    let nextReps: number | null = null;
     setLocalSetLogs(prev => {
       const current = prev[exerciseId] || [];
       const existing = current.find(l => l.set_number === setNumber);
+      const merged = existing
+        ? { ...existing, [field]: value }
+        : { set_number: setNumber, weight: null, reps_completed: null, [field]: value };
+      nextWeight = (merged as any).weight ?? null;
+      nextReps = (merged as any).reps_completed ?? null;
       if (existing) {
-        return { ...prev, [exerciseId]: current.map(l => l.set_number === setNumber ? { ...l, [field]: value } : l) };
+        return { ...prev, [exerciseId]: current.map(l => l.set_number === setNumber ? merged : l) };
       }
-      return { ...prev, [exerciseId]: [...current, { set_number: setNumber, weight: null, reps_completed: null, [field]: value }] };
+      return { ...prev, [exerciseId]: [...current, merged] };
     });
-    saveSetLogMutation.mutate({ exerciseId, setNumber, field, value });
+
+    const key = `${exerciseId}:${setNumber}`;
+    if (setLogTimersRef.current[key]) clearTimeout(setLogTimersRef.current[key]);
+    setLogTimersRef.current[key] = setTimeout(() => {
+      saveSetLogMutation.mutate({ exerciseId, setNumber, weight: nextWeight, reps: nextReps });
+      delete setLogTimersRef.current[key];
+    }, 400);
   }, [saveSetLogMutation]);
 
   const handleNoteChange = useCallback((exerciseId: string, note: string) => {
@@ -581,23 +597,18 @@ const DashboardWorkoutDetail = () => {
   const handleToggleComplete = useCallback((exerciseId: string, completed: boolean) => {
     setLocalNotes(prev => {
       const existing = prev[exerciseId] || { note: "", is_completed: false };
-      return { ...prev, [exerciseId]: { ...existing, is_completed: completed } };
-    });
-    const note = localNotes[exerciseId]?.note || "";
-    saveNoteMutation.mutate({ exerciseId, note, isCompleted: completed });
-
-    if (completed && dayData?.training_plan_exercises) {
-      const exercises = dayData.training_plan_exercises;
-      const allDone = exercises.every((ex: any) => {
-        if (ex.id === exerciseId) return true;
-        return localNotes[ex.id]?.is_completed || false;
-      });
-      if (allDone && !sessionLog?.completed_at) {
-        saveSessionMutation.mutate();
-        setTimeout(() => setShowComplete(true), 300);
+      const next = { ...prev, [exerciseId]: { ...existing, is_completed: completed } };
+      saveNoteMutation.mutate({ exerciseId, note: existing.note, isCompleted: completed });
+      if (completed && dayData?.training_plan_exercises && !sessionLog?.completed_at) {
+        const allDone = dayData.training_plan_exercises.every((ex: any) => next[ex.id]?.is_completed);
+        if (allDone) {
+          saveSessionMutation.mutate();
+          setTimeout(() => setShowComplete(true), 300);
+        }
       }
-    }
-  }, [localNotes, dayData, saveNoteMutation, saveSessionMutation, sessionLog]);
+      return next;
+    });
+  }, [dayData, sessionLog, saveNoteMutation, saveSessionMutation]);
 
   // Swap
   const handleSwapExercise = async (exercise: any) => {
