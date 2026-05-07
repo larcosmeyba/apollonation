@@ -657,6 +657,15 @@ const DashboardProfile = () => {
   return (
     <DashboardLayout>
       <div className="max-w-lg mx-auto space-y-0">
+        {/* Back to dashboard */}
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
+          aria-label="Back"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
 
         {/* Profile Hero Banner */}
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-b from-foreground/20 to-card p-6 pb-5">
