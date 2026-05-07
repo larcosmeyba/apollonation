@@ -860,6 +860,17 @@ const DashboardProfile = () => {
               {/* Account */}
               <div>
                 <h3 className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/50 mb-1">Account</h3>
+                <button onClick={() => navigate("/dashboard/messages")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
+                  <span className="flex items-center gap-3 text-sm text-foreground">
+                    <MessageCircle className="w-4 h-4 text-foreground/60" /> Messages
+                    {unreadCount > 0 && (
+                      <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-foreground/30" />
+                </button>
                 <button onClick={() => setSettingsView("profile-edit")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
                   <span className="flex items-center gap-3 text-sm text-foreground"><User className="w-4 h-4 text-foreground/60" /> Profile</span>
                   <ChevronRight className="w-4 h-4 text-foreground/30" />
