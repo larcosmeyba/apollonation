@@ -919,7 +919,13 @@ const DashboardProfile = () => {
                   <ExternalLink className="w-3.5 h-3.5 text-foreground/30" />
                 </a>
                 <button
-                  onClick={() => openExternal(APP_STORE_RATE_URL, PLAY_STORE_RATE_URL)}
+                  onClick={() => {
+                    if (isIOS() && !APP_STORE_RATE_URL) {
+                      toast({ title: "Rating coming soon", description: "App Store listing isn't live yet." });
+                      return;
+                    }
+                    openExternal(APP_STORE_RATE_URL ?? PLAY_STORE_RATE_URL, PLAY_STORE_RATE_URL);
+                  }}
                   className="flex items-center justify-between w-full py-3.5 border-b border-border"
                 >
                   <span className="flex items-center gap-3 text-sm text-foreground"><Star className="w-4 h-4 text-foreground/60" /> Rate the App</span>
