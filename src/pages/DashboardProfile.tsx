@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Save, LogOut, ChevronRight, Settings, Star, Dumbbell, Heart, Trophy, Moon, Sun, Shield, Zap, Target, Award, Camera, Bell, Loader2, User, CreditCard, FileText, ShieldCheck, HelpCircle, Bug, MessageCircle, Trash2, ExternalLink } from "lucide-react";
+import { Save, LogOut, ChevronRight, Settings, Star, Dumbbell, Heart, Trophy, Moon, Sun, Shield, Zap, Target, Award, Camera, Bell, Loader2, User, CreditCard, FileText, ShieldCheck, HelpCircle, Bug, Trash2, ExternalLink, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,7 +18,7 @@ import PrivacyDataView from "@/components/dashboard/PrivacyDataView";
 import ReportBugView from "@/components/dashboard/ReportBugView";
 import PushPermissionModal from "@/components/PushPermissionModal";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
-import { useMessages } from "@/hooks/useMessages";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,7 +81,6 @@ const openUrl = (url: string) => {
 const WORKOUT_TYPES = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Core", "Senior"];
 
 const DashboardProfile = () => {
-  const { unreadCount } = useMessages();
   const { profile, refreshProfile, user, signOut } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -658,6 +657,15 @@ const DashboardProfile = () => {
   return (
     <DashboardLayout>
       <div className="max-w-lg mx-auto space-y-0">
+        {/* Back to dashboard */}
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
+          aria-label="Back"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
 
         {/* Profile Hero Banner */}
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-b from-foreground/20 to-card p-6 pb-5">
@@ -862,17 +870,6 @@ const DashboardProfile = () => {
               {/* Account */}
               <div>
                 <h3 className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/50 mb-1">Account</h3>
-                <button onClick={() => navigate("/dashboard/messages")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
-                  <span className="flex items-center gap-3 text-sm text-foreground">
-                    <MessageCircle className="w-4 h-4 text-foreground/60" /> Messages
-                    {unreadCount > 0 && (
-                      <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-foreground/30" />
-                </button>
                 <button onClick={() => setSettingsView("profile-edit")} className="flex items-center justify-between w-full py-3.5 border-b border-border">
                   <span className="flex items-center gap-3 text-sm text-foreground"><User className="w-4 h-4 text-foreground/60" /> Profile</span>
                   <ChevronRight className="w-4 h-4 text-foreground/30" />

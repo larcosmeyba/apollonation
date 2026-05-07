@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, Search, Bookmark } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
+import HeaderAvatar from "@/components/dashboard/HeaderAvatar";
 
 const DashboardMobileNav = () => {
   const [open, setOpen] = useState(false);
@@ -60,7 +61,7 @@ const DashboardMobileNav = () => {
           </SheetContent>
         </Sheet>
 
-        {/* Right: Notifications + Search + Saved */}
+        {/* Right: Notifications + Search + Saved + Avatar */}
         <div className="flex items-center gap-1">
           <NotificationCenter />
           <Link
@@ -75,6 +76,9 @@ const DashboardMobileNav = () => {
           >
             <Bookmark className="w-5 h-5 text-foreground" />
           </Link>
+          <div className="ml-1">
+            <HeaderAvatar />
+          </div>
         </div>
       </div>
     </header>

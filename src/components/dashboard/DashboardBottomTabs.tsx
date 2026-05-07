@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Play, Flame, User, Lock, Dumbbell } from "lucide-react";
+import { Home, Play, Flame, MessageCircle, Lock, Dumbbell } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
+import { useMessages } from "@/hooks/useMessages";
 import { isWeb } from "@/lib/platform";
 
 const baseTabs = [
@@ -8,7 +9,7 @@ const baseTabs = [
   { label: "On Demand", href: "/dashboard/workouts", icon: Play, lockKey: null },
   { label: "My Plan", href: "/dashboard/my-workouts", icon: Dumbbell, lockKey: null as null | "premium" | "elite" },
   { label: "Fuel", href: "/dashboard/nutrition", icon: Flame, lockKey: "premium" as const },
-  { label: "Profile", href: "/dashboard/profile", icon: User, lockKey: null },
+  { label: "Messages", href: "/dashboard/messages", icon: MessageCircle, lockKey: "elite" as const },
 ];
 
 const tabs = baseTabs;
@@ -17,6 +18,7 @@ const DashboardBottomTabs = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { hasPremiumAccess, hasEliteAccess } = useAccessControl();
+  const { unreadCount } = useMessages();
 
   const isActive = (href: string) => location.pathname === href;
   const isLocked = (lockKey: typeof tabs[number]["lockKey"]) => {
@@ -58,6 +60,14 @@ const DashboardBottomTabs = () => {
                     className="absolute -top-1 -right-1.5 w-3 h-3 rounded-full bg-amber-500/90 flex items-center justify-center ring-1 ring-background"
                   >
                     <Lock className="w-[7px] h-[7px] text-background" strokeWidth={3} />
+                  </span>
+                )}
+                {!locked && tab.href === "/dashboard/messages" && unreadCount > 0 && (
+                  <span
+                    aria-label={`${unreadCount} unread`}
+                    className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary flex items-center justify-center ring-1 ring-background text-[9px] font-bold text-primary-foreground"
+                  >
+                    {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </div>
