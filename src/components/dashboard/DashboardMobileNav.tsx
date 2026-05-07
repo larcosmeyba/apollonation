@@ -61,7 +61,7 @@ const DashboardMobileNav = () => {
           </SheetContent>
         </Sheet>
 
-        {/* Right: Notifications + Search + Saved */}
+        {/* Right: Notifications + Search + Saved + Avatar */}
         <div className="flex items-center gap-1">
           <NotificationCenter />
           <Link
@@ -76,6 +76,9 @@ const DashboardMobileNav = () => {
           >
             <Bookmark className="w-5 h-5 text-foreground" />
           </Link>
+          <div className="ml-1">
+            <HeaderAvatar />
+          </div>
         </div>
       </div>
     </header>
