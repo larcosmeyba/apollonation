@@ -200,34 +200,44 @@ const ExerciseRow = ({
               <span>Weight</span>
               <span>Reps</span>
             </div>
-            {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
-              const log = setLogs.find(l => l.set_number === setNum);
-              const prevLog = previousSetLogs.find(l => l.set_number === setNum);
+            {(() => {
+              const isDescriptiveReps = typeof exercise.reps === "string" && exercise.reps && isNaN(Number(String(exercise.reps).split("-")[0]));
               return (
-                <div key={setNum} className="grid grid-cols-[28px_1fr_1fr] gap-2 items-center">
-                  <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
-                    className="h-8 text-xs text-center px-1"
-                    value={log?.weight ?? ""}
-                    onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
-                  />
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    placeholder={prevLog?.reps_completed ? String(prevLog.reps_completed) : (exercise.reps || "—")}
-                    className="h-8 text-xs text-center px-1"
-                    value={log?.reps_completed ?? ""}
-                    onChange={(e) => {
-                      onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
-                      if (e.target.value) setShowTimer(true);
-                    }}
-                  />
-                </div>
+                <>
+                  {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
+                    const log = setLogs.find(l => l.set_number === setNum);
+                    const prevLog = previousSetLogs.find(l => l.set_number === setNum);
+                    return (
+                      <div key={setNum} className="grid grid-cols-[28px_1fr_1fr] gap-2 items-center">
+                        <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
+                          className="h-8 text-xs text-center px-1"
+                          value={log?.weight ?? ""}
+                          onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
+                        />
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          placeholder={isDescriptiveReps ? "—" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : (exercise.reps || "—"))}
+                          className="h-8 text-xs text-center px-1"
+                          value={log?.reps_completed ?? ""}
+                          onChange={(e) => {
+                            onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
+                            if (e.target.value) setShowTimer(true);
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                  {isDescriptiveReps && (
+                    <p className="text-[10px] text-foreground/40 italic mt-0.5">Target: {exercise.reps}</p>
+                  )}
+                </>
               );
-            })}
+            })()}
             {showTimer && exercise.rest_seconds && (
               <InlineRestTimer seconds={exercise.rest_seconds} />
             )}
