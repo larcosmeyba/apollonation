@@ -62,6 +62,14 @@ const DashboardBottomTabs = () => {
                     <Lock className="w-[7px] h-[7px] text-background" strokeWidth={3} />
                   </span>
                 )}
+                {!locked && tab.href === "/dashboard/messages" && unreadCount > 0 && (
+                  <span
+                    aria-label={`${unreadCount} unread`}
+                    className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary flex items-center justify-center ring-1 ring-background text-[9px] font-bold text-primary-foreground"
+                  >
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </div>
               <span
                 className={`text-[10px] tracking-normal uppercase transition-colors truncate max-w-full ${
