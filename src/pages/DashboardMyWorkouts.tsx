@@ -17,9 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const DashboardMyWorkouts = () => {
-  // Web-only — native shells get redirected to existing training tab.
-  if (!isWeb()) return <Navigate to="/dashboard/training" replace />;
-
+  // Route is gated in App.tsx for native — no in-component guard (would violate Rules of Hooks).
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
