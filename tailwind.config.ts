@@ -21,6 +21,13 @@ export default {
         heading: ['Playfair Display', 'serif'],
         body: ['DM Sans', 'sans-serif'],
       },
+      fontSize: {
+        'display-xl': ['clamp(2.75rem, 8vw, 4.5rem)', { lineHeight: '1', letterSpacing: '-0.04em', fontWeight: '700' }],
+        'display-lg': ['clamp(2rem, 5vw, 3rem)', { lineHeight: '1.05', letterSpacing: '-0.03em', fontWeight: '700' }],
+        'display-md': ['clamp(1.5rem, 4vw, 2.25rem)', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'eyebrow': ['0.6875rem', { lineHeight: '1', letterSpacing: '0.25em', fontWeight: '600' }],
+        'caption': ['0.6875rem', { lineHeight: '1.4', letterSpacing: '0.02em' }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

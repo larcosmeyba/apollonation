@@ -41,8 +41,8 @@
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders — #2A2E36 */
-    --border: 220 12% 18%;
+    /* Borders — slightly brighter to give cards a visible edge */
+    --border: 220 12% 24%;
     --input: 220 14% 12%;
     --ring: 0 0% 100%;
 
@@ -68,6 +68,12 @@
     /* Shadows */
     --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.4);
     --shadow-elevated: 0 16px 50px rgba(0, 0, 0, 0.6);
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.5);
+    --shadow-lg: 0 16px 48px rgba(0,0,0,0.6);
+    --shadow-inner-light: inset 0 1px 0 rgba(255,255,255,0.04);
+    --shadow-glow-gold: 0 0 0 1px hsl(var(--apollo-gold) / 0.15), 0 8px 32px hsl(var(--apollo-gold) / 0.12);
 
     /* Sidebar */
     --sidebar-background: 0 0% 0%;
@@ -126,8 +132,8 @@
 }
 
 @layer components {
-  /* Apollo Primary Button */
-  .btn-apollo-gold {
+  /* Apollo Primary Button (was misnamed `btn-apollo-gold` — it's white) */
+  .btn-apollo-primary {
     @apply relative overflow-hidden font-medium px-10 py-5 rounded-xl transition-all duration-300 text-base;
     background: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
@@ -136,7 +142,7 @@
     letter-spacing: 0.02em;
     font-size: 0.875rem;
   }
-  .btn-apollo-gold:hover {
+  .btn-apollo-primary:hover {
     background: hsl(var(--primary) / 0.9);
     transform: translateY(-1px);
     box-shadow: 0 8px 30px rgba(255, 255, 255, 0.15);
@@ -144,15 +150,16 @@
 
   /* Card styles — Graphite Glass */
   .card-apollo {
-    @apply rounded-2xl p-6 transition-all duration-300;
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--apollo-border));
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 1px 6px rgba(0, 0, 0, 0.2);
+    @apply rounded-2xl;
+    background: linear-gradient(180deg, hsl(220 12% 13%) 0%, hsl(220 14% 10%) 100%);
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-md), var(--shadow-inner-light);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
   }
   .card-apollo:hover {
-    transform: translateY(-4px);
-    border-color: hsl(var(--primary) / 0.2);
-    box-shadow: var(--shadow-elevated);
+    transform: translateY(-2px);
+    border-color: hsl(var(--apollo-gold) / 0.25);
+    box-shadow: var(--shadow-lg), var(--shadow-inner-light);
   }
 
   /* Text gradient — Gold */
@@ -178,6 +185,31 @@
 }
 
 @layer utilities {
+  /* Premium image card with cinematic gradient + slow zoom on hover */
+  .img-overlay-premium {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+  .img-overlay-premium > img {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .img-overlay-premium::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0.15) 40%,
+      rgba(0,0,0,0.85) 100%
+    );
+    pointer-events: none;
+  }
+  .img-overlay-premium:hover > img {
+    transform: scale(1.04);
+  }
+
   .animate-float {
     animation: float 8s ease-in-out infinite;
   }
