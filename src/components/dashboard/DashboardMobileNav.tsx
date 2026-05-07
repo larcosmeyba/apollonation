@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, Search, Bookmark } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
+import HeaderAvatar from "@/components/dashboard/HeaderAvatar";
 
 const DashboardMobileNav = () => {
   const [open, setOpen] = useState(false);
