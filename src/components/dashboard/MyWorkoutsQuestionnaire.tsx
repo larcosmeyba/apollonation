@@ -84,6 +84,11 @@ interface Props {
 
 const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
   const { toast } = useToast();
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
   const [step, setStep] = useState(0);
   const [data, setData] = useState<QuestionnairePayload>({
     goals: [],
