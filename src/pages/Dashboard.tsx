@@ -268,11 +268,11 @@ const Dashboard = () => {
       <div className="absolute top-3 right-3">
         <SaveButton workoutId={workout.id} />
       </div>
-      <div className="absolute bottom-4 left-4 right-4">
-        <h3 className="text-base font-bold text-white uppercase leading-tight truncate">
+      <div className="absolute bottom-4 left-4 right-4 min-w-0">
+        <h3 className="text-base font-bold text-white uppercase leading-tight truncate min-w-0">
           {workout.title}
         </h3>
-        <p className="text-xs font-bold text-white mt-1">
+        <p className="text-xs font-bold text-white mt-1 truncate min-w-0">
           Marcos Leyba &nbsp;/&nbsp; {workout.duration_minutes} min &nbsp;/&nbsp; Train: {workout.category}
         </p>
       </div>
