@@ -491,33 +491,29 @@ const DashboardWorkoutDetail = () => {
 
   // Save mutations
   const saveSetLogMutation = useMutation({
-    mutationFn: async ({ exerciseId, setNumber, field, value }: { exerciseId: string; setNumber: number; field: string; value: number | null }) => {
+    mutationFn: async ({ exerciseId, setNumber, weight, reps }: { exerciseId: string; setNumber: number; weight: number | null; reps: number | null }) => {
       if (!user || !dayId) return;
-      await (supabase as any)
-        .from("exercise_set_logs")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("training_plan_exercise_id", exerciseId)
-        .eq("set_number", setNumber)
-        .eq("log_date", dateParam);
-
-      const currentLogs = localSetLogs[exerciseId] || [];
-      const existing = currentLogs.find(l => l.set_number === setNumber);
-      const newLog = { ...(existing || { set_number: setNumber, weight: null, reps_completed: null }), [field]: value };
-
-      if (newLog.weight !== null || newLog.reps_completed !== null) {
+      if (weight === null && reps === null) {
         await (supabase as any)
           .from("exercise_set_logs")
-          .insert({
-            user_id: user.id,
-            training_plan_exercise_id: exerciseId,
-            day_id: dayId,
-            set_number: setNumber,
-            weight: newLog.weight,
-            reps_completed: newLog.reps_completed,
-            log_date: dateParam,
-          });
+          .delete()
+          .eq("user_id", user.id)
+          .eq("training_plan_exercise_id", exerciseId)
+          .eq("set_number", setNumber)
+          .eq("log_date", dateParam);
+        return;
       }
+      await (supabase as any)
+        .from("exercise_set_logs")
+        .upsert({
+          user_id: user.id,
+          training_plan_exercise_id: exerciseId,
+          day_id: dayId,
+          set_number: setNumber,
+          weight,
+          reps_completed: reps,
+          log_date: dateParam,
+        }, { onConflict: "user_id,training_plan_exercise_id,log_date,set_number" });
     },
   });
 
