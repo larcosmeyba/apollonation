@@ -97,7 +97,7 @@ const DashboardMyWorkouts = () => {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary mx-auto">
             <Lock className="w-6 h-6" />
           </div>
-          <h1 className="text-3xl font-heading font-bold">Your 2-day trial is up</h1>
+          <h1 className="text-3xl font-heading font-bold">Your 7-day trial is up</h1>
           <p className="text-foreground/60 max-w-md mx-auto">
             You've seen what My Workouts can do. Subscribe to keep generating plans, logging
             sessions, and training with your coach in your pocket.
@@ -123,8 +123,8 @@ const DashboardMyWorkouts = () => {
             <div className="flex items-center gap-2 text-foreground/80">
               <Sparkles className="w-3.5 h-3.5 text-primary" />
               <span>
-                Day {access.dayNumber} of 2 free —{" "}
-                {access.daysRemaining <= 1 ? "less than a day left" : "1 day left"}
+                Day {access.dayNumber} of 7 free —{" "}
+                {access.daysRemaining <= 1 ? "less than a day left" : `${access.daysRemaining} days left`}
               </span>
             </div>
             <button
