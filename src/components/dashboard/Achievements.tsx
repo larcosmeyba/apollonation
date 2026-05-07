@@ -159,10 +159,17 @@ const Achievements = () => {
           <div className="grid grid-cols-4 gap-2 mb-3">
             {earned.map((a) => {
               const Icon = a.icon;
+              const recentlyUnlocked = justUnlocked.some((u) => u.id === a.id);
+              const wrapperClass = recentlyUnlocked
+                ? "bg-gradient-to-br from-[hsl(var(--apollo-gold-light))] to-[hsl(var(--apollo-gold-dark))] text-background shadow-[var(--shadow-glow-gold)] ring-1 ring-[hsl(var(--apollo-gold)/0.4)]"
+                : "bg-gradient-to-br from-[hsl(var(--apollo-gold-light))] to-[hsl(var(--apollo-gold-dark))] text-background shadow-[var(--shadow-md)]";
               return (
-                <div key={a.id} className="flex flex-col items-center gap-1 p-2 rounded-lg bg-primary/5 border border-primary/20">
-                  <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
-                    <Icon className="w-4 h-4 text-primary" />
+                <div
+                  key={a.id}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-lg ${wrapperClass}`}
+                >
+                  <div className="w-8 h-8 rounded-full bg-background/15 flex items-center justify-center">
+                    <Icon className="w-4 h-4" />
                   </div>
                   <span className="text-[8px] text-center font-medium leading-tight">{a.title}</span>
                 </div>
@@ -176,11 +183,11 @@ const Achievements = () => {
             {locked.map((a) => {
               const Icon = a.icon;
               return (
-                <div key={a.id} className="flex flex-col items-center gap-1 p-2 rounded-lg bg-muted/10 border border-border/30 opacity-40">
-                  <div className="w-8 h-8 rounded-full bg-muted/20 flex items-center justify-center">
-                    <Icon className="w-4 h-4 text-muted-foreground" />
+                <div key={a.id} className="flex flex-col items-center gap-1 p-2 rounded-lg bg-foreground/[0.04] border border-border/30 text-foreground/20">
+                  <div className="w-8 h-8 rounded-full bg-foreground/[0.06] flex items-center justify-center">
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <span className="text-[8px] text-center text-muted-foreground leading-tight">{a.title}</span>
+                  <span className="text-[8px] text-center leading-tight">{a.title}</span>
                 </div>
               );
             })}
