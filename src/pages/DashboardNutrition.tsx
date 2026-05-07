@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
+import { MacroRing } from "@/components/dashboard/MacroRing";
 import { buildGroceryListFromMeals, type PricedGroceryList } from "@/lib/groceryPricing";
 import { normalizeRestrictions, RESTRICTION_LABELS, filterMealsByRestrictions } from "@/lib/dietaryRestrictions";
 
@@ -881,57 +882,18 @@ const DashboardNutrition = () => {
 
             {/* Calorie hero + macro rings */}
             <div className="flex items-center gap-6">
-              <div className="relative w-24 h-24 flex-shrink-0">
-                <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#22c55e" strokeWidth="4" strokeDasharray={`${dailyPercent}, 100`} strokeLinecap="round" className="transition-all duration-700" />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-heading text-foreground">{remaining.calories}</span>
-                  <span className="text-[9px] text-foreground/60">cal left</span>
-                </div>
-              </div>
-
+              <MacroRing
+                value={loggedTotals.calories}
+                max={targets.calories}
+                label="Calories"
+                unit=" cal"
+                color="hsl(var(--apollo-gold))"
+                size={96}
+              />
               <div className="flex flex-1 justify-around">
-                <div className="flex flex-col items-center gap-1.5">
-                  <div className="relative w-14 h-14">
-                    <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4.5" />
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(217, 91%, 67%)" strokeWidth="4.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.protein / targets.protein) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xs font-semibold text-foreground">{loggedTotals.protein}g</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-foreground/70 font-medium">Protein</span>
-                  <span className="text-[9px] text-foreground/50">{remaining.protein > 0 ? `${remaining.protein}g left` : "Done"}</span>
-                </div>
-                <div className="flex flex-col items-center gap-1.5">
-                  <div className="relative w-14 h-14">
-                    <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4.5" />
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(40, 95%, 64%)" strokeWidth="4.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.carbs / targets.carbs) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xs font-semibold text-foreground">{loggedTotals.carbs}g</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-foreground/70 font-medium">Carbs</span>
-                  <span className="text-[9px] text-foreground/50">{remaining.carbs > 0 ? `${remaining.carbs}g left` : "Done"}</span>
-                </div>
-                <div className="flex flex-col items-center gap-1.5">
-                  <div className="relative w-14 h-14">
-                    <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(var(--muted))" strokeWidth="4.5" />
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="hsl(350, 80%, 65%)" strokeWidth="4.5" strokeDasharray={`${Math.min(Math.round((loggedTotals.fat / targets.fat) * 100), 100)}, 100`} strokeLinecap="round" className="transition-all duration-700" />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xs font-semibold text-foreground">{loggedTotals.fat}g</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-foreground/70 font-medium">Fat</span>
-                  <span className="text-[9px] text-foreground/50">{remaining.fat > 0 ? `${remaining.fat}g left` : "Done"}</span>
-                </div>
+                <MacroRing value={loggedTotals.protein} max={targets.protein} label="Protein" color="hsl(210 80% 60%)" size={64} />
+                <MacroRing value={loggedTotals.carbs} max={targets.carbs} label="Carbs" color="hsl(35 85% 55%)" size={64} />
+                <MacroRing value={loggedTotals.fat} max={targets.fat} label="Fat" color="hsl(340 70% 60%)" size={64} />
               </div>
             </div>
 
