@@ -150,17 +150,28 @@ const DashboardWorkouts = () => {
 
   const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
 
-  const filteredWorkouts = workouts.filter((w) => {
+  const filteredWorkouts = useMemo(() => workouts.filter((w) => {
     const matchesSearch = !searchQuery || w.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !selectedCategory || w.category.toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
-  });
+  }), [workouts, searchQuery, selectedCategory]);
+
+  // Free users: first N of whatever the user is currently viewing are unlocked,
+  // remaining are locked. Computing from the filtered list ensures category
+  // filters never hide every unlocked workout.
+  const lockedWorkoutIds = useMemo(() => {
+    if (hasPremiumAccess) return new Set<string>();
+    const unlocked = Math.max(0, freeWorkoutsRemaining);
+    return new Set<string>(filteredWorkouts.slice(unlocked).map((w: any) => w.id));
+  }, [hasPremiumAccess, freeWorkoutsRemaining, filteredWorkouts]);
 
   const recentlyAdded = workouts.filter((w) => w.created_at >= weekStart);
   const savedWorkouts = workouts.filter((w) => favorites.includes(w.id));
-  const featuredWorkouts = workouts.filter((w) => w.is_featured).length > 0
-    ? workouts.filter((w) => w.is_featured)
-    : [...workouts].sort(() => 0.5 - Math.random()).slice(0, 6);
+  const featuredWorkouts = useMemo(() => {
+    const featured = workouts.filter((w) => w.is_featured);
+    if (featured.length > 0) return featured;
+    return [...workouts].sort(() => 0.5 - Math.random()).slice(0, 6);
+  }, [workouts]);
 
   const getWorkoutThumbnail = (workout: Workout): string | null => {
     if (workout.thumbnail_url) return workout.thumbnail_url;
