@@ -327,7 +327,7 @@ const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
                             target_date: d ? d.toISOString().slice(0, 10) : null,
                           })
                         }
-                        disabled={(d) => d < new Date()}
+                        disabled={(d) => d < today}
                         initialFocus
                         className="p-3 pointer-events-auto"
                       />
