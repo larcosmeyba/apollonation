@@ -18,6 +18,7 @@ import PrivacyDataView from "@/components/dashboard/PrivacyDataView";
 import ReportBugView from "@/components/dashboard/ReportBugView";
 import PushPermissionModal from "@/components/PushPermissionModal";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
+import { useMessages } from "@/hooks/useMessages";
 import {
   AlertDialog,
   AlertDialogAction,
