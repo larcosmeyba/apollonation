@@ -306,19 +306,18 @@ const DashboardWorkouts = () => {
                   <button
                     key={type}
                     onClick={() => setSelectedCategory(type)}
-                    className="relative rounded-2xl overflow-hidden h-24 group text-left shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+                    className="img-overlay-premium relative h-24 group text-left shadow-[var(--shadow-md)]"
                   >
                     {TYPE_IMAGES[type] ? (
                       <img
                         src={TYPE_IMAGES[type]}
                         alt={type}
-                        className="w-full h-full object-cover object-[center_30%] group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover object-[center_30%]"
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900" />
                     )}
-                    <div className="absolute inset-0 bg-black/50 group-hover:bg-black/35 transition-colors" />
-                    <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white drop-shadow-lg">
+                    <span className="absolute inset-0 z-10 flex items-center justify-center text-sm font-bold text-white drop-shadow-lg">
                       {type}
                     </span>
                   </button>
