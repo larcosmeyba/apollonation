@@ -130,7 +130,7 @@ const DashboardTraining = () => {
       ? new Date(plan.client_questionnaires.cycle_start_date)
       : new Date(plan.created_at);
 
-    const diffDays = Math.floor((date.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = differenceInCalendarDays(date, cycleStart);
     if (diffDays < 0) return null;
 
     const totalDays = plan.duration_weeks * 7;
