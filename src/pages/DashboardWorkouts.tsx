@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -100,13 +100,8 @@ const DashboardWorkouts = () => {
     },
   });
 
-  // Free users see the first N workouts unlocked, the rest locked behind /subscribe.
-  // N = remaining quota (so a user who already used 2 sees 3 unlocked).
-  const lockedWorkoutIds = (() => {
-    if (hasPremiumAccess) return new Set<string>();
-    const unlocked = Math.max(0, freeWorkoutsRemaining);
-    return new Set<string>(workouts.slice(unlocked).map((w: any) => w.id));
-  })();
+  // Lock set is computed AFTER the filtered list (see below) so category filtering
+  // doesn't cause all unlocked items to fall outside the user's view.
 
   const { data: workoutExercises = [] } = useQuery({
     queryKey: ["workout-exercises", selectedWorkout?.id],
@@ -155,17 +150,28 @@ const DashboardWorkouts = () => {
 
   const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
 
-  const filteredWorkouts = workouts.filter((w) => {
+  const filteredWorkouts = useMemo(() => workouts.filter((w) => {
     const matchesSearch = !searchQuery || w.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !selectedCategory || w.category.toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
-  });
+  }), [workouts, searchQuery, selectedCategory]);
+
+  // Free users: first N of whatever the user is currently viewing are unlocked,
+  // remaining are locked. Computing from the filtered list ensures category
+  // filters never hide every unlocked workout.
+  const lockedWorkoutIds = useMemo(() => {
+    if (hasPremiumAccess) return new Set<string>();
+    const unlocked = Math.max(0, freeWorkoutsRemaining);
+    return new Set<string>(filteredWorkouts.slice(unlocked).map((w: any) => w.id));
+  }, [hasPremiumAccess, freeWorkoutsRemaining, filteredWorkouts]);
 
   const recentlyAdded = workouts.filter((w) => w.created_at >= weekStart);
   const savedWorkouts = workouts.filter((w) => favorites.includes(w.id));
-  const featuredWorkouts = workouts.filter((w) => w.is_featured).length > 0
-    ? workouts.filter((w) => w.is_featured)
-    : [...workouts].sort(() => 0.5 - Math.random()).slice(0, 6);
+  const featuredWorkouts = useMemo(() => {
+    const featured = workouts.filter((w) => w.is_featured);
+    if (featured.length > 0) return featured;
+    return [...workouts].sort(() => 0.5 - Math.random()).slice(0, 6);
+  }, [workouts]);
 
   const getWorkoutThumbnail = (workout: Workout): string | null => {
     if (workout.thumbnail_url) return workout.thumbnail_url;

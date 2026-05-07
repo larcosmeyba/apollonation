@@ -200,34 +200,44 @@ const ExerciseRow = ({
               <span>Weight</span>
               <span>Reps</span>
             </div>
-            {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
-              const log = setLogs.find(l => l.set_number === setNum);
-              const prevLog = previousSetLogs.find(l => l.set_number === setNum);
+            {(() => {
+              const isDescriptiveReps = typeof exercise.reps === "string" && exercise.reps && isNaN(Number(String(exercise.reps).split("-")[0]));
               return (
-                <div key={setNum} className="grid grid-cols-[28px_1fr_1fr] gap-2 items-center">
-                  <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
-                    className="h-8 text-xs text-center px-1"
-                    value={log?.weight ?? ""}
-                    onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
-                  />
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    placeholder={prevLog?.reps_completed ? String(prevLog.reps_completed) : (exercise.reps || "—")}
-                    className="h-8 text-xs text-center px-1"
-                    value={log?.reps_completed ?? ""}
-                    onChange={(e) => {
-                      onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
-                      if (e.target.value) setShowTimer(true);
-                    }}
-                  />
-                </div>
+                <>
+                  {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
+                    const log = setLogs.find(l => l.set_number === setNum);
+                    const prevLog = previousSetLogs.find(l => l.set_number === setNum);
+                    return (
+                      <div key={setNum} className="grid grid-cols-[28px_1fr_1fr] gap-2 items-center">
+                        <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
+                          className="h-8 text-xs text-center px-1"
+                          value={log?.weight ?? ""}
+                          onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
+                        />
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          placeholder={isDescriptiveReps ? "—" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : (exercise.reps || "—"))}
+                          className="h-8 text-xs text-center px-1"
+                          value={log?.reps_completed ?? ""}
+                          onChange={(e) => {
+                            onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
+                            if (e.target.value) setShowTimer(true);
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                  {isDescriptiveReps && (
+                    <p className="text-[10px] text-foreground/40 italic mt-0.5">Target: {exercise.reps}</p>
+                  )}
+                </>
               );
-            })}
+            })()}
             {showTimer && exercise.rest_seconds && (
               <InlineRestTimer seconds={exercise.rest_seconds} />
             )}
@@ -481,33 +491,29 @@ const DashboardWorkoutDetail = () => {
 
   // Save mutations
   const saveSetLogMutation = useMutation({
-    mutationFn: async ({ exerciseId, setNumber, field, value }: { exerciseId: string; setNumber: number; field: string; value: number | null }) => {
+    mutationFn: async ({ exerciseId, setNumber, weight, reps }: { exerciseId: string; setNumber: number; weight: number | null; reps: number | null }) => {
       if (!user || !dayId) return;
-      await (supabase as any)
-        .from("exercise_set_logs")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("training_plan_exercise_id", exerciseId)
-        .eq("set_number", setNumber)
-        .eq("log_date", dateParam);
-
-      const currentLogs = localSetLogs[exerciseId] || [];
-      const existing = currentLogs.find(l => l.set_number === setNumber);
-      const newLog = { ...(existing || { set_number: setNumber, weight: null, reps_completed: null }), [field]: value };
-
-      if (newLog.weight !== null || newLog.reps_completed !== null) {
+      if (weight === null && reps === null) {
         await (supabase as any)
           .from("exercise_set_logs")
-          .insert({
-            user_id: user.id,
-            training_plan_exercise_id: exerciseId,
-            day_id: dayId,
-            set_number: setNumber,
-            weight: newLog.weight,
-            reps_completed: newLog.reps_completed,
-            log_date: dateParam,
-          });
+          .delete()
+          .eq("user_id", user.id)
+          .eq("training_plan_exercise_id", exerciseId)
+          .eq("set_number", setNumber)
+          .eq("log_date", dateParam);
+        return;
       }
+      await (supabase as any)
+        .from("exercise_set_logs")
+        .upsert({
+          user_id: user.id,
+          training_plan_exercise_id: exerciseId,
+          day_id: dayId,
+          set_number: setNumber,
+          weight,
+          reps_completed: reps,
+          log_date: dateParam,
+        }, { onConflict: "user_id,training_plan_exercise_id,log_date,set_number" });
     },
   });
 
@@ -551,16 +557,32 @@ const DashboardWorkoutDetail = () => {
     },
   });
 
+  // Per-(exerciseId,setNumber) debounce timers so rapid typing only fires the final upsert.
+  const setLogTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
   const handleSetLogChange = useCallback((exerciseId: string, setNumber: number, field: "weight" | "reps_completed", value: number | null) => {
+    let nextWeight: number | null = null;
+    let nextReps: number | null = null;
     setLocalSetLogs(prev => {
       const current = prev[exerciseId] || [];
       const existing = current.find(l => l.set_number === setNumber);
+      const merged = existing
+        ? { ...existing, [field]: value }
+        : { set_number: setNumber, weight: null, reps_completed: null, [field]: value };
+      nextWeight = (merged as any).weight ?? null;
+      nextReps = (merged as any).reps_completed ?? null;
       if (existing) {
-        return { ...prev, [exerciseId]: current.map(l => l.set_number === setNumber ? { ...l, [field]: value } : l) };
+        return { ...prev, [exerciseId]: current.map(l => l.set_number === setNumber ? merged : l) };
       }
-      return { ...prev, [exerciseId]: [...current, { set_number: setNumber, weight: null, reps_completed: null, [field]: value }] };
+      return { ...prev, [exerciseId]: [...current, merged] };
     });
-    saveSetLogMutation.mutate({ exerciseId, setNumber, field, value });
+
+    const key = `${exerciseId}:${setNumber}`;
+    if (setLogTimersRef.current[key]) clearTimeout(setLogTimersRef.current[key]);
+    setLogTimersRef.current[key] = setTimeout(() => {
+      saveSetLogMutation.mutate({ exerciseId, setNumber, weight: nextWeight, reps: nextReps });
+      delete setLogTimersRef.current[key];
+    }, 400);
   }, [saveSetLogMutation]);
 
   const handleNoteChange = useCallback((exerciseId: string, note: string) => {
@@ -575,23 +597,18 @@ const DashboardWorkoutDetail = () => {
   const handleToggleComplete = useCallback((exerciseId: string, completed: boolean) => {
     setLocalNotes(prev => {
       const existing = prev[exerciseId] || { note: "", is_completed: false };
-      return { ...prev, [exerciseId]: { ...existing, is_completed: completed } };
-    });
-    const note = localNotes[exerciseId]?.note || "";
-    saveNoteMutation.mutate({ exerciseId, note, isCompleted: completed });
-
-    if (completed && dayData?.training_plan_exercises) {
-      const exercises = dayData.training_plan_exercises;
-      const allDone = exercises.every((ex: any) => {
-        if (ex.id === exerciseId) return true;
-        return localNotes[ex.id]?.is_completed || false;
-      });
-      if (allDone && !sessionLog?.completed_at) {
-        saveSessionMutation.mutate();
-        setTimeout(() => setShowComplete(true), 300);
+      const next = { ...prev, [exerciseId]: { ...existing, is_completed: completed } };
+      saveNoteMutation.mutate({ exerciseId, note: existing.note, isCompleted: completed });
+      if (completed && dayData?.training_plan_exercises && !sessionLog?.completed_at) {
+        const allDone = dayData.training_plan_exercises.every((ex: any) => next[ex.id]?.is_completed);
+        if (allDone) {
+          saveSessionMutation.mutate();
+          setTimeout(() => setShowComplete(true), 300);
+        }
       }
-    }
-  }, [localNotes, dayData, saveNoteMutation, saveSessionMutation, sessionLog]);
+      return next;
+    });
+  }, [dayData, sessionLog, saveNoteMutation, saveSessionMutation]);
 
   // Swap
   const handleSwapExercise = async (exercise: any) => {
@@ -633,6 +650,8 @@ const DashboardWorkoutDetail = () => {
   const totalExercises = exercises.length;
   const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length;
   const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
+  const displayCompleted = sessionLog?.completed_at ? totalExercises : completedExercises;
+  const displayPercent = sessionLog?.completed_at ? 100 : progressPercent;
 
   return (
     <DashboardLayout>
@@ -696,13 +715,13 @@ const DashboardWorkoutDetail = () => {
             {totalExercises > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-muted-foreground">{completedExercises}/{totalExercises} exercises</span>
-                  <span className="text-xs text-muted-foreground">{Math.round(progressPercent)}%</span>
+                  <span className="text-xs text-muted-foreground">{displayCompleted}/{totalExercises} exercises</span>
+                  <span className="text-xs text-muted-foreground">{Math.round(displayPercent)}%</span>
                 </div>
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full bg-foreground rounded-full transition-all duration-500"
-                    style={{ width: `${progressPercent}%` }}
+                    style={{ width: `${displayPercent}%` }}
                   />
                 </div>
               </div>

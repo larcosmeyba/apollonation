@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Play, Flame, MessageCircle, User, Lock, Dumbbell } from "lucide-react";
+import { Home, Play, Flame, User, Lock, Dumbbell } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { isWeb } from "@/lib/platform";
 
@@ -8,7 +8,6 @@ const baseTabs = [
   { label: "On Demand", href: "/dashboard/workouts", icon: Play, lockKey: null },
   { label: "My Plan", href: "/dashboard/my-workouts", icon: Dumbbell, lockKey: null as null | "premium" | "elite" },
   { label: "Fuel", href: "/dashboard/nutrition", icon: Flame, lockKey: "premium" as const },
-  { label: "Messages", href: "/dashboard/messages", icon: MessageCircle, lockKey: "elite" as const },
   { label: "Profile", href: "/dashboard/profile", icon: User, lockKey: null },
 ];
 
@@ -50,7 +49,7 @@ const DashboardBottomTabs = () => {
               )}
               <div className="relative">
                 <tab.icon
-                  className={`w-[18px] h-[18px] transition-colors ${active ? "text-foreground" : "text-foreground/40"}`}
+                  className={`w-5 h-5 transition-colors ${active ? "text-foreground" : "text-foreground/40"}`}
                   strokeWidth={active ? 2.5 : 1.5}
                 />
                 {locked && (
@@ -63,7 +62,7 @@ const DashboardBottomTabs = () => {
                 )}
               </div>
               <span
-                className={`text-[8.5px] tracking-[0.08em] uppercase transition-colors truncate max-w-full ${
+                className={`text-[10px] tracking-normal uppercase transition-colors truncate max-w-full ${
                   active ? "text-foreground font-bold" : "text-foreground/35 font-medium"
                 }`}
               >

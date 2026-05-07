@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -84,6 +84,11 @@ interface Props {
 
 const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
   const { toast } = useToast();
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
   const [step, setStep] = useState(0);
   const [data, setData] = useState<QuestionnairePayload>({
     goals: [],
@@ -322,7 +327,7 @@ const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
                             target_date: d ? d.toISOString().slice(0, 10) : null,
                           })
                         }
-                        disabled={(d) => d < new Date()}
+                        disabled={(d) => d < today}
                         initialFocus
                         className="p-3 pointer-events-auto"
                       />

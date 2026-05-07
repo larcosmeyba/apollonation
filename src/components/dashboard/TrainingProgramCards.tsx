@@ -158,15 +158,16 @@ const TrainingProgramCards = () => {
           return (
             <button
               key={program.id}
+              disabled={!program.durations?.length}
               onClick={() => {
                 if (!canAccessProgram()) {
                   navigate("/subscribe?reason=programs");
                   return;
                 }
                 setSelected(program);
-                setSelectedDuration(program.durations[0]);
+                setSelectedDuration(program.durations?.[0] ?? null);
               }}
-              className="flex-shrink-0 w-52 rounded-2xl overflow-hidden relative group text-left border border-border hover:border-foreground/20 transition-all"
+              className="flex-shrink-0 w-52 rounded-2xl overflow-hidden relative group text-left border border-border hover:border-foreground/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {/* Cover Image */}
               <div className="relative h-72">
@@ -297,6 +298,8 @@ const TrainingProgramCards = () => {
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Program...
                     </>
+                  ) : !selectedDuration ? (
+                    "No durations available"
                   ) : (
                     `Start ${selectedDuration}-Week Program`
                   )}
