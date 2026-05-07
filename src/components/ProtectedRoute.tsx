@@ -37,6 +37,9 @@ const ProtectedRoute = ({ children, requireElite = false }: ProtectedRouteProps)
         <div className="text-center max-w-md space-y-4">
           <h1 className="font-heading text-2xl">Account Frozen</h1>
           <p className="text-muted-foreground">Your account has been temporarily frozen. Please contact Coach Marcos for assistance.</p>
+          <Button variant="outline" onClick={signOut} className="mt-4">
+            Sign out
+          </Button>
         </div>
       </div>
     );
