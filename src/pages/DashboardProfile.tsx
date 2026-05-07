@@ -708,7 +708,7 @@ const DashboardProfile = () => {
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <h1 className="font-heading text-display-md text-foreground">
                 {profile?.display_name || "Member"}
               </h1>
               <div className="flex items-center gap-1.5 mt-1">

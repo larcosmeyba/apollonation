@@ -248,7 +248,7 @@ const DashboardWorkouts = () => {
     <DashboardLayout>
       <div className="max-w-xl mx-auto space-y-6">
         <div className="flex items-center justify-between pt-2">
-          <h1 className="text-3xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <h1 className="font-heading text-display-md text-foreground">
             On Demand
           </h1>
           <button

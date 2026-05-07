@@ -867,7 +867,7 @@ const DashboardNutrition = () => {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <div>
-            <h1 className="font-heading text-2xl md:text-3xl tracking-wide mb-1">Fuel</h1>
+            <h1 className="font-heading text-display-md mb-1">Fuel</h1>
             <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
           </div>
 
