@@ -18,6 +18,7 @@ const DashboardBottomTabs = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { hasPremiumAccess, hasEliteAccess } = useAccessControl();
+  const { unreadCount } = useMessages();
 
   const isActive = (href: string) => location.pathname === href;
   const isLocked = (lockKey: typeof tabs[number]["lockKey"]) => {
