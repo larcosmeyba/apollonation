@@ -13,7 +13,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireElite = false }: ProtectedRouteProps) => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminStatus();
   const { hasQuestionnaire, loading: questionnaireLoading } = useQuestionnaire(user?.id);
   const location = useLocation();
