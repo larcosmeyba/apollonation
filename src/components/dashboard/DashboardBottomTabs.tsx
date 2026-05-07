@@ -49,7 +49,7 @@ const DashboardBottomTabs = () => {
               )}
               <div className="relative">
                 <tab.icon
-                  className={`w-[18px] h-[18px] transition-colors ${active ? "text-foreground" : "text-foreground/40"}`}
+                  className={`w-5 h-5 transition-colors ${active ? "text-foreground" : "text-foreground/40"}`}
                   strokeWidth={active ? 2.5 : 1.5}
                 />
                 {locked && (
@@ -62,7 +62,7 @@ const DashboardBottomTabs = () => {
                 )}
               </div>
               <span
-                className={`text-[8.5px] tracking-[0.08em] uppercase transition-colors truncate max-w-full ${
+                className={`text-[10px] tracking-normal uppercase transition-colors truncate max-w-full ${
                   active ? "text-foreground font-bold" : "text-foreground/35 font-medium"
                 }`}
               >
