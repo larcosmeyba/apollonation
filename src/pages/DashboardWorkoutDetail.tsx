@@ -117,9 +117,22 @@ const ExerciseRow = ({
   const [videoOpen, setVideoOpen] = useState(false);
   const [noteExpanded, setNoteExpanded] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
+  const [justCompleted, setJustCompleted] = useState(false);
 
   const isCompleted = exerciseNote?.is_completed || false;
   const totalSets = exercise.sets || 3;
+
+  useEffect(() => {
+    if (isCompleted) {
+      setJustCompleted(true);
+      const t = setTimeout(() => setJustCompleted(false), 800);
+      return () => clearTimeout(t);
+    }
+  }, [isCompleted]);
+
+  const previousMaxWeight = Math.max(0, ...previousSetLogs.map((l) => l.weight ?? 0));
+  const isPR = (weight: number | null) =>
+    weight !== null && weight > previousMaxWeight && previousMaxWeight > 0;
 
   const { data: exerciseData } = useQuery({
     queryKey: ["exercise-tile", exercise.exercise_name],
@@ -143,7 +156,7 @@ const ExerciseRow = ({
 
   return (
     <>
-      <div className={`rounded-xl border bg-card overflow-hidden transition-all ${isCompleted ? "border-green-500/30 opacity-70" : "border-border"}`}>
+      <div className={`rounded-xl border bg-card overflow-hidden transition-all ${isCompleted ? "border-green-500/30 opacity-70" : "border-border"} ${justCompleted ? "ring-2 ring-green-500/40" : ""}`}>
         {/* Header */}
         <div className="flex items-start gap-3 p-4 pb-2">
           <Checkbox
@@ -208,7 +221,7 @@ const ExerciseRow = ({
                     const log = setLogs.find(l => l.set_number === setNum);
                     const prevLog = previousSetLogs.find(l => l.set_number === setNum);
                     return (
-                      <div key={setNum} className="grid grid-cols-[28px_1fr_1fr] gap-2 items-center">
+                      <div key={setNum} className="relative grid grid-cols-[28px_1fr_1fr] gap-2 items-center">
                         <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
                         <Input
                           type="number"
@@ -229,6 +242,11 @@ const ExerciseRow = ({
                             if (e.target.value) setShowTimer(true);
                           }}
                         />
+                        {isPR(log?.weight ?? null) && (
+                          <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-gradient-to-br from-[hsl(var(--apollo-gold-light))] to-[hsl(var(--apollo-gold-dark))] text-background shadow-[var(--shadow-glow-gold)]">
+                            PR
+                          </span>
+                        )}
                       </div>
                     );
                   })}
