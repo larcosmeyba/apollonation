@@ -80,6 +80,7 @@ const openUrl = (url: string) => {
 const WORKOUT_TYPES = ["Cardio", "Sculpt", "Strength", "HIIT", "Stretch", "Yoga", "Core", "Senior"];
 
 const DashboardProfile = () => {
+  const navigate = useNavigate();
   const { profile, refreshProfile, user, signOut } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
