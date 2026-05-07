@@ -18,12 +18,14 @@ interface TodayRow {
 
 const AppleHealthCard = () => {
   const { user } = useAuth();
-  const { available, connected, syncing, lastSyncAt, error, connect, sync } = useAppleHealth();
+  const { available, connected, syncing, lastSyncAt, error: rawError, connect, sync } = useAppleHealth();
+  const error = rawError && /not implemented|not available/i.test(rawError)
+    ? "Apple Health requires the latest app update"
+    : rawError;
   const [today, setToday] = useState<TodayRow | null>(null);
 
-  // Hide entirely on web and on Android — Apple Health is iOS-only
+  // Apple Health is iOS-only — compute platform but DO NOT early-return before hooks.
   const isIOS = isNative() && Capacitor.getPlatform() === "ios";
-  if (!isIOS) return null;
 
   useEffect(() => {
     if (!user) return;
@@ -38,6 +40,7 @@ const AppleHealthCard = () => {
       .then(({ data }: any) => setToday(data ?? null));
   }, [user, lastSyncAt]);
 
+  if (!isIOS) return null;
   if (!available) return null;
 
   if (!connected) {

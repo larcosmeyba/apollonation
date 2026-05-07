@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Lock, Sparkles } from "lucide-react";
@@ -9,7 +9,7 @@ import MyWorkoutsQuestionnaire, {
 } from "@/components/dashboard/MyWorkoutsQuestionnaire";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isWeb } from "@/lib/platform";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyWorkoutsAccess } from "@/hooks/useMyWorkoutsAccess";
@@ -17,9 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const DashboardMyWorkouts = () => {
-  // Web-only — native shells get redirected to existing training tab.
-  if (!isWeb()) return <Navigate to="/dashboard/training" replace />;
-
+  // Route is gated in App.tsx for native — no in-component guard (would violate Rules of Hooks).
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();

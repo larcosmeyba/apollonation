@@ -3098,6 +3098,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_free_recipes_viewed: {
+        Args: { p_recipe_id?: string; p_user_id: string }
+        Returns: number
+      }
+      increment_free_workouts_used: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
       is_blocked: {
         Args: { _blocked: string; _blocker: string }
         Returns: boolean

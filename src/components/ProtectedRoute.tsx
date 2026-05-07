@@ -2,6 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useQuestionnaire } from "@/hooks/useQuestionnaire";
+import { Button } from "@/components/ui/button";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,7 +13,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireElite = false }: ProtectedRouteProps) => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminStatus();
   const { hasQuestionnaire, loading: questionnaireLoading } = useQuestionnaire(user?.id);
   const location = useLocation();
@@ -36,6 +37,9 @@ const ProtectedRoute = ({ children, requireElite = false }: ProtectedRouteProps)
         <div className="text-center max-w-md space-y-4">
           <h1 className="font-heading text-2xl">Account Frozen</h1>
           <p className="text-muted-foreground">Your account has been temporarily frozen. Please contact Coach Marcos for assistance.</p>
+          <Button variant="outline" onClick={signOut} className="mt-4">
+            Sign out
+          </Button>
         </div>
       </div>
     );
