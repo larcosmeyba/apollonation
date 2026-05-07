@@ -11,7 +11,7 @@ import {
 import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
 import { Link } from "react-router-dom";
 import {
-  format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday,
+  format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday, differenceInCalendarDays,
 } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
