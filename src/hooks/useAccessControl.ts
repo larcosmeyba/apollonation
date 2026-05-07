@@ -139,51 +139,31 @@ export function useAccessControl(): AccessControl {
 
   const recordWorkoutUsage = useCallback(async () => {
     if (hasPremiumAccess || !userId) return;
-    const nextCount = freeWorkoutsUsed + 1;
-    const { error } = await (supabase as any)
-      .from("free_usage")
-      .upsert(
-        {
-          user_id: userId,
-          free_workouts_used_count: nextCount,
-          last_updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" }
-      );
+    const { error } = await (supabase as any).rpc("increment_free_workouts_used", {
+      p_user_id: userId,
+    });
     if (error) {
       console.error("[useAccessControl] recordWorkoutUsage failed", error.message);
       return;
     }
     queryClient.invalidateQueries({ queryKey: ["free_usage", userId] });
-  }, [hasPremiumAccess, userId, freeWorkoutsUsed, queryClient]);
+  }, [hasPremiumAccess, userId, queryClient]);
 
   const recordRecipeUsage = useCallback(
     async (recipeId?: string) => {
       if (hasPremiumAccess || !userId) return;
-      // De-dup on recipe id so re-opens don't double-count
       if (recipeId && viewedRecipeIds.includes(recipeId)) return;
-      const nextIds = recipeId
-        ? Array.from(new Set([...viewedRecipeIds, recipeId]))
-        : viewedRecipeIds;
-      const nextCount = recipeId ? nextIds.length : freeRecipesViewed + 1;
-      const { error } = await (supabase as any)
-        .from("free_usage")
-        .upsert(
-          {
-            user_id: userId,
-            free_recipes_viewed_count: nextCount,
-            viewed_recipe_ids: nextIds,
-            last_updated_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id" }
-        );
+      const { error } = await (supabase as any).rpc("increment_free_recipes_viewed", {
+        p_user_id: userId,
+        p_recipe_id: recipeId ?? null,
+      });
       if (error) {
         console.error("[useAccessControl] recordRecipeUsage failed", error.message);
         return;
       }
       queryClient.invalidateQueries({ queryKey: ["free_usage", userId] });
     },
-    [hasPremiumAccess, userId, freeRecipesViewed, viewedRecipeIds, queryClient]
+    [hasPremiumAccess, userId, viewedRecipeIds, queryClient]
   );
 
   const recordProgramUsage = useCallback(async () => {
