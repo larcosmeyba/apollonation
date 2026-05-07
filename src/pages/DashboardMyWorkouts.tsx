@@ -9,7 +9,7 @@ import MyWorkoutsQuestionnaire, {
 } from "@/components/dashboard/MyWorkoutsQuestionnaire";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isWeb } from "@/lib/platform";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyWorkoutsAccess } from "@/hooks/useMyWorkoutsAccess";
