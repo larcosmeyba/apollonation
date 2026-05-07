@@ -715,13 +715,13 @@ const DashboardWorkoutDetail = () => {
             {totalExercises > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-muted-foreground">{completedExercises}/{totalExercises} exercises</span>
-                  <span className="text-xs text-muted-foreground">{Math.round(progressPercent)}%</span>
+                  <span className="text-xs text-muted-foreground">{displayCompleted}/{totalExercises} exercises</span>
+                  <span className="text-xs text-muted-foreground">{Math.round(displayPercent)}%</span>
                 </div>
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full bg-foreground rounded-full transition-all duration-500"
-                    style={{ width: `${progressPercent}%` }}
+                    style={{ width: `${displayPercent}%` }}
                   />
                 </div>
               </div>
