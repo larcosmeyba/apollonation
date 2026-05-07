@@ -650,6 +650,8 @@ const DashboardWorkoutDetail = () => {
   const totalExercises = exercises.length;
   const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length;
   const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
+  const displayCompleted = sessionLog?.completed_at ? totalExercises : completedExercises;
+  const displayPercent = sessionLog?.completed_at ? 100 : progressPercent;
 
   return (
     <DashboardLayout>
