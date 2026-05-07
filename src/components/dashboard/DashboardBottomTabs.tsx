@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Play, Flame, MessageCircle, User, Lock, Dumbbell } from "lucide-react";
+import { Home, Play, Flame, User, Lock, Dumbbell } from "lucide-react";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import { isWeb } from "@/lib/platform";
 
@@ -8,7 +8,6 @@ const baseTabs = [
   { label: "On Demand", href: "/dashboard/workouts", icon: Play, lockKey: null },
   { label: "My Plan", href: "/dashboard/my-workouts", icon: Dumbbell, lockKey: null as null | "premium" | "elite" },
   { label: "Fuel", href: "/dashboard/nutrition", icon: Flame, lockKey: "premium" as const },
-  { label: "Messages", href: "/dashboard/messages", icon: MessageCircle, lockKey: "elite" as const },
   { label: "Profile", href: "/dashboard/profile", icon: User, lockKey: null },
 ];
 
