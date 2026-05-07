@@ -23,7 +23,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </div>
 
         {/* Page content */}
-        <main className="flex-1 px-4 py-5 lg:px-8 lg:py-6 overflow-auto pb-24 lg:pb-6 min-h-0">
+        <main
+          className="flex-1 px-4 py-5 lg:px-8 lg:py-6 overflow-auto lg:pb-6 min-h-0"
+          style={{
+            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 6rem)",
+          }}
+        >
           {children}
         </main>
 

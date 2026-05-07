@@ -6,7 +6,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import {
   Dumbbell, ChevronRight, Play, Plus, Flame,
-  ChevronLeft, Loader2,
+  ChevronLeft, Loader2, Sparkles,
 } from "lucide-react";
 import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
 import { Link } from "react-router-dom";
@@ -153,7 +153,7 @@ const DashboardTraining = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-2xl tracking-wide">Programs</h1>
+            <h1 className="font-heading text-display-md">Programs</h1>
             <p className="text-xs text-foreground/30 mt-0.5">Structured training programs</p>
           </div>
           <Button
@@ -225,7 +225,7 @@ const DashboardTraining = () => {
           <div className="rounded-xl border border-border/20 overflow-hidden">
             <div className="p-4 pb-2 flex items-center justify-between">
               <div>
-                <p className="text-[9px] text-foreground/25 uppercase tracking-[0.25em] mb-0.5">Today's Workout</p>
+                <p className="text-eyebrow uppercase text-foreground/25 mb-0.5">Today's Workout</p>
                 <h2 className="font-heading text-lg text-foreground/80">
                   {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
                 </h2>
@@ -295,6 +295,12 @@ const DashboardTraining = () => {
             <div className="text-center py-5 px-4 -mt-4 relative z-10">
               <p className="font-heading text-base mb-1 text-foreground/70">Rest Day</p>
               <p className="text-xs text-foreground/30">Recovery is part of the process.</p>
+              <Link to="/dashboard/workouts?category=stretch" className="inline-block mt-3">
+                <Button variant="apollo-outline" size="sm" className="gap-1.5 text-xs">
+                  <Sparkles className="w-3 h-3" />
+                  Try a recovery session
+                </Button>
+              </Link>
             </div>
           </div>
         )}
