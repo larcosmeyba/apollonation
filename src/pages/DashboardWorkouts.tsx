@@ -100,13 +100,8 @@ const DashboardWorkouts = () => {
     },
   });
 
-  // Free users see the first N workouts unlocked, the rest locked behind /subscribe.
-  // N = remaining quota (so a user who already used 2 sees 3 unlocked).
-  const lockedWorkoutIds = (() => {
-    if (hasPremiumAccess) return new Set<string>();
-    const unlocked = Math.max(0, freeWorkoutsRemaining);
-    return new Set<string>(workouts.slice(unlocked).map((w: any) => w.id));
-  })();
+  // Lock set is computed AFTER the filtered list (see below) so category filtering
+  // doesn't cause all unlocked items to fall outside the user's view.
 
   const { data: workoutExercises = [] } = useQuery({
     queryKey: ["workout-exercises", selectedWorkout?.id],
