@@ -233,7 +233,6 @@ const ExerciseRow = ({
               <span className={isToFailure ? "text-[hsl(var(--apollo-gold-light))] font-medium" : "text-foreground/80 font-medium"}>
                 {repsTargetLabel}
               </span>
-              {exercise.rest_seconds ? <span>· {exercise.rest_seconds}s rest</span> : null}
               {exercise.muscle_group && <span>· <span className="capitalize">{exercise.muscle_group}</span></span>}
             </div>
           </div>
