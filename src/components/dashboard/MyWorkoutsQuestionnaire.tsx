@@ -150,6 +150,8 @@ const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
         return skipEquipment || data.equipment.length > 0;
       case 6:
         return data.training_days.length > 0;
+      case 7:
+        return data.workout_duration_minutes >= 30 && data.workout_duration_minutes <= 75;
       default:
         return true;
     }
