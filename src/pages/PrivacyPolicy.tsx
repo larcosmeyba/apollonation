@@ -41,95 +41,128 @@ const PrivacyPolicy = () => {
           <ul className="list-disc pl-6 space-y-2">
             <li>Name and display name</li>
             <li>Email address</li>
-            <li>Phone number</li>
-            <li>Payment information (processed securely through third-party payment processors)</li>
+            <li>Phone number (optional)</li>
             <li>Profile information (bio, fitness goals, avatar)</li>
-            <li>Photos uploaded for macro tracking features</li>
+            <li>Body metrics you log (weight, height, age, sex, body measurements)</li>
+            <li>Photos you choose to upload (meal photos, progress photos, workout-screen captures)</li>
+            <li>Workout, nutrition, and questionnaire responses</li>
+            <li>Messages you send to your assigned coach (Elite tier only)</li>
           </ul>
+          <p className="text-xs">
+            <strong>Payments:</strong> All subscription payments are processed by Apple (App Store) or Google (Play Store).
+            We never see, receive, or store your payment card details. We only receive an anonymized purchase token used to
+            verify your subscription status.
+          </p>
+
+          <h3 className="font-heading text-xl text-foreground">Health & Fitness Data (Apple Health / HealthKit)</h3>
+          <p>
+            On iOS, with your explicit permission, Apollo Reborn reads the following categories from Apple Health:
+            steps, distance, active calories, heart rate, resting heart rate, sleep analysis, workouts, and body weight.
+          </p>
+          <p className="font-medium text-foreground">
+            We do not — and will never — use HealthKit data for advertising, marketing, data mining, or sale to third
+            parties. HealthKit data is only used to personalize your training, surface progress to you in the app, and
+            (for Elite tier) share with your assigned coach so they can adjust your plan. You can revoke access at any
+            time in iPhone Settings → Privacy → Health → Apollo Reborn.
+          </p>
 
           <h3 className="font-heading text-xl text-foreground">Usage Information</h3>
           <p>We automatically collect certain information when you use our Services:</p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Device information (type, operating system, unique identifiers)</li>
-            <li>Log data (access times, pages viewed, IP address)</li>
-            <li>Workout and nutrition tracking data</li>
+            <li>Device information (model, operating system version)</li>
+            <li>Log data (access times, in-app screens viewed, IP address used to authenticate)</li>
+            <li>Crash diagnostics and technical errors</li>
             <li>App usage patterns and preferences</li>
           </ul>
+          <p className="text-xs">
+            We do <strong>not</strong> use third-party advertising SDKs, do <strong>not</strong> track you across other
+            apps and websites, and do <strong>not</strong> use Apple's IDFA. Our marketing site uses cookie-free
+            Plausible Analytics only.
+          </p>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">2. How We Use Your Information</h2>
           <p>We use the collected information to:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Provide, maintain, and improve our Services</li>
-            <li>Process transactions and send related information</li>
-            <li>Send promotional communications (with your consent)</li>
-            <li>Respond to your comments, questions, and requests</li>
-            <li>Monitor and analyze usage patterns</li>
-            <li>Personalize your experience and deliver content relevant to your fitness goals</li>
-            <li>Provide AI-powered macro tracking and nutritional analysis</li>
+            <li>Verify your subscription entitlement via App Store / Play Store receipts</li>
+            <li>Send transactional and account communications</li>
+            <li>Send promotional communications (only with your explicit opt-in)</li>
+            <li>Respond to your comments, questions, and support requests</li>
+            <li>Personalize your training plans, nutrition plans, and recommendations</li>
+            <li>Provide AI-powered macro estimates and meal planning (images and text are sent to Lovable AI Gateway / Google Gemini / OpenAI for inference and are not used by those providers to train models for other customers)</li>
+            <li>Detect, prevent, and address fraud, abuse, and security incidents</li>
           </ul>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">3. Sharing of Information</h2>
-          <p>We may share your information in the following situations:</p>
+          <p>
+            <strong className="text-foreground">We do not sell your personal information.</strong> We share information only as
+            described below:
+          </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong>Service Providers:</strong> With third-party vendors who perform services on our behalf</li>
-            <li><strong>Legal Requirements:</strong> If required by law or in response to valid legal process</li>
-            <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
-            <li><strong>With Your Consent:</strong> When you have given us permission to share your information</li>
+            <li><strong>Your assigned coach (Elite only):</strong> health, workout, nutrition, and questionnaire data so they can personalize your plan and answer questions you send them.</li>
+            <li><strong>Service Providers:</strong> bound by contract to process data only on our behalf (see Section 7).</li>
+            <li><strong>Legal Requirements:</strong> if required by law, subpoena, or valid legal process.</li>
+            <li><strong>Business Transfers:</strong> in connection with a merger, acquisition, or sale of assets, with notice to you.</li>
+            <li><strong>With Your Consent:</strong> when you explicitly direct us to share information.</li>
           </ul>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">4. Data Security</h2>
           <p>
-            We implement appropriate technical and organizational measures to protect your personal information. 
-            However, no method of transmission over the Internet or electronic storage is 100% secure. 
-            While we strive to protect your information, we cannot guarantee absolute security.
+            We implement appropriate technical and organizational measures to protect your personal information, including
+            encryption in transit (TLS), encryption at rest, row-level security on our database, signed-URL access to media,
+            and least-privilege access controls. However, no method of transmission or electronic storage is 100% secure.
           </p>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">5. Your Rights and Choices</h2>
-          <p>Depending on your location, you may have the right to:</p>
+          <p>You have the right to:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Access the personal information we hold about you</li>
             <li>Request correction of inaccurate information</li>
-            <li>Request deletion of your personal information</li>
-            <li>Opt out of promotional communications</li>
-            <li>Data portability</li>
+            <li>Request deletion of your account and personal information at any time, directly in the app via
+              Profile → Settings → Delete Account, or via our{" "}
+              <Link to="/account-deletion" className="text-primary hover:underline">Account Deletion page</Link>
+            </li>
+            <li>Opt out of promotional communications using the unsubscribe link in any email</li>
+            <li>Request a copy of your data (data portability)</li>
+            <li>Block, mute, or report any user content. We have a zero-tolerance policy for objectionable content and
+              act on reports within 24 hours (see Terms).</li>
           </ul>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">6. Children's Privacy</h2>
           <p>
-            Our Services are not intended for individuals under the age of 18. 
-            We do not knowingly collect personal information from children under 18. 
-            If we become aware that we have collected such information, we will take steps to delete it.
+            Our Services are not intended for individuals under the age of 18. We do not knowingly collect personal
+            information from children under 18. If you believe a child has provided us with personal information, please
+            contact us and we will delete it promptly.
           </p>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">7. Third-Party Services</h2>
-          <p>Apollo Reborn relies on the following third-party services to operate. Each handles only the data needed for its function and is bound by its own privacy policy:</p>
+          <p>Apollo Reborn relies on the following third-party services. Each handles only the data needed for its function and is bound by its own privacy policy:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li><strong>Supabase</strong> — authentication, database, file storage, and serverless backend functions.</li>
-            <li><strong>RevenueCat</strong> — subscription state management and in-app purchase receipt verification.</li>
-            <li><strong>Apple App Store</strong> — billing and payment processing for subscriptions.</li>
+            <li><strong>RevenueCat</strong> — App Store / Play Store receipt verification and subscription state.</li>
+            <li><strong>Apple App Store &amp; Google Play Store</strong> — billing and payment processing for subscriptions.</li>
+            <li><strong>Apple HealthKit</strong> — on-device source for the health categories listed above (iOS only).</li>
             <li><strong>Resend</strong> — transactional email delivery (account, security, and coach messages).</li>
-            <li><strong>Plausible Analytics</strong> — privacy-friendly, cookie-free traffic analytics on our marketing site.</li>
+            <li><strong>Lovable AI Gateway</strong> (Google Gemini, OpenAI) — AI inference for macro estimates and meal planning. Inputs are not used to train third-party models.</li>
+            <li><strong>Plausible Analytics</strong> — privacy-friendly, cookie-free traffic analytics on our marketing site only.</li>
           </ul>
-          <p>
-            We do not sell your personal information. Our Services may contain links to third-party websites; we are not responsible for their privacy practices.
-          </p>
 
-          <h2 className="font-heading text-2xl text-foreground mt-8">8. Data Retention</h2>
+          <h2 className="font-heading text-2xl text-foreground mt-8">8. Data Retention &amp; Deletion</h2>
           <p>
-            Apollo Reborn retains user data only for as long as necessary to provide services within the application.
+            User account information, workout history, training progress, nutrition preferences, photos, messages, and
+            questionnaire responses are stored while your account remains active.
           </p>
           <p>
-            User account information, workout history, training progress, nutrition preferences, and questionnaire 
-            responses are stored while the user account remains active.
-          </p>
-          <p>
-            <strong className="text-foreground">Deletion is immediate and permanent.</strong> When you delete your account from
-            within the app, your profile, plans, logs, photos, and messages are removed from our systems right away and cannot
-            be recovered. Limited records may be retained only where required for legal, financial, or security obligations.
+            <strong className="text-foreground">Deletion is immediate and permanent.</strong> When you delete your account
+            from inside the app (Profile → Settings → Delete Account) or via our public{" "}
+            <Link to="/account-deletion" className="text-primary hover:underline">Account Deletion page</Link>, your
+            profile, plans, logs, photos, and messages are removed from our systems right away and cannot be recovered.
+            Limited records may be retained only where required for legal, tax, or security obligations.
           </p>
           <p>
             Inactive accounts may be removed from our systems after an extended period of inactivity.
           </p>
+
 
           <h2 className="font-heading text-2xl text-foreground mt-8">9. Changes to This Policy</h2>
           <p>
