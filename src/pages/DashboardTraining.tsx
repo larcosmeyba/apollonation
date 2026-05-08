@@ -294,11 +294,36 @@ const DashboardTraining = () => {
             </div>
             <div className="text-center py-5 px-4 -mt-4 relative z-10">
               <p className="font-heading text-base mb-1 text-foreground/70">Rest Day</p>
-              <p className="text-xs text-foreground/30">Recovery is part of the process.</p>
-              <Link to="/dashboard/workouts?category=stretch" className="inline-block mt-3">
-                <Button variant="apollo-outline" size="sm" className="gap-1.5 text-xs">
+              <p className="text-xs text-foreground/30">Recovery is part of the process — pick one below.</p>
+            </div>
+
+            {/* Curated recovery activities */}
+            <div className="px-4 pb-4 space-y-2">
+              {[
+                { name: "Foam Roll Flow", time: "10 min", desc: "Roll quads, glutes, lats, upper back. 30 sec each side." },
+                { name: "Mobility Routine", time: "12 min", desc: "Hip openers, thoracic rotations, ankle circles, scap CARs." },
+                { name: "Easy Walk", time: "20–30 min", desc: "Zone 2 walk outside or on the treadmill at 3.0 mph." },
+                { name: "Box Breathing", time: "5 min", desc: "4-second inhale, 4 hold, 4 exhale, 4 hold. Reset your nervous system." },
+                { name: "Full-Body Stretch", time: "10 min", desc: "Hold each stretch 30–45 sec. Focus on tight areas." },
+                { name: "Sauna or Hot Shower", time: "15 min", desc: "Boost circulation and recovery. Hydrate after." },
+              ].map((act) => (
+                <div key={act.name} className="rounded-lg border border-border/20 p-3 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-foreground/[0.04] flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-3.5 h-3.5 text-foreground/40" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-foreground/80">{act.name}</p>
+                      <span className="text-[10px] text-foreground/40 uppercase tracking-wider">{act.time}</span>
+                    </div>
+                    <p className="text-[11px] text-foreground/50 mt-0.5 leading-relaxed">{act.desc}</p>
+                  </div>
+                </div>
+              ))}
+              <Link to="/dashboard/workouts?category=stretch" className="block pt-2">
+                <Button variant="apollo-outline" size="sm" className="w-full gap-1.5 text-xs">
                   <Sparkles className="w-3 h-3" />
-                  Try a recovery session
+                  Browse guided recovery sessions
                 </Button>
               </Link>
             </div>
