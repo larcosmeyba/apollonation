@@ -64,17 +64,17 @@ const TermsOfService = () => {
           <h2 className="font-heading text-2xl text-foreground mt-8">4. Subscription and Payments</h2>
           <p>
             Apollo Reborn offers a monthly plan and an annual plan. Subscriptions are sold and billed
-            exclusively through the Apple App Store. By subscribing, you agree to:
+            exclusively through the Apple App Store (iOS) and Google Play Store (Android). By subscribing, you agree to:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Pay all applicable fees as displayed in the Apple App Store at the time of purchase</li>
+            <li>Pay all applicable fees as displayed in the App Store or Play Store at the time of purchase</li>
             <li>Accept that subscriptions auto-renew at the end of each billing period unless cancelled at least 24 hours before renewal</li>
-            <li>Manage, switch, or cancel your subscription in your Apple ID account settings</li>
+            <li>Manage, switch, or cancel your subscription in your Apple ID or Google Play account settings</li>
             <li>Understand that uninstalling the app does not cancel your subscription</li>
           </ul>
           <p>
-            Refunds are governed by Apple's refund policy. We do not process payments directly and
-            cannot issue refunds for store-purchased subscriptions — please contact Apple Support.
+            Refunds are governed by Apple's and Google's respective refund policies. We do not process payments directly
+            and cannot issue refunds for store-purchased subscriptions — please contact Apple Support or Google Play Support.
           </p>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">4a. Third-Party Services</h2>
@@ -85,7 +85,8 @@ const TermsOfService = () => {
           <ul className="list-disc pl-6 space-y-2">
             <li><strong>Supabase</strong> — authentication, database, and file storage</li>
             <li><strong>RevenueCat</strong> — subscription management and entitlement validation</li>
-            <li><strong>Apple App Store</strong> — payment processing and billing</li>
+            <li><strong>Apple App Store &amp; Google Play Store</strong> — payment processing and billing</li>
+            <li><strong>Apple HealthKit</strong> — on-device health data source (iOS only, with your permission)</li>
             <li><strong>Resend</strong> — transactional email delivery</li>
             <li><strong>Lovable AI Gateway</strong> (Google Gemini, OpenAI) — AI-powered macro estimates and meal planning</li>
             <li><strong>Capacitor</strong> — native mobile runtime</li>
@@ -162,16 +163,30 @@ const TermsOfService = () => {
             without our express written permission.
           </p>
 
-          <h2 className="font-heading text-2xl text-foreground mt-8">10. User Conduct</h2>
-          <p>You agree not to:</p>
+          <h2 className="font-heading text-2xl text-foreground mt-8">10. User Conduct &amp; User-Generated Content</h2>
+          <p>
+            Apollo Reborn allows you to upload photos (meals, progress, workout screen captures), submit questionnaire
+            responses, and (for Elite tier) send direct messages to your assigned coach. You are solely responsible for the
+            content you submit. You agree not to:
+          </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Use the Services for any unlawful purpose</li>
             <li>Share your account credentials with others</li>
             <li>Attempt to circumvent any security features</li>
             <li>Upload malicious code or interfere with the Services</li>
-            <li>Harass, abuse, or harm other users</li>
+            <li>Harass, abuse, threaten, or harm other users or our coaches</li>
+            <li>Upload content that is sexually explicit, hateful, violent, harassing, defamatory, infringing,
+              discriminatory, or otherwise objectionable</li>
+            <li>Impersonate any person or misrepresent your affiliation</li>
             <li>Redistribute or resell our content</li>
           </ul>
+          <p className="font-medium text-foreground">
+            Zero tolerance for objectionable content and abusive users. We review every report within 24 hours, will
+            remove offending content, and may suspend or permanently ban the user who submitted it. To report abuse or
+            objectionable content, use the in-app Report option, the in-app Support → Contact Coach screen, or our{" "}
+            <Link to="/contact" className="text-primary hover:underline">Contact Portal</Link>. You may also block any
+            user at any time. We reserve the right to remove any content and terminate any account at our sole discretion.
+          </p>
 
           <h2 className="font-heading text-2xl text-foreground mt-8">11. Termination</h2>
           <p>
