@@ -93,6 +93,7 @@ interface ExerciseRowProps {
   setLogs: SetLog[];
   previousSetLogs: SetLog[];
   exerciseNote: ExerciseNote | null;
+  dayLabel?: string;
   onSetLogChange: (exerciseId: string, setNumber: number, field: "weight" | "reps_completed", value: number | null) => void;
   onNoteChange: (exerciseId: string, note: string) => void;
   onToggleComplete: (exerciseId: string, completed: boolean) => void;
