@@ -894,10 +894,10 @@ const DashboardWorkoutDetail = () => {
         {dayData && exercises.length > 0 && (
           <div className="space-y-6">
             {[
-              { key: "warmup", title: "Warm-Up Block", subtitle: "5 min · prep your body", list: warmupExercises, locked: false, doneCount: warmupExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: warmupDone },
+              { key: "warmup", title: "Warm-Up Block", subtitle: "5 min · prep your body", list: warmupExercises, locked: false, doneCount: hasGeneratedWarmup ? warmupExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length : (quickWarmupComplete ? 1 : 0), complete: warmupDone },
               { key: "main", title: "Main Workout", subtitle: "Today's training", list: mainExercises, locked: !warmupDone, doneCount: mainExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: mainDone },
               { key: "cooldown", title: "Cool-Down Block", subtitle: "5 min · stretches for today's muscles", list: cooldownExercises, locked: !warmupDone || !mainDone, doneCount: cooldownExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: allDoneIn(cooldownExercises) },
-            ].map((block) => block.list.length > 0 && (
+            ].map((block) => (block.list.length > 0 || block.key === "warmup") && (
               <div key={block.key} className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <div>
@@ -906,11 +906,13 @@ const DashboardWorkoutDetail = () => {
                   </div>
                   <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     {block.complete && <Check className="w-3.5 h-3.5 text-green-500" />}
-                    <span>{block.doneCount}/{block.list.length}</span>
+                    <span>{block.doneCount}/{block.key === "warmup" && !hasGeneratedWarmup ? 1 : block.list.length}</span>
                   </div>
                 </div>
                 <div className={`relative space-y-3 ${block.locked ? "opacity-50 pointer-events-none select-none" : ""}`}>
-                  {block.list.map((ex: any) => (
+                  {block.key === "warmup" && !hasGeneratedWarmup ? (
+                    <QuickWarmupCard complete={quickWarmupComplete} onComplete={toggleQuickWarmup} />
+                  ) : block.list.map((ex: any) => (
                     <ExerciseRow
                       key={ex.id}
                       exercise={ex}
