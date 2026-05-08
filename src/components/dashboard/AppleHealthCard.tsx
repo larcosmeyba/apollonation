@@ -116,33 +116,36 @@ const AppleHealthCard = () => {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-primary" />
-                Allow Apple Health access
+                {permissionStep === "system" ? <Loader2 className="w-5 h-5 text-primary animate-spin" /> : <ShieldCheck className="w-5 h-5 text-primary" />}
+                {permissionStep === "system" ? "Opening Apple Health…" : "Connect Apple Health"}
               </AlertDialogTitle>
               <AlertDialogDescription asChild>
                 <div className="space-y-3 text-sm">
                   <p>
-                    To personalize your training and track real progress, your coach needs to read these from Apple Health:
+                    Apollo Reborn will ask Apple for permission next. Turn on every category so your dashboard and coach see the full picture:
                   </p>
-                  <ul className="space-y-1.5 pl-1">
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps & distance</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate & resting heart rate</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Sleep analysis</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Workouts & weight</li>
+                  <ul className="grid grid-cols-1 gap-2 pl-1">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps, walking distance, and exercise minutes</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories and workouts</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate and resting heart rate</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Sleep analysis and body weight</li>
                   </ul>
-                  <p className="font-bold text-foreground">
-                    On the next screen, tap “Turn On All” so every category is enabled.
+                  <p className="rounded-lg border border-primary/20 bg-primary/10 p-3 font-bold text-foreground">
+                    On Apple’s permission screen, tap “Turn On All”, then tap “Allow”.
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Your data is private. It is only visible to you and your assigned coach. You can revoke access any time in iPhone Settings → Health.
+                  <p className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Settings className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                    If steps still show 0 after connecting, open Settings → Health → Data Access & Devices → Apollo Reborn and confirm Steps is enabled.
                   </p>
                 </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Not now</AlertDialogCancel>
-              <AlertDialogAction onClick={handleApprove}>Continue</AlertDialogAction>
+              <AlertDialogCancel disabled={syncing}>Not now</AlertDialogCancel>
+              <AlertDialogAction onClick={handleApprove} disabled={syncing}>
+                {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                Continue
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
