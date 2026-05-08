@@ -26,6 +26,7 @@ import { getMealImage } from "@/utils/mealImages";
 import { MacroRing } from "@/components/dashboard/MacroRing";
 import { buildGroceryListFromMeals, type PricedGroceryList } from "@/lib/groceryPricing";
 import { normalizeRestrictions, RESTRICTION_LABELS, filterMealsByRestrictions } from "@/lib/dietaryRestrictions";
+import { useMacroTargets } from "@/hooks/useMacroTargets";
 
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"];
 const MEAL_TYPE_LABELS: Record<string, string> = {
