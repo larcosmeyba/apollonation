@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Heart, Footprints, Flame, Moon, Activity, RefreshCw, Loader2, CheckCircle2 } from "lucide-react";
+import { Heart, Footprints, Flame, Moon, Activity, RefreshCw, Loader2, CheckCircle2, ShieldCheck, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppleHealth } from "@/hooks/useAppleHealth";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,12 +29,13 @@ interface TodayRow {
 
 const AppleHealthCard = () => {
   const { user } = useAuth();
-  const { available, connected, syncing, lastSyncAt, error: rawError, connect, sync } = useAppleHealth();
+  const { available, connected, syncing, lastSyncAt, error: rawError, diagnostics, connect, sync } = useAppleHealth();
   const error = rawError && /not implemented|not available/i.test(rawError)
     ? "Apple Health requires the latest app update"
     : rawError;
   const [today, setToday] = useState<TodayRow | null>(null);
   const [showPrePrompt, setShowPrePrompt] = useState(false);
+  const [permissionStep, setPermissionStep] = useState<"intro" | "system">("intro");
 
   const isIOS = isNative() && Capacitor.getPlatform() === "ios";
 
@@ -63,7 +64,7 @@ const AppleHealthCard = () => {
         toast({
           title: "Connected, but no data yet",
           description:
-            "Open the iPhone Settings → Health → Data Access & Devices → Apollo Reborn and turn ON every category (Steps, Heart Rate, Sleep, etc.).",
+            "Open iPhone Settings → Health → Data Access & Devices → Apollo Reborn and turn ON Steps, Calories, Sleep, and Heart Rate.",
         });
       }
     }
@@ -73,15 +74,21 @@ const AppleHealthCard = () => {
   if (!isIOS) return null;
   if (!available) return null;
 
-  const handleConnectClick = () => setShowPrePrompt(true);
+  const handleConnectClick = () => {
+    setPermissionStep("intro");
+    setShowPrePrompt(true);
+  };
 
   const handleApprove = async () => {
+    setPermissionStep("system");
+    const ok = await connect();
     setShowPrePrompt(false);
-    await connect();
-    toast({
-      title: "Apple Health connected",
-      description: "We'll keep your steps, heart rate, sleep, and calories in sync.",
-    });
+    if (ok) {
+      toast({
+        title: "Apple Health connected",
+        description: "Steps, heart rate, sleep, calories, workouts, and weight will refresh automatically.",
+      });
+    }
   };
 
   if (!connected) {
@@ -109,33 +116,36 @@ const AppleHealthCard = () => {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-primary" />
-                Allow Apple Health access
+                {permissionStep === "system" ? <Loader2 className="w-5 h-5 text-primary animate-spin" /> : <ShieldCheck className="w-5 h-5 text-primary" />}
+                {permissionStep === "system" ? "Opening Apple Health…" : "Connect Apple Health"}
               </AlertDialogTitle>
               <AlertDialogDescription asChild>
                 <div className="space-y-3 text-sm">
                   <p>
-                    To personalize your training and track real progress, your coach needs to read these from Apple Health:
+                    Apollo Reborn will ask Apple for permission next. Turn on every category so your dashboard and coach see the full picture:
                   </p>
-                  <ul className="space-y-1.5 pl-1">
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps & distance</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate & resting heart rate</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Sleep analysis</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Workouts & weight</li>
+                  <ul className="grid grid-cols-1 gap-2 pl-1">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps, walking distance, and exercise minutes</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories and workouts</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate and resting heart rate</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Sleep analysis and body weight</li>
                   </ul>
-                  <p className="font-bold text-foreground">
-                    On the next screen, tap “Turn On All” so every category is enabled.
+                  <p className="rounded-lg border border-primary/20 bg-primary/10 p-3 font-bold text-foreground">
+                    On Apple’s permission screen, tap “Turn On All”, then tap “Allow”.
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Your data is private. It is only visible to you and your assigned coach. You can revoke access any time in iPhone Settings → Health.
+                  <p className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Settings className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                    If steps still show 0 after connecting, open Settings → Health → Data Access & Devices → Apollo Reborn and confirm Steps is enabled.
                   </p>
                 </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Not now</AlertDialogCancel>
-              <AlertDialogAction onClick={handleApprove}>Continue</AlertDialogAction>
+              <AlertDialogCancel disabled={syncing}>Not now</AlertDialogCancel>
+              <AlertDialogAction onClick={handleApprove} disabled={syncing}>
+                {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                Continue
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -173,6 +183,13 @@ const AppleHealthCard = () => {
           {today.avg_workout_heart_rate ? ` · avg ${today.avg_workout_heart_rate} bpm` : ""}
         </div>
       ) : null}
+
+      {lastSyncAt && (
+        <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-muted/20 px-2.5 py-2 text-[10px] text-muted-foreground">
+          <span>{diagnostics.lastMessage || "Apple Health sync complete"}</span>
+          <span className="whitespace-nowrap">{new Date(lastSyncAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
+        </div>
+      )}
 
       {error && <p className="text-xs text-destructive mt-2">{error}</p>}
     </div>

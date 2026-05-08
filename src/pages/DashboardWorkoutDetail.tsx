@@ -43,6 +43,40 @@ interface ExerciseNote {
   is_completed: boolean;
 }
 
+const DEFAULT_WARMUP_MOVES = [
+  "Light walk or bike",
+  "Arm circles + band pull-aparts",
+  "Hip openers + leg swings",
+  "Glute bridges + bodyweight squats",
+];
+
+const QuickWarmupCard = ({ complete, onComplete }: { complete: boolean; onComplete: () => void }) => (
+  <div className={`rounded-xl border bg-card p-4 transition-all ${complete ? "border-green-500/30 opacity-80" : "border-border"}`}>
+    <div className="flex items-start gap-3">
+      <Checkbox checked={complete} onCheckedChange={() => onComplete()} className="mt-0.5" />
+      <div className="flex-1 min-w-0">
+        <p className={`font-heading text-sm tracking-wide ${complete ? "line-through text-muted-foreground" : ""}`}>
+          5-Minute Dynamic Warm-Up
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-1">
+          Raise your temperature, open the joints, and activate today’s muscles before loading weight.
+        </p>
+        <div className="grid grid-cols-1 gap-2 mt-3">
+          {DEFAULT_WARMUP_MOVES.map((move) => (
+            <div key={move} className="flex items-center gap-2 text-xs text-foreground/80">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+              {move}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+        <Clock className="w-3 h-3" /> 5 min
+      </div>
+    </div>
+  </div>
+);
+
 // Format reps target — explicitly call out failure & ranges
 const formatRepsTarget = (reps: any): string => {
   if (reps === null || reps === undefined || reps === "") return "AMRAP — to failure";
@@ -421,6 +455,21 @@ const DashboardWorkoutDetail = () => {
   const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
   const [difficulty, setDifficulty] = useState<number | null>(null);
   const [savingDifficulty, setSavingDifficulty] = useState(false);
+  const [quickWarmupComplete, setQuickWarmupComplete] = useState(false);
+
+  const quickWarmupKey = `apollo:quick-warmup:${dayId || "none"}:${dateParam}`;
+
+  useEffect(() => {
+    setQuickWarmupComplete(localStorage.getItem(quickWarmupKey) === "true");
+  }, [quickWarmupKey]);
+
+  const toggleQuickWarmup = () => {
+    setQuickWarmupComplete((prev) => {
+      const next = !prev;
+      localStorage.setItem(quickWarmupKey, String(next));
+      return next;
+    });
+  };
 
   const saveDifficultyAndRecommend = async (rating: number) => {
     if (!user || !dayId) return;
@@ -742,13 +791,6 @@ const DashboardWorkoutDetail = () => {
     queryClient.invalidateQueries({ queryKey: ["training-day-detail"] });
   };
 
-  const exercises = dayData?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
-  const totalExercises = exercises.length;
-  const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length;
-  const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
-  const displayCompleted = sessionLog?.completed_at ? totalExercises : completedExercises;
-  const displayPercent = sessionLog?.completed_at ? 100 : progressPercent;
-
   // Group into Warm-Up / Main / Cool-Down blocks
   const blockOf = (ex: any): "warmup" | "main" | "cooldown" => {
     const mg = (ex.muscle_group || "").toLowerCase();
@@ -757,11 +799,20 @@ const DashboardWorkoutDetail = () => {
     if (mg === "cooldown" || mg === "cool-down" || /cool[- ]?down|stretch/.test(name)) return "cooldown";
     return "main";
   };
+
+  const exercises = dayData?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
+  const hasGeneratedWarmup = exercises.some((ex: any) => blockOf(ex) === "warmup");
+  const quickWarmupCount = exercises.length > 0 && !hasGeneratedWarmup ? 1 : 0;
+  const totalExercises = exercises.length + quickWarmupCount;
+  const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length + (quickWarmupCount && quickWarmupComplete ? 1 : 0);
+  const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
+  const displayCompleted = sessionLog?.completed_at ? totalExercises : completedExercises;
+  const displayPercent = sessionLog?.completed_at ? 100 : progressPercent;
   const warmupExercises = exercises.filter((ex: any) => blockOf(ex) === "warmup");
   const mainExercises = exercises.filter((ex: any) => blockOf(ex) === "main");
   const cooldownExercises = exercises.filter((ex: any) => blockOf(ex) === "cooldown");
   const allDoneIn = (list: any[]) => list.length > 0 && list.every((ex: any) => localNotes[ex.id]?.is_completed);
-  const warmupDone = warmupExercises.length === 0 || allDoneIn(warmupExercises);
+  const warmupDone = warmupExercises.length === 0 ? quickWarmupComplete : allDoneIn(warmupExercises);
   const mainDone = mainExercises.length === 0 || allDoneIn(mainExercises);
 
   return (
@@ -844,10 +895,10 @@ const DashboardWorkoutDetail = () => {
         {dayData && exercises.length > 0 && (
           <div className="space-y-6">
             {[
-              { key: "warmup", title: "Warm-Up Block", subtitle: "5 min · prep your body", list: warmupExercises, locked: false, doneCount: warmupExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: warmupDone },
+              { key: "warmup", title: "Warm-Up Block", subtitle: "5 min · prep your body", list: warmupExercises, locked: false, doneCount: hasGeneratedWarmup ? warmupExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length : (quickWarmupComplete ? 1 : 0), complete: warmupDone },
               { key: "main", title: "Main Workout", subtitle: "Today's training", list: mainExercises, locked: !warmupDone, doneCount: mainExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: mainDone },
               { key: "cooldown", title: "Cool-Down Block", subtitle: "5 min · stretches for today's muscles", list: cooldownExercises, locked: !warmupDone || !mainDone, doneCount: cooldownExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: allDoneIn(cooldownExercises) },
-            ].map((block) => block.list.length > 0 && (
+            ].map((block) => (block.list.length > 0 || block.key === "warmup") && (
               <div key={block.key} className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <div>
@@ -856,11 +907,13 @@ const DashboardWorkoutDetail = () => {
                   </div>
                   <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     {block.complete && <Check className="w-3.5 h-3.5 text-green-500" />}
-                    <span>{block.doneCount}/{block.list.length}</span>
+                    <span>{block.doneCount}/{block.key === "warmup" && !hasGeneratedWarmup ? 1 : block.list.length}</span>
                   </div>
                 </div>
                 <div className={`relative space-y-3 ${block.locked ? "opacity-50 pointer-events-none select-none" : ""}`}>
-                  {block.list.map((ex: any) => (
+                  {block.key === "warmup" && !hasGeneratedWarmup ? (
+                    <QuickWarmupCard complete={quickWarmupComplete} onComplete={toggleQuickWarmup} />
+                  ) : block.list.map((ex: any) => (
                     <ExerciseRow
                       key={ex.id}
                       exercise={ex}

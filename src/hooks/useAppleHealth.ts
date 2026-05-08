@@ -24,6 +24,14 @@ const READ_PERMISSIONS = [
 const isAppleHealthAvailable = (): boolean =>
   isNative() && Capacitor.getPlatform() === "ios";
 
+interface HealthSyncDiagnostics {
+  stepSamplesToday: number;
+  calorieSamplesToday: number;
+  sleepSamplesToday: number;
+  workoutSamplesToday: number;
+  lastMessage: string | null;
+}
+
 interface DailyHealthSummary {
   log_date: string;
   steps: number;
@@ -37,10 +45,25 @@ interface DailyHealthSummary {
   raw_workouts: any[];
 }
 
-const ymd = (d: Date) => d.toISOString().split("T")[0];
+const ymd = (d: Date) => {
+  const year = d.getFullYear();
+  const month = `${d.getMonth() + 1}`.padStart(2, "0");
+  const day = `${d.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const sumValues = (rows: any[]): number =>
   (rows || []).reduce((acc, r) => acc + (Number(r?.value) || 0), 0);
+
+const durationToMinutes = (value: unknown): number => {
+  const duration = Number(value) || 0;
+  if (duration <= 0) return 0;
+  // @perfood/capacitor-healthkit returns duration in hours for sleep/workouts.
+  if (duration <= 48) return duration * 60;
+  // Defensive fallback if a native implementation ever returns seconds.
+  if (duration > 1000) return duration / 60;
+  return duration;
+};
 
 export const useAppleHealth = () => {
   const { user } = useAuth();
@@ -49,6 +72,13 @@ export const useAppleHealth = () => {
   const [syncing, setSyncing] = useState(false);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<HealthSyncDiagnostics>({
+    stepSamplesToday: 0,
+    calorieSamplesToday: 0,
+    sleepSamplesToday: 0,
+    workoutSamplesToday: 0,
+    lastMessage: null,
+  });
   const syncedThisSessionRef = useRef(false);
 
   // Load saved connection state
@@ -75,9 +105,10 @@ export const useAppleHealth = () => {
     try {
       await CapacitorHealthkit.isAvailable();
       await CapacitorHealthkit.requestAuthorization({
-        all: [],
+        // The plugin expects empty-string placeholders here on some iOS builds.
+        all: [""],
         read: READ_PERMISSIONS,
-        write: [],
+        write: [""],
       });
       setError(null);
       return true;
@@ -105,7 +136,11 @@ export const useAppleHealth = () => {
           ...baseQ,
           sampleName,
         });
-        return res?.resultData ?? [];
+        const rows = res?.resultData ?? [];
+        if (ymd(date) === ymd(new Date())) {
+          console.info(`[AppleHealth] ${sampleName}`, { count: rows.length, first: rows[0] ?? null });
+        }
+        return rows;
       } catch (e) {
         console.warn(`[AppleHealth] query ${sampleName} failed`, e);
         return [];
@@ -129,14 +164,26 @@ export const useAppleHealth = () => {
     const sleepMinutes = Math.round(
       (sleep || [])
         .filter((s: any) => /asleep/i.test(s?.sleepState ?? ""))
-        .reduce((acc: number, s: any) => acc + (Number(s?.duration) || 0) / 60, 0)
+        .reduce((acc: number, s: any) => acc + durationToMinutes(s?.duration), 0)
     );
 
     // Workouts
     const workoutCount = workouts.length;
     const workoutMinutes = Math.round(
-      (workouts || []).reduce((acc: number, w: any) => acc + (Number(w?.duration) || 0) / 60, 0)
+      (workouts || []).reduce((acc: number, w: any) => acc + durationToMinutes(w?.duration), 0)
     );
+
+    if (ymd(date) === ymd(new Date())) {
+      setDiagnostics({
+        stepSamplesToday: steps.length,
+        calorieSamplesToday: calories.length,
+        sleepSamplesToday: sleep.length,
+        workoutSamplesToday: workouts.length,
+        lastMessage: totalSteps > 0
+          ? `Synced ${totalSteps.toLocaleString()} steps from Apple Health.`
+          : "Apple Health returned 0 step samples for today.",
+      });
+    }
 
     // Weight: last reading of the day, kg
     const lastWeight = weight.length ? Number(weight[weight.length - 1]?.value) : null;
@@ -224,10 +271,10 @@ export const useAppleHealth = () => {
             { onConflict: "user_id" }
           );
 
-        // Mirror today's steps into the legacy step_logs table so the rest of
-        // the app (streaks, dashboards) keeps working unchanged.
+        // Mirror today's Apple Health reading into the legacy step_logs table
+        // so streaks and dashboards update automatically from the native source.
         const todayRow = summaries[summaries.length - 1];
-        if (todayRow && todayRow.steps > 0) {
+        if (todayRow) {
           await (supabase as any)
             .from("step_logs")
             .upsert(
@@ -244,9 +291,16 @@ export const useAppleHealth = () => {
         setConnected(true);
         setLastSyncAt(now);
         syncedThisSessionRef.current = true;
+        if (!opts?.silent) {
+          console.info("[AppleHealth] sync complete", {
+            days: rows.length,
+            today: todayRow,
+          });
+        }
       } catch (e: any) {
         console.error("[AppleHealth] sync failed", e);
         setError(e?.message ?? "Sync failed.");
+        setDiagnostics((prev) => ({ ...prev, lastMessage: e?.message ?? "Sync failed." }));
         await (supabase as any)
           .from("health_connection_status")
           .upsert(
@@ -263,11 +317,13 @@ export const useAppleHealth = () => {
     [available, user, syncing, fetchDayData]
   );
 
-  const connect = useCallback(async () => {
+  const connect = useCallback(async (): Promise<boolean> => {
     const ok = await requestPermissions();
     if (ok) {
       await sync();
+      return true;
     }
+    return false;
   }, [requestPermissions, sync]);
 
   // Auto-sync on app open (once per session, only if previously connected)
@@ -304,6 +360,7 @@ export const useAppleHealth = () => {
     syncing,
     lastSyncAt,
     error,
+    diagnostics,
     connect,
     sync,
   };
