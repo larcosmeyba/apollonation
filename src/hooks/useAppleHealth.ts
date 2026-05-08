@@ -5,13 +5,20 @@ import { CapacitorHealthkit, SampleNames } from "@perfood/capacitor-healthkit";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+// IMPORTANT: these are the friendly auth names the @perfood plugin maps to
+// HKObjectTypes inside requestAuthorization (see the plugin's getTypes()).
+// They are NOT the same as SampleNames used for queryHKitSampleType.
+// Missing any of these means iOS will not show a toggle for it and queries
+// return empty arrays with no error.
 const READ_PERMISSIONS = [
   "steps",
   "calories",
-  "activity",
+  "activity", // includes workouts + sleepAnalysis
   "duration",
   "distance",
   "weight",
+  "heartRate",
+  "restingHeartRate",
 ];
 
 const isAppleHealthAvailable = (): boolean =>

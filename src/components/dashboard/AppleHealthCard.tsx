@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
-import { Heart, Footprints, Flame, Moon, Activity, RefreshCw, Loader2 } from "lucide-react";
+import { Heart, Footprints, Flame, Moon, Activity, RefreshCw, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppleHealth } from "@/hooks/useAppleHealth";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { isNative } from "@/lib/platform";
 import { Capacitor } from "@capacitor/core";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/use-toast";
 
 interface TodayRow {
   steps: number | null;
@@ -23,8 +34,8 @@ const AppleHealthCard = () => {
     ? "Apple Health requires the latest app update"
     : rawError;
   const [today, setToday] = useState<TodayRow | null>(null);
+  const [showPrePrompt, setShowPrePrompt] = useState(false);
 
-  // Apple Health is iOS-only — compute platform but DO NOT early-return before hooks.
   const isIOS = isNative() && Capacitor.getPlatform() === "ios";
 
   useEffect(() => {
@@ -40,27 +51,101 @@ const AppleHealthCard = () => {
       .then(({ data }: any) => setToday(data ?? null));
   }, [user, lastSyncAt]);
 
+  // Surface sync results so the user knows it actually ran
+  useEffect(() => {
+    if (lastSyncAt && connected) {
+      const hasAnyData =
+        (today?.steps ?? 0) > 0 ||
+        (today?.active_calories ?? 0) > 0 ||
+        (today?.resting_heart_rate ?? 0) > 0 ||
+        (today?.sleep_minutes ?? 0) > 0;
+      if (!hasAnyData) {
+        toast({
+          title: "Connected, but no data yet",
+          description:
+            "Open the iPhone Settings → Health → Data Access & Devices → Apollo Reborn and turn ON every category (Steps, Heart Rate, Sleep, etc.).",
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastSyncAt]);
+
   if (!isIOS) return null;
   if (!available) return null;
 
+  const handleConnectClick = () => setShowPrePrompt(true);
+
+  const handleApprove = async () => {
+    setShowPrePrompt(false);
+    await connect();
+    toast({
+      title: "Apple Health connected",
+      description: "We'll keep your steps, heart rate, sleep, and calories in sync.",
+    });
+  };
+
   if (!connected) {
     return (
-      <div className="card-apollo p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Heart className="w-5 h-5 text-primary" />
+      <>
+        <div className="card-apollo p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Heart className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-heading text-sm">Connect Apple Health</h3>
+              <p className="text-xs text-muted-foreground">
+                Sync steps, heart rate, sleep & calories with your coach
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-heading text-sm">Apple Health</h3>
-            <p className="text-xs text-muted-foreground">Sync steps, workouts, heart rate & sleep</p>
-          </div>
+          <Button size="sm" className="w-full" onClick={handleConnectClick} disabled={syncing}>
+            {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Heart className="w-4 h-4 mr-2" />}
+            Connect Apple Health
+          </Button>
+          {error && (
+            <p className="text-xs text-destructive mt-2 flex items-start gap-1">
+              <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
+              {error}
+            </p>
+          )}
         </div>
-        <Button size="sm" className="w-full" onClick={connect} disabled={syncing}>
-          {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Heart className="w-4 h-4 mr-2" />}
-          Connect Apple Health
-        </Button>
-        {error && <p className="text-xs text-destructive mt-2">{error}</p>}
-      </div>
+
+        <AlertDialog open={showPrePrompt} onOpenChange={setShowPrePrompt}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <Heart className="w-5 h-5 text-primary" />
+                Allow Apple Health access
+              </AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-3 text-sm">
+                  <p>
+                    To personalize your training and track real progress, your coach needs to read these from Apple Health:
+                  </p>
+                  <ul className="space-y-1.5 pl-1">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps & distance</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate & resting heart rate</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Sleep analysis</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Workouts & weight</li>
+                  </ul>
+                  <p className="font-bold text-foreground">
+                    On the next screen, tap “Turn On All” so every category is enabled.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Your data is private. It is only visible to you and your assigned coach. You can revoke access any time in iPhone Settings → Health.
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Not now</AlertDialogCancel>
+              <AlertDialogAction onClick={handleApprove}>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   }
 
