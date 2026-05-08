@@ -749,6 +749,21 @@ const DashboardWorkoutDetail = () => {
   const displayCompleted = sessionLog?.completed_at ? totalExercises : completedExercises;
   const displayPercent = sessionLog?.completed_at ? 100 : progressPercent;
 
+  // Group into Warm-Up / Main / Cool-Down blocks
+  const blockOf = (ex: any): "warmup" | "main" | "cooldown" => {
+    const mg = (ex.muscle_group || "").toLowerCase();
+    const name = (ex.exercise_name || "").toLowerCase();
+    if (mg === "warmup" || mg === "warm-up" || /warm[- ]?up/.test(name)) return "warmup";
+    if (mg === "cooldown" || mg === "cool-down" || /cool[- ]?down|stretch/.test(name)) return "cooldown";
+    return "main";
+  };
+  const warmupExercises = exercises.filter((ex: any) => blockOf(ex) === "warmup");
+  const mainExercises = exercises.filter((ex: any) => blockOf(ex) === "main");
+  const cooldownExercises = exercises.filter((ex: any) => blockOf(ex) === "cooldown");
+  const allDoneIn = (list: any[]) => list.length > 0 && list.every((ex: any) => localNotes[ex.id]?.is_completed);
+  const warmupDone = warmupExercises.length === 0 || allDoneIn(warmupExercises);
+  const mainDone = mainExercises.length === 0 || allDoneIn(mainExercises);
+
   return (
     <DashboardLayout>
       <div className="max-w-3xl mx-auto space-y-4">
