@@ -34,14 +34,12 @@ import {
 // be removed on unmount or when the user changes (prevents stale-closure
 // writes against a previous user's id after sign-out → sign-in).
 
-// Apple App Store + Google Play subscription management deep links
+// Apple App Store subscription management deep links
 const APP_STORE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
-const PLAY_STORE_SUBSCRIPTIONS_URL = "https://play.google.com/store/account/subscriptions?package=com.apollonation.app";
 const APP_STORE_ID = import.meta.env.VITE_APP_STORE_ID as string | undefined;
 const APP_STORE_RATE_URL = APP_STORE_ID
   ? `itms-apps://itunes.apple.com/app/id${APP_STORE_ID}?action=write-review`
   : null;
-const PLAY_STORE_RATE_URL = "https://play.google.com/store/apps/details?id=com.apollonation.app";
 
 // Public website URLs — used for legal/help links so native (Capacitor) users
 // land on the live marketing site instead of an in-app route that may not
@@ -53,9 +51,8 @@ const PRIVACY_URL = `${WEBSITE_BASE}/privacy`;
 
 const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-const openExternal = (iosUrl: string, androidUrl: string) => {
-  const url = isIOS() ? iosUrl : androidUrl;
-  openUrl(url);
+const openExternal = (iosUrl: string, _androidUrl?: string) => {
+  openUrl(iosUrl);
 };
 
 // Open a URL using Capacitor's in-app browser when running natively, falling
