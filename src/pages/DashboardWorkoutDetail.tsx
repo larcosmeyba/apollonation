@@ -802,8 +802,9 @@ const DashboardWorkoutDetail = () => {
 
   const exercises = dayData?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
   const hasGeneratedWarmup = exercises.some((ex: any) => blockOf(ex) === "warmup");
-  const totalExercises = exercises.length + (hasGeneratedWarmup ? 0 : 1);
-  const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length + (!hasGeneratedWarmup && quickWarmupComplete ? 1 : 0);
+  const quickWarmupCount = exercises.length > 0 && !hasGeneratedWarmup ? 1 : 0;
+  const totalExercises = exercises.length + quickWarmupCount;
+  const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length + (quickWarmupCount && quickWarmupComplete ? 1 : 0);
   const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
   const displayCompleted = sessionLog?.completed_at ? totalExercises : completedExercises;
   const displayPercent = sessionLog?.completed_at ? 100 : progressPercent;
