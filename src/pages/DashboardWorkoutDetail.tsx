@@ -455,6 +455,21 @@ const DashboardWorkoutDetail = () => {
   const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
   const [difficulty, setDifficulty] = useState<number | null>(null);
   const [savingDifficulty, setSavingDifficulty] = useState(false);
+  const [quickWarmupComplete, setQuickWarmupComplete] = useState(false);
+
+  const quickWarmupKey = `apollo:quick-warmup:${dayId || "none"}:${dateParam}`;
+
+  useEffect(() => {
+    setQuickWarmupComplete(localStorage.getItem(quickWarmupKey) === "true");
+  }, [quickWarmupKey]);
+
+  const toggleQuickWarmup = () => {
+    setQuickWarmupComplete((prev) => {
+      const next = !prev;
+      localStorage.setItem(quickWarmupKey, String(next));
+      return next;
+    });
+  };
 
   const saveDifficultyAndRecommend = async (rating: number) => {
     if (!user || !dayId) return;
@@ -777,8 +792,9 @@ const DashboardWorkoutDetail = () => {
   };
 
   const exercises = dayData?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
-  const totalExercises = exercises.length;
-  const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length;
+  const hasGeneratedWarmup = exercises.some((ex: any) => blockOf(ex) === "warmup");
+  const totalExercises = exercises.length + (hasGeneratedWarmup ? 0 : 1);
+  const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length + (!hasGeneratedWarmup && quickWarmupComplete ? 1 : 0);
   const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
   const displayCompleted = sessionLog?.completed_at ? totalExercises : completedExercises;
   const displayPercent = sessionLog?.completed_at ? 100 : progressPercent;
@@ -795,7 +811,7 @@ const DashboardWorkoutDetail = () => {
   const mainExercises = exercises.filter((ex: any) => blockOf(ex) === "main");
   const cooldownExercises = exercises.filter((ex: any) => blockOf(ex) === "cooldown");
   const allDoneIn = (list: any[]) => list.length > 0 && list.every((ex: any) => localNotes[ex.id]?.is_completed);
-  const warmupDone = warmupExercises.length === 0 || allDoneIn(warmupExercises);
+  const warmupDone = warmupExercises.length === 0 ? quickWarmupComplete : allDoneIn(warmupExercises);
   const mainDone = mainExercises.length === 0 || allDoneIn(mainExercises);
 
   return (
