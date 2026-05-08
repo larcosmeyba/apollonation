@@ -75,8 +75,7 @@ const TermsOfService = () => {
           <p>
             Refunds are governed by Apple's refund policies. We do not process payments directly
             and cannot issue refunds for store-purchased subscriptions — please contact Apple Support.
-
-          <h2 className="font-heading text-2xl text-foreground mt-8">4a. Third-Party Services</h2>
+          </p>
           <p>
             We rely on the following third-party services to operate Apollo Reborn. By using the Services,
             you also agree to the terms of these providers where applicable:
