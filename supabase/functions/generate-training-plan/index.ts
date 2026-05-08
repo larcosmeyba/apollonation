@@ -145,10 +145,10 @@ CRITICAL RULE: You MUST ONLY use exercises from the following exercise library. 
 AVAILABLE EXERCISES:
 ${exerciseList}
 
-WORKOUT STRUCTURE RULES:
-1. WARM-UP (REQUIRED): The FIRST 1-2 exercises of EVERY training day MUST be a dynamic warm-up. This can be a 5-minute treadmill walk/light jog OR 2-3 dynamic warm-up movements. Use exercises from the library if available, otherwise add "Dynamic Warm-Up" or "Treadmill Walk" as the first exercise with notes describing the warm-up.
-2. MAIN WORKOUT: The body of the workout should fit within the client's available time of ${workoutDuration} minutes (minus warm-up and cool-down time).
-3. COOL-DOWN (REQUIRED): The LAST exercise of EVERY training day MUST be a 5-minute cool-down consisting of static stretches. Add it as the final exercise with the name "Cool-Down Stretches" and include specific stretches in the notes field targeting the muscles worked that day.
+WORKOUT STRUCTURE RULES (STRICT — every training day MUST follow this 3-block format):
+1. **WARM-UP BLOCK (5 minutes, 3–5 exercises minimum):** Each warm-up exercise MUST have muscle_group: "warmup". Use dynamic mobility, light cardio, and activation drills relevant to that day's focus. Examples: arm circles, leg swings, glute bridges, scapular pull-aparts, treadmill walk.
+2. **MAIN WORKOUT BLOCK:** Must fit within ${workoutDuration - 10} minutes (total session is ${workoutDuration} min minus 10 min for warm-up + cool-down). All main exercises MUST come from the AVAILABLE EXERCISES list above with their exact title. Match volume to time available.
+3. **COOL-DOWN BLOCK (5 minutes, 3–5 stretches):** Each cool-down exercise MUST have muscle_group: "cooldown". Stretches MUST target the SAME muscle groups trained in the main block of THAT day (e.g. chest day → doorway chest stretch, cross-body shoulder stretch, child's pose). Hold 30 sec each.
 
 Create a program with exactly ${workout_days_per_week} training days per week. For the 4-week program, provide ONE week template that repeats.
 
