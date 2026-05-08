@@ -268,10 +268,11 @@ const ExerciseRow = ({
         {/* Set Logging */}
         <div className="px-4 pb-3 pt-1">
           <div className="space-y-1.5">
-            <div className="grid grid-cols-[28px_1fr_1fr_24px] gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="grid grid-cols-[20px_1fr_1fr_36px_22px] gap-1.5 text-[9px] uppercase tracking-wider text-muted-foreground font-medium">
               <span></span>
               <span>Weight</span>
               <span>Reps</span>
+              <span className="text-center">Rest</span>
               <span></span>
             </div>
             {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
@@ -279,7 +280,7 @@ const ExerciseRow = ({
               const prevLog = previousSetLogs.find(l => l.set_number === setNum);
               const logged = isSetLogged(setNum);
               return (
-                <div key={setNum} className="relative grid grid-cols-[28px_1fr_1fr_24px] gap-2 items-center">
+                <div key={setNum} className="relative grid grid-cols-[20px_1fr_1fr_36px_22px] gap-1.5 items-center">
                   <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
                   <Input
                     type="number"
@@ -300,6 +301,9 @@ const ExerciseRow = ({
                       if (e.target.value) setShowTimer(true);
                     }}
                   />
+                  <span className="text-[10px] text-muted-foreground text-center font-mono">
+                    {exercise.rest_seconds ? `${exercise.rest_seconds}s` : "—"}
+                  </span>
                   <div className="flex items-center justify-center">
                     {logged ? (
                       <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center transition-all animate-in zoom-in duration-200">
