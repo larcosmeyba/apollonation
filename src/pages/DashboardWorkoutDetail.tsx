@@ -791,14 +791,6 @@ const DashboardWorkoutDetail = () => {
     queryClient.invalidateQueries({ queryKey: ["training-day-detail"] });
   };
 
-  const exercises = dayData?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
-  const hasGeneratedWarmup = exercises.some((ex: any) => blockOf(ex) === "warmup");
-  const totalExercises = exercises.length + (hasGeneratedWarmup ? 0 : 1);
-  const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length + (!hasGeneratedWarmup && quickWarmupComplete ? 1 : 0);
-  const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
-  const displayCompleted = sessionLog?.completed_at ? totalExercises : completedExercises;
-  const displayPercent = sessionLog?.completed_at ? 100 : progressPercent;
-
   // Group into Warm-Up / Main / Cool-Down blocks
   const blockOf = (ex: any): "warmup" | "main" | "cooldown" => {
     const mg = (ex.muscle_group || "").toLowerCase();
@@ -807,6 +799,14 @@ const DashboardWorkoutDetail = () => {
     if (mg === "cooldown" || mg === "cool-down" || /cool[- ]?down|stretch/.test(name)) return "cooldown";
     return "main";
   };
+
+  const exercises = dayData?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
+  const hasGeneratedWarmup = exercises.some((ex: any) => blockOf(ex) === "warmup");
+  const totalExercises = exercises.length + (hasGeneratedWarmup ? 0 : 1);
+  const completedExercises = exercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length + (!hasGeneratedWarmup && quickWarmupComplete ? 1 : 0);
+  const progressPercent = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
+  const displayCompleted = sessionLog?.completed_at ? totalExercises : completedExercises;
+  const displayPercent = sessionLog?.completed_at ? 100 : progressPercent;
   const warmupExercises = exercises.filter((ex: any) => blockOf(ex) === "warmup");
   const mainExercises = exercises.filter((ex: any) => blockOf(ex) === "main");
   const cooldownExercises = exercises.filter((ex: any) => blockOf(ex) === "cooldown");
