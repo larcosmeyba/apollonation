@@ -876,7 +876,7 @@ const DashboardProfile = () => {
                   <ChevronRight className="w-4 h-4 text-foreground/30" />
                 </button>
                 <button
-                  onClick={() => openExternal(APP_STORE_SUBSCRIPTIONS_URL, PLAY_STORE_SUBSCRIPTIONS_URL)}
+                  onClick={() => openUrl(APP_STORE_SUBSCRIPTIONS_URL)}
                   className="flex items-center justify-between w-full py-3.5 border-b border-border"
                 >
                   <span className="flex items-center gap-3 text-sm text-foreground"><CreditCard className="w-4 h-4 text-foreground/60" /> Manage Subscription</span>
