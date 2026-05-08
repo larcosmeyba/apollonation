@@ -23,6 +23,7 @@ export interface QuestionnairePayload {
   equipment: string[];
   training_days: string[]; // ["mon", "tue", ...]
   coach_intensity: "more" | "fewer" | "silent";
+  workout_duration_minutes: number; // 30–75
 }
 
 const GOALS = [
