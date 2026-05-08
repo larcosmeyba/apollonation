@@ -76,6 +76,7 @@ const payloadSchema = z.object({
   equipment: z.array(z.string()),
   training_days: z.array(z.string()).min(1, "Pick at least one training day"),
   coach_intensity: z.enum(["more", "fewer", "silent"]),
+  workout_duration_minutes: z.number().min(30).max(75),
 });
 
 interface Props {
