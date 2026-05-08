@@ -271,10 +271,10 @@ export const useAppleHealth = () => {
             { onConflict: "user_id" }
           );
 
-        // Mirror today's steps into the legacy step_logs table so the rest of
-        // the app (streaks, dashboards) keeps working unchanged.
+        // Mirror today's Apple Health reading into the legacy step_logs table
+        // so streaks and dashboards update automatically from the native source.
         const todayRow = summaries[summaries.length - 1];
-        if (todayRow && todayRow.steps > 0) {
+        if (todayRow) {
           await (supabase as any)
             .from("step_logs")
             .upsert(
@@ -291,9 +291,17 @@ export const useAppleHealth = () => {
         setConnected(true);
         setLastSyncAt(now);
         syncedThisSessionRef.current = true;
+        if (!opts?.silent) {
+          console.info("[AppleHealth] sync complete", {
+            days: rows.length,
+            today: todayRow,
+            diagnostics,
+          });
+        }
       } catch (e: any) {
         console.error("[AppleHealth] sync failed", e);
         setError(e?.message ?? "Sync failed.");
+        setDiagnostics((prev) => ({ ...prev, lastMessage: e?.message ?? "Sync failed." }));
         await (supabase as any)
           .from("health_connection_status")
           .upsert(
@@ -351,6 +359,7 @@ export const useAppleHealth = () => {
     syncing,
     lastSyncAt,
     error,
+    diagnostics,
     connect,
     sync,
   };
