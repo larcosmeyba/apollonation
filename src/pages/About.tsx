@@ -25,10 +25,10 @@ const About = () => {
             Our Mission
           </h2>
           <p className="text-sm text-foreground leading-relaxed">
-            Apollo Reborn was created to bring structured, coach-led training to everyone — regardless of experience level, age, or fitness background. We believe that real results come from real programming, not random workouts.
+            Apollo Reborn was created because Marcos saw the lack of quality in fitness apps on the market — generic programs, cluttered interfaces, and zero real accountability. He believed people deserved better: a platform built with the same precision and care he brings to every client session.
           </p>
           <p className="text-sm text-foreground leading-relaxed">
-            Every workout on Apollo Reborn is designed with purpose. Each session follows a structured training methodology built around progressive overload, balanced programming, and recovery — the same principles used by professional athletes.
+            Our mission is to bring structured, coach-led training to everyone — customized just for you. Every workout is designed with purpose, following a structured methodology built around progressive overload, balanced programming, and recovery. No matter your experience level, age, or background, Apollo Reborn meets you where you are and builds from there.
           </p>
         </div>
 
