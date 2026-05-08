@@ -295,7 +295,6 @@ export const useAppleHealth = () => {
           console.info("[AppleHealth] sync complete", {
             days: rows.length,
             today: todayRow,
-            diagnostics,
           });
         }
       } catch (e: any) {
