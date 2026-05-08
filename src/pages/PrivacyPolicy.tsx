@@ -49,7 +49,7 @@ const PrivacyPolicy = () => {
             <li>Messages you send to your assigned coach (Elite tier only)</li>
           </ul>
           <p className="text-xs">
-            <strong>Payments:</strong> All subscription payments are processed by Apple (App Store) or Google (Play Store).
+            <strong>Payments:</strong> All subscription payments are processed by the App Store.
             We never see, receive, or store your payment card details. We only receive an anonymized purchase token used to
             verify your subscription status.
           </p>
@@ -84,7 +84,7 @@ const PrivacyPolicy = () => {
           <p>We use the collected information to:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Provide, maintain, and improve our Services</li>
-            <li>Verify your subscription entitlement via App Store / Play Store receipts</li>
+            <li>Verify your subscription entitlement via App Store receipts</li>
             <li>Send transactional and account communications</li>
             <li>Send promotional communications (only with your explicit opt-in)</li>
             <li>Respond to your comments, questions, and support requests</li>
@@ -139,8 +139,8 @@ const PrivacyPolicy = () => {
           <p>Apollo Reborn relies on the following third-party services. Each handles only the data needed for its function and is bound by its own privacy policy:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li><strong>Supabase</strong> — authentication, database, file storage, and serverless backend functions.</li>
-            <li><strong>RevenueCat</strong> — App Store / Play Store receipt verification and subscription state.</li>
-            <li><strong>Apple App Store &amp; Google Play Store</strong> — billing and payment processing for subscriptions.</li>
+            <li><strong>RevenueCat</strong> — App Store receipt verification and subscription state.</li>
+            <li><strong>Apple App Store</strong> — billing and payment processing for subscriptions.</li>
             <li><strong>Apple HealthKit</strong> — on-device source for the health categories listed above (iOS only).</li>
             <li><strong>Resend</strong> — transactional email delivery (account, security, and coach messages).</li>
             <li><strong>Lovable AI Gateway</strong> (Google Gemini, OpenAI) — AI inference for macro estimates and meal planning. Inputs are not used to train third-party models.</li>

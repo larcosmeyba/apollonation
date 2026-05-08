@@ -167,7 +167,7 @@ const AdminUsers = () => {
     if (!p.is_subscribed) return { label: "Free", className: "bg-muted text-muted-foreground" };
     if (p.manual_subscription) return { label: "Manual", className: "bg-purple-500/20 text-purple-400" };
     if (p.subscription_store === "app_store") return { label: "App Store", className: "bg-primary/20 text-primary" };
-    if (p.subscription_store === "play_store") return { label: "Play Store", className: "bg-primary/20 text-primary" };
+    if (p.subscription_store === "play_store") return { label: "Store", className: "bg-primary/20 text-primary" };
     return { label: "Subscribed", className: "bg-primary/20 text-primary" };
   };
 
@@ -376,7 +376,7 @@ const AdminUsers = () => {
               <div>
                 <Label className="text-sm">Grant subscription manually</Label>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Bypasses App Store / Play Store billing.
+                  Bypasses app store billing.
                 </p>
               </div>
               <Switch

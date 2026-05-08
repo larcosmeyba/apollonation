@@ -64,20 +64,18 @@ const TermsOfService = () => {
           <h2 className="font-heading text-2xl text-foreground mt-8">4. Subscription and Payments</h2>
           <p>
             Apollo Reborn offers a monthly plan and an annual plan. Subscriptions are sold and billed
-            exclusively through the Apple App Store (iOS) and Google Play Store (Android). By subscribing, you agree to:
+            exclusively through the App Store. By subscribing, you agree to:
           </p>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Pay all applicable fees as displayed in the App Store or Play Store at the time of purchase</li>
+            <li>Pay all applicable fees as displayed in the App Store at the time of purchase</li>
             <li>Accept that subscriptions auto-renew at the end of each billing period unless cancelled at least 24 hours before renewal</li>
-            <li>Manage, switch, or cancel your subscription in your Apple ID or Google Play account settings</li>
+            <li>Manage, switch, or cancel your subscription in your App Store account settings</li>
             <li>Understand that uninstalling the app does not cancel your subscription</li>
           </ul>
           <p>
-            Refunds are governed by Apple's and Google's respective refund policies. We do not process payments directly
-            and cannot issue refunds for store-purchased subscriptions — please contact Apple Support or Google Play Support.
+            Refunds are governed by Apple's refund policies. We do not process payments directly
+            and cannot issue refunds for store-purchased subscriptions — please contact Apple Support.
           </p>
-
-          <h2 className="font-heading text-2xl text-foreground mt-8">4a. Third-Party Services</h2>
           <p>
             We rely on the following third-party services to operate Apollo Reborn. By using the Services,
             you also agree to the terms of these providers where applicable:
@@ -85,7 +83,7 @@ const TermsOfService = () => {
           <ul className="list-disc pl-6 space-y-2">
             <li><strong>Supabase</strong> — authentication, database, and file storage</li>
             <li><strong>RevenueCat</strong> — subscription management and entitlement validation</li>
-            <li><strong>Apple App Store &amp; Google Play Store</strong> — payment processing and billing</li>
+            <li><strong>Apple App Store</strong> — payment processing and billing</li>
             <li><strong>Apple HealthKit</strong> — on-device health data source (iOS only, with your permission)</li>
             <li><strong>Resend</strong> — transactional email delivery</li>
             <li><strong>Lovable AI Gateway</strong> (Google Gemini, OpenAI) — AI-powered macro estimates and meal planning</li>

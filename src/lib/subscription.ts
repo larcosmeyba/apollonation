@@ -1,4 +1,4 @@
-// Unified subscription model. Apple App Store and Google Play handle billing;
+// Unified subscription model. Apple App Store handles billing;
 // RevenueCat is the verification layer. The DB column `is_subscribed` is the
 // source of truth — write entitlement state from the server, read on the client.
 
