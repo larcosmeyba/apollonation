@@ -24,6 +24,14 @@ const READ_PERMISSIONS = [
 const isAppleHealthAvailable = (): boolean =>
   isNative() && Capacitor.getPlatform() === "ios";
 
+interface HealthSyncDiagnostics {
+  stepSamplesToday: number;
+  calorieSamplesToday: number;
+  sleepSamplesToday: number;
+  workoutSamplesToday: number;
+  lastMessage: string | null;
+}
+
 interface DailyHealthSummary {
   log_date: string;
   steps: number;
@@ -37,10 +45,25 @@ interface DailyHealthSummary {
   raw_workouts: any[];
 }
 
-const ymd = (d: Date) => d.toISOString().split("T")[0];
+const ymd = (d: Date) => {
+  const year = d.getFullYear();
+  const month = `${d.getMonth() + 1}`.padStart(2, "0");
+  const day = `${d.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const sumValues = (rows: any[]): number =>
   (rows || []).reduce((acc, r) => acc + (Number(r?.value) || 0), 0);
+
+const durationToMinutes = (value: unknown): number => {
+  const duration = Number(value) || 0;
+  if (duration <= 0) return 0;
+  // @perfood/capacitor-healthkit returns duration in hours for sleep/workouts.
+  if (duration <= 48) return duration * 60;
+  // Defensive fallback if a native implementation ever returns seconds.
+  if (duration > 1000) return duration / 60;
+  return duration;
+};
 
 export const useAppleHealth = () => {
   const { user } = useAuth();
