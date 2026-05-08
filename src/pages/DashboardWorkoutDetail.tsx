@@ -137,12 +137,14 @@ const InlineRestTimer = ({ seconds }: { seconds: number }) => {
 
 const ExerciseRow = ({
   exercise, dayId, logDate, userId, setLogs, previousSetLogs,
-  exerciseNote, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
+  exerciseNote, dayLabel, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
 }: ExerciseRowProps) => {
+  const { toast } = useToast();
   const [videoOpen, setVideoOpen] = useState(false);
   const [noteExpanded, setNoteExpanded] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [sendingQuestion, setSendingQuestion] = useState(false);
 
   const isCompleted = exerciseNote?.is_completed || false;
   const totalSets = exercise.sets || 3;
