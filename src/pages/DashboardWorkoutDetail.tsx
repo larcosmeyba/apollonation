@@ -43,6 +43,40 @@ interface ExerciseNote {
   is_completed: boolean;
 }
 
+const DEFAULT_WARMUP_MOVES = [
+  "Light walk or bike",
+  "Arm circles + band pull-aparts",
+  "Hip openers + leg swings",
+  "Glute bridges + bodyweight squats",
+];
+
+const QuickWarmupCard = ({ complete, onComplete }: { complete: boolean; onComplete: () => void }) => (
+  <div className={`rounded-xl border bg-card p-4 transition-all ${complete ? "border-green-500/30 opacity-80" : "border-border"}`}>
+    <div className="flex items-start gap-3">
+      <Checkbox checked={complete} onCheckedChange={() => onComplete()} className="mt-0.5" />
+      <div className="flex-1 min-w-0">
+        <p className={`font-heading text-sm tracking-wide ${complete ? "line-through text-muted-foreground" : ""}`}>
+          5-Minute Dynamic Warm-Up
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-1">
+          Raise your temperature, open the joints, and activate today’s muscles before loading weight.
+        </p>
+        <div className="grid grid-cols-1 gap-2 mt-3">
+          {DEFAULT_WARMUP_MOVES.map((move) => (
+            <div key={move} className="flex items-center gap-2 text-xs text-foreground/80">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+              {move}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+        <Clock className="w-3 h-3" /> 5 min
+      </div>
+    </div>
+  </div>
+);
+
 // Format reps target — explicitly call out failure & ranges
 const formatRepsTarget = (reps: any): string => {
   if (reps === null || reps === undefined || reps === "") return "AMRAP — to failure";
