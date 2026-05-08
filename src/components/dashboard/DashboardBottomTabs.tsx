@@ -20,7 +20,12 @@ const DashboardBottomTabs = () => {
   const { hasPremiumAccess, hasEliteAccess } = useAccessControl();
   const { unreadCount } = useMessages();
 
-  const isActive = (href: string) => location.pathname === href;
+  const isActive = (href: string) => {
+    if (location.pathname === href) return true;
+    // My Plan redirects to /dashboard/training on native — keep tab highlighted there too
+    if (href === "/dashboard/my-workouts" && location.pathname.startsWith("/dashboard/training")) return true;
+    return false;
+  };
   const isLocked = (lockKey: typeof tabs[number]["lockKey"]) => {
     if (lockKey === "premium") return !hasPremiumAccess;
     if (lockKey === "elite") return !hasEliteAccess;

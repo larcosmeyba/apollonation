@@ -6,7 +6,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import {
   Dumbbell, ChevronRight, Play, Plus, Flame,
-  ChevronLeft, Loader2, Sparkles,
+  ChevronLeft, Loader2, Sparkles, ArrowLeftRight, Check,
 } from "lucide-react";
 import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
 import { Link } from "react-router-dom";
@@ -29,6 +29,7 @@ const DashboardTraining = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddActivity, setShowAddActivity] = useState(false);
   const [activityForm, setActivityForm] = useState({ name: "", duration: "", calories: "", notes: "" });
+  const [swapSource, setSwapSource] = useState<{ day: any; date: Date } | null>(null);
 
   const today = new Date();
   const logDateStr = format(today, "yyyy-MM-dd");
@@ -146,6 +147,51 @@ const DashboardTraining = () => {
 
   const todayWorkout = getWorkoutForDate(today);
   const exercises = todayWorkout?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
+
+  const swapMutation = useMutation({
+    mutationFn: async ({ sourceDay, sourceDate, targetDate }: { sourceDay: any; sourceDate: Date; targetDate: Date }) => {
+      const targetDay = getWorkoutForDate(targetDate);
+      const sourceDateStr = format(sourceDate, "yyyy-MM-dd");
+      const targetDateStr = format(targetDate, "yyyy-MM-dd");
+      // Move source workout to target date
+      await (supabase as any)
+        .from("training_plan_days")
+        .update({ scheduled_date: targetDateStr })
+        .eq("id", sourceDay.id);
+      // If target had a workout, move it to source date (true swap); else just leave source date open
+      if (targetDay) {
+        await (supabase as any)
+          .from("training_plan_days")
+          .update({ scheduled_date: sourceDateStr })
+          .eq("id", targetDay.id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-training-plan-full"] });
+      setSwapSource(null);
+      toast({ title: "Workouts swapped ✓" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Couldn't swap", description: err.message, variant: "destructive" });
+    },
+  });
+
+  // Build week list of workouts (only days that have a workout, ordered by date)
+  const weekWorkouts = useMemo(() => {
+    return weekDates
+      .map((date) => ({ date, day: getWorkoutForDate(date) }))
+      .filter((w) => !!w.day);
+  }, [weekDates, getWorkoutForDate]);
+
+  const muscleSummary = (day: any): string => {
+    const groups = new Set<string>();
+    (day?.training_plan_exercises || []).forEach((ex: any) => {
+      const g = ex.muscle_group;
+      if (g && g !== "warmup" && g !== "cooldown") groups.add(g);
+    });
+    return Array.from(groups).slice(0, 4).join(" · ");
+  };
+
 
   return (
     <DashboardLayout>
@@ -283,7 +329,114 @@ const DashboardTraining = () => {
             </div>
           </div>
         )}
+
+        {/* This Week's Workouts */}
+        {planData && weekWorkouts.length > 0 && (
+          <div className="rounded-xl border border-border/20 overflow-hidden">
+            <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+              <div>
+                <p className="text-eyebrow uppercase text-foreground/25 mb-0.5">This Week</p>
+                <h3 className="font-heading text-base text-foreground/80">Upcoming Workouts</h3>
+              </div>
+              <span className="text-[10px] text-foreground/30 uppercase tracking-wider">Tap ⇄ to swap</span>
+            </div>
+            <div className="divide-y divide-border/15">
+              {weekWorkouts.map(({ date, day }) => {
+                const dStr = format(date, "yyyy-MM-dd");
+                const completed = completedSessions.some((s: any) => s.log_date === dStr);
+                const isTodayRow = isToday(date);
+                const muscles = muscleSummary(day);
+                return (
+                  <div
+                    key={day.id}
+                    className={`flex items-center gap-3 px-4 py-3 ${isTodayRow ? "bg-foreground/[0.03]" : ""}`}
+                  >
+                    <div className="w-10 text-center flex-shrink-0">
+                      <p className="text-[9px] uppercase tracking-wider text-foreground/40">{format(date, "EEE")}</p>
+                      <p className="font-heading text-base text-foreground/80 leading-tight">{format(date, "d")}</p>
+                    </div>
+                    <Link
+                      to={`/dashboard/training/workout?day=${day.id}&date=${dStr}`}
+                      className="flex-1 min-w-0"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-medium text-foreground/85 truncate">
+                          {day.day_label || `Day ${day.day_number}`}
+                        </p>
+                        {completed && <Check className="w-3 h-3 text-green-500 flex-shrink-0" />}
+                      </div>
+                      {(muscles || day.focus) && (
+                        <p className="text-[11px] text-foreground/40 truncate mt-0.5">
+                          {muscles || day.focus}
+                        </p>
+                      )}
+                    </Link>
+                    <button
+                      onClick={() => setSwapSource({ day, date })}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground/40 hover:text-foreground/80 hover:bg-foreground/5 transition-colors flex-shrink-0"
+                      aria-label="Swap workout day"
+                    >
+                      <ArrowLeftRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Swap Workout Dialog */}
+      <Dialog open={!!swapSource} onOpenChange={(o) => !o && setSwapSource(null)}>
+        <DialogContent className="max-w-sm bg-background border-border/30">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-lg">Move workout to…</DialogTitle>
+          </DialogHeader>
+          {swapSource && (
+            <div className="space-y-2 pt-2">
+              <p className="text-xs text-foreground/50">
+                Moving <span className="text-foreground/80 font-medium">
+                  {swapSource.day.day_label || `Day ${swapSource.day.day_number}`}
+                </span> from {format(swapSource.date, "EEE MMM d")}. If the target day already has a workout, they'll swap.
+              </p>
+              <div className="grid grid-cols-1 gap-1.5 pt-2">
+                {weekDates
+                  .filter((d) => !isSameDay(d, swapSource.date))
+                  .map((d) => {
+                    const target = getWorkoutForDate(d);
+                    return (
+                      <button
+                        key={d.toISOString()}
+                        disabled={swapMutation.isPending}
+                        onClick={() => swapMutation.mutate({
+                          sourceDay: swapSource.day,
+                          sourceDate: swapSource.date,
+                          targetDate: d,
+                        })}
+                        className="flex items-center justify-between p-3 rounded-lg border border-border/20 hover:border-foreground/30 hover:bg-foreground/5 transition-colors text-left disabled:opacity-50"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground/80">
+                            {format(d, "EEE, MMM d")}
+                          </p>
+                          <p className="text-[11px] text-foreground/40 truncate">
+                            {target ? (target.day_label || `Day ${target.day_number}`) : "Rest day (will move here)"}
+                          </p>
+                        </div>
+                        <ArrowLeftRight className="w-3.5 h-3.5 text-foreground/30 flex-shrink-0 ml-2" />
+                      </button>
+                    );
+                  })}
+              </div>
+              {swapMutation.isPending && (
+                <div className="flex items-center justify-center pt-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-foreground/40" />
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Add Activity Dialog */}
       <Dialog open={showAddActivity} onOpenChange={setShowAddActivity}>
