@@ -840,26 +840,55 @@ const DashboardWorkoutDetail = () => {
           </div>
         )}
 
-        {/* Exercises */}
-        {dayData && exercises.length > 0 && <div className="space-y-3">
-          {exercises.map((ex: any) => (
-            <ExerciseRow
-              key={ex.id}
-              exercise={ex}
-              dayId={dayId || ""}
-              logDate={dateParam}
-              userId={user?.id || ""}
-              setLogs={localSetLogs[ex.id] || []}
-              previousSetLogs={previousSetLogs[ex.id] || []}
-              exerciseNote={localNotes[ex.id] || null}
-              dayLabel={dayData?.day_label || (dayData?.day_number ? `Day ${dayData.day_number}` : "")}
-              onSetLogChange={handleSetLogChange}
-              onNoteChange={handleNoteChange}
-              onToggleComplete={handleToggleComplete}
-              onSwap={() => handleSwapExercise(ex)}
-            />
-          ))}
-        </div>}
+        {/* Blocks: Warm-Up → Main → Cool-Down */}
+        {dayData && exercises.length > 0 && (
+          <div className="space-y-6">
+            {[
+              { key: "warmup", title: "Warm-Up Block", subtitle: "5 min · prep your body", list: warmupExercises, locked: false, doneCount: warmupExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: warmupDone },
+              { key: "main", title: "Main Workout", subtitle: "Today's training", list: mainExercises, locked: !warmupDone, doneCount: mainExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: mainDone },
+              { key: "cooldown", title: "Cool-Down Block", subtitle: "5 min · stretches for today's muscles", list: cooldownExercises, locked: !warmupDone || !mainDone, doneCount: cooldownExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: allDoneIn(cooldownExercises) },
+            ].map((block) => block.list.length > 0 && (
+              <div key={block.key} className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <div>
+                    <p className="text-eyebrow uppercase tracking-wider text-foreground/50">{block.title}</p>
+                    <p className="text-[11px] text-muted-foreground">{block.subtitle}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    {block.complete && <Check className="w-3.5 h-3.5 text-green-500" />}
+                    <span>{block.doneCount}/{block.list.length}</span>
+                  </div>
+                </div>
+                <div className={`relative space-y-3 ${block.locked ? "opacity-50 pointer-events-none select-none" : ""}`}>
+                  {block.list.map((ex: any) => (
+                    <ExerciseRow
+                      key={ex.id}
+                      exercise={ex}
+                      dayId={dayId || ""}
+                      logDate={dateParam}
+                      userId={user?.id || ""}
+                      setLogs={localSetLogs[ex.id] || []}
+                      previousSetLogs={previousSetLogs[ex.id] || []}
+                      exerciseNote={localNotes[ex.id] || null}
+                      dayLabel={dayData?.day_label || (dayData?.day_number ? `Day ${dayData.day_number}` : "")}
+                      onSetLogChange={handleSetLogChange}
+                      onNoteChange={handleNoteChange}
+                      onToggleComplete={handleToggleComplete}
+                      onSwap={() => handleSwapExercise(ex)}
+                    />
+                  ))}
+                  {block.locked && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="px-4 py-2 rounded-full bg-background/90 border border-border text-[11px] text-foreground/70 backdrop-blur">
+                        {block.key === "main" ? "Complete the warm-up to unlock" : "Complete the main workout to unlock"}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Finish Workout Button */}
         {totalExercises > 0 && !sessionLog?.completed_at && (
