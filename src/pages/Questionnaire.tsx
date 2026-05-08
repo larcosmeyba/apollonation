@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Navigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuestionnaire } from "@/hooks/useQuestionnaire";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ const STEPS = ["Personal Info", "Training", "Nutrition"];
 
 const Questionnaire = () => {
   const { user, loading } = useAuth();
+  const { hasQuestionnaire, loading: qLoading } = useQuestionnaire(user?.id);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [step, setStep] = useState(0);
@@ -57,7 +59,7 @@ const Questionnaire = () => {
     waiver_accepted: false,
   });
 
-  if (loading) {
+  if (loading || (user && qLoading)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-primary">Loading...</div>
@@ -66,6 +68,10 @@ const Questionnaire = () => {
   }
 
   if (!user) return <Navigate to="/auth" replace />;
+
+  // One-time questionnaire: if the user already has a saved row, send them
+  // straight to the dashboard so they don't refill it.
+  if (hasQuestionnaire) return <Navigate to="/dashboard" replace />;
 
   const updateField = (field: string, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
