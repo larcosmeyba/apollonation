@@ -72,6 +72,13 @@ export const useAppleHealth = () => {
   const [syncing, setSyncing] = useState(false);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<HealthSyncDiagnostics>({
+    stepSamplesToday: 0,
+    calorieSamplesToday: 0,
+    sleepSamplesToday: 0,
+    workoutSamplesToday: 0,
+    lastMessage: null,
+  });
   const syncedThisSessionRef = useRef(false);
 
   // Load saved connection state
@@ -98,9 +105,10 @@ export const useAppleHealth = () => {
     try {
       await CapacitorHealthkit.isAvailable();
       await CapacitorHealthkit.requestAuthorization({
-        all: [],
+        // The plugin expects empty-string placeholders here on some iOS builds.
+        all: [""],
         read: READ_PERMISSIONS,
-        write: [],
+        write: [""],
       });
       setError(null);
       return true;
@@ -128,7 +136,11 @@ export const useAppleHealth = () => {
           ...baseQ,
           sampleName,
         });
-        return res?.resultData ?? [];
+        const rows = res?.resultData ?? [];
+        if (ymd(date) === ymd(new Date())) {
+          console.info(`[AppleHealth] ${sampleName}`, { count: rows.length, first: rows[0] ?? null });
+        }
+        return rows;
       } catch (e) {
         console.warn(`[AppleHealth] query ${sampleName} failed`, e);
         return [];
@@ -152,14 +164,26 @@ export const useAppleHealth = () => {
     const sleepMinutes = Math.round(
       (sleep || [])
         .filter((s: any) => /asleep/i.test(s?.sleepState ?? ""))
-        .reduce((acc: number, s: any) => acc + (Number(s?.duration) || 0) / 60, 0)
+        .reduce((acc: number, s: any) => acc + durationToMinutes(s?.duration), 0)
     );
 
     // Workouts
     const workoutCount = workouts.length;
     const workoutMinutes = Math.round(
-      (workouts || []).reduce((acc: number, w: any) => acc + (Number(w?.duration) || 0) / 60, 0)
+      (workouts || []).reduce((acc: number, w: any) => acc + durationToMinutes(w?.duration), 0)
     );
+
+    if (ymd(date) === ymd(new Date())) {
+      setDiagnostics({
+        stepSamplesToday: steps.length,
+        calorieSamplesToday: calories.length,
+        sleepSamplesToday: sleep.length,
+        workoutSamplesToday: workouts.length,
+        lastMessage: totalSteps > 0
+          ? `Synced ${totalSteps.toLocaleString()} steps from Apple Health.`
+          : "Apple Health returned 0 step samples for today.",
+      });
+    }
 
     // Weight: last reading of the day, kg
     const lastWeight = weight.length ? Number(weight[weight.length - 1]?.value) : null;
