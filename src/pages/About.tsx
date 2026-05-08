@@ -32,16 +32,19 @@ const About = () => {
           </p>
         </div>
 
-        {/* The Coach */}
+        {/* The Founder */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Meet the Founder
           </h2>
           <p className="text-sm text-foreground leading-relaxed">
-            Marcos Leyba is a certified fitness coach and the founder of Apollo Reborn. With years of experience in personal training, group coaching, and program design, Marcos has helped hundreds of clients transform their bodies and build sustainable fitness habits.
+            Marcos Leyba is a certified fitness coach and the founder of Apollo Reborn. After years in the gym and in the trenches of personal training, he realized one truth: every fitness app on the market felt disconnected — cluttered interfaces, cookie-cutter programs, and no real accountability. Nothing matched the precision he demanded for his clients.
           </p>
           <p className="text-sm text-foreground leading-relaxed">
-            His approach combines strength training, functional movement, and nutrition guidance into one cohesive system. Apollo Reborn is the platform he built to scale that coaching to reach more people.
+            Drawing on a background in web design and digital business creation, Marcos decided to build what the industry was missing. He personally designed every screen, every flow, and every detail of Apollo Reborn — from the training logic to the user experience — to deliver a platform that feels as intentional as the workouts themselves.
+          </p>
+          <p className="text-sm text-foreground leading-relaxed">
+            Apollo Reborn is the result: a fully integrated training ecosystem built by a coach who refused to settle for mediocrity. His approach combines evidence-based strength training, functional movement, and practical nutrition guidance into one cohesive system — engineered to scale real coaching to anyone, anywhere.
           </p>
         </div>
 
