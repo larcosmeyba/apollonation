@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Heart, Footprints, Flame, Moon, Activity, RefreshCw, Loader2, CheckCircle2 } from "lucide-react";
+import { Heart, Footprints, Flame, Moon, Activity, RefreshCw, Loader2, CheckCircle2, ShieldCheck, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppleHealth } from "@/hooks/useAppleHealth";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,12 +29,13 @@ interface TodayRow {
 
 const AppleHealthCard = () => {
   const { user } = useAuth();
-  const { available, connected, syncing, lastSyncAt, error: rawError, connect, sync } = useAppleHealth();
+  const { available, connected, syncing, lastSyncAt, error: rawError, diagnostics, connect, sync } = useAppleHealth();
   const error = rawError && /not implemented|not available/i.test(rawError)
     ? "Apple Health requires the latest app update"
     : rawError;
   const [today, setToday] = useState<TodayRow | null>(null);
   const [showPrePrompt, setShowPrePrompt] = useState(false);
+  const [permissionStep, setPermissionStep] = useState<"intro" | "system">("intro");
 
   const isIOS = isNative() && Capacitor.getPlatform() === "ios";
 
@@ -63,7 +64,7 @@ const AppleHealthCard = () => {
         toast({
           title: "Connected, but no data yet",
           description:
-            "Open the iPhone Settings → Health → Data Access & Devices → Apollo Reborn and turn ON every category (Steps, Heart Rate, Sleep, etc.).",
+            "Open iPhone Settings → Health → Data Access & Devices → Apollo Reborn and turn ON Steps, Calories, Sleep, and Heart Rate.",
         });
       }
     }
@@ -73,15 +74,21 @@ const AppleHealthCard = () => {
   if (!isIOS) return null;
   if (!available) return null;
 
-  const handleConnectClick = () => setShowPrePrompt(true);
+  const handleConnectClick = () => {
+    setPermissionStep("intro");
+    setShowPrePrompt(true);
+  };
 
   const handleApprove = async () => {
+    setPermissionStep("system");
+    const ok = await connect();
     setShowPrePrompt(false);
-    await connect();
-    toast({
-      title: "Apple Health connected",
-      description: "We'll keep your steps, heart rate, sleep, and calories in sync.",
-    });
+    if (ok) {
+      toast({
+        title: "Apple Health connected",
+        description: "Steps, heart rate, sleep, calories, workouts, and weight will refresh automatically.",
+      });
+    }
   };
 
   if (!connected) {
