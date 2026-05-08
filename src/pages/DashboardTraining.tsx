@@ -148,6 +148,51 @@ const DashboardTraining = () => {
   const todayWorkout = getWorkoutForDate(today);
   const exercises = todayWorkout?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
 
+  const swapMutation = useMutation({
+    mutationFn: async ({ sourceDay, sourceDate, targetDate }: { sourceDay: any; sourceDate: Date; targetDate: Date }) => {
+      const targetDay = getWorkoutForDate(targetDate);
+      const sourceDateStr = format(sourceDate, "yyyy-MM-dd");
+      const targetDateStr = format(targetDate, "yyyy-MM-dd");
+      // Move source workout to target date
+      await (supabase as any)
+        .from("training_plan_days")
+        .update({ scheduled_date: targetDateStr })
+        .eq("id", sourceDay.id);
+      // If target had a workout, move it to source date (true swap); else just leave source date open
+      if (targetDay) {
+        await (supabase as any)
+          .from("training_plan_days")
+          .update({ scheduled_date: sourceDateStr })
+          .eq("id", targetDay.id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-training-plan-full"] });
+      setSwapSource(null);
+      toast({ title: "Workouts swapped ✓" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Couldn't swap", description: err.message, variant: "destructive" });
+    },
+  });
+
+  // Build week list of workouts (only days that have a workout, ordered by date)
+  const weekWorkouts = useMemo(() => {
+    return weekDates
+      .map((date) => ({ date, day: getWorkoutForDate(date) }))
+      .filter((w) => !!w.day);
+  }, [weekDates, getWorkoutForDate]);
+
+  const muscleSummary = (day: any): string => {
+    const groups = new Set<string>();
+    (day?.training_plan_exercises || []).forEach((ex: any) => {
+      const g = ex.muscle_group;
+      if (g && g !== "warmup" && g !== "cooldown") groups.add(g);
+    });
+    return Array.from(groups).slice(0, 4).join(" · ");
+  };
+
+
   return (
     <DashboardLayout>
       <div className="max-w-3xl mx-auto space-y-5">
