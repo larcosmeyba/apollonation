@@ -223,7 +223,7 @@ const DashboardTraining = () => {
           </div>
         ) : todayWorkout ? (
           <div className="rounded-xl border border-border/20 overflow-hidden">
-            <div className="p-4 pb-2 flex items-center justify-between">
+            <div className="p-4 flex items-center justify-between">
               <div>
                 <p className="text-eyebrow uppercase text-foreground/25 mb-0.5">Today's Workout</p>
                 <h2 className="font-heading text-lg text-foreground/80">
@@ -236,52 +236,6 @@ const DashboardTraining = () => {
               <Link to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`}>
                 <Button variant="apollo" size="sm" className="gap-1.5 text-xs">
                   <Play className="w-3 h-3" /> Start
-                </Button>
-              </Link>
-            </div>
-
-            <div className="divide-y divide-border/10">
-              {exercises.map((ex: any, i: number) => {
-                const exData = getExerciseVideo(ex.exercise_name);
-                const videoId = exData?.video_url ? getYouTubeVideoId(exData.video_url) : null;
-                const thumbnail = videoId
-                  ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
-                  : exData?.thumbnail_url;
-
-                return (
-                  <div key={ex.id} className="flex items-center gap-3 px-4 py-2.5">
-                    <span className="w-5 h-5 rounded-full bg-foreground/5 flex items-center justify-center text-[9px] text-foreground/30 flex-shrink-0">
-                      {i + 1}
-                    </span>
-
-                    {thumbnail ? (
-                      <div className="relative w-12 h-8 rounded-md overflow-hidden flex-shrink-0 border border-border/20">
-                        <img src={thumbnail} alt="" className="w-full h-full object-cover" loading="lazy" />
-                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                          <Play className="w-2.5 h-2.5 text-white" fill="currentColor" />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="w-12 h-8 rounded-md bg-foreground/[0.03] flex items-center justify-center flex-shrink-0">
-                        <Dumbbell className="w-3 h-3 text-foreground/15" />
-                      </div>
-                    )}
-
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[12px] font-medium truncate text-foreground/70">{ex.exercise_name}</p>
-                      <p className="text-[10px] text-foreground/25">
-                        {ex.sets} × {ex.reps}{ex.rest_seconds ? ` · ${ex.rest_seconds}s rest` : ""}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="p-4 pt-2">
-              <Link to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`} className="block">
-                <Button variant="apollo" className="w-full text-xs">
-                  Start Full Workout
                 </Button>
               </Link>
             </div>
