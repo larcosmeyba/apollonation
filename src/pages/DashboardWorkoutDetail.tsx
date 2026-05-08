@@ -834,6 +834,7 @@ const DashboardWorkoutDetail = () => {
               setLogs={localSetLogs[ex.id] || []}
               previousSetLogs={previousSetLogs[ex.id] || []}
               exerciseNote={localNotes[ex.id] || null}
+              dayLabel={dayData?.day_label || (dayData?.day_number ? `Day ${dayData.day_number}` : "")}
               onSetLogChange={handleSetLogChange}
               onNoteChange={handleNoteChange}
               onToggleComplete={handleToggleComplete}
