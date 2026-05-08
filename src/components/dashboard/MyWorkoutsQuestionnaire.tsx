@@ -23,6 +23,7 @@ export interface QuestionnairePayload {
   equipment: string[];
   training_days: string[]; // ["mon", "tue", ...]
   coach_intensity: "more" | "fewer" | "silent";
+  workout_duration_minutes: number; // 30–75
 }
 
 const GOALS = [
@@ -75,6 +76,7 @@ const payloadSchema = z.object({
   equipment: z.array(z.string()),
   training_days: z.array(z.string()).min(1, "Pick at least one training day"),
   coach_intensity: z.enum(["more", "fewer", "silent"]),
+  workout_duration_minutes: z.number().min(30).max(75),
 });
 
 interface Props {
@@ -101,9 +103,10 @@ const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
     equipment: [],
     training_days: [],
     coach_intensity: "more",
+    workout_duration_minutes: 45,
   });
 
-  const totalSteps = 7;
+  const totalSteps = 8;
   const skipEquipment = data.training_location === "gym";
 
   const goNext = () => {
@@ -147,6 +150,8 @@ const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
         return skipEquipment || data.equipment.length > 0;
       case 6:
         return data.training_days.length > 0;
+      case 7:
+        return data.workout_duration_minutes >= 30 && data.workout_duration_minutes <= 75;
       default:
         return true;
     }
@@ -452,6 +457,32 @@ const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
                         {opt.label}
                       </button>
                     ))}
+                  </div>
+                </div>
+              </Section>
+            )}
+
+            {step === 7 && (
+              <Section
+                title="How long do you have for each workout?"
+                subtitle="We'll size the warm-up, main lift block, and cool-down to fit. 30 min minimum, 75 min max."
+              >
+                <div className="max-w-md space-y-6">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-6xl font-heading font-bold">{data.workout_duration_minutes}</span>
+                    <span className="text-foreground/60">minutes</span>
+                  </div>
+                  <Slider
+                    min={30}
+                    max={75}
+                    step={5}
+                    value={[data.workout_duration_minutes]}
+                    onValueChange={(v) => setData({ ...data, workout_duration_minutes: v[0] })}
+                  />
+                  <div className="flex justify-between text-[10px] uppercase tracking-wider text-foreground/40">
+                    <span>Quick · 30</span>
+                    <span>Standard · 45</span>
+                    <span>Long · 75</span>
                   </div>
                 </div>
               </Section>
