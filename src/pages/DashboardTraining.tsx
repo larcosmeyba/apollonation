@@ -6,7 +6,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import {
   Dumbbell, ChevronRight, Play, Plus, Flame,
-  ChevronLeft, Loader2, Sparkles,
+  ChevronLeft, Loader2, Sparkles, ArrowLeftRight, Check,
 } from "lucide-react";
 import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
 import { Link } from "react-router-dom";
