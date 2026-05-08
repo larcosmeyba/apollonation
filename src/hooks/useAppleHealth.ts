@@ -277,6 +277,27 @@ export const useAppleHealth = () => {
     sync({ silent: true });
   }, [available, user, connected, sync]);
 
+  // Re-sync every time the app returns to the foreground so steps/calories
+  // stay current without the user pressing refresh.
+  useEffect(() => {
+    if (!available || !user || !connected) return;
+    let cleanup: (() => void) | null = null;
+    (async () => {
+      try {
+        const { App } = await import("@capacitor/app");
+        const handle = await App.addListener("appStateChange", ({ isActive }) => {
+          if (isActive) sync({ silent: true });
+        });
+        cleanup = () => handle.remove();
+      } catch (e) {
+        console.warn("[AppleHealth] could not attach appStateChange listener", e);
+      }
+    })();
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [available, user, connected, sync]);
+
   return {
     available,
     connected,
