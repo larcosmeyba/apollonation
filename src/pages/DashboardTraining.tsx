@@ -29,6 +29,7 @@ const DashboardTraining = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddActivity, setShowAddActivity] = useState(false);
   const [activityForm, setActivityForm] = useState({ name: "", duration: "", calories: "", notes: "" });
+  const [swapSource, setSwapSource] = useState<{ day: any; date: Date } | null>(null);
 
   const today = new Date();
   const logDateStr = format(today, "yyyy-MM-dd");
