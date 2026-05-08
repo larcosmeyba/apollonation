@@ -931,7 +931,7 @@ const DashboardProfile = () => {
                       toast({ title: "Rating coming soon", description: "App Store listing isn't live yet." });
                       return;
                     }
-                    openExternal(APP_STORE_RATE_URL ?? PLAY_STORE_RATE_URL, PLAY_STORE_RATE_URL);
+                    openUrl(APP_STORE_RATE_URL ?? "https://apps.apple.com/app/id" + (APP_STORE_ID || ""));
                   }}
                   className="flex items-center justify-between w-full py-3.5 border-b border-border"
                 >
