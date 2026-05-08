@@ -89,7 +89,7 @@ serve(async (req) => {
     console.log(`Exercise library loaded: ${exerciseLibrary?.length || 0} exercises`);
 
     const { workout_days_per_week, training_methods, goal_next_4_weeks, sex, age, weight_lbs, activity_level, workout_duration_minutes } = questionnaire;
-    const workoutDuration = workout_duration_minutes || 60;
+    const workoutDuration = Math.max(30, Math.min(75, workout_duration_minutes || 45));
     const clientAge = age || 30;
 
     // Age-based training guidelines
