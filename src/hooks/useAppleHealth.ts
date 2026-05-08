@@ -317,11 +317,13 @@ export const useAppleHealth = () => {
     [available, user, syncing, fetchDayData]
   );
 
-  const connect = useCallback(async () => {
+  const connect = useCallback(async (): Promise<boolean> => {
     const ok = await requestPermissions();
     if (ok) {
       await sync();
+      return true;
     }
+    return false;
   }, [requestPermissions, sync]);
 
   // Auto-sync on app open (once per session, only if previously connected)
