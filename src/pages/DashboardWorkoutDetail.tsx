@@ -43,6 +43,30 @@ interface ExerciseNote {
   is_completed: boolean;
 }
 
+// Format reps target — explicitly call out failure & ranges
+const formatRepsTarget = (reps: any): string => {
+  if (reps === null || reps === undefined || reps === "") return "AMRAP — to failure";
+  const s = String(reps).trim();
+  const lower = s.toLowerCase();
+  if (
+    lower.includes("fail") ||
+    lower === "amrap" ||
+    lower === "max" ||
+    lower.includes("to failure")
+  ) {
+    return "To failure";
+  }
+  // Pure number → suggest a range (±2)
+  const n = Number(s);
+  if (!isNaN(n) && /^\d+$/.test(s)) {
+    const low = Math.max(1, n - 2);
+    return `${low}–${n + 2} reps`;
+  }
+  // Already a range like "8-12" or descriptive (e.g. "30 sec")
+  if (/^\d+\s*[-–]\s*\d+$/.test(s)) return `${s.replace(/\s/g, "")} reps`;
+  return s;
+};
+
 /** Storage video player with signed URL */
 const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
   const [bucket, ...pathParts] = storagePath.split("/");
