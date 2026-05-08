@@ -184,6 +184,13 @@ const AppleHealthCard = () => {
         </div>
       ) : null}
 
+      {lastSyncAt && (
+        <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-muted/20 px-2.5 py-2 text-[10px] text-muted-foreground">
+          <span>{diagnostics.lastMessage || "Apple Health sync complete"}</span>
+          <span className="whitespace-nowrap">{new Date(lastSyncAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
+        </div>
+      )}
+
       {error && <p className="text-xs text-destructive mt-2">{error}</p>}
     </div>
   );
