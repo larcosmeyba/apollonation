@@ -38,7 +38,7 @@ const About = () => {
             Meet the Founder
           </h2>
           <p className="text-sm text-foreground leading-relaxed">
-            Marcos Leyba is a certified fitness coach and the founder of Apollo Reborn. After years in the gym and in the trenches of personal training, he realized one truth: every fitness app on the market felt disconnected — cluttered interfaces, cookie-cutter programs, and no real accountability. Nothing matched the precision he demanded for his clients.
+            Marcos Leyba is an NASM and AFAA certified fitness coach and the founder of Apollo Reborn. After years in the gym and in the trenches of personal training, he realized one truth: every fitness app on the market felt disconnected — cluttered interfaces, cookie-cutter programs, and no real accountability. Nothing matched the precision he demanded for his clients.
           </p>
           <p className="text-sm text-foreground leading-relaxed">
             Drawing on a background in web design and digital business creation, Marcos decided to build what the industry was missing. He personally designed every screen, every flow, and every detail of Apollo Reborn — from the training logic to the user experience — to deliver a platform that feels as intentional as the workouts themselves.
