@@ -1639,6 +1639,7 @@ export type Database = {
           user_id: string
           weight_unit: string | null
           weight_value: number | null
+          workout_duration_minutes: number | null
         }
         Insert: {
           body_fat_percent?: number | null
@@ -1655,6 +1656,7 @@ export type Database = {
           user_id: string
           weight_unit?: string | null
           weight_value?: number | null
+          workout_duration_minutes?: number | null
         }
         Update: {
           body_fat_percent?: number | null
@@ -1671,6 +1673,7 @@ export type Database = {
           user_id?: string
           weight_unit?: string | null
           weight_value?: number | null
+          workout_duration_minutes?: number | null
         }
         Relationships: []
       }

@@ -1,0 +1,1 @@
+ALTER TABLE public.mw_questionnaire_responses ADD COLUMN IF NOT EXISTS workout_duration_minutes int DEFAULT 45;
