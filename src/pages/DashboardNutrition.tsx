@@ -341,11 +341,33 @@ const DashboardNutrition = () => {
   };
 
   // ── Derived state ──
+  // Source of truth order:
+  //   1) Active nutrition plan (coach-set)
+  //   2) Questionnaire-derived targets (auto-computed via useMacroTargets / Mifflin-St Jeor)
+  //   3) Locally calculated from nutrition profile
+  //   4) Sensible defaults (so the rings are never blank)
+  const macroTargetsFromQuestionnaire = useMacroTargets();
   const targets = {
-    calories: activePlan?.daily_calories || calculatedMacros?.calories || 2500,
-    protein: activePlan?.protein_grams || calculatedMacros?.protein || 180,
-    carbs: activePlan?.carbs_grams || calculatedMacros?.carbs || 300,
-    fat: activePlan?.fat_grams || calculatedMacros?.fat || 70,
+    calories:
+      activePlan?.daily_calories ||
+      macroTargetsFromQuestionnaire.calorie_target ||
+      calculatedMacros?.calories ||
+      2500,
+    protein:
+      activePlan?.protein_grams ||
+      macroTargetsFromQuestionnaire.protein_grams ||
+      calculatedMacros?.protein ||
+      180,
+    carbs:
+      activePlan?.carbs_grams ||
+      macroTargetsFromQuestionnaire.carb_grams ||
+      calculatedMacros?.carbs ||
+      300,
+    fat:
+      activePlan?.fat_grams ||
+      macroTargetsFromQuestionnaire.fat_grams ||
+      calculatedMacros?.fat ||
+      70,
   };
 
   const loggedTotals = macroEntries.reduce(
