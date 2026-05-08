@@ -239,7 +239,7 @@ const ExerciseRow = ({
           {exerciseData?.video_url ? (
             <button
               onClick={() => setVideoOpen(true)}
-              className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-border hover:border-foreground/30 transition-colors"
+              className="relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-border hover:border-foreground/30 transition-colors"
               aria-label="Play demo video"
             >
               {thumbnail ? (
