@@ -43,6 +43,30 @@ interface ExerciseNote {
   is_completed: boolean;
 }
 
+// Format reps target — explicitly call out failure & ranges
+const formatRepsTarget = (reps: any): string => {
+  if (reps === null || reps === undefined || reps === "") return "AMRAP — to failure";
+  const s = String(reps).trim();
+  const lower = s.toLowerCase();
+  if (
+    lower.includes("fail") ||
+    lower === "amrap" ||
+    lower === "max" ||
+    lower.includes("to failure")
+  ) {
+    return "To failure";
+  }
+  // Pure number → suggest a range (±2)
+  const n = Number(s);
+  if (!isNaN(n) && /^\d+$/.test(s)) {
+    const low = Math.max(1, n - 2);
+    return `${low}–${n + 2} reps`;
+  }
+  // Already a range like "8-12" or descriptive (e.g. "30 sec")
+  if (/^\d+\s*[-–]\s*\d+$/.test(s)) return `${s.replace(/\s/g, "")} reps`;
+  return s;
+};
+
 /** Storage video player with signed URL */
 const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
   const [bucket, ...pathParts] = storagePath.split("/");
@@ -69,6 +93,7 @@ interface ExerciseRowProps {
   setLogs: SetLog[];
   previousSetLogs: SetLog[];
   exerciseNote: ExerciseNote | null;
+  dayLabel?: string;
   onSetLogChange: (exerciseId: string, setNumber: number, field: "weight" | "reps_completed", value: number | null) => void;
   onNoteChange: (exerciseId: string, note: string) => void;
   onToggleComplete: (exerciseId: string, completed: boolean) => void;
@@ -112,12 +137,14 @@ const InlineRestTimer = ({ seconds }: { seconds: number }) => {
 
 const ExerciseRow = ({
   exercise, dayId, logDate, userId, setLogs, previousSetLogs,
-  exerciseNote, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
+  exerciseNote, dayLabel, onSetLogChange, onNoteChange, onToggleComplete, onSwap,
 }: ExerciseRowProps) => {
+  const { toast } = useToast();
   const [videoOpen, setVideoOpen] = useState(false);
   const [noteExpanded, setNoteExpanded] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [sendingQuestion, setSendingQuestion] = useState(false);
 
   const isCompleted = exerciseNote?.is_completed || false;
   const totalSets = exercise.sets || 3;
@@ -154,6 +181,38 @@ const ExerciseRow = ({
     ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
     : null;
 
+  const repsTargetLabel = formatRepsTarget(exercise.reps);
+  const isToFailure = repsTargetLabel.toLowerCase().includes("failure");
+
+  const isSetLogged = (setNum: number) => {
+    const log = setLogs.find((l) => l.set_number === setNum);
+    return !!log && log.weight !== null && log.reps_completed !== null;
+  };
+
+  const sendQuestion = async () => {
+    const note = (exerciseNote?.note || "").trim();
+    if (!note) {
+      toast({ title: "Type your question first" });
+      return;
+    }
+    setSendingQuestion(true);
+    try {
+      const { error } = await supabase.functions.invoke("notify-coach-question", {
+        body: {
+          exerciseName: exercise.exercise_name,
+          question: note,
+          workoutLabel: dayLabel || "",
+        },
+      });
+      if (error) throw error;
+      toast({ title: "Question sent to coach", description: "Marcos will get back to you soon." });
+    } catch (e: any) {
+      toast({ title: "Couldn't send", description: e.message, variant: "destructive" });
+    } finally {
+      setSendingQuestion(false);
+    }
+  };
+
   return (
     <>
       <div className={`rounded-xl border bg-card overflow-hidden transition-all ${isCompleted ? "border-green-500/30 opacity-70" : "border-border"} ${justCompleted ? "ring-2 ring-green-500/40" : ""}`}>
@@ -168,8 +227,12 @@ const ExerciseRow = ({
             <p className={`font-heading text-sm tracking-wide ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
               {exercise.exercise_name}
             </p>
-            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-              <span>{totalSets} × {exercise.reps}</span>
+            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
+              <span>{totalSets} sets</span>
+              <span>·</span>
+              <span className={isToFailure ? "text-[hsl(var(--apollo-gold-light))] font-medium" : "text-foreground/80 font-medium"}>
+                {repsTargetLabel}
+              </span>
               {exercise.rest_seconds ? <span>· {exercise.rest_seconds}s rest</span> : null}
               {exercise.muscle_group && <span>· <span className="capitalize">{exercise.muscle_group}</span></span>}
             </div>
@@ -177,24 +240,21 @@ const ExerciseRow = ({
           {exerciseData?.video_url ? (
             <button
               onClick={() => setVideoOpen(true)}
-              className="relative flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border border-border hover:border-foreground/30 transition-colors"
+              className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-border hover:border-foreground/30 transition-colors"
+              aria-label="Play demo video"
             >
               {thumbnail ? (
                 <img src={thumbnail} alt="" className="w-full h-full object-cover" loading="lazy" />
               ) : (
                 <div className="w-full h-full bg-muted flex items-center justify-center">
-                  <Dumbbell className="w-4 h-4 text-muted-foreground/40" />
+                  <Dumbbell className="w-5 h-5 text-muted-foreground/40" />
                 </div>
               )}
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <Play className="w-4 h-4 text-foreground ml-0.5" fill="currentColor" />
+                <Play className="w-5 h-5 text-foreground ml-0.5" fill="currentColor" />
               </div>
             </button>
-          ) : (
-            <Button variant="ghost" size="icon" onClick={onSwap} className="h-8 w-8">
-              <RefreshCw className="w-3.5 h-3.5" />
-            </Button>
-          )}
+          ) : null}
         </div>
 
         {/* Coaching Cues */}
@@ -208,54 +268,55 @@ const ExerciseRow = ({
         {/* Set Logging */}
         <div className="px-4 pb-3 pt-1">
           <div className="space-y-1.5">
-            <div className="grid grid-cols-[28px_1fr_1fr] gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="grid grid-cols-[28px_1fr_1fr_24px] gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
               <span></span>
               <span>Weight</span>
               <span>Reps</span>
+              <span></span>
             </div>
-            {(() => {
-              const isDescriptiveReps = typeof exercise.reps === "string" && exercise.reps && isNaN(Number(String(exercise.reps).split("-")[0]));
+            {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
+              const log = setLogs.find(l => l.set_number === setNum);
+              const prevLog = previousSetLogs.find(l => l.set_number === setNum);
+              const logged = isSetLogged(setNum);
               return (
-                <>
-                  {Array.from({ length: totalSets }, (_, i) => i + 1).map((setNum) => {
-                    const log = setLogs.find(l => l.set_number === setNum);
-                    const prevLog = previousSetLogs.find(l => l.set_number === setNum);
-                    return (
-                      <div key={setNum} className="relative grid grid-cols-[28px_1fr_1fr] gap-2 items-center">
-                        <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
-                        <Input
-                          type="number"
-                          inputMode="decimal"
-                          placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
-                          className="h-8 text-xs text-center px-1"
-                          value={log?.weight ?? ""}
-                          onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
-                        />
-                        <Input
-                          type="number"
-                          inputMode="numeric"
-                          placeholder={isDescriptiveReps ? "—" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : (exercise.reps || "—"))}
-                          className="h-8 text-xs text-center px-1"
-                          value={log?.reps_completed ?? ""}
-                          onChange={(e) => {
-                            onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
-                            if (e.target.value) setShowTimer(true);
-                          }}
-                        />
-                        {isPR(log?.weight ?? null) && (
-                          <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-gradient-to-br from-[hsl(var(--apollo-gold-light))] to-[hsl(var(--apollo-gold-dark))] text-background shadow-[var(--shadow-glow-gold)]">
-                            PR
-                          </span>
-                        )}
+                <div key={setNum} className="relative grid grid-cols-[28px_1fr_1fr_24px] gap-2 items-center">
+                  <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
+                    className="h-8 text-xs text-center px-1"
+                    value={log?.weight ?? ""}
+                    onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
+                  />
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder={isToFailure ? "AMRAP" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : "—")}
+                    className="h-8 text-xs text-center px-1"
+                    value={log?.reps_completed ?? ""}
+                    onChange={(e) => {
+                      onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
+                      if (e.target.value) setShowTimer(true);
+                    }}
+                  />
+                  <div className="flex items-center justify-center">
+                    {logged ? (
+                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center transition-all animate-in zoom-in duration-200">
+                        <Check className="w-3 h-3 text-background" strokeWidth={3} />
                       </div>
-                    );
-                  })}
-                  {isDescriptiveReps && (
-                    <p className="text-[10px] text-foreground/40 italic mt-0.5">Target: {exercise.reps}</p>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border border-border" />
+                    )}
+                  </div>
+                  {isPR(log?.weight ?? null) && (
+                    <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-gradient-to-br from-[hsl(var(--apollo-gold-light))] to-[hsl(var(--apollo-gold-dark))] text-background shadow-[var(--shadow-glow-gold)]">
+                      PR
+                    </span>
                   )}
-                </>
+                </div>
               );
-            })()}
+            })}
             {showTimer && exercise.rest_seconds && (
               <InlineRestTimer seconds={exercise.rest_seconds} />
             )}
@@ -266,30 +327,44 @@ const ExerciseRow = ({
         </div>
 
         {/* Bottom actions */}
-        <div className="px-4 pb-3 flex items-center justify-between">
+        <div className="px-4 pb-3 flex items-center justify-between gap-3">
           <button
             onClick={() => setNoteExpanded(!noteExpanded)}
             className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
           >
             <StickyNote className="w-3 h-3" />
-            {exerciseNote?.note ? "Edit note" : "Add note"}
+            {exerciseNote?.note ? "Edit question for coach" : "Question for Coach"}
           </button>
-          {exerciseData?.video_url && (
-            <Button variant="ghost" size="icon" onClick={onSwap} className="h-7 w-7">
-              <RefreshCw className="w-3 h-3" />
-            </Button>
-          )}
+          <button
+            onClick={onSwap}
+            className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <RefreshCw className="w-3 h-3" />
+            Substitute
+          </button>
         </div>
 
         {noteExpanded && (
-          <div className="px-4 pb-4">
+          <div className="px-4 pb-4 space-y-2">
             <Textarea
-              placeholder="Personal notes..."
-              className="text-xs min-h-[40px] resize-none"
+              placeholder="Ask Marcos anything about this exercise — form, weight, alternatives..."
+              className="text-xs min-h-[60px] resize-none"
               value={exerciseNote?.note || ""}
               onChange={(e) => onNoteChange(exercise.id, e.target.value)}
               maxLength={500}
             />
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="apollo"
+                className="h-7 text-[11px] gap-1.5"
+                disabled={sendingQuestion || !(exerciseNote?.note || "").trim()}
+                onClick={sendQuestion}
+              >
+                {sendingQuestion ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                Send to Coach
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -759,6 +834,7 @@ const DashboardWorkoutDetail = () => {
               setLogs={localSetLogs[ex.id] || []}
               previousSetLogs={previousSetLogs[ex.id] || []}
               exerciseNote={localNotes[ex.id] || null}
+              dayLabel={dayData?.day_label || (dayData?.day_number ? `Day ${dayData.day_number}` : "")}
               onSetLogChange={handleSetLogChange}
               onNoteChange={handleNoteChange}
               onToggleComplete={handleToggleComplete}
