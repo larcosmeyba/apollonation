@@ -103,9 +103,10 @@ const MyWorkoutsQuestionnaire = ({ onComplete, submitting }: Props) => {
     equipment: [],
     training_days: [],
     coach_intensity: "more",
+    workout_duration_minutes: 45,
   });
 
-  const totalSteps = 7;
+  const totalSteps = 8;
   const skipEquipment = data.training_location === "gym";
 
   const goNext = () => {
