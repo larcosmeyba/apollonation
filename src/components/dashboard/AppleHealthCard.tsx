@@ -44,7 +44,7 @@ const AppleHealthCard = () => {
     const todayStr = new Date().toISOString().split("T")[0];
     (supabase as any)
       .from("health_data_logs")
-      .select("steps, active_calories, resting_heart_rate, avg_workout_heart_rate, sleep_minutes, workout_count")
+      .select("steps, active_calories, resting_heart_rate, avg_workout_heart_rate, workout_count, workout_duration_minutes")
       .eq("user_id", user.id)
       .eq("log_date", todayStr)
       .eq("source", "apple_health")
