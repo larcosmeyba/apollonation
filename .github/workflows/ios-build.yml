@@ -91,6 +91,38 @@ jobs:
           fi
           rm -rf ios/App/CapApp-SPM
 
+      - name: Inspect provisioning profile capabilities
+        env:
+          APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+        run: |
+          set -euo pipefail
+          PROFILE_PATH="$RUNNER_TEMP/profile-inspect.mobileprovision"
+          PROFILE_PLIST="$RUNNER_TEMP/profile-inspect.plist"
+
+          python3 - "$PROFILE_PATH" <<'PY'
+          import base64, os, re, sys
+          raw = os.environ.get("APPLE_PROVISIONING_PROFILE", "")
+          stripped = re.sub(r"-----[A-Z ]+-----", "", raw)
+          cleaned = re.sub(r"[^A-Za-z0-9+/=_-]", "", stripped).replace("-", "+").replace("_", "/")
+          cleaned += "=" * ((-len(cleaned)) % 4)
+          open(sys.argv[1], "wb").write(base64.b64decode(cleaned, validate=False))
+          PY
+          security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST"
+
+          if /usr/libexec/PlistBuddy -c "Print :Entitlements:aps-environment" "$PROFILE_PLIST" >/dev/null 2>&1; then
+            echo "PROFILE_HAS_PUSH=true" >> "$GITHUB_ENV"
+          else
+            echo "PROFILE_HAS_PUSH=false" >> "$GITHUB_ENV"
+            echo "::warning::Provisioning profile does not include Push Notifications. CI will omit the aps entitlement so the archive can still sign. Enable Push Notifications on the App ID and regenerate the profile when you want native push enabled."
+          fi
+
+          if /usr/libexec/PlistBuddy -c "Print :Entitlements:com.apple.developer.healthkit" "$PROFILE_PLIST" >/dev/null 2>&1; then
+            echo "PROFILE_HAS_HEALTHKIT=true" >> "$GITHUB_ENV"
+          else
+            echo "PROFILE_HAS_HEALTHKIT=false" >> "$GITHUB_ENV"
+            echo "::warning::Provisioning profile does not include HealthKit. CI will omit the HealthKit entitlement so the archive can still sign. Enable HealthKit on the App ID and regenerate the profile when Apple Health sync is required."
+          fi
+
       - name: Patch Info.plist with HealthKit + push background mode
         run: |
           set -euxo pipefail
@@ -112,7 +144,9 @@ jobs:
           plutil -insert ITSAppUsesNonExemptEncryption -bool false "$INFO"
 
           plutil -remove UIBackgroundModes "$INFO" 2>/dev/null || true
-          plutil -insert UIBackgroundModes -json '["remote-notification"]' "$INFO"
+          if [ "${PROFILE_HAS_PUSH:-false}" = "true" ]; then
+            plutil -insert UIBackgroundModes -json '["remote-notification"]' "$INFO"
+          fi
 
           plutil -lint "$INFO"
           plutil -p "$INFO" | head -60
@@ -121,18 +155,16 @@ jobs:
         run: |
           set -euxo pipefail
           ENT=ios/App/App/App.entitlements
-          cat > "$ENT" <<'EOF'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>com.apple.developer.healthkit</key>
-            <true/>
-            <key>aps-environment</key>
-            <string>production</string>
-          </dict>
-          </plist>
-          EOF
+          python3 <<'PY'
+          import os, plistlib
+          entitlements = {}
+          if os.environ.get("PROFILE_HAS_HEALTHKIT") == "true":
+              entitlements["com.apple.developer.healthkit"] = True
+          if os.environ.get("PROFILE_HAS_PUSH") == "true":
+              entitlements["aps-environment"] = "production"
+          with open("ios/App/App/App.entitlements", "wb") as f:
+              plistlib.dump(entitlements, f, sort_keys=True)
+          PY
           plutil -lint "$ENT"
 
       - name: Wire entitlements into project.pbxproj
