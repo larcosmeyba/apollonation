@@ -118,36 +118,74 @@ const AppleHealthCard = () => {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2">
-                {permissionStep === "system" ? <Loader2 className="w-5 h-5 text-primary animate-spin" /> : <ShieldCheck className="w-5 h-5 text-primary" />}
-                {permissionStep === "system" ? "Opening Apple Health…" : "Connect Apple Health"}
+                {permissionStep === "success" ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    Connected to Apple Health
+                  </>
+                ) : permissionStep === "system" ? (
+                  <>
+                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                    Opening Apple Health…
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-5 h-5 text-primary" />
+                    Connect Apple Health
+                  </>
+                )}
               </AlertDialogTitle>
               <AlertDialogDescription asChild>
-                <div className="space-y-3 text-sm">
-                  <p>
-                    Apollo Reborn will ask Apple for permission next. Turn on every category so your dashboard and coach see the full picture:
-                  </p>
-                  <ul className="grid grid-cols-1 gap-2 pl-1">
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps, walking distance, and exercise minutes</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories and workouts</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate and resting heart rate</li>
-                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Sleep analysis and body weight</li>
-                  </ul>
-                  <p className="rounded-lg border border-primary/20 bg-primary/10 p-3 font-bold text-foreground">
-                    On Apple’s permission screen, tap “Turn On All”, then tap “Allow”.
-                  </p>
-                  <p className="flex items-start gap-2 text-xs text-muted-foreground">
-                    <Settings className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                    If steps still show 0 after connecting, open Settings → Health → Data Access & Devices → Apollo Reborn and confirm Steps is enabled.
-                  </p>
-                </div>
+                {permissionStep === "success" ? (
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center justify-center py-3">
+                      <div className="w-16 h-16 rounded-full bg-green-500/15 flex items-center justify-center">
+                        <CheckCircle2 className="w-9 h-9 text-green-500" />
+                      </div>
+                    </div>
+                    <p className="text-center font-medium text-foreground">You're all set.</p>
+                    <p className="text-center text-muted-foreground">Apollo Reborn is now syncing the following from Apple Health:</p>
+                    <ul className="grid grid-cols-1 gap-2 pl-1">
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Steps, walking distance, exercise minutes</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Active calories and workouts</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Heart rate and resting heart rate</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Sleep analysis and body weight</li>
+                    </ul>
+                  </div>
+                ) : (
+                  <div className="space-y-3 text-sm">
+                    <p>
+                      Apollo Reborn will ask Apple for permission next. Turn on every category so your dashboard and coach see the full picture:
+                    </p>
+                    <ul className="grid grid-cols-1 gap-2 pl-1">
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps, walking distance, and exercise minutes</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories and workouts</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate and resting heart rate</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Sleep analysis and body weight</li>
+                    </ul>
+                    <p className="rounded-lg border border-primary/20 bg-primary/10 p-3 font-bold text-foreground">
+                      On Apple's permission screen, tap "Turn On All", then tap "Allow".
+                    </p>
+                    <p className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <Settings className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                      If steps still show 0 after connecting, open Settings → Health → Data Access & Devices → Apollo Reborn and confirm Steps is enabled.
+                    </p>
+                  </div>
+                )}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={syncing}>Not now</AlertDialogCancel>
-              <AlertDialogAction onClick={handleApprove} disabled={syncing}>
-                {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                Continue
-              </AlertDialogAction>
+              {permissionStep === "success" ? (
+                <AlertDialogAction onClick={() => setShowPrePrompt(false)}>Done</AlertDialogAction>
+              ) : (
+                <>
+                  <AlertDialogCancel disabled={syncing}>Not now</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleApprove} disabled={syncing}>
+                    {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                    Continue
+                  </AlertDialogAction>
+                </>
+              )}
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -165,6 +203,10 @@ const AppleHealthCard = () => {
             <Heart className="w-4 h-4 text-primary" />
           </div>
           <h3 className="font-heading text-sm">Apple Health</h3>
+          <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-green-500/15 px-2 py-0.5 text-[10px] font-semibold text-green-500">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            Connected
+          </span>
         </div>
         <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => sync()} disabled={syncing}>
           {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
