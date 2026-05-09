@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Heart, Footprints, Flame, Moon, Activity, RefreshCw, Loader2, CheckCircle2, ShieldCheck, Settings } from "lucide-react";
+import { Heart, Footprints, Flame, Activity, RefreshCw, Loader2, CheckCircle2, ShieldCheck, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppleHealth } from "@/hooks/useAppleHealth";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,8 +23,8 @@ interface TodayRow {
   active_calories: number | null;
   resting_heart_rate: number | null;
   avg_workout_heart_rate: number | null;
-  sleep_minutes: number | null;
   workout_count: number | null;
+  workout_duration_minutes: number | null;
 }
 
 const AppleHealthCard = () => {
@@ -44,7 +44,7 @@ const AppleHealthCard = () => {
     const todayStr = new Date().toISOString().split("T")[0];
     (supabase as any)
       .from("health_data_logs")
-      .select("steps, active_calories, resting_heart_rate, avg_workout_heart_rate, sleep_minutes, workout_count")
+      .select("steps, active_calories, resting_heart_rate, avg_workout_heart_rate, workout_count, workout_duration_minutes")
       .eq("user_id", user.id)
       .eq("log_date", todayStr)
       .eq("source", "apple_health")
@@ -58,13 +58,13 @@ const AppleHealthCard = () => {
       const hasAnyData =
         (today?.steps ?? 0) > 0 ||
         (today?.active_calories ?? 0) > 0 ||
-        (today?.resting_heart_rate ?? 0) > 0 ||
-        (today?.sleep_minutes ?? 0) > 0;
+        (today?.workout_count ?? 0) > 0 ||
+        (today?.avg_workout_heart_rate ?? 0) > 0;
       if (!hasAnyData) {
         toast({
           title: "Connected, but no data yet",
           description:
-            "Open iPhone Settings → Health → Data Access & Devices → Apollo Reborn and turn ON Steps, Calories, Sleep, and Heart Rate.",
+            "Open iPhone Settings → Health → Data Access & Devices → Apollo Reborn and turn ON Steps, Active Energy, Workouts, and Heart Rate.",
         });
       }
     }
@@ -86,7 +86,7 @@ const AppleHealthCard = () => {
       setPermissionStep("success");
       toast({
         title: "Apple Health connected",
-        description: "Steps, heart rate, sleep, calories, workouts, and weight will refresh automatically.",
+        description: "Steps, active calories, workouts, and heart rate will refresh automatically.",
       });
     } else {
       setShowPrePrompt(false);
@@ -104,7 +104,7 @@ const AppleHealthCard = () => {
             <div>
               <h3 className="font-heading text-sm">Connect Apple Health</h3>
               <p className="text-xs text-muted-foreground">
-                Sync steps, heart rate, sleep & calories with your coach
+                Sync steps, active calories, workouts & heart rate with your coach
               </p>
             </div>
           </div>
@@ -149,7 +149,7 @@ const AppleHealthCard = () => {
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Steps, walking distance, exercise minutes</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Active calories and workouts</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Heart rate and resting heart rate</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Sleep analysis and body weight</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Heart rate during workouts</li>
                     </ul>
                   </div>
                 ) : (
@@ -161,7 +161,7 @@ const AppleHealthCard = () => {
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps, walking distance, and exercise minutes</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories and workouts</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate and resting heart rate</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Sleep analysis and body weight</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate during workouts</li>
                     </ul>
                     <p className="rounded-lg border border-primary/20 bg-primary/10 p-3 font-bold text-foreground">
                       On Apple's permission screen, tap "Turn On All", then tap "Allow".
@@ -193,7 +193,7 @@ const AppleHealthCard = () => {
     );
   }
 
-  const sleepHrs = today?.sleep_minutes ? (today.sleep_minutes / 60).toFixed(1) : "—";
+  const workoutMins = today?.workout_duration_minutes ?? 0;
 
   return (
     <div className="card-apollo p-4">
@@ -216,8 +216,8 @@ const AppleHealthCard = () => {
       <div className="grid grid-cols-2 gap-2">
         <Stat icon={<Footprints className="w-4 h-4 text-primary" />} label="Steps" value={(today?.steps ?? 0).toLocaleString()} />
         <Stat icon={<Flame className="w-4 h-4 text-orange-400" />} label="Calories" value={`${today?.active_calories ?? 0}`} />
-        <Stat icon={<Heart className="w-4 h-4 text-red-400" />} label="Rest HR" value={today?.resting_heart_rate ? `${today.resting_heart_rate} bpm` : "—"} />
-        <Stat icon={<Moon className="w-4 h-4 text-blue-400" />} label="Sleep" value={`${sleepHrs} h`} />
+        <Stat icon={<Heart className="w-4 h-4 text-red-400" />} label="Workout HR" value={today?.avg_workout_heart_rate ? `${today.avg_workout_heart_rate} bpm` : "—"} />
+        <Stat icon={<Activity className="w-4 h-4 text-blue-400" />} label="Workout" value={workoutMins > 0 ? `${workoutMins} min` : "—"} />
       </div>
 
       {today?.workout_count ? (
