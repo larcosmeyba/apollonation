@@ -114,6 +114,18 @@ const Subscribe = () => {
     return () => { active = false; };
   }, [native, toast]);
 
+  // Hooks must run unconditionally — keep these above any early returns
+  // to prevent "Rendered more hooks than during the previous render" crashes
+  // when `user` becomes truthy or `is_subscribed` flips mid-session.
+  const rebornPkg = useMemo(
+    () => rebornPackages.find((p) => p.periodLabel === billing) ?? rebornPackages[0],
+    [rebornPackages, billing]
+  );
+  const elitePkg = useMemo(
+    () => elitePackages.find((p) => p.periodLabel === billing) ?? elitePackages[0],
+    [elitePackages, billing]
+  );
+
   if (!user) return <Navigate to="/auth" replace />;
 
   if (profile?.is_subscribed && (profile as any)?.entitlement === "apollo_elite") {
@@ -180,14 +192,7 @@ const Subscribe = () => {
     }
   };
 
-  const rebornPkg = useMemo(
-    () => rebornPackages.find((p) => p.periodLabel === billing) ?? rebornPackages[0],
-    [rebornPackages, billing]
-  );
-  const elitePkg = useMemo(
-    () => elitePackages.find((p) => p.periodLabel === billing) ?? elitePackages[0],
-    [elitePackages, billing]
-  );
+
 
   const hasYearAndMonth = (pkgs: UiPackage[]) =>
     pkgs.some((p) => p.periodLabel === "month") && pkgs.some((p) => p.periodLabel === "year");
