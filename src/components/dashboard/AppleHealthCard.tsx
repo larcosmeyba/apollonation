@@ -161,7 +161,7 @@ const AppleHealthCard = () => {
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps, walking distance, and exercise minutes</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories and workouts</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate and resting heart rate</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Sleep analysis and body weight</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate during workouts</li>
                     </ul>
                     <p className="rounded-lg border border-primary/20 bg-primary/10 p-3 font-bold text-foreground">
                       On Apple's permission screen, tap "Turn On All", then tap "Allow".
