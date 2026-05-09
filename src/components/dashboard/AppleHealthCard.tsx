@@ -58,8 +58,8 @@ const AppleHealthCard = () => {
       const hasAnyData =
         (today?.steps ?? 0) > 0 ||
         (today?.active_calories ?? 0) > 0 ||
-        (today?.resting_heart_rate ?? 0) > 0 ||
-        (today?.sleep_minutes ?? 0) > 0;
+        (today?.workout_count ?? 0) > 0 ||
+        (today?.avg_workout_heart_rate ?? 0) > 0;
       if (!hasAnyData) {
         toast({
           title: "Connected, but no data yet",
