@@ -149,7 +149,7 @@ const AppleHealthCard = () => {
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Steps, walking distance, exercise minutes</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Active calories and workouts</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Heart rate and resting heart rate</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Sleep analysis and body weight</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Heart rate during workouts</li>
                     </ul>
                   </div>
                 ) : (
