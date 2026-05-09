@@ -194,6 +194,7 @@ You MUST respond with ONLY valid JSON (no markdown, no code blocks):
 Make exercises safe, evidence-based, and appropriate for the client's age and experience level. Match exercises to available equipment. REMEMBER: Only use exercises from the provided list above (warm-up and cool-down entries are exceptions).`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      signal: AbortSignal.timeout(45_000),
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,

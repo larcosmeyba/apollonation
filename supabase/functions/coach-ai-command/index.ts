@@ -54,6 +54,7 @@ serve(async (req) => {
 
     // Call AI to parse command
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      signal: AbortSignal.timeout(45_000),
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,

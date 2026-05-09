@@ -199,6 +199,7 @@ Respond ONLY with JSON: {"days":[{"day_number":1,"meals":[{"meal_type":"breakfas
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      signal: AbortSignal.timeout(45_000),
         method: "POST",
         headers: {
           Authorization: `Bearer ${LOVABLE_API_KEY}`,
