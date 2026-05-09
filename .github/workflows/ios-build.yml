@@ -83,9 +83,13 @@ jobs:
         run: |
           set -euxo pipefail
           rm -rf ios
-          ./node_modules/.bin/cap add ios
-          test -f "$IOS_PROJECT_DIR/Podfile"
-          test ! -d "ios/App/CapApp-SPM"
+          CAPACITOR_IOS_USE_SPM=false ./node_modules/.bin/cap add ios --packagemanager cocoapods || CAPACITOR_IOS_USE_SPM=false ./node_modules/.bin/cap add ios
+          if [ ! -f "$IOS_PROJECT_DIR/Podfile" ]; then
+            echo "::error::Podfile was not generated — Capacitor still used SPM."
+            ls -la ios/App
+            exit 1
+          fi
+          rm -rf ios/App/CapApp-SPM
 
       - name: Patch Info.plist with HealthKit + push background mode
         run: |
