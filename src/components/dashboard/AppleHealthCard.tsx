@@ -104,7 +104,7 @@ const AppleHealthCard = () => {
             <div>
               <h3 className="font-heading text-sm">Connect Apple Health</h3>
               <p className="text-xs text-muted-foreground">
-                Sync steps, heart rate, sleep & calories with your coach
+                Sync steps, active calories, workouts & heart rate with your coach
               </p>
             </div>
           </div>
