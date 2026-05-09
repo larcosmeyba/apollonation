@@ -296,8 +296,8 @@ jobs:
       - name: Verify HealthKit pod was installed
         run: |
           set -euxo pipefail
-          if ! grep -q "PerfoodCapacitorHealthkit" ios/App/Podfile.lock; then
-            echo "::error::PerfoodCapacitorHealthkit pod did NOT install. Check ios/App/Podfile."
+          if ! grep -qi "CapacitorHealth" ios/App/Podfile.lock; then
+            echo "::error::capacitor-health pod did NOT install. Check ios/App/Podfile."
             cat ios/App/Podfile
             cat ios/App/Podfile.lock | head -40
             exit 1
