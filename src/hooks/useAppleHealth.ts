@@ -1,24 +1,20 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { isNative } from "@/lib/platform";
 import { Capacitor } from "@capacitor/core";
-import { CapacitorHealthkit, SampleNames } from "@perfood/capacitor-healthkit";
+import { Health, type HealthPermission } from "capacitor-health";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-// IMPORTANT: these are the friendly auth names the @perfood plugin maps to
-// HKObjectTypes inside requestAuthorization (see the plugin's getTypes()).
-// They are NOT the same as SampleNames used for queryHKitSampleType.
-// Missing any of these means iOS will not show a toggle for it and queries
-// return empty arrays with no error.
-const READ_PERMISSIONS = [
-  "steps",
-  "calories",
-  "activity", // includes workouts + sleepAnalysis
-  "duration",
-  "distance",
-  "weight",
-  "heartRate",
-  "restingHeartRate",
+// Permissions we ask Apple Health for. capacitor-health@8 supports these on iOS.
+// Note: this plugin does NOT expose Sleep, Weight, or Resting Heart Rate,
+// so those fields will sync as null (UI shows "—"). The previous plugin
+// claimed to expose them but silently returned empty arrays on Capacitor 8.
+const READ_PERMISSIONS: HealthPermission[] = [
+  "READ_STEPS",
+  "READ_WORKOUTS",
+  "READ_ACTIVE_CALORIES",
+  "READ_DISTANCE",
+  "READ_HEART_RATE",
 ];
 
 const isAppleHealthAvailable = (): boolean =>
@@ -52,17 +48,15 @@ const ymd = (d: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const sumValues = (rows: any[]): number =>
-  (rows || []).reduce((acc, r) => acc + (Number(r?.value) || 0), 0);
-
-const durationToMinutes = (value: unknown): number => {
-  const duration = Number(value) || 0;
-  if (duration <= 0) return 0;
-  // @perfood/capacitor-healthkit returns duration in hours for sleep/workouts.
-  if (duration <= 48) return duration * 60;
-  // Defensive fallback if a native implementation ever returns seconds.
-  if (duration > 1000) return duration / 60;
-  return duration;
+const startOfDay = (d: Date) => {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
+const endOfDay = (d: Date) => {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
 };
 
 export const useAppleHealth = () => {
@@ -103,13 +97,12 @@ export const useAppleHealth = () => {
       return false;
     }
     try {
-      await CapacitorHealthkit.isAvailable();
-      await CapacitorHealthkit.requestAuthorization({
-        // The plugin expects empty-string placeholders here on some iOS builds.
-        all: [""],
-        read: READ_PERMISSIONS,
-        write: [""],
-      });
+      const avail = await Health.isHealthAvailable();
+      if (!avail?.available) {
+        setError("Apple Health is not available on this device.");
+        return false;
+      }
+      await Health.requestHealthPermissions({ permissions: READ_PERMISSIONS });
       setError(null);
       return true;
     } catch (e: any) {
@@ -119,101 +112,111 @@ export const useAppleHealth = () => {
     }
   }, [available]);
 
+  const sumAggregated = async (
+    dataType: "steps" | "active-calories",
+    start: Date,
+    end: Date,
+  ): Promise<{ total: number; bucketCount: number }> => {
+    try {
+      const res = await Health.queryAggregated({
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+        dataType,
+        bucket: "day",
+      });
+      const buckets = res?.aggregatedData ?? [];
+      const total = buckets.reduce((acc, b) => acc + (Number(b?.value) || 0), 0);
+      return { total, bucketCount: buckets.length };
+    } catch (e) {
+      console.warn(`[AppleHealth] queryAggregated ${dataType} failed`, e);
+      return { total: 0, bucketCount: 0 };
+    }
+  };
+
   const fetchDayData = useCallback(async (date: Date): Promise<DailyHealthSummary> => {
-    const start = new Date(date);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(date);
-    end.setHours(23, 59, 59, 999);
-    const baseQ = {
-      startDate: start.toISOString(),
-      endDate: end.toISOString(),
-      limit: 0,
-    };
+    const start = startOfDay(date);
+    const end = endOfDay(date);
+    const isToday = ymd(date) === ymd(new Date());
 
-    const safeQuery = async (sampleName: string): Promise<any[]> => {
-      try {
-        const res: any = await CapacitorHealthkit.queryHKitSampleType({
-          ...baseQ,
-          sampleName,
-        });
-        const rows = res?.resultData ?? [];
-        if (ymd(date) === ymd(new Date())) {
-          console.info(`[AppleHealth] ${sampleName}`, { count: rows.length, first: rows[0] ?? null });
-        }
-        return rows;
-      } catch (e) {
-        console.warn(`[AppleHealth] query ${sampleName} failed`, e);
-        return [];
-      }
-    };
-
-    const [steps, calories, workouts, sleep, weight, restingHr, hr] = await Promise.all([
-      safeQuery(SampleNames.STEP_COUNT),
-      safeQuery(SampleNames.ACTIVE_ENERGY_BURNED),
-      safeQuery(SampleNames.WORKOUT_TYPE),
-      safeQuery(SampleNames.SLEEP_ANALYSIS),
-      safeQuery(SampleNames.WEIGHT),
-      safeQuery(SampleNames.RESTING_HEART_RATE),
-      safeQuery(SampleNames.HEART_RATE),
+    // Steps + active calories via aggregated daily buckets.
+    const [stepsRes, caloriesRes] = await Promise.all([
+      sumAggregated("steps", start, end),
+      sumAggregated("active-calories", start, end),
     ]);
 
-    const totalSteps = Math.round(sumValues(steps));
-    const totalCalories = Math.round(sumValues(calories));
-
-    // Sleep: count "asleep" minutes
-    const sleepMinutes = Math.round(
-      (sleep || [])
-        .filter((s: any) => /asleep/i.test(s?.sleepState ?? ""))
-        .reduce((acc: number, s: any) => acc + durationToMinutes(s?.duration), 0)
-    );
-
-    // Workouts
-    const workoutCount = workouts.length;
-    const workoutMinutes = Math.round(
-      (workouts || []).reduce((acc: number, w: any) => acc + durationToMinutes(w?.duration), 0)
-    );
-
-    if (ymd(date) === ymd(new Date())) {
-      setDiagnostics({
-        stepSamplesToday: steps.length,
-        calorieSamplesToday: calories.length,
-        sleepSamplesToday: sleep.length,
-        workoutSamplesToday: workouts.length,
-        lastMessage: totalSteps > 0
-          ? `Synced ${totalSteps.toLocaleString()} steps from Apple Health.`
-          : "Apple Health returned 0 step samples for today.",
+    // Workouts (with embedded heart rate samples).
+    let workouts: any[] = [];
+    try {
+      const wRes = await Health.queryWorkouts({
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+        includeHeartRate: true,
+        includeRoute: false,
+        includeSteps: false,
       });
+      workouts = wRes?.workouts ?? [];
+    } catch (e) {
+      console.warn("[AppleHealth] queryWorkouts failed", e);
     }
 
-    // Weight: last reading of the day, kg
-    const lastWeight = weight.length ? Number(weight[weight.length - 1]?.value) : null;
-
-    // HR
-    const restingValues = (restingHr || []).map((r: any) => Number(r?.value)).filter((v) => v > 0);
-    const restingAvg = restingValues.length
-      ? Math.round(restingValues.reduce((a, b) => a + b, 0) / restingValues.length)
+    // Average workout HR across all today's workouts.
+    const allHrSamples: number[] = [];
+    for (const w of workouts) {
+      for (const s of w?.heartRate ?? []) {
+        const bpm = Number(s?.bpm);
+        if (bpm > 0) allHrSamples.push(bpm);
+      }
+    }
+    const workoutHrAvg = allHrSamples.length
+      ? Math.round(allHrSamples.reduce((a, b) => a + b, 0) / allHrSamples.length)
       : null;
 
-    const workoutHrValues = (hr || []).map((r: any) => Number(r?.value)).filter((v) => v > 0);
-    const workoutHrAvg = workoutHrValues.length
-      ? Math.round(workoutHrValues.reduce((a, b) => a + b, 0) / workoutHrValues.length)
-      : null;
+    // capacitor-health workout duration is in seconds.
+    const workoutMinutes = Math.round(
+      workouts.reduce((acc, w) => acc + (Number(w?.duration) || 0) / 60, 0),
+    );
+
+    const totalSteps = Math.round(stepsRes.total);
+    const totalCalories = Math.round(caloriesRes.total);
+
+    if (isToday) {
+      setDiagnostics({
+        stepSamplesToday: stepsRes.bucketCount,
+        calorieSamplesToday: caloriesRes.bucketCount,
+        sleepSamplesToday: 0,
+        workoutSamplesToday: workouts.length,
+        lastMessage:
+          totalSteps > 0
+            ? `Synced ${totalSteps.toLocaleString()} steps from Apple Health.`
+            : "Apple Health returned 0 steps for today.",
+      });
+      console.info("[AppleHealth] today", {
+        steps: totalSteps,
+        calories: totalCalories,
+        workouts: workouts.length,
+        workoutMinutes,
+        workoutHrAvg,
+      });
+    }
 
     return {
       log_date: ymd(date),
       steps: totalSteps,
       active_calories: totalCalories,
-      resting_heart_rate: restingAvg,
+      // Not exposed by capacitor-health — leave null so UI shows "—".
+      resting_heart_rate: null,
       avg_workout_heart_rate: workoutHrAvg,
-      workout_count: workoutCount,
+      workout_count: workouts.length,
       workout_duration_minutes: workoutMinutes,
-      sleep_minutes: sleepMinutes,
-      weight_kg: lastWeight,
+      sleep_minutes: 0,
+      weight_kg: null,
       raw_workouts: workouts.map((w: any) => ({
-        name: w?.workoutActivityName,
+        name: w?.workoutType,
         duration_min: Math.round((Number(w?.duration) || 0) / 60),
-        calories: Number(w?.totalEnergyBurned) || 0,
+        calories: Number(w?.calories) || 0,
+        distance: Number(w?.distance) || 0,
         startDate: w?.startDate,
+        sourceName: w?.sourceName,
       })),
     };
   }, []);
@@ -268,10 +271,10 @@ export const useAppleHealth = () => {
               last_sync_error: null,
               permissions_granted: READ_PERMISSIONS,
             },
-            { onConflict: "user_id" }
+            { onConflict: "user_id" },
           );
 
-        // Mirror today's Apple Health reading into the legacy step_logs table
+        // Mirror today's Apple Health steps into the legacy step_logs table
         // so streaks and dashboards update automatically from the native source.
         const todayRow = summaries[summaries.length - 1];
         if (todayRow) {
@@ -284,7 +287,7 @@ export const useAppleHealth = () => {
                 steps: todayRow.steps,
                 updated_at: new Date().toISOString(),
               },
-              { onConflict: "user_id,log_date" }
+              { onConflict: "user_id,log_date" },
             );
         }
 
@@ -308,13 +311,13 @@ export const useAppleHealth = () => {
               user_id: user.id,
               last_sync_error: e?.message ?? "Sync failed",
             },
-            { onConflict: "user_id" }
+            { onConflict: "user_id" },
           );
       } finally {
         setSyncing(false);
       }
     },
-    [available, user, syncing, fetchDayData]
+    [available, user, syncing, fetchDayData],
   );
 
   const connect = useCallback(async (): Promise<boolean> => {
