@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Heart, Footprints, Flame, Moon, Activity, RefreshCw, Loader2, CheckCircle2, ShieldCheck, Settings } from "lucide-react";
+import { Heart, Footprints, Flame, Activity, RefreshCw, Loader2, CheckCircle2, ShieldCheck, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppleHealth } from "@/hooks/useAppleHealth";
 import { useAuth } from "@/contexts/AuthContext";
