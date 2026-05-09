@@ -64,7 +64,7 @@ const AppleHealthCard = () => {
         toast({
           title: "Connected, but no data yet",
           description:
-            "Open iPhone Settings → Health → Data Access & Devices → Apollo Reborn and turn ON Steps, Calories, Sleep, and Heart Rate.",
+            "Open iPhone Settings → Health → Data Access & Devices → Apollo Reborn and turn ON Steps, Active Energy, Workouts, and Heart Rate.",
         });
       }
     }
