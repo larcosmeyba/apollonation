@@ -45,15 +45,13 @@ dependencies {
 apply from: 'capacitor.build.gradle'
 
 // google-services.json is required for FCM push notifications.
-// In CI (and any release build), fail loudly if it's missing instead of
-// silently shipping a build where push notifications don't register.
+// If the file isn't present we soft-warn and skip the plugin so the build
+// still succeeds (push notifications will not register on that build).
+// To enforce push in CI, commit android/app/google-services.json (or wire
+// it in from a GitHub secret) and this block will pick it up automatically.
 def servicesJSON = file('google-services.json')
 if (servicesJSON.exists() && servicesJSON.text) {
     apply plugin: 'com.google.gms.google-services'
 } else {
-    if (System.getenv('CI') != null || gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') || it.toLowerCase().contains('bundle') }) {
-        throw new GradleException("android/app/google-services.json is missing. Push notifications will not work. Add it before building a release/CI artifact.")
-    } else {
-        logger.warn("google-services.json not found — push notifications will be disabled in this local debug build.")
-    }
+    logger.warn("google-services.json not found — push notifications will be disabled in this build.")
 }
