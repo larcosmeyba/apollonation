@@ -86,7 +86,7 @@ const AppleHealthCard = () => {
       setPermissionStep("success");
       toast({
         title: "Apple Health connected",
-        description: "Steps, heart rate, sleep, calories, workouts, and weight will refresh automatically.",
+        description: "Steps, active calories, workouts, and heart rate will refresh automatically.",
       });
     } else {
       setShowPrePrompt(false);
