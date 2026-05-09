@@ -23,8 +23,8 @@ interface TodayRow {
   active_calories: number | null;
   resting_heart_rate: number | null;
   avg_workout_heart_rate: number | null;
-  sleep_minutes: number | null;
   workout_count: number | null;
+  workout_duration_minutes: number | null;
 }
 
 const AppleHealthCard = () => {
