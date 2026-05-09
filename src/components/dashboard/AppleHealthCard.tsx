@@ -193,7 +193,7 @@ const AppleHealthCard = () => {
     );
   }
 
-  const sleepHrs = today?.sleep_minutes ? (today.sleep_minutes / 60).toFixed(1) : "—";
+  const workoutMins = today?.workout_duration_minutes ?? 0;
 
   return (
     <div className="card-apollo p-4">
@@ -216,8 +216,8 @@ const AppleHealthCard = () => {
       <div className="grid grid-cols-2 gap-2">
         <Stat icon={<Footprints className="w-4 h-4 text-primary" />} label="Steps" value={(today?.steps ?? 0).toLocaleString()} />
         <Stat icon={<Flame className="w-4 h-4 text-orange-400" />} label="Calories" value={`${today?.active_calories ?? 0}`} />
-        <Stat icon={<Heart className="w-4 h-4 text-red-400" />} label="Rest HR" value={today?.resting_heart_rate ? `${today.resting_heart_rate} bpm` : "—"} />
-        <Stat icon={<Moon className="w-4 h-4 text-blue-400" />} label="Sleep" value={`${sleepHrs} h`} />
+        <Stat icon={<Heart className="w-4 h-4 text-red-400" />} label="Workout HR" value={today?.avg_workout_heart_rate ? `${today.avg_workout_heart_rate} bpm` : "—"} />
+        <Stat icon={<Activity className="w-4 h-4 text-blue-400" />} label="Workout" value={workoutMins > 0 ? `${workoutMins} min` : "—"} />
       </div>
 
       {today?.workout_count ? (
