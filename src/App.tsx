@@ -33,6 +33,8 @@ import ApolloSystem from "./pages/ApolloSystem";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import ContactPortal from "./pages/ContactPortal";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import AccountDeletion from "./pages/AccountDeletion";
 import Unsubscribe from "./pages/Unsubscribe";
 import PlanReady from "./pages/PlanReady";
@@ -128,6 +130,8 @@ const App = () => {
               <Route path="/about" element={<About />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/contact" element={<ContactPortal />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/apply-coach" element={<ApplyCoach />} />
               <Route path="/account-deletion" element={<AccountDeletion />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
