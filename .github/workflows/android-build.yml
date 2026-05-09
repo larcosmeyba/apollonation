@@ -105,6 +105,27 @@ jobs:
           set -euo pipefail
           echo -n "$ANDROID_KEYSTORE" | base64 --decode > android/app/upload-keystore.jks
 
+      - name: Decode google-services.json
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GOOGLE_SERVICES_JSON_BASE64:-}" ]; then
+            echo "::warning::GOOGLE_SERVICES_JSON_BASE64 secret is not set. Building WITHOUT FCM — Android push notifications will NOT work in this build. Add the secret in GitHub → Settings → Secrets → Actions to enable push."
+            exit 0
+          fi
+          echo -n "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > android/app/google-services.json
+          if [ ! -s android/app/google-services.json ]; then
+            echo "::error::Decoded google-services.json is empty. Re-encode the file with: base64 -i google-services.json | tr -d '\\n'"
+            exit 1
+          fi
+          # Sanity check it's JSON containing the expected package name.
+          if ! grep -q "\"package_name\"" android/app/google-services.json; then
+            echo "::error::Decoded google-services.json does not look valid (no package_name field)."
+            exit 1
+          fi
+          echo "google-services.json decoded successfully ($(wc -c < android/app/google-services.json) bytes)"
+
       - name: Build signed AAB
         env:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
