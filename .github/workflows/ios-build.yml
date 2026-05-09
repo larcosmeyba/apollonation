@@ -91,6 +91,38 @@ jobs:
           fi
           rm -rf ios/App/CapApp-SPM
 
+      - name: Inspect provisioning profile capabilities
+        env:
+          APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+        run: |
+          set -euo pipefail
+          PROFILE_PATH="$RUNNER_TEMP/profile-inspect.mobileprovision"
+          PROFILE_PLIST="$RUNNER_TEMP/profile-inspect.plist"
+
+          python3 - "$PROFILE_PATH" <<'PY'
+          import base64, os, re, sys
+          raw = os.environ.get("APPLE_PROVISIONING_PROFILE", "")
+          stripped = re.sub(r"-----[A-Z ]+-----", "", raw)
+          cleaned = re.sub(r"[^A-Za-z0-9+/=_-]", "", stripped).replace("-", "+").replace("_", "/")
+          cleaned += "=" * ((-len(cleaned)) % 4)
+          open(sys.argv[1], "wb").write(base64.b64decode(cleaned, validate=False))
+          PY
+          security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST"
+
+          if /usr/libexec/PlistBuddy -c "Print :Entitlements:aps-environment" "$PROFILE_PLIST" >/dev/null 2>&1; then
+            echo "PROFILE_HAS_PUSH=true" >> "$GITHUB_ENV"
+          else
+            echo "PROFILE_HAS_PUSH=false" >> "$GITHUB_ENV"
+            echo "::warning::Provisioning profile does not include Push Notifications. CI will omit the aps entitlement so the archive can still sign. Enable Push Notifications on the App ID and regenerate the profile when you want native push enabled."
+          fi
+
+          if /usr/libexec/PlistBuddy -c "Print :Entitlements:com.apple.developer.healthkit" "$PROFILE_PLIST" >/dev/null 2>&1; then
+            echo "PROFILE_HAS_HEALTHKIT=true" >> "$GITHUB_ENV"
+          else
+            echo "PROFILE_HAS_HEALTHKIT=false" >> "$GITHUB_ENV"
+            echo "::warning::Provisioning profile does not include HealthKit. CI will omit the HealthKit entitlement so the archive can still sign. Enable HealthKit on the App ID and regenerate the profile when Apple Health sync is required."
+          fi
+
       - name: Patch Info.plist with HealthKit + push background mode
         run: |
           set -euxo pipefail
@@ -112,7 +144,9 @@ jobs:
           plutil -insert ITSAppUsesNonExemptEncryption -bool false "$INFO"
 
           plutil -remove UIBackgroundModes "$INFO" 2>/dev/null || true
-          plutil -insert UIBackgroundModes -json '["remote-notification"]' "$INFO"
+          if [ "${PROFILE_HAS_PUSH:-false}" = "true" ]; then
+            plutil -insert UIBackgroundModes -json '["remote-notification"]' "$INFO"
+          fi
 
           plutil -lint "$INFO"
           plutil -p "$INFO" | head -60
@@ -121,18 +155,16 @@ jobs:
         run: |
           set -euxo pipefail
           ENT=ios/App/App/App.entitlements
-          cat > "$ENT" <<'EOF'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>com.apple.developer.healthkit</key>
-            <true/>
-            <key>aps-environment</key>
-            <string>production</string>
-          </dict>
-          </plist>
-          EOF
+          python3 <<'PY'
+          import os, plistlib
+          entitlements = {}
+          if os.environ.get("PROFILE_HAS_HEALTHKIT") == "true":
+              entitlements["com.apple.developer.healthkit"] = True
+          if os.environ.get("PROFILE_HAS_PUSH") == "true":
+              entitlements["aps-environment"] = "production"
+          with open("ios/App/App/App.entitlements", "wb") as f:
+              plistlib.dump(entitlements, f, sort_keys=True)
+          PY
           plutil -lint "$ENT"
 
       - name: Wire entitlements into project.pbxproj
@@ -166,6 +198,75 @@ jobs:
           set -euxo pipefail
           pod install --repo-update
           ls -la
+
+      - name: Patch Xcode signing for CI archive
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euxo pipefail
+          python3 <<'PY'
+          import os, pathlib, re
+
+          bundle_id = os.environ["BUNDLE_ID"]
+          team_id = os.environ["APPLE_TEAM_ID"]
+          profile_name = os.environ["PROVISIONING_PROFILE_NAME"]
+          has_push = os.environ.get("PROFILE_HAS_PUSH") == "true"
+          has_healthkit = os.environ.get("PROFILE_HAS_HEALTHKIT") == "true"
+
+          app_pbx = pathlib.Path("ios/App/App.xcodeproj/project.pbxproj")
+          src = app_pbx.read_text()
+
+          def upsert_setting(block: str, key: str, value: str) -> str:
+              if re.search(rf"\n\s*{re.escape(key)} = ", block):
+                  return re.sub(rf"(\n\s*){re.escape(key)} = [^;]*;", rf"\1{key} = {value};", block)
+              return block.replace("\n\t\t\t};", f"\n\t\t\t\t{key} = {value};\n\t\t\t}};")
+
+          def patch_app_build_settings(match: re.Match) -> str:
+              block = match.group(0)
+              if f"PRODUCT_BUNDLE_IDENTIFIER = {bundle_id};" not in block:
+                  return block
+              for key, value in {
+                  "CODE_SIGN_STYLE": "Manual",
+                  "DEVELOPMENT_TEAM": team_id,
+                  "CODE_SIGN_IDENTITY": '"Apple Distribution"',
+                  "CODE_SIGN_ENTITLEMENTS": "App/App.entitlements",
+                  "PROVISIONING_PROFILE_SPECIFIER": f'"{profile_name}"',
+              }.items():
+                  block = upsert_setting(block, key, value)
+              return block
+
+          src = re.sub(r"\b[A-F0-9]{24} /\* (?:Debug|Release) \*/ = \{\n\t\t\tisa = XCBuildConfiguration;\n\t\t\tbuildSettings = \{.*?\n\t\t\t};\n\t\t\tname = (?:Debug|Release);\n\t\t};", patch_app_build_settings, src, flags=re.S)
+
+          capabilities = []
+          if has_healthkit:
+              capabilities.append("\t\t\t\t\t\tcom.apple.HealthKit = {\n\t\t\t\t\t\t\tenabled = 1;\n\t\t\t\t\t\t};")
+          if has_push:
+              capabilities.append("\t\t\t\t\t\tcom.apple.Push = {\n\t\t\t\t\t\t\tenabled = 1;\n\t\t\t\t\t\t};")
+          if capabilities and "SystemCapabilities" not in src:
+              src = src.replace(
+                  "ProvisioningStyle = Automatic;",
+                  "ProvisioningStyle = Manual;\n\t\t\t\t\tSystemCapabilities = {\n" + "\n".join(capabilities) + "\n\t\t\t\t\t};",
+                  1,
+              )
+          else:
+              src = src.replace("ProvisioningStyle = Automatic;", "ProvisioningStyle = Manual;", 1)
+
+          app_pbx.write_text(src)
+
+          pods_pbx = pathlib.Path("ios/App/Pods/Pods.xcodeproj/project.pbxproj")
+          if pods_pbx.exists():
+              pods = pods_pbx.read_text()
+              pods = re.sub(r"\n\s*PROVISIONING_PROFILE_SPECIFIER = [^;]*;", "", pods)
+              pods = re.sub(r"\n\s*PROVISIONING_PROFILE = [^;]*;", "", pods)
+              pods = re.sub(r"\n\s*CODE_SIGN_STYLE = Manual;", "\n\t\t\t\tCODE_SIGN_STYLE = Automatic;", pods)
+              pods_pbx.write_text(pods)
+
+          print("Patched App target for manual signing and cleared Pods provisioning profiles.")
+          PY
+          grep -q "PROVISIONING_PROFILE_SPECIFIER = \"$PROVISIONING_PROFILE_NAME\";" ios/App/App.xcodeproj/project.pbxproj
+          if [ -f ios/App/Pods/Pods.xcodeproj/project.pbxproj ]; then
+            ! grep -q "PROVISIONING_PROFILE_SPECIFIER = $PROVISIONING_PROFILE_NAME" ios/App/Pods/Pods.xcodeproj/project.pbxproj
+          fi
 
       - name: Verify HealthKit pod was installed
         run: |
@@ -275,7 +376,13 @@ jobs:
           rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH"
           mkdir -p "$EXPORT_PATH"
 
-          xcodebuild -workspace "$IOS_WORKSPACE" -scheme "$IOS_SCHEME" -configuration Release clean
+          xcodebuild \
+            -workspace "$IOS_WORKSPACE" \
+            -scheme "$IOS_SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            clean
 
           xcodebuild \
             -workspace "$IOS_WORKSPACE" \
@@ -285,10 +392,6 @@ jobs:
             -destination "generic/platform=iOS" \
             -archivePath "$ARCHIVE_PATH" \
             archive \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROVISIONING_PROFILE_NAME" \
             OTHER_CODE_SIGN_FLAGS="--keychain $CI_KEYCHAIN_PATH" \
             | tee "$RUNNER_TEMP/xcodebuild-archive.log"
 
@@ -301,7 +404,6 @@ jobs:
             -archivePath "$ARCHIVE_PATH" \
             -exportPath "$EXPORT_PATH" \
             -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
-            -allowProvisioningUpdates \
             | tee "$RUNNER_TEMP/xcodebuild-export.log"
           shopt -s nullglob
           ipas=("$EXPORT_PATH"/*.ipa)
