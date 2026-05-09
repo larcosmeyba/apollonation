@@ -216,49 +216,74 @@ jobs:
           app_pbx = pathlib.Path("ios/App/App.xcodeproj/project.pbxproj")
           src = app_pbx.read_text()
 
-          def upsert_setting(block: str, key: str, value: str) -> str:
-              if re.search(rf"\n\s*{re.escape(key)} = ", block):
-                  return re.sub(rf"(\n\s*){re.escape(key)} = [^;]*;", rf"\1{key} = {value};", block)
-              return block.replace("\n\t\t\t};", f"\n\t\t\t\t{key} = {value};\n\t\t\t}};")
+          settings = {
+              "CODE_SIGN_STYLE": "Manual",
+              "DEVELOPMENT_TEAM": team_id,
+              "CODE_SIGN_IDENTITY": '"Apple Distribution"',
+              "CODE_SIGN_ENTITLEMENTS": "App/App.entitlements",
+              "PROVISIONING_PROFILE_SPECIFIER": f'"{profile_name}"',
+          }
 
-          def patch_app_build_settings(match: re.Match) -> str:
-              block = match.group(0)
-              if f"PRODUCT_BUNDLE_IDENTIFIER = {bundle_id};" not in block:
-                  return block
-              for key, value in {
-                  "CODE_SIGN_STYLE": "Manual",
-                  "DEVELOPMENT_TEAM": team_id,
-                  "CODE_SIGN_IDENTITY": '"Apple Distribution"',
-                  "CODE_SIGN_ENTITLEMENTS": "App/App.entitlements",
-                  "PROVISIONING_PROFILE_SPECIFIER": f'"{profile_name}"',
-              }.items():
-                  block = upsert_setting(block, key, value)
-              return block
+          # Split into lines and find each line containing the App bundle id.
+          # For each such line, walk backwards to find the enclosing buildSettings = { ... };
+          # block, then upsert each required key inside that block.
+          lines = src.split("\n")
+          # Find indices of bundle-id lines (App target only)
+          bundle_re = re.compile(rf"PRODUCT_BUNDLE_IDENTIFIER\s*=\s*{re.escape(bundle_id)}\s*;")
+          bundle_idxs = [i for i, ln in enumerate(lines) if bundle_re.search(ln)]
+          if not bundle_idxs:
+              raise SystemExit(f"Could not find PRODUCT_BUNDLE_IDENTIFIER = {bundle_id}; in pbxproj")
 
-          src = re.sub(r"\b[A-F0-9]{24} /\* (?:Debug|Release) \*/ = \{\n\t\t\tisa = XCBuildConfiguration;\n\t\t\tbuildSettings = \{.*?\n\t\t\t};\n\t\t\tname = (?:Debug|Release);\n\t\t};", patch_app_build_settings, src, flags=re.S)
+          # Process from bottom to top so insertions don't shift earlier indices
+          for bi in sorted(bundle_idxs, reverse=True):
+              # Find start of buildSettings block (line with "buildSettings = {")
+              start = bi
+              while start >= 0 and "buildSettings = {" not in lines[start]:
+                  start -= 1
+              if start < 0:
+                  continue
+              # Find end of block: matching "};" with same indentation as the opening line's indent
+              indent_match = re.match(r"(\s*)", lines[start])
+              indent = indent_match.group(1) if indent_match else ""
+              end = start + 1
+              depth = 1
+              while end < len(lines) and depth > 0:
+                  if "{" in lines[end]:
+                      depth += lines[end].count("{")
+                  if "}" in lines[end]:
+                      depth -= lines[end].count("}")
+                  if depth == 0:
+                      break
+                  end += 1
+              # Inner indent for settings (one level deeper than buildSettings line)
+              inner_indent = indent + "\t"
+              # Upsert each key
+              for key, value in settings.items():
+                  key_re = re.compile(rf"^\s*{re.escape(key)}\s*=\s*[^;]*;\s*$")
+                  found = False
+                  for j in range(start + 1, end):
+                      if key_re.match(lines[j]):
+                          lines[j] = f"{inner_indent}{key} = {value};"
+                          found = True
+                          break
+                  if not found:
+                      lines.insert(end, f"{inner_indent}{key} = {value};")
+                      end += 1
 
-          capabilities = []
-          if has_healthkit:
-              capabilities.append("\t\t\t\t\t\tcom.apple.HealthKit = {\n\t\t\t\t\t\t\tenabled = 1;\n\t\t\t\t\t\t};")
-          if has_push:
-              capabilities.append("\t\t\t\t\t\tcom.apple.Push = {\n\t\t\t\t\t\t\tenabled = 1;\n\t\t\t\t\t\t};")
-          if capabilities and "SystemCapabilities" not in src:
-              src = src.replace(
-                  "ProvisioningStyle = Automatic;",
-                  "ProvisioningStyle = Manual;\n\t\t\t\t\tSystemCapabilities = {\n" + "\n".join(capabilities) + "\n\t\t\t\t\t};",
-                  1,
-              )
-          else:
-              src = src.replace("ProvisioningStyle = Automatic;", "ProvisioningStyle = Manual;", 1)
+          src = "\n".join(lines)
+
+          # Flip ProvisioningStyle to Manual everywhere in the App project
+          src = src.replace("ProvisioningStyle = Automatic;", "ProvisioningStyle = Manual;")
 
           app_pbx.write_text(src)
 
+          # Pods: strip any provisioning profile specifiers, force Automatic style
           pods_pbx = pathlib.Path("ios/App/Pods/Pods.xcodeproj/project.pbxproj")
           if pods_pbx.exists():
               pods = pods_pbx.read_text()
-              pods = re.sub(r"\n\s*PROVISIONING_PROFILE_SPECIFIER = [^;]*;", "", pods)
-              pods = re.sub(r"\n\s*PROVISIONING_PROFILE = [^;]*;", "", pods)
-              pods = re.sub(r"\n\s*CODE_SIGN_STYLE = Manual;", "\n\t\t\t\tCODE_SIGN_STYLE = Automatic;", pods)
+              pods = re.sub(r"\n\s*PROVISIONING_PROFILE_SPECIFIER\s*=\s*[^;]*;", "", pods)
+              pods = re.sub(r"\n\s*PROVISIONING_PROFILE\s*=\s*[^;]*;", "", pods)
+              pods = pods.replace("CODE_SIGN_STYLE = Manual;", "CODE_SIGN_STYLE = Automatic;")
               pods_pbx.write_text(pods)
 
           print("Patched App target for manual signing and cleared Pods provisioning profiles.")
