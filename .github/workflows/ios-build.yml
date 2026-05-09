@@ -21,7 +21,7 @@ jobs:
       IOS_SCHEME: App
       IOS_PROJECT_DIR: ios/App
       IOS_PROJECT: ios/App/App.xcodeproj
-      IOS_SPM_PACKAGE: ios/App/CapApp-SPM/Package.swift
+      IOS_WORKSPACE: ios/App/App.xcworkspace
       ARCHIVE_PATH: ios/App/build/App.xcarchive
       EXPORT_PATH: ios/App/build/export
       EXPORT_OPTIONS_PLIST: ios/App/ExportOptions.plist
@@ -44,6 +44,7 @@ jobs:
           sw_vers
           xcode-select -p
           xcodebuild -version
+          pod --version
 
       - name: Validate required GitHub secrets
         env:
@@ -78,32 +79,100 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Ensure iOS platform exists
+      - name: Regenerate iOS as CocoaPods project
         run: |
           set -euxo pipefail
-          if [ -d "$IOS_PROJECT" ] && [ -f "$IOS_SPM_PACKAGE" ] && [ ! -f "$IOS_PROJECT_DIR/Podfile" ]; then
-            echo "iOS SPM platform already exists"
-          else
-            echo "Regenerating iOS platform as a Capacitor SPM project"
-            rm -rf ios
-            ./node_modules/.bin/cap add ios --packagemanager SPM
-          fi
+          rm -rf ios
+          ./node_modules/.bin/cap add ios
+          test -f "$IOS_PROJECT_DIR/Podfile"
+          test ! -d "ios/App/CapApp-SPM"
 
-      - name: Sync Capacitor iOS
+      - name: Patch Info.plist with HealthKit + push background mode
+        run: |
+          set -euxo pipefail
+          INFO=ios/App/App/Info.plist
+
+          plutil -remove NSHealthShareUsageDescription "$INFO" 2>/dev/null || true
+          plutil -remove NSHealthUpdateUsageDescription "$INFO" 2>/dev/null || true
+          plutil -insert NSHealthShareUsageDescription -string "Apollo Reborn reads your steps, workouts, heart rate, active calories, sleep, and weight from Apple Health so your coach can personalize training and you can track progress in one place." "$INFO"
+          plutil -insert NSHealthUpdateUsageDescription -string "Apollo Reborn may write workout sessions back to Apple Health so all your fitness data lives together." "$INFO"
+
+          plutil -remove NSCameraUsageDescription "$INFO" 2>/dev/null || true
+          plutil -remove NSPhotoLibraryUsageDescription "$INFO" 2>/dev/null || true
+          plutil -remove NSPhotoLibraryAddUsageDescription "$INFO" 2>/dev/null || true
+          plutil -insert NSCameraUsageDescription -string "Apollo Reborn uses the camera to capture meal photos and progress photos. Photos are uploaded only to your private account." "$INFO"
+          plutil -insert NSPhotoLibraryUsageDescription -string "Apollo Reborn lets you choose meal and progress photos from your library." "$INFO"
+          plutil -insert NSPhotoLibraryAddUsageDescription -string "Apollo Reborn saves workout cards and progress photos to your photo library when you tap Save." "$INFO"
+
+          plutil -remove ITSAppUsesNonExemptEncryption "$INFO" 2>/dev/null || true
+          plutil -insert ITSAppUsesNonExemptEncryption -bool false "$INFO"
+
+          plutil -remove UIBackgroundModes "$INFO" 2>/dev/null || true
+          plutil -insert UIBackgroundModes -json '["remote-notification"]' "$INFO"
+
+          plutil -lint "$INFO"
+          plutil -p "$INFO" | head -60
+
+      - name: Create App.entitlements with HealthKit capability
+        run: |
+          set -euxo pipefail
+          ENT=ios/App/App/App.entitlements
+          cat > "$ENT" <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>com.apple.developer.healthkit</key>
+            <true/>
+            <key>aps-environment</key>
+            <string>production</string>
+          </dict>
+          </plist>
+          EOF
+          plutil -lint "$ENT"
+
+      - name: Wire entitlements into project.pbxproj
+        run: |
+          set -euxo pipefail
+          PBX=ios/App/App.xcodeproj/project.pbxproj
+          if ! grep -q "CODE_SIGN_ENTITLEMENTS" "$PBX"; then
+            python3 <<'PY'
+          import re, pathlib
+          p = pathlib.Path("ios/App/App.xcodeproj/project.pbxproj")
+          src = p.read_text()
+          patched = re.sub(
+              r"(PRODUCT_BUNDLE_IDENTIFIER = com\.apollonation\.app;)",
+              r"\1\n\t\t\t\tCODE_SIGN_ENTITLEMENTS = App/App.entitlements;",
+              src,
+          )
+          p.write_text(patched)
+          print("Patched project.pbxproj with CODE_SIGN_ENTITLEMENTS")
+          PY
+          fi
+          grep -c "CODE_SIGN_ENTITLEMENTS = App/App.entitlements;" "$PBX" || (echo "Failed to patch entitlements path" && exit 1)
+
+      - name: Sync Capacitor (registers all native plugins)
         run: |
           set -euxo pipefail
           ./node_modules/.bin/cap sync ios
-          ls -la "$IOS_PROJECT_DIR"
-          test -d "$IOS_PROJECT"
-          test -f "$IOS_SPM_PACKAGE"
-          test ! -f "$IOS_PROJECT_DIR/Podfile"
 
-      - name: Resolve Swift Package Manager dependencies
+      - name: Install Pods
+        working-directory: ios/App
         run: |
           set -euxo pipefail
-          xcodebuild -project "$IOS_PROJECT" \
-            -scheme "$IOS_SCHEME" \
-            -resolvePackageDependencies
+          pod install --repo-update
+          ls -la
+
+      - name: Verify HealthKit pod was installed
+        run: |
+          set -euxo pipefail
+          if ! grep -q "PerfoodCapacitorHealthkit" ios/App/Podfile.lock; then
+            echo "::error::PerfoodCapacitorHealthkit pod did NOT install. Check ios/App/Podfile."
+            cat ios/App/Podfile
+            cat ios/App/Podfile.lock | head -40
+            exit 1
+          fi
+          echo "HealthKit pod installed correctly."
 
       - name: Install signing assets
         env:
@@ -118,10 +187,6 @@ jobs:
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
           KEYCHAIN_PASSWORD="temp123"
 
-          # Robust decode via Python: strips ALL non-base64 chars, also handles
-          # PEM-wrapped input (-----BEGIN...-----) and URL-safe base64. macOS
-          # `base64 --decode` is strict and fails with "(null): error decoding
-          # base64 input stream" if even one stray character is present.
           decode_secret() {
             local var_name="$1"
             local out_path="$2"
@@ -131,41 +196,20 @@ jobs:
           var_name, out_path, label = sys.argv[1], sys.argv[2], sys.argv[3]
           raw = os.environ.get(var_name, "")
           if not raw:
-              print(f"::error::{label} secret ({var_name}) is empty.", file=sys.stderr)
-              sys.exit(1)
-          # Strip PEM armor if present
+              print(f"::error::{label} secret ({var_name}) is empty.", file=sys.stderr); sys.exit(1)
           stripped = re.sub(r"-----[A-Z ]+-----", "", raw)
-          # Keep only base64 alphabet (standard + url-safe) and padding
-          cleaned = re.sub(r"[^A-Za-z0-9+/=_-]", "", stripped)
-          # Normalize url-safe -> standard
-          cleaned = cleaned.replace("-", "+").replace("_", "/")
-          # Pad to multiple of 4
-          pad = (-len(cleaned)) % 4
-          cleaned += "=" * pad
-          try:
-              data = base64.b64decode(cleaned, validate=False)
-          except Exception as e:
-              print(f"::error::{label}: base64 decode failed: {e}. "
-                    f"Raw length={len(raw)}, cleaned length={len(cleaned)}. "
-                    f"Re-upload using: base64 -i your-file.p12 | pbcopy", file=sys.stderr)
-              sys.exit(1)
+          cleaned = re.sub(r"[^A-Za-z0-9+/=_-]", "", stripped).replace("-", "+").replace("_", "/")
+          cleaned += "=" * ((-len(cleaned)) % 4)
+          data = base64.b64decode(cleaned, validate=False)
           if len(data) < 100:
-              print(f"::error::{label} decoded to only {len(data)} bytes. "
-                    f"Expected a real .p12/.mobileprovision file. "
-                    f"Make sure the secret is the BASE64 of the file, not the raw binary or a path.", file=sys.stderr)
-              sys.exit(1)
-          with open(out_path, "wb") as f:
-              f.write(data)
+              print(f"::error::{label} decoded to only {len(data)} bytes.", file=sys.stderr); sys.exit(1)
+          open(out_path, "wb").write(data)
           print(f"{label}: decoded {len(data)} bytes -> {out_path}")
           PY
           }
 
           decode_secret APPLE_CERTIFICATE "$CERT_PATH" "APPLE_CERTIFICATE"
           decode_secret APPLE_PROVISIONING_PROFILE "$PROFILE_PATH" "APPLE_PROVISIONING_PROFILE"
-
-          # Sanity: .p12 starts with 0x30 (DER SEQUENCE); .mobileprovision is CMS/DER also starting with 0x30
-          file "$CERT_PATH" || true
-          file "$PROFILE_PATH" || true
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
@@ -182,14 +226,9 @@ jobs:
           PROFILE_APPID=$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" "$PROFILE_PLIST")
           PROFILE_TEAM=$(/usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" "$PROFILE_PLIST")
 
-          echo "Profile UUID:   $PROFILE_UUID"
-          echo "Profile name:   $PROFILE_NAME"
-          echo "Profile app-id: $PROFILE_APPID"
-          echo "Profile team:   $PROFILE_TEAM"
-
           EXPECTED_APPID="${PROFILE_TEAM}.${BUNDLE_ID}"
           if [ "$PROFILE_APPID" != "$EXPECTED_APPID" ]; then
-            echo "::error::Provisioning profile is for '$PROFILE_APPID' but the app bundle ID is '$EXPECTED_APPID'. Regenerate the profile in App Store Connect for bundle id $BUNDLE_ID and re-upload as APPLE_PROVISIONING_PROFILE."
+            echo "::error::Provisioning profile is for '$PROFILE_APPID' but the app bundle ID is '$EXPECTED_APPID'."
             exit 1
           fi
           if [ "$PROFILE_NAME" != "$PROVISIONING_PROFILE_NAME" ]; then
@@ -197,51 +236,34 @@ jobs:
             exit 1
           fi
 
-          OLD_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          NEW_DIR="$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
-          mkdir -p "$OLD_DIR" "$NEW_DIR"
-          cp "$PROFILE_PATH" "$OLD_DIR/$PROFILE_UUID.mobileprovision"
-          cp "$PROFILE_PATH" "$NEW_DIR/$PROFILE_UUID.mobileprovision"
-
-          ls -la "$OLD_DIR" "$NEW_DIR"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
+          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          cp "$PROFILE_PATH" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
 
           echo "CI_KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
-          echo "INSTALLED_PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
 
       - name: Create ExportOptions.plist
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          set -euxo pipefail
           cat > "$EXPORT_OPTIONS_PLIST" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-            <key>destination</key>
-            <string>export</string>
-            <key>method</key>
-            <string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>method</key><string>app-store-connect</string>
             <key>provisioningProfiles</key>
-            <dict>
-              <key>$BUNDLE_ID</key>
-              <string>$PROVISIONING_PROFILE_NAME</string>
-            </dict>
-            <key>signingCertificate</key>
-            <string>Apple Distribution</string>
-            <key>signingStyle</key>
-            <string>manual</string>
-            <key>stripSwiftSymbols</key>
-            <true/>
-            <key>teamID</key>
-            <string>$APPLE_TEAM_ID</string>
-            <key>thinning</key>
-            <string>&lt;none&gt;</string>
+            <dict><key>$BUNDLE_ID</key><string>$PROVISIONING_PROFILE_NAME</string></dict>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>stripSwiftSymbols</key><true/>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
           </dict>
           </plist>
           EOF
 
-      - name: Build archive
+      - name: Build archive (workspace, not project)
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
@@ -249,19 +271,10 @@ jobs:
           rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH"
           mkdir -p "$EXPORT_PATH"
 
-          xcodebuild \
-            -project "$IOS_PROJECT" \
-            -scheme "$IOS_SCHEME" \
-            -configuration Release \
-            clean
+          xcodebuild -workspace "$IOS_WORKSPACE" -scheme "$IOS_SCHEME" -configuration Release clean
 
-          # IMPORTANT: do NOT pass CODE_SIGN_STYLE / PROVISIONING_PROFILE_SPECIFIER /
-          # PRODUCT_BUNDLE_IDENTIFIER / CODE_SIGN_IDENTITY on the CLI here. Those args
-          # apply to ALL targets (including SPM resource bundles like RevenueCat_RevenueCat
-          # which fail with "does not support provisioning profiles"). Signing for the
-          # App target is configured in project.pbxproj and only those settings apply.
           xcodebuild \
-            -project "$IOS_PROJECT" \
+            -workspace "$IOS_WORKSPACE" \
             -scheme "$IOS_SCHEME" \
             -configuration Release \
             -sdk iphoneos \
@@ -284,13 +297,9 @@ jobs:
             -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
             -allowProvisioningUpdates \
             | tee "$RUNNER_TEMP/xcodebuild-export.log"
-
           shopt -s nullglob
           ipas=("$EXPORT_PATH"/*.ipa)
-          if [ ${#ipas[@]} -eq 0 ]; then
-            echo "No IPA file produced"
-            exit 1
-          fi
+          if [ ${#ipas[@]} -eq 0 ]; then echo "No IPA produced"; exit 1; fi
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v6
@@ -304,8 +313,8 @@ jobs:
         run: |
           set +e
           ls -R ios/App/build || true
-          cat "$RUNNER_TEMP/xcodebuild-archive.log" 2>/dev/null | tail -50 || true
-          cat "$RUNNER_TEMP/xcodebuild-export.log" 2>/dev/null | tail -50 || true
+          cat "$RUNNER_TEMP/xcodebuild-archive.log" 2>/dev/null | tail -60 || true
+          cat "$RUNNER_TEMP/xcodebuild-export.log" 2>/dev/null | tail -60 || true
 
       - name: Upload build logs
         if: always()
