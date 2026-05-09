@@ -35,7 +35,7 @@ const AppleHealthCard = () => {
     : rawError;
   const [today, setToday] = useState<TodayRow | null>(null);
   const [showPrePrompt, setShowPrePrompt] = useState(false);
-  const [permissionStep, setPermissionStep] = useState<"intro" | "system">("intro");
+  const [permissionStep, setPermissionStep] = useState<"intro" | "system" | "success">("intro");
 
   const isIOS = isNative() && Capacitor.getPlatform() === "ios";
 
@@ -82,12 +82,14 @@ const AppleHealthCard = () => {
   const handleApprove = async () => {
     setPermissionStep("system");
     const ok = await connect();
-    setShowPrePrompt(false);
     if (ok) {
+      setPermissionStep("success");
       toast({
         title: "Apple Health connected",
         description: "Steps, heart rate, sleep, calories, workouts, and weight will refresh automatically.",
       });
+    } else {
+      setShowPrePrompt(false);
     }
   };
 
