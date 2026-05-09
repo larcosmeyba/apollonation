@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "394121880427",
+    "project_id": "apollo-reborn-26cad",
+    "storage_bucket": "apollo-reborn-26cad.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:394121880427:android:8d448cc99f0134810d622e",
+        "android_client_info": {
+          "package_name": "com.apollonation.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6eV6-nmYv_7YscnG7p4Zrkh0TfMb2ADI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
