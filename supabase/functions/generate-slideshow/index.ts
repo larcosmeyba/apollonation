@@ -46,6 +46,7 @@ Rules:
 - Return ONLY valid JSON, no markdown`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      signal: AbortSignal.timeout(45_000),
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,

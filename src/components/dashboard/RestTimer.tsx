@@ -13,6 +13,14 @@ const RestTimer = ({ seconds, autoStart = false, onComplete }: RestTimerProps) =
   const [running, setRunning] = useState(autoStart);
   const [visible, setVisible] = useState(autoStart);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Hold the latest onComplete in a ref so a new identity from the parent
+  // does NOT tear down + recreate the interval on every render. Without this
+  // the timer recreates the interval on each tick and the "rest done"
+  // callback can fire repeatedly during a long set.
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     if (running && timeLeft > 0) {
@@ -20,7 +28,7 @@ const RestTimer = ({ seconds, autoStart = false, onComplete }: RestTimerProps) =
         setTimeLeft((prev) => {
           if (prev <= 1) {
             setRunning(false);
-            onComplete?.();
+            onCompleteRef.current?.();
             return 0;
           }
           return prev - 1;
@@ -30,7 +38,7 @@ const RestTimer = ({ seconds, autoStart = false, onComplete }: RestTimerProps) =
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [running, timeLeft, onComplete]);
+  }, [running, timeLeft]);
 
   // Auto-start when seconds change (new set logged)
   useEffect(() => {

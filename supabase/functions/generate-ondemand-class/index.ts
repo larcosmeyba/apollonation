@@ -105,6 +105,7 @@ Respond ONLY by calling the build_class tool. No prose.`;
     };
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      signal: AbortSignal.timeout(45_000),
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
