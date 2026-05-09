@@ -192,14 +192,7 @@ const Subscribe = () => {
     }
   };
 
-  const rebornPkg = useMemo(
-    () => rebornPackages.find((p) => p.periodLabel === billing) ?? rebornPackages[0],
-    [rebornPackages, billing]
-  );
-  const elitePkg = useMemo(
-    () => elitePackages.find((p) => p.periodLabel === billing) ?? elitePackages[0],
-    [elitePackages, billing]
-  );
+
 
   const hasYearAndMonth = (pkgs: UiPackage[]) =>
     pkgs.some((p) => p.periodLabel === "month") && pkgs.some((p) => p.periodLabel === "year");
