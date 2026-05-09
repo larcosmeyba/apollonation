@@ -199,6 +199,75 @@ jobs:
           pod install --repo-update
           ls -la
 
+      - name: Patch Xcode signing for CI archive
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euxo pipefail
+          python3 <<'PY'
+          import os, pathlib, re
+
+          bundle_id = os.environ["BUNDLE_ID"]
+          team_id = os.environ["APPLE_TEAM_ID"]
+          profile_name = os.environ["PROVISIONING_PROFILE_NAME"]
+          has_push = os.environ.get("PROFILE_HAS_PUSH") == "true"
+          has_healthkit = os.environ.get("PROFILE_HAS_HEALTHKIT") == "true"
+
+          app_pbx = pathlib.Path("ios/App/App.xcodeproj/project.pbxproj")
+          src = app_pbx.read_text()
+
+          def upsert_setting(block: str, key: str, value: str) -> str:
+              if re.search(rf"\n\s*{re.escape(key)} = ", block):
+                  return re.sub(rf"(\n\s*){re.escape(key)} = [^;]*;", rf"\1{key} = {value};", block)
+              return block.replace("\n\t\t\t};", f"\n\t\t\t\t{key} = {value};\n\t\t\t}};")
+
+          def patch_app_build_settings(match: re.Match) -> str:
+              block = match.group(0)
+              if f"PRODUCT_BUNDLE_IDENTIFIER = {bundle_id};" not in block:
+                  return block
+              for key, value in {
+                  "CODE_SIGN_STYLE": "Manual",
+                  "DEVELOPMENT_TEAM": team_id,
+                  "CODE_SIGN_IDENTITY": '"Apple Distribution"',
+                  "CODE_SIGN_ENTITLEMENTS": "App/App.entitlements",
+                  "PROVISIONING_PROFILE_SPECIFIER": f'"{profile_name}"',
+              }.items():
+                  block = upsert_setting(block, key, value)
+              return block
+
+          src = re.sub(r"\b[A-F0-9]{24} /\* (?:Debug|Release) \*/ = \{\n\t\t\tisa = XCBuildConfiguration;\n\t\t\tbuildSettings = \{.*?\n\t\t\t};\n\t\t\tname = (?:Debug|Release);\n\t\t};", patch_app_build_settings, src, flags=re.S)
+
+          capabilities = []
+          if has_healthkit:
+              capabilities.append("\t\t\t\t\t\tcom.apple.HealthKit = {\n\t\t\t\t\t\t\tenabled = 1;\n\t\t\t\t\t\t};")
+          if has_push:
+              capabilities.append("\t\t\t\t\t\tcom.apple.Push = {\n\t\t\t\t\t\t\tenabled = 1;\n\t\t\t\t\t\t};")
+          if capabilities and "SystemCapabilities" not in src:
+              src = src.replace(
+                  "ProvisioningStyle = Automatic;",
+                  "ProvisioningStyle = Manual;\n\t\t\t\t\tSystemCapabilities = {\n" + "\n".join(capabilities) + "\n\t\t\t\t\t};",
+                  1,
+              )
+          else:
+              src = src.replace("ProvisioningStyle = Automatic;", "ProvisioningStyle = Manual;", 1)
+
+          app_pbx.write_text(src)
+
+          pods_pbx = pathlib.Path("ios/App/Pods/Pods.xcodeproj/project.pbxproj")
+          if pods_pbx.exists():
+              pods = pods_pbx.read_text()
+              pods = re.sub(r"\n\s*PROVISIONING_PROFILE_SPECIFIER = [^;]*;", "", pods)
+              pods = re.sub(r"\n\s*PROVISIONING_PROFILE = [^;]*;", "", pods)
+              pods = re.sub(r"\n\s*CODE_SIGN_STYLE = Manual;", "\n\t\t\t\tCODE_SIGN_STYLE = Automatic;", pods)
+              pods_pbx.write_text(pods)
+
+          print("Patched App target for manual signing and cleared Pods provisioning profiles.")
+          PY
+          grep -q "PROVISIONING_PROFILE_SPECIFIER = \"$PROVISIONING_PROFILE_NAME\";" ios/App/App.xcodeproj/project.pbxproj
+          if [ -f ios/App/Pods/Pods.xcodeproj/project.pbxproj ]; then
+            ! grep -q "PROVISIONING_PROFILE_SPECIFIER = $PROVISIONING_PROFILE_NAME" ios/App/Pods/Pods.xcodeproj/project.pbxproj
+          fi
+
       - name: Verify HealthKit pod was installed
         run: |
           set -euxo pipefail
