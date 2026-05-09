@@ -175,7 +175,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
     if (partnerId) {
       markAsRead.mutate(partnerId);
     }
-  }, [partnerId, messages.length]);
+  }, [partnerId, messages.length, markAsRead]);
 
   // Auto-scroll to bottom
   useEffect(() => {
