@@ -126,6 +126,7 @@ const App = () => {
           <AuthProvider>
             <NativeDeepLinks />
             <HealthDisclaimerSheet />
+            <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<AppEntryRedirect />} />
               <Route path="/home" element={<Index />} />
@@ -228,6 +229,7 @@ const App = () => {
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
