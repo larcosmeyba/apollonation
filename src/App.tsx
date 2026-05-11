@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,46 +10,54 @@ import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
-import ApplyCoach from "./pages/ApplyCoach";
 import AppEntryRedirect from "@/components/AppEntryRedirect";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Questionnaire from "./pages/Questionnaire";
 import Dashboard from "./pages/Dashboard";
-import DashboardWorkouts from "./pages/DashboardWorkouts";
-import DashboardRecipes from "./pages/DashboardRecipes";
-import DashboardMacros from "./pages/DashboardMacros";
-import DashboardProfile from "./pages/DashboardProfile";
-import DashboardCoachProfile from "./pages/DashboardCoachProfile";
-import DashboardNutrition from "./pages/DashboardNutrition";
-import DashboardTraining from "./pages/DashboardTraining";
-import DashboardWorkoutDetail from "./pages/DashboardWorkoutDetail";
-import DashboardCalendar from "./pages/DashboardCalendar";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import ApolloSystem from "./pages/ApolloSystem";
-import About from "./pages/About";
-import FAQ from "./pages/FAQ";
-import ContactPortal from "./pages/ContactPortal";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import AccountDeletion from "./pages/AccountDeletion";
-import Unsubscribe from "./pages/Unsubscribe";
-import PlanReady from "./pages/PlanReady";
-import DashboardTransformation from "./pages/DashboardTransformation";
-import DashboardRecovery from "./pages/DashboardRecovery";
-import DashboardChallenges from "./pages/DashboardChallenges";
-import DashboardAIWorkout from "./pages/DashboardAIWorkout";
-import DashboardMessages from "./pages/DashboardMessages";
-import DashboardMyWorkouts from "./pages/DashboardMyWorkouts";
-import Subscribe from "./pages/Subscribe";
-import PaywallPreview from "./pages/PaywallPreview";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import HealthDisclaimerSheet from "@/components/dashboard/HealthDisclaimerSheet";
+
+// Lazy-loaded routes — keeps the initial bundle small. Each chunk is fetched
+// only when the user navigates there.
+const ApplyCoach = lazy(() => import("./pages/ApplyCoach"));
+const DashboardWorkouts = lazy(() => import("./pages/DashboardWorkouts"));
+const DashboardRecipes = lazy(() => import("./pages/DashboardRecipes"));
+const DashboardMacros = lazy(() => import("./pages/DashboardMacros"));
+const DashboardProfile = lazy(() => import("./pages/DashboardProfile"));
+const DashboardCoachProfile = lazy(() => import("./pages/DashboardCoachProfile"));
+const DashboardNutrition = lazy(() => import("./pages/DashboardNutrition"));
+const DashboardTraining = lazy(() => import("./pages/DashboardTraining"));
+const DashboardWorkoutDetail = lazy(() => import("./pages/DashboardWorkoutDetail"));
+const DashboardCalendar = lazy(() => import("./pages/DashboardCalendar"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const ApolloSystem = lazy(() => import("./pages/ApolloSystem"));
+const About = lazy(() => import("./pages/About"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const ContactPortal = lazy(() => import("./pages/ContactPortal"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const AccountDeletion = lazy(() => import("./pages/AccountDeletion"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const PlanReady = lazy(() => import("./pages/PlanReady"));
+const DashboardTransformation = lazy(() => import("./pages/DashboardTransformation"));
+const DashboardRecovery = lazy(() => import("./pages/DashboardRecovery"));
+const DashboardChallenges = lazy(() => import("./pages/DashboardChallenges"));
+const DashboardMessages = lazy(() => import("./pages/DashboardMessages"));
+const DashboardMyWorkouts = lazy(() => import("./pages/DashboardMyWorkouts"));
+const Subscribe = lazy(() => import("./pages/Subscribe"));
+const PaywallPreview = lazy(() => import("./pages/PaywallPreview"));
+
+const RouteFallback = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="animate-pulse text-primary">Loading...</div>
+  </div>
+);
 
 // Wrap a route element in an ErrorBoundary so a thrown error in any
 // dashboard page shows a friendly fallback instead of a white screen.
