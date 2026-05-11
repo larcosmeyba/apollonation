@@ -13,7 +13,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireElite = false }: ProtectedRouteProps) => {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, loading, profileLoading, signOut } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminStatus();
   const { hasQuestionnaire, loading: questionnaireLoading } = useQuestionnaire(user?.id);
   const location = useLocation();
@@ -65,8 +65,19 @@ const ProtectedRoute = ({ children, requireElite = false }: ProtectedRouteProps)
   }
 
   // Elite-only gate — restricted features (e.g. coach messaging).
-  if (requireElite && (profile as any)?.entitlement !== "apollo_elite") {
-    return <Navigate to="/subscribe?reason=elite" replace state={{ from: location }} />;
+  // Wait for profileLoading so newly signed-in Elite users don't see a paywall flash
+  // while the profile row is still being fetched.
+  if (requireElite) {
+    if (profileLoading) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="animate-pulse text-primary">Loading...</div>
+        </div>
+      );
+    }
+    if ((profile as any)?.entitlement !== "apollo_elite") {
+      return <Navigate to="/subscribe?reason=elite" replace state={{ from: location }} />;
+    }
   }
 
   return <>{children}</>;
