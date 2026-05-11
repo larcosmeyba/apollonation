@@ -32,6 +32,9 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  /** True while the profile row is being (re)fetched after a session change.
+   *  Gate entitlement checks on this to avoid a paywall flash. */
+  profileLoading: boolean;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -55,6 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await withTimeout(
@@ -76,8 +80,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshProfile = async () => {
     if (user) {
-      const profileData = await fetchProfile(user.id);
-      setProfile(profileData);
+      setProfileLoading(true);
+      try {
+        const profileData = await fetchProfile(user.id);
+        setProfile(profileData);
+      } finally {
+        setProfileLoading(false);
+      }
     }
   };
 
@@ -119,6 +128,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (nextSession?.user) {
       const uid = nextSession.user.id;
+      // Mark profile as loading so route guards (e.g. ProtectedRoute) wait
+      // before evaluating entitlement and don't flash the paywall.
+      setProfileLoading(true);
       initPurchases(uid)
         .then(() => attachPurchasesListener(uid))
         .catch((e) => console.warn("[Auth] initPurchases", e));
@@ -131,13 +143,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!mountedRef.current) return;
         setProfile(null);
       } finally {
-        if (mountedRef.current) setLoading(false);
+        if (mountedRef.current) {
+          setLoading(false);
+          setProfileLoading(false);
+        }
       }
     } else {
       await detachPurchasesListener();
       if (!mountedRef.current) return;
       setProfile(null);
       setLoading(false);
+      setProfileLoading(false);
     }
   };
 
@@ -284,9 +300,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // AuthProvider itself re-renders (e.g. due to internal state we don't
   // expose). Only changes to user/session/profile/loading propagate.
   const value = useMemo(
-    () => ({ user, session, profile, loading, signUp, signIn, signOut, refreshProfile }),
+    () => ({ user, session, profile, loading, profileLoading, signUp, signIn, signOut, refreshProfile }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user, session, profile, loading]
+    [user, session, profile, loading, profileLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
