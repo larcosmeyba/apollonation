@@ -93,6 +93,20 @@ jobs:
           fi
           rm -rf ios/App/CapApp-SPM
 
+      - name: Generate Apollo app icons (iOS)
+        run: |
+          set -euxo pipefail
+          if [ ! -f resources/icon.png ]; then
+            echo "::error::resources/icon.png missing — Apollo app icon source not found."
+            exit 1
+          fi
+          npm install --no-save @capacitor/assets
+          npx @capacitor/assets generate \
+            --ios \
+            --iconBackgroundColor '#000000' \
+            --iconBackgroundColorDark '#000000'
+          ls ios/App/App/Assets.xcassets/AppIcon.appiconset | head
+
       - name: Inspect provisioning profile capabilities
         env:
           APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
