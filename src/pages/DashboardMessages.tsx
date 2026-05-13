@@ -1,15 +1,21 @@
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardBottomTabs from "@/components/dashboard/DashboardBottomTabs";
 import ChatView from "@/components/dashboard/ChatView";
+import CoachIntakeQuestionnaire, { CoachIntakePayload } from "@/components/dashboard/CoachIntakeQuestionnaire";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useAssignedCoach } from "@/hooks/useAssignedCoach";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
 import { useAccessControl } from "@/hooks/useAccessControl";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, ChevronRight, Heart } from "lucide-react";
+import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 
 const DashboardMessages = () => {
