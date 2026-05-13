@@ -75,7 +75,7 @@ const ProtectedRoute = ({ children, requireElite = false }: ProtectedRouteProps)
         </div>
       );
     }
-    if ((profile as any)?.entitlement !== "apollo_elite") {
+    if (profile?.entitlement !== "apollo_elite") {
       return <Navigate to="/subscribe?reason=elite" replace state={{ from: location }} />;
     }
   }
