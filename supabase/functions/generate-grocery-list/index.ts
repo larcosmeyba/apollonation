@@ -40,6 +40,10 @@ serve(async (req) => {
 
     const userId = userData.user.id;
 
+    // Premium-only feature — verify entitlement server-side.
+    const denied = await requirePremium(userId, corsHeaders);
+    if (denied) return denied;
+
     // Rate limit: 10 grocery-list generations per user per hour.
     const allowed = await checkRateLimit(userId, "generate-grocery-list", 10, 60);
     if (!allowed) return rateLimitResponse(corsHeaders);
