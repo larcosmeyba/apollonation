@@ -245,6 +245,17 @@ Deno.serve(async (req) => {
     }
     const userId = userData.user.id;
 
+    // Premium-only feature — verify entitlement server-side.
+    const { requirePremium } = await import("../_shared/entitlement.ts");
+    const denied = await requirePremium(userId, corsHeaders);
+    if (denied) return denied;
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userId = userData.user.id;
+
     const body = await req.json().catch(() => ({}));
     const planId: string | undefined = body.planId;
     const week: number = Number.isFinite(body.week) ? Number(body.week) : 1;
