@@ -29,6 +29,10 @@ Deno.serve(async (req) => {
 
     if (userError || !user) throw new Error("Unauthorized");
 
+    // Premium-only feature — verify entitlement server-side.
+    const denied = await requirePremium(user.id, corsHeaders);
+    if (denied) return denied;
+
     // Rate limit: 30 meal-swap suggestions per user per day.
     const allowed = await checkRateLimit(user.id, "suggest-meal-swap", 30, 1440);
     if (!allowed) return rateLimitResponse(corsHeaders);
