@@ -1,15 +1,21 @@
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardBottomTabs from "@/components/dashboard/DashboardBottomTabs";
 import ChatView from "@/components/dashboard/ChatView";
+import CoachIntakeQuestionnaire, { CoachIntakePayload } from "@/components/dashboard/CoachIntakeQuestionnaire";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useAssignedCoach } from "@/hooks/useAssignedCoach";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
 import { useAccessControl } from "@/hooks/useAccessControl";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, ChevronRight, Heart } from "lucide-react";
+import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 
 const DashboardMessages = () => {
@@ -17,6 +23,43 @@ const DashboardMessages = () => {
   const { coach, loading: coachLoading } = useAssignedCoach();
   const { canAccessCoachMessaging, loading: accessLoading } = useAccessControl();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const qc = useQueryClient();
+  const [intakeStarted, setIntakeStarted] = useState(false);
+  const [intakeSubmitting, setIntakeSubmitting] = useState(false);
+
+  const { data: intake, isLoading: intakeLoading } = useQuery({
+    queryKey: ["coach_intake", user?.id],
+    enabled: !!user?.id && !isAdmin && canAccessCoachMessaging,
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("coach_intake_responses")
+        .select("*")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const handleIntakeComplete = async (payload: CoachIntakePayload) => {
+    if (!user?.id) return;
+    setIntakeSubmitting(true);
+    const { error } = await (supabase as any)
+      .from("coach_intake_responses")
+      .upsert(
+        { user_id: user.id, ...payload, completed_at: new Date().toISOString() },
+        { onConflict: "user_id" }
+      );
+    setIntakeSubmitting(false);
+    if (error) {
+      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      return;
+    }
+    qc.invalidateQueries({ queryKey: ["coach_intake", user.id] });
+    setIntakeStarted(false);
+    toast({ title: "Sent to your coach", description: "They'll review before your first message." });
+  };
 
   if (loading || (!isAdmin && coachLoading) || (!isAdmin && accessLoading)) {
     return (
@@ -88,6 +131,56 @@ const DashboardMessages = () => {
         </div>
       );
     }
+
+    // Gate first-time access behind a lightweight intake questionnaire.
+    if (!intakeLoading && !intake) {
+      if (intakeStarted) {
+        return (
+          <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto pb-20">
+              <CoachIntakeQuestionnaire
+                onComplete={handleIntakeComplete}
+                submitting={intakeSubmitting}
+              />
+            </div>
+            <DashboardBottomTabs />
+          </div>
+        );
+      }
+      return (
+        <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-8 md:p-10 max-w-md w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+            >
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative space-y-5">
+                <div className="flex items-center gap-2">
+                  <Heart className="w-4 h-4 text-primary" />
+                  <span className="text-[11px] uppercase tracking-[0.25em] text-primary">Before we begin</span>
+                </div>
+                <h2 className="font-heading text-3xl tracking-tight leading-tight">
+                  Tell Us About <span className="text-primary">Your Goals</span>
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Help your coach understand what you need support with.
+                </p>
+                <Button onClick={() => setIntakeStarted(true)} variant="apollo" className="rounded-full gap-2 px-6">
+                  Start <ChevronRight className="w-4 h-4" />
+                </Button>
+                <p className="text-[11px] text-muted-foreground/70">
+                  Takes about 2 minutes. You can update your answers anytime.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+          <DashboardBottomTabs />
+        </div>
+      );
+    }
+
     return (
       <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
         {/* Chat takes remaining space above bottom tabs. ChatView's built-in

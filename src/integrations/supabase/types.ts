@@ -914,6 +914,54 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_intake_responses: {
+        Row: {
+          accountability_style: string | null
+          additional_notes: string | null
+          biggest_goal: string | null
+          commitment_level: number | null
+          completed_at: string | null
+          created_at: string
+          current_struggles: string[]
+          id: string
+          past_blockers: string | null
+          success_vision: string | null
+          updated_at: string
+          user_id: string
+          why_coaching: string | null
+        }
+        Insert: {
+          accountability_style?: string | null
+          additional_notes?: string | null
+          biggest_goal?: string | null
+          commitment_level?: number | null
+          completed_at?: string | null
+          created_at?: string
+          current_struggles?: string[]
+          id?: string
+          past_blockers?: string | null
+          success_vision?: string | null
+          updated_at?: string
+          user_id: string
+          why_coaching?: string | null
+        }
+        Update: {
+          accountability_style?: string | null
+          additional_notes?: string | null
+          biggest_goal?: string | null
+          commitment_level?: number | null
+          completed_at?: string | null
+          created_at?: string
+          current_struggles?: string[]
+          id?: string
+          past_blockers?: string | null
+          success_vision?: string | null
+          updated_at?: string
+          user_id?: string
+          why_coaching?: string | null
+        }
+        Relationships: []
+      }
       contact_requests: {
         Row: {
           category: string
@@ -1808,13 +1856,29 @@ export type Database = {
       }
       mw_questionnaire_responses: {
         Row: {
+          avoid_areas: string[]
           body_fat_percent: number | null
+          cardio_preference: string | null
           coach_intensity: string
+          completed_at: string | null
           created_at: string
+          current_routine: string | null
+          disliked_exercises: string | null
           equipment: string[] | null
           experience_level: number | null
+          favorite_exercises: string | null
+          focus_areas: string[]
           goals: string[]
+          gym_confidence: string | null
           id: string
+          improve_areas: string[]
+          injuries: string | null
+          main_goal: string | null
+          mobility_limitations: string | null
+          pain_areas: string | null
+          recovery_level: string | null
+          sleep_quality: string | null
+          stress_level: string | null
           target_date: string | null
           training_days: string[] | null
           training_location: string | null
@@ -1823,15 +1887,34 @@ export type Database = {
           weight_unit: string | null
           weight_value: number | null
           workout_duration_minutes: number | null
+          workout_environment: string | null
+          workout_styles: string[]
+          workout_time: string | null
         }
         Insert: {
+          avoid_areas?: string[]
           body_fat_percent?: number | null
+          cardio_preference?: string | null
           coach_intensity?: string
+          completed_at?: string | null
           created_at?: string
+          current_routine?: string | null
+          disliked_exercises?: string | null
           equipment?: string[] | null
           experience_level?: number | null
+          favorite_exercises?: string | null
+          focus_areas?: string[]
           goals?: string[]
+          gym_confidence?: string | null
           id?: string
+          improve_areas?: string[]
+          injuries?: string | null
+          main_goal?: string | null
+          mobility_limitations?: string | null
+          pain_areas?: string | null
+          recovery_level?: string | null
+          sleep_quality?: string | null
+          stress_level?: string | null
           target_date?: string | null
           training_days?: string[] | null
           training_location?: string | null
@@ -1840,15 +1923,34 @@ export type Database = {
           weight_unit?: string | null
           weight_value?: number | null
           workout_duration_minutes?: number | null
+          workout_environment?: string | null
+          workout_styles?: string[]
+          workout_time?: string | null
         }
         Update: {
+          avoid_areas?: string[]
           body_fat_percent?: number | null
+          cardio_preference?: string | null
           coach_intensity?: string
+          completed_at?: string | null
           created_at?: string
+          current_routine?: string | null
+          disliked_exercises?: string | null
           equipment?: string[] | null
           experience_level?: number | null
+          favorite_exercises?: string | null
+          focus_areas?: string[]
           goals?: string[]
+          gym_confidence?: string | null
           id?: string
+          improve_areas?: string[]
+          injuries?: string | null
+          main_goal?: string | null
+          mobility_limitations?: string | null
+          pain_areas?: string | null
+          recovery_level?: string | null
+          sleep_quality?: string | null
+          stress_level?: string | null
           target_date?: string | null
           training_days?: string[] | null
           training_location?: string | null
@@ -1857,6 +1959,9 @@ export type Database = {
           weight_unit?: string | null
           weight_value?: number | null
           workout_duration_minutes?: number | null
+          workout_environment?: string | null
+          workout_styles?: string[]
+          workout_time?: string | null
         }
         Relationships: []
       }
