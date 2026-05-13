@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -205,8 +205,8 @@ const DashboardNutritionSetup = () => {
     biggest_struggles: [] as string[],
   });
 
-  // Hydrate from existing once
-  useState(() => {
+  // Hydrate once existing nutrition questionnaire loads
+  useEffect(() => {
     if (existing) {
       const totalIn = existing.height_inches || 0;
       setForm((p: any) => ({
@@ -226,7 +226,7 @@ const DashboardNutritionSetup = () => {
         preferred_grocery_stores: (existing.preferred_grocery_stores || []).join(", "),
       }));
     }
-  });
+  }, [existing]);
 
   if (loading) {
     return (
