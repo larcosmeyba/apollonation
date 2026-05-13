@@ -49,6 +49,10 @@ serve(async (req) => {
       });
     }
 
+    // Premium-only feature — verify entitlement server-side.
+    const denied = await requirePremium(userId, corsHeaders);
+    if (denied) return denied;
+
     // Rate limit: 3 regenerations per user per day
     const allowed = await checkRateLimit(userId, "client-regenerate-meal-plan", 3, 1440);
     if (!allowed) return rateLimitResponse(corsHeaders);
