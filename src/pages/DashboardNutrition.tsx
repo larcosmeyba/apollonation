@@ -149,6 +149,22 @@ const DashboardNutrition = () => {
     enabled: !!user,
   });
 
+  // Premium nutrition onboarding completion gate
+  const { data: nutritionQ, isLoading: nutritionQLoading } = useQuery({
+    queryKey: ["nutrition-questionnaire", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await (supabase as any)
+        .from("client_nutrition_questionnaires")
+        .select("id, calorie_target, protein_target_g, carb_target_g, fat_target_g, water_target_oz, completed_at")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+  const hasNutritionQuestionnaire = !!nutritionQ?.completed_at;
+
   // Active dietary restrictions from questionnaire
   const { data: questionnaireData } = useQuery({
     queryKey: ["questionnaire-restrictions", user?.id],
