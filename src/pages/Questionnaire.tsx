@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Check } from "lucide-react";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 const DAYS_OF_WEEK = [
@@ -23,18 +23,38 @@ const DAYS_OF_WEEK = [
   { id: "sunday", label: "Sun" },
 ];
 
-const DIETARY_OPTIONS = [
-  "Vegan", "Vegetarian", "Gluten-Free", "Dairy-Free",
-  "Keto", "Paleo", "Halal", "Kosher", "No Restrictions",
-];
-
 const GOALS = [
-  { id: "gain_muscle", label: "Gain Muscle" },
-  { id: "lose_fat", label: "Weight Loss" },
-  { id: "reduce_bf", label: "Reduce Body Fat %" },
+  { id: "gain_muscle", label: "Build Muscle" },
+  { id: "lose_fat", label: "Lose Fat" },
+  { id: "reduce_bf", label: "Recomposition" },
+  { id: "performance", label: "Performance" },
 ];
 
-const STEPS = ["Personal Info", "Training", "Nutrition"];
+const EXPERIENCE_LEVELS = [
+  { id: "beginner", label: "Beginner", desc: "New to structured training" },
+  { id: "intermediate", label: "Intermediate", desc: "1–3 years consistent" },
+  { id: "advanced", label: "Advanced", desc: "3+ years, well-trained" },
+];
+
+const TRAINING_STYLES = [
+  "Strength",
+  "Hypertrophy",
+  "Powerlifting",
+  "Bodybuilding",
+  "HIIT",
+  "Conditioning",
+  "Functional",
+  "Athletic",
+];
+
+const ENVIRONMENTS = [
+  { id: "full_gym", label: "Full Gym" },
+  { id: "home_gym", label: "Home Gym" },
+  { id: "minimal_equipment", label: "Minimal Equipment" },
+  { id: "bodyweight", label: "Bodyweight Only" },
+];
+
+const STEPS = ["You", "Body", "Goals", "Training", "Health", "Finish"];
 
 const Questionnaire = () => {
   const { user, loading } = useAuth();
@@ -45,17 +65,29 @@ const Questionnaire = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
+    // About you
+    full_name: "",
+    email: user?.email || "",
+    phone: "",
+    date_of_birth: "",
     sex: "",
-    age: "",
+    // Body
     height_feet: "",
     height_inches: "",
     weight_lbs: "",
+    // Goals
+    fitness_experience: "",
     activity_level: "moderate",
     goal: "",
+    // Training
+    preferred_training_style: "",
     preferred_training_days: [] as string[],
-    weekly_food_budget: "",
-    dietary_restrictions: [] as string[],
-    disliked_foods: "",
+    workout_environment: "",
+    // Health
+    injuries_limitations: "",
+    current_medications: "",
+    // Finish
+    additional_notes: "",
     waiver_accepted: false,
   });
 
@@ -68,19 +100,13 @@ const Questionnaire = () => {
   }
 
   if (!user) return <Navigate to="/auth" replace />;
-
-  // One-time questionnaire: if the user already has a saved row, send them
-  // straight to the dashboard so they don't refill it.
   if (hasQuestionnaire) return <Navigate to="/dashboard" replace />;
 
   const updateField = (field: string, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleArrayField = (
-    field: "dietary_restrictions" | "preferred_training_days",
-    value: string
-  ) => {
+  const toggleArrayField = (field: "preferred_training_days", value: string) => {
     setForm((prev) => {
       const arr = prev[field];
       return {
@@ -92,15 +118,27 @@ const Questionnaire = () => {
 
   const canProceed = () => {
     if (step === 0) {
-      return form.sex && form.age && form.height_feet && form.weight_lbs && form.goal;
+      return form.full_name.trim() && form.email.trim() && form.date_of_birth && form.sex;
     }
     if (step === 1) {
-      return form.preferred_training_days.length > 0;
+      return form.height_feet && form.weight_lbs;
     }
     if (step === 2) {
-      return form.waiver_accepted;
+      return form.fitness_experience && form.goal;
     }
+    if (step === 3) {
+      return form.preferred_training_style && form.preferred_training_days.length > 0 && form.workout_environment;
+    }
+    if (step === 4) return true; // health is optional
+    if (step === 5) return form.waiver_accepted;
     return true;
+  };
+
+  const ageFromDob = (dob: string) => {
+    if (!dob) return 25;
+    const d = new Date(dob);
+    const diff = Date.now() - d.getTime();
+    return Math.max(13, Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25)));
   };
 
   const handleSubmit = async () => {
@@ -109,11 +147,9 @@ const Questionnaire = () => {
 
     const totalInches = (parseInt(form.height_feet) || 0) * 12 + (parseInt(form.height_inches) || 0);
     const weightLbs = parseFloat(form.weight_lbs) || 150;
-    const age = parseInt(form.age) || 25;
+    const age = ageFromDob(form.date_of_birth);
 
     try {
-      // Ensure we have a fresh, valid auth session before writing — otherwise PostgREST
-      // falls back to the publishable key, auth.uid() is null, and RLS rejects with 42501.
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData?.session) {
         const { data: refreshed, error: refreshErr } = await supabase.auth.refreshSession();
@@ -129,28 +165,31 @@ const Questionnaire = () => {
         }
       }
 
-      const payload = {
+      const payload: any = {
         user_id: user.id,
+        full_name: form.full_name.trim(),
+        phone: form.phone.trim() || null,
+        date_of_birth: form.date_of_birth || null,
         sex: form.sex,
         age,
         height_inches: totalInches,
         weight_lbs: weightLbs,
         activity_level: form.activity_level,
+        fitness_experience: form.fitness_experience,
         workout_days_per_week: form.preferred_training_days.length,
-        training_methods: [],
+        training_methods: form.preferred_training_style ? [form.preferred_training_style] : [],
+        preferred_training_style: form.preferred_training_style,
         preferred_training_days: form.preferred_training_days,
+        workout_environment: form.workout_environment,
         goal_next_4_weeks: form.goal,
-        dietary_restrictions: form.dietary_restrictions,
-        disliked_foods: form.disliked_foods
-          ? form.disliked_foods.split(",").map((f: string) => f.trim()).filter(Boolean)
-          : [],
-        weekly_food_budget: form.weekly_food_budget ? parseFloat(form.weekly_food_budget) : null,
+        injuries_limitations: form.injuries_limitations.trim() || null,
+        current_medications: form.current_medications.trim() || null,
+        additional_notes: form.additional_notes.trim() || null,
         waiver_accepted: true,
         waiver_accepted_at: new Date().toISOString(),
         is_active: true,
       };
 
-      // Avoid creating duplicate rows on resubmit — update the existing one if present.
       const { data: existingQ } = await (supabase as any)
         .from("client_questionnaires")
         .select("id")
@@ -179,8 +218,13 @@ const Questionnaire = () => {
         questionnaireData = res.data;
         error = res.error;
       }
-
       if (error) throw error;
+
+      // Sync display name to profile
+      await supabase
+        .from("profiles")
+        .update({ display_name: form.full_name.trim() })
+        .eq("user_id", user.id);
 
       // Save calculated macros to nutrition profile
       const { data: existingProfile } = await supabase
@@ -197,7 +241,7 @@ const Questionnaire = () => {
         activity_level: form.activity_level,
         goals: form.goal,
         dietary_preferences: [form.sex],
-        food_restrictions: form.dietary_restrictions,
+        food_restrictions: [] as string[],
       };
 
       if (existingProfile) {
@@ -207,8 +251,8 @@ const Questionnaire = () => {
       }
 
       toast({
-        title: "Questionnaire submitted!",
-        description: "Your personalized programs are being generated. This may take a minute.",
+        title: "You're all set",
+        description: "Your personalized program is being prepared.",
       });
       navigate("/plan-ready");
 
@@ -218,7 +262,6 @@ const Questionnaire = () => {
         })
         .then((res) => {
           if (res.error) console.error("Auto-generate error:", res.error);
-          else console.log("Auto-generate complete:", res.data);
         })
         .catch((err) => console.error("Auto-generate failed:", err));
     } catch (err: any) {
@@ -229,59 +272,90 @@ const Questionnaire = () => {
     }
   };
 
+  const progress = ((step + 1) / STEPS.length) * 100;
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b border-border/50">
+      <div className="border-b border-border/30 sticky top-0 z-20 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={apolloLogo} alt="Apollo Reborn" className="w-10 h-10 invert" />
-            <span className="font-heading text-lg tracking-wider">
+            <img src={apolloLogo} alt="Apollo Reborn" className="w-8 h-8 invert" />
+            <span className="font-heading text-sm tracking-[0.2em]">
               APOLLO <span className="text-primary">REBORN</span>
             </span>
           </Link>
+          <span className="text-[11px] tracking-widest text-muted-foreground uppercase">
+            Step {step + 1} / {STEPS.length}
+          </span>
+        </div>
+        <div className="h-[2px] bg-muted/30">
+          <div
+            className="h-full bg-primary transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12 max-w-2xl">
-        <div className="text-center mb-10">
-          <h1 className="font-heading text-2xl md:text-3xl tracking-[0.05em] mb-2">
-            Client <span className="text-primary">Questionnaire</span>
+      <div className="container mx-auto px-4 py-10 md:py-16 max-w-xl">
+        <div className="mb-10">
+          <p className="text-[11px] tracking-[0.25em] text-primary uppercase mb-3">
+            {STEPS[step]}
+          </p>
+          <h1 className="font-heading text-3xl md:text-4xl tracking-tight leading-tight">
+            {step === 0 && <>Let's get to <span className="text-primary">know you</span>.</>}
+            {step === 1 && <>Your <span className="text-primary">measurements</span>.</>}
+            {step === 2 && <>What are you <span className="text-primary">working toward?</span></>}
+            {step === 3 && <>How you like to <span className="text-primary">train</span>.</>}
+            {step === 4 && <>A quick <span className="text-primary">health check</span>.</>}
+            {step === 5 && <>Almost <span className="text-primary">there</span>.</>}
           </h1>
-          <p className="text-muted-foreground text-sm font-light">
-            Complete this form so we can build your personalized program.
+          <p className="text-sm text-muted-foreground font-light mt-3">
+            {step === 0 && "Just the basics so your coach can reach you."}
+            {step === 1 && "We use these to dial in your nutrition and training."}
+            {step === 2 && "Pick the goal that matters most right now."}
+            {step === 3 && "Your style, your schedule, your space."}
+            {step === 4 && "Optional, but helpful for keeping you safe."}
+            {step === 5 && "Anything else you want your coach to know?"}
           </p>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mb-10">
-          {STEPS.map((label, i) => (
-            <div key={label} className="flex items-center gap-2">
-              <button
-                onClick={() => i < step && setStep(i)}
-                className={`w-8 h-8 rounded-full text-xs font-medium flex items-center justify-center transition-colors ${
-                  i === step
-                    ? "bg-primary text-primary-foreground"
-                    : i < step
-                    ? "bg-primary/20 text-primary cursor-pointer"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {i + 1}
-              </button>
-              <span className={`text-xs hidden sm:inline ${i === step ? "text-foreground" : "text-muted-foreground"}`}>
-                {label}
-              </span>
-              {i < STEPS.length - 1 && <div className="w-8 h-px bg-border" />}
-            </div>
-          ))}
-        </div>
-
-        <div className="border border-border/30 bg-card/50 p-6 md:p-10 rounded-2xl">
+        <div className="space-y-7">
           {step === 0 && (
-            <div className="space-y-6">
-              <h2 className="font-heading text-lg tracking-wide mb-4">Personal & Physical Data</h2>
+            <>
+              <Field label="Full name">
+                <Input
+                  value={form.full_name}
+                  onChange={(e) => updateField("full_name", e.target.value)}
+                  placeholder="Alex Johnson"
+                  autoFocus
+                />
+              </Field>
+              <Field label="Email">
+                <Input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => updateField("email", e.target.value)}
+                  placeholder="you@email.com"
+                />
+              </Field>
+              <Field label="Phone" optional>
+                <Input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => updateField("phone", e.target.value)}
+                  placeholder="+1 (555) 123-4567"
+                />
+              </Field>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Sex</Label>
+                <Field label="Date of birth">
+                  <Input
+                    type="date"
+                    value={form.date_of_birth}
+                    onChange={(e) => updateField("date_of_birth", e.target.value)}
+                    max={new Date().toISOString().split("T")[0]}
+                  />
+                </Field>
+                <Field label="Gender">
                   <Select value={form.sex} onValueChange={(v) => updateField("sex", v)}>
                     <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent>
@@ -289,50 +363,105 @@ const Questionnaire = () => {
                       <SelectItem value="female">Female</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Age</Label>
-                  <Input type="number" placeholder="25" value={form.age} onChange={(e) => updateField("age", e.target.value)} min={13} max={100} />
-                </div>
+                </Field>
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Height (ft)</Label>
-                  <Input type="number" placeholder="5" value={form.height_feet} onChange={(e) => updateField("height_feet", e.target.value)} min={3} max={8} />
+            </>
+          )}
+
+          {step === 1 && (
+            <>
+              <Field label="Height">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      value={form.height_feet}
+                      onChange={(e) => updateField("height_feet", e.target.value)}
+                      placeholder="5"
+                      min={3}
+                      max={8}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">ft</span>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      value={form.height_inches}
+                      onChange={(e) => updateField("height_inches", e.target.value)}
+                      placeholder="10"
+                      min={0}
+                      max={11}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">in</span>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Height (in)</Label>
-                  <Input type="number" placeholder="10" value={form.height_inches} onChange={(e) => updateField("height_inches", e.target.value)} min={0} max={11} />
+              </Field>
+              <Field label="Weight">
+                <div className="relative">
+                  <Input
+                    type="number"
+                    value={form.weight_lbs}
+                    onChange={(e) => updateField("weight_lbs", e.target.value)}
+                    placeholder="175"
+                    min={50}
+                    max={600}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">lbs</span>
                 </div>
-                <div className="space-y-2">
-                  <Label>Weight (lbs)</Label>
-                  <Input type="number" placeholder="175" value={form.weight_lbs} onChange={(e) => updateField("weight_lbs", e.target.value)} min={50} max={600} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Activity Level</Label>
+              </Field>
+              <Field label="Current activity level">
                 <Select value={form.activity_level} onValueChange={(v) => updateField("activity_level", v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sedentary">Sedentary (little or no exercise)</SelectItem>
-                    <SelectItem value="light">Lightly Active (1-3 days/week)</SelectItem>
-                    <SelectItem value="moderate">Moderately Active (3-5 days/week)</SelectItem>
-                    <SelectItem value="active">Very Active (6-7 days/week)</SelectItem>
-                    <SelectItem value="extreme">Extremely Active (2x/day)</SelectItem>
+                    <SelectItem value="sedentary">Sedentary — desk job, little movement</SelectItem>
+                    <SelectItem value="light">Light — 1–3 active days a week</SelectItem>
+                    <SelectItem value="moderate">Moderate — 3–5 active days a week</SelectItem>
+                    <SelectItem value="active">Very active — 6–7 active days a week</SelectItem>
+                    <SelectItem value="extreme">Athlete — daily intense training</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-3">
-                <Label>Goal</Label>
-                <div className="grid grid-cols-3 gap-3">
+              </Field>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <Field label="Fitness experience">
+                <div className="space-y-2">
+                  {EXPERIENCE_LEVELS.map((lvl) => (
+                    <button
+                      key={lvl.id}
+                      type="button"
+                      onClick={() => updateField("fitness_experience", lvl.id)}
+                      className={`w-full p-4 rounded-2xl border text-left transition-all ${
+                        form.fitness_experience === lvl.id
+                          ? "border-primary bg-primary/5"
+                          : "border-border/30 hover:border-border/60"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-medium">{lvl.label}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{lvl.desc}</div>
+                        </div>
+                        {form.fitness_experience === lvl.id && (
+                          <Check className="w-4 h-4 text-primary" />
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </Field>
+              <Field label="Main goal">
+                <div className="grid grid-cols-2 gap-2">
                   {GOALS.map((g) => (
                     <button
                       key={g.id}
                       type="button"
                       onClick={() => updateField("goal", g.id)}
-                      className={`p-3 text-sm border rounded-xl text-center transition-colors ${
+                      className={`p-4 text-sm rounded-2xl border transition-all ${
                         form.goal === g.id
-                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          ? "border-primary bg-primary/5 text-primary font-medium"
                           : "border-border/30 text-muted-foreground hover:border-border/60"
                       }`}
                     >
@@ -340,25 +469,38 @@ const Questionnaire = () => {
                     </button>
                   ))}
                 </div>
-              </div>
-            </div>
+              </Field>
+            </>
           )}
 
-          {step === 1 && (
-            <div className="space-y-6">
-              <h2 className="font-heading text-lg tracking-wide mb-4">Training Preferences</h2>
-              <div className="space-y-3">
-                <Label>Which days do you want to train?</Label>
-                <p className="text-[11px] text-muted-foreground">
-                  Select your goal training days. We'll send you reminders on these days if you haven't logged in.
-                </p>
-                <div className="grid grid-cols-7 gap-2">
+          {step === 3 && (
+            <>
+              <Field label="Preferred training style">
+                <div className="flex flex-wrap gap-2">
+                  {TRAINING_STYLES.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => updateField("preferred_training_style", s)}
+                      className={`px-4 py-2 text-xs rounded-full border transition-all ${
+                        form.preferred_training_style === s
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border/30 text-muted-foreground hover:border-border/60"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+              <Field label="Days per week">
+                <div className="grid grid-cols-7 gap-1.5">
                   {DAYS_OF_WEEK.map((day) => (
                     <button
                       key={day.id}
                       type="button"
                       onClick={() => toggleArrayField("preferred_training_days", day.id)}
-                      className={`py-3 text-sm border rounded-xl text-center transition-colors ${
+                      className={`py-3 text-xs rounded-xl border transition-all ${
                         form.preferred_training_days.includes(day.id)
                           ? "border-primary bg-primary/10 text-primary font-medium"
                           : "border-border/30 text-muted-foreground hover:border-border/60"
@@ -369,94 +511,130 @@ const Questionnaire = () => {
                   ))}
                 </div>
                 {form.preferred_training_days.length > 0 && (
-                  <p className="text-xs text-primary font-medium">
-                    {form.preferred_training_days.length} day{form.preferred_training_days.length !== 1 ? "s" : ""} selected
+                  <p className="text-[11px] text-primary mt-2">
+                    {form.preferred_training_days.length} day{form.preferred_training_days.length !== 1 ? "s" : ""} per week
                   </p>
                 )}
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-6">
-              <h2 className="font-heading text-lg tracking-wide mb-4">Nutrition & Agreement</h2>
-              <div className="space-y-2">
-                <Label>Weekly Food Budget ($)</Label>
-                <Input type="number" placeholder="100" value={form.weekly_food_budget} onChange={(e) => updateField("weekly_food_budget", e.target.value)} min={0} />
-              </div>
-              <div className="space-y-3">
-                <Label>Dietary Restrictions / Preferences</Label>
-                <div className="flex flex-wrap gap-2">
-                  {DIETARY_OPTIONS.map((opt) => (
+              </Field>
+              <Field label="Where do you train?">
+                <div className="grid grid-cols-2 gap-2">
+                  {ENVIRONMENTS.map((env) => (
                     <button
-                      key={opt}
+                      key={env.id}
                       type="button"
-                      onClick={() => toggleArrayField("dietary_restrictions", opt)}
-                      className={`px-3 py-1.5 text-xs border rounded-lg transition-colors ${
-                        form.dietary_restrictions.includes(opt)
-                          ? "border-primary bg-primary/10 text-primary"
+                      onClick={() => updateField("workout_environment", env.id)}
+                      className={`p-4 text-sm rounded-2xl border transition-all ${
+                        form.workout_environment === env.id
+                          ? "border-primary bg-primary/5 text-primary font-medium"
                           : "border-border/30 text-muted-foreground hover:border-border/60"
                       }`}
                     >
-                      {opt}
+                      {env.label}
                     </button>
                   ))}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Foods You Dislike or Want to Avoid</Label>
+              </Field>
+            </>
+          )}
+
+          {step === 4 && (
+            <>
+              <Field label="Injuries or limitations" optional>
                 <Textarea
-                  placeholder="e.g., mushrooms, olives, seafood, cilantro..."
-                  value={form.disliked_foods}
-                  onChange={(e) => updateField("disliked_foods", e.target.value)}
-                  className="min-h-[60px]"
+                  value={form.injuries_limitations}
+                  onChange={(e) => updateField("injuries_limitations", e.target.value)}
+                  placeholder="e.g. lower back stiffness, prior knee surgery..."
+                  className="min-h-[90px] rounded-2xl"
                 />
-                <p className="text-[11px] text-muted-foreground">Separate items with commas.</p>
-              </div>
-              <div className="border border-border/50 p-4 bg-muted/20 rounded-xl space-y-3">
-                <h3 className="font-heading text-sm tracking-wide text-foreground">Waiver of Release</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  By checking the box below, I acknowledge and agree that I am voluntarily participating in
-                  fitness and nutrition programs provided by Apollo Reborn. I understand that physical exercise
-                  and dietary changes carry inherent risks, and I release Apollo Reborn, Coach Marcos, and all
-                  associated staff from any and all liability for injury, illness, or adverse health effects that
-                  may result from following the prescribed training and nutrition programs. I confirm that I have
-                  consulted with a physician and am physically fit to participate in exercise programs. I understand
-                  that the programs are not a substitute for professional medical advice.
+              </Field>
+              <Field label="Current medications" optional>
+                <Textarea
+                  value={form.current_medications}
+                  onChange={(e) => updateField("current_medications", e.target.value)}
+                  placeholder="Anything that may affect training (blood pressure, beta blockers, etc.)"
+                  className="min-h-[90px] rounded-2xl"
+                />
+                <p className="text-[11px] text-muted-foreground mt-2">
+                  Shared only with your coach. Leave blank if none.
                 </p>
-                <label className="flex items-start gap-3 cursor-pointer">
+              </Field>
+            </>
+          )}
+
+          {step === 5 && (
+            <>
+              <Field label="Anything else for your coach?" optional>
+                <Textarea
+                  value={form.additional_notes}
+                  onChange={(e) => updateField("additional_notes", e.target.value)}
+                  placeholder="Schedule quirks, prior programs, what you loved or hated..."
+                  className="min-h-[110px] rounded-2xl"
+                />
+              </Field>
+              <div className="border border-border/40 p-5 bg-muted/10 rounded-2xl space-y-3">
+                <h3 className="font-heading text-sm tracking-wide">Waiver of Release</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  I'm voluntarily participating in fitness and nutrition programming from Apollo Reborn.
+                  I understand exercise carries inherent risk, I've consulted a physician where needed,
+                  and I release Apollo Reborn and its coaches from liability for resulting injury or illness.
+                  These programs do not replace medical advice.
+                </p>
+                <label className="flex items-start gap-3 cursor-pointer pt-1">
                   <Checkbox
                     checked={form.waiver_accepted}
                     onCheckedChange={(checked) => updateField("waiver_accepted", !!checked)}
                     className="mt-0.5"
                   />
                   <span className="text-sm font-medium">
-                    I have read, understand, and agree to the Waiver of Release above.
+                    I've read and agree to the waiver above.
                   </span>
                 </label>
               </div>
-            </div>
+            </>
           )}
+        </div>
 
-          <div className="flex items-center justify-between mt-10 pt-6 border-t border-border/20">
-            <Button variant="ghost" onClick={() => setStep((s) => s - 1)} disabled={step === 0} className="text-muted-foreground">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back
+        <div className="flex items-center justify-between mt-12 pt-6 border-t border-border/20">
+          <Button
+            variant="ghost"
+            onClick={() => setStep((s) => s - 1)}
+            disabled={step === 0}
+            className="text-muted-foreground"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back
+          </Button>
+          {step < STEPS.length - 1 ? (
+            <Button variant="apollo" onClick={() => setStep((s) => s + 1)} disabled={!canProceed()}>
+              Continue <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
-            {step < STEPS.length - 1 ? (
-              <Button variant="apollo" onClick={() => setStep((s) => s + 1)} disabled={!canProceed()}>
-                Next <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            ) : (
-              <Button variant="apollo" onClick={handleSubmit} disabled={submitting || !canProceed()}>
-                {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                Submit Questionnaire
-              </Button>
-            )}
-          </div>
+          ) : (
+            <Button variant="apollo" onClick={handleSubmit} disabled={submitting || !canProceed()}>
+              {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              Finish
+            </Button>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
+const Field = ({
+  label,
+  optional,
+  children,
+}: {
+  label: string;
+  optional?: boolean;
+  children: React.ReactNode;
+}) => (
+  <div className="space-y-2.5">
+    <Label className="text-[11px] tracking-[0.18em] uppercase text-muted-foreground font-medium">
+      {label}
+      {optional && <span className="ml-2 text-muted-foreground/60 normal-case tracking-normal">· optional</span>}
+    </Label>
+    {children}
+  </div>
+);
 
 export default Questionnaire;

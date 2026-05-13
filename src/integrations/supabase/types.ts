@@ -513,22 +513,30 @@ export type Database = {
       client_questionnaires: {
         Row: {
           activity_level: string
+          additional_notes: string | null
           age: number
           created_at: string
+          current_medications: string | null
           current_workout_days: string[] | null
           cycle_number: number
           cycle_start_date: string
+          date_of_birth: string | null
           dietary_restrictions: string[] | null
           disliked_foods: string[] | null
+          fitness_experience: string | null
+          full_name: string | null
           goal_next_4_weeks: string | null
           goal_weight: number | null
           grocery_store: string | null
           has_other_activities: boolean | null
           height_inches: number
           id: string
+          injuries_limitations: string | null
           is_active: boolean
           other_activities: Json | null
+          phone: string | null
           preferred_training_days: string[] | null
+          preferred_training_style: string | null
           sex: string
           training_methods: string[]
           updated_at: string
@@ -539,25 +547,34 @@ export type Database = {
           weight_lbs: number
           workout_days_per_week: number
           workout_duration_minutes: number | null
+          workout_environment: string | null
         }
         Insert: {
           activity_level?: string
+          additional_notes?: string | null
           age: number
           created_at?: string
+          current_medications?: string | null
           current_workout_days?: string[] | null
           cycle_number?: number
           cycle_start_date?: string
+          date_of_birth?: string | null
           dietary_restrictions?: string[] | null
           disliked_foods?: string[] | null
+          fitness_experience?: string | null
+          full_name?: string | null
           goal_next_4_weeks?: string | null
           goal_weight?: number | null
           grocery_store?: string | null
           has_other_activities?: boolean | null
           height_inches: number
           id?: string
+          injuries_limitations?: string | null
           is_active?: boolean
           other_activities?: Json | null
+          phone?: string | null
           preferred_training_days?: string[] | null
+          preferred_training_style?: string | null
           sex: string
           training_methods?: string[]
           updated_at?: string
@@ -568,25 +585,34 @@ export type Database = {
           weight_lbs: number
           workout_days_per_week?: number
           workout_duration_minutes?: number | null
+          workout_environment?: string | null
         }
         Update: {
           activity_level?: string
+          additional_notes?: string | null
           age?: number
           created_at?: string
+          current_medications?: string | null
           current_workout_days?: string[] | null
           cycle_number?: number
           cycle_start_date?: string
+          date_of_birth?: string | null
           dietary_restrictions?: string[] | null
           disliked_foods?: string[] | null
+          fitness_experience?: string | null
+          full_name?: string | null
           goal_next_4_weeks?: string | null
           goal_weight?: number | null
           grocery_store?: string | null
           has_other_activities?: boolean | null
           height_inches?: number
           id?: string
+          injuries_limitations?: string | null
           is_active?: boolean
           other_activities?: Json | null
+          phone?: string | null
           preferred_training_days?: string[] | null
+          preferred_training_style?: string | null
           sex?: string
           training_methods?: string[]
           updated_at?: string
@@ -597,6 +623,7 @@ export type Database = {
           weight_lbs?: number
           workout_days_per_week?: number
           workout_duration_minutes?: number | null
+          workout_environment?: string | null
         }
         Relationships: []
       }
