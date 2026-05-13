@@ -280,7 +280,7 @@ const Dashboard = () => {
           Marcos Leyba &nbsp;/&nbsp; {workout.duration_minutes} min &nbsp;/&nbsp; Train: {workout.category}
         </p>
       </div>
-    </button>
+    </div>
   );
 
   return (
