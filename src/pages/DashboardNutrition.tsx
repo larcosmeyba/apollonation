@@ -1410,6 +1410,8 @@ const DashboardNutrition = () => {
               </Tabs>
             </>
           )}
+          </>
+          )}
         </div>
       </DashboardLayout>
     </>
