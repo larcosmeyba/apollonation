@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Lock, Sparkles } from "lucide-react";
+import { Lock, Sparkles, ChevronRight, Check, Dumbbell } from "lucide-react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import MyWorkoutsQuestionnaire, {
   QuestionnairePayload,
