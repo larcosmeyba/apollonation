@@ -252,9 +252,12 @@ const Dashboard = () => {
   };
 
   const WorkoutCard = ({ workout, index, aspectClass = "aspect-[16/10]" }: { workout: any; index: number; aspectClass?: string }) => (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => setSelectedWorkout(workout)}
-      className={`relative rounded-2xl overflow-hidden flex-shrink-0 w-[75%] ${aspectClass} group text-left`}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedWorkout(workout); } }}
+      className={`relative rounded-2xl overflow-hidden flex-shrink-0 w-[75%] ${aspectClass} group text-left cursor-pointer`}
     >
       <img
         src={getThumb(workout, index) || WORKOUT_IMAGES[index % WORKOUT_IMAGES.length]}
@@ -277,7 +280,7 @@ const Dashboard = () => {
           Marcos Leyba &nbsp;/&nbsp; {workout.duration_minutes} min &nbsp;/&nbsp; Train: {workout.category}
         </p>
       </div>
-    </button>
+    </div>
   );
 
   return (
