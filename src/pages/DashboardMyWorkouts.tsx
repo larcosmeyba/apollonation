@@ -24,6 +24,7 @@ const DashboardMyWorkouts = () => {
   const qc = useQueryClient();
   const access = useMyWorkoutsAccess();
   const [submitting, setSubmitting] = useState(false);
+  const [started, setStarted] = useState(false);
 
   // Start the trial the moment a non-subscriber lands here.
   useEffect(() => {
