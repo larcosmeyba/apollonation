@@ -149,6 +149,22 @@ const DashboardNutrition = () => {
     enabled: !!user,
   });
 
+  // Premium nutrition onboarding completion gate
+  const { data: nutritionQ, isLoading: nutritionQLoading } = useQuery({
+    queryKey: ["nutrition-questionnaire", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await (supabase as any)
+        .from("client_nutrition_questionnaires")
+        .select("id, calorie_target, protein_target_g, carb_target_g, fat_target_g, water_target_oz, completed_at")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+  const hasNutritionQuestionnaire = !!nutritionQ?.completed_at;
+
   // Active dietary restrictions from questionnaire
   const { data: questionnaireData } = useQuery({
     queryKey: ["questionnaire-restrictions", user?.id],
@@ -890,10 +906,61 @@ const DashboardNutrition = () => {
       <DashboardLayout>
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
-          <div>
-            <h1 className="font-heading text-display-md mb-1">Fuel</h1>
-            <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h1 className="font-heading text-display-md mb-1">Fuel</h1>
+              <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
+            </div>
+            {hasNutritionQuestionnaire && (
+              <Link
+                to="/dashboard/nutrition/setup"
+                className="text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Update plan
+              </Link>
+            )}
           </div>
+
+          {/* Premium gate: nutrition questionnaire not yet completed */}
+          {!nutritionQLoading && !hasNutritionQuestionnaire && (
+            <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-8 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="text-[11px] uppercase tracking-[0.25em] text-primary">Personalized Fuel</span>
+                </div>
+                <h2 className="font-heading text-2xl md:text-3xl tracking-tight leading-tight mb-3">
+                  Build Your <span className="text-primary">Nutrition Plan</span>
+                </h2>
+                <p className="text-sm text-muted-foreground max-w-md leading-relaxed mb-6">
+                  Answer a few questions so Apollo Reborn can calculate your macros and generate personalized meals.
+                </p>
+                <Link to="/dashboard/nutrition/setup">
+                  <Button variant="apollo" className="rounded-full gap-2 px-6">
+                    Start Nutrition Questionnaire
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8 pt-6 border-t border-border/30">
+                  {[
+                    "Calorie target",
+                    "Macro split",
+                    "Meal plan",
+                    "Grocery list",
+                  ].map((t) => (
+                    <div key={t} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                      <span>{t}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {hasNutritionQuestionnaire && (
+          <>
 
           <div className="bg-card rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-5">
@@ -1342,6 +1409,8 @@ const DashboardNutrition = () => {
                 </TabsContent>
               </Tabs>
             </>
+          )}
+          </>
           )}
         </div>
       </DashboardLayout>

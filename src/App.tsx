@@ -30,6 +30,7 @@ const DashboardMacros = lazy(() => import("./pages/DashboardMacros"));
 const DashboardProfile = lazy(() => import("./pages/DashboardProfile"));
 const DashboardCoachProfile = lazy(() => import("./pages/DashboardCoachProfile"));
 const DashboardNutrition = lazy(() => import("./pages/DashboardNutrition"));
+const DashboardNutritionSetup = lazy(() => import("./pages/DashboardNutritionSetup"));
 const DashboardTraining = lazy(() => import("./pages/DashboardTraining"));
 const DashboardWorkoutDetail = lazy(() => import("./pages/DashboardWorkoutDetail"));
 const DashboardCalendar = lazy(() => import("./pages/DashboardCalendar"));
@@ -180,6 +181,10 @@ const App = () => {
               <Route
                 path="/dashboard/nutrition"
                 element={<ProtectedRoute>{eb(<DashboardNutrition />)}</ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/nutrition/setup"
+                element={<ProtectedRoute>{eb(<DashboardNutritionSetup />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/training"

@@ -510,6 +510,162 @@ export type Database = {
         }
         Relationships: []
       }
+      client_nutrition_questionnaires: {
+        Row: {
+          activity_level: string | null
+          age: number | null
+          allergies: string[] | null
+          allergies_other: string | null
+          biggest_struggles: string[] | null
+          breakfast_style: string | null
+          calorie_target: number | null
+          carb_preference: string | null
+          carb_target_g: number | null
+          cardio_frequency: string | null
+          completed_at: string | null
+          cooking_skill: string | null
+          cooking_time: string | null
+          created_at: string
+          current_calories: number | null
+          current_protein_grams: number | null
+          current_weight_lbs: number | null
+          daily_movement_level: string | null
+          daily_steps: number | null
+          dietary_restrictions: string[] | null
+          dinner_style: string | null
+          disliked_foods: string | null
+          eating_schedule: string | null
+          eats_out_often: string | null
+          fat_target_g: number | null
+          favorite_foods: string | null
+          foods_to_include: string | null
+          gender: string | null
+          goal_weight_lbs: number | null
+          grocery_budget_weekly: number | null
+          height_inches: number | null
+          high_protein: boolean | null
+          id: string
+          is_active: boolean
+          lunch_style: string | null
+          main_goal: string | null
+          meal_prep_preference: string | null
+          meals_per_day: number | null
+          preferred_grocery_stores: string[] | null
+          preferred_proteins: string[] | null
+          protein_target_g: number | null
+          recipe_complexity: string | null
+          training_days_per_week: number | null
+          updated_at: string
+          user_id: string
+          water_intake_oz: number | null
+          water_target_oz: number | null
+          workout_intensity: string | null
+          workout_style: string | null
+        }
+        Insert: {
+          activity_level?: string | null
+          age?: number | null
+          allergies?: string[] | null
+          allergies_other?: string | null
+          biggest_struggles?: string[] | null
+          breakfast_style?: string | null
+          calorie_target?: number | null
+          carb_preference?: string | null
+          carb_target_g?: number | null
+          cardio_frequency?: string | null
+          completed_at?: string | null
+          cooking_skill?: string | null
+          cooking_time?: string | null
+          created_at?: string
+          current_calories?: number | null
+          current_protein_grams?: number | null
+          current_weight_lbs?: number | null
+          daily_movement_level?: string | null
+          daily_steps?: number | null
+          dietary_restrictions?: string[] | null
+          dinner_style?: string | null
+          disliked_foods?: string | null
+          eating_schedule?: string | null
+          eats_out_often?: string | null
+          fat_target_g?: number | null
+          favorite_foods?: string | null
+          foods_to_include?: string | null
+          gender?: string | null
+          goal_weight_lbs?: number | null
+          grocery_budget_weekly?: number | null
+          height_inches?: number | null
+          high_protein?: boolean | null
+          id?: string
+          is_active?: boolean
+          lunch_style?: string | null
+          main_goal?: string | null
+          meal_prep_preference?: string | null
+          meals_per_day?: number | null
+          preferred_grocery_stores?: string[] | null
+          preferred_proteins?: string[] | null
+          protein_target_g?: number | null
+          recipe_complexity?: string | null
+          training_days_per_week?: number | null
+          updated_at?: string
+          user_id: string
+          water_intake_oz?: number | null
+          water_target_oz?: number | null
+          workout_intensity?: string | null
+          workout_style?: string | null
+        }
+        Update: {
+          activity_level?: string | null
+          age?: number | null
+          allergies?: string[] | null
+          allergies_other?: string | null
+          biggest_struggles?: string[] | null
+          breakfast_style?: string | null
+          calorie_target?: number | null
+          carb_preference?: string | null
+          carb_target_g?: number | null
+          cardio_frequency?: string | null
+          completed_at?: string | null
+          cooking_skill?: string | null
+          cooking_time?: string | null
+          created_at?: string
+          current_calories?: number | null
+          current_protein_grams?: number | null
+          current_weight_lbs?: number | null
+          daily_movement_level?: string | null
+          daily_steps?: number | null
+          dietary_restrictions?: string[] | null
+          dinner_style?: string | null
+          disliked_foods?: string | null
+          eating_schedule?: string | null
+          eats_out_often?: string | null
+          fat_target_g?: number | null
+          favorite_foods?: string | null
+          foods_to_include?: string | null
+          gender?: string | null
+          goal_weight_lbs?: number | null
+          grocery_budget_weekly?: number | null
+          height_inches?: number | null
+          high_protein?: boolean | null
+          id?: string
+          is_active?: boolean
+          lunch_style?: string | null
+          main_goal?: string | null
+          meal_prep_preference?: string | null
+          meals_per_day?: number | null
+          preferred_grocery_stores?: string[] | null
+          preferred_proteins?: string[] | null
+          protein_target_g?: number | null
+          recipe_complexity?: string | null
+          training_days_per_week?: number | null
+          updated_at?: string
+          user_id?: string
+          water_intake_oz?: number | null
+          water_target_oz?: number | null
+          workout_intensity?: string | null
+          workout_style?: string | null
+        }
+        Relationships: []
+      }
       client_questionnaires: {
         Row: {
           activity_level: string
