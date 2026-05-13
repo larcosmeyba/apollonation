@@ -60,6 +60,7 @@ const DashboardMyWorkouts = () => {
         {
           user_id: user.id,
           ...payload,
+          completed_at: new Date().toISOString(),
         },
         { onConflict: "user_id" }
       );
@@ -73,7 +74,8 @@ const DashboardMyWorkouts = () => {
       return;
     }
     qc.invalidateQueries({ queryKey: ["mw_questionnaire_responses", user.id] });
-    toast({ title: "Saved", description: "Building your plan next." });
+    setStarted(false);
+    toast({ title: "Plan saved", description: "Generating your personalized recommendations." });
   };
 
   // ---- Render gates ----
