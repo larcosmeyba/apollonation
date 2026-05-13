@@ -23,6 +23,43 @@ const DashboardMessages = () => {
   const { coach, loading: coachLoading } = useAssignedCoach();
   const { canAccessCoachMessaging, loading: accessLoading } = useAccessControl();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const qc = useQueryClient();
+  const [intakeStarted, setIntakeStarted] = useState(false);
+  const [intakeSubmitting, setIntakeSubmitting] = useState(false);
+
+  const { data: intake, isLoading: intakeLoading } = useQuery({
+    queryKey: ["coach_intake", user?.id],
+    enabled: !!user?.id && !isAdmin && canAccessCoachMessaging,
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("coach_intake_responses")
+        .select("*")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const handleIntakeComplete = async (payload: CoachIntakePayload) => {
+    if (!user?.id) return;
+    setIntakeSubmitting(true);
+    const { error } = await (supabase as any)
+      .from("coach_intake_responses")
+      .upsert(
+        { user_id: user.id, ...payload, completed_at: new Date().toISOString() },
+        { onConflict: "user_id" }
+      );
+    setIntakeSubmitting(false);
+    if (error) {
+      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      return;
+    }
+    qc.invalidateQueries({ queryKey: ["coach_intake", user.id] });
+    setIntakeStarted(false);
+    toast({ title: "Sent to your coach", description: "They'll review before your first message." });
+  };
 
   if (loading || (!isAdmin && coachLoading) || (!isAdmin && accessLoading)) {
     return (
