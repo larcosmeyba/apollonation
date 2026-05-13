@@ -326,6 +326,9 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* Personalization checklist (Fuel + My Plan) — auto-hides when complete */}
+        <PersonalizationChecklist />
+
         {/* Apple Health (iOS only — auto-hides on web/Android) */}
         <AppleHealthCard />
 
