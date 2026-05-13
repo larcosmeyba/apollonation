@@ -52,6 +52,19 @@ jobs:
             echo "Android platform already exists"
           fi
 
+      - name: Generate Apollo app icons (Android)
+        run: |
+          set -euxo pipefail
+          if [ ! -f resources/icon.png ]; then
+            echo "::error::resources/icon.png missing — Apollo app icon source not found."
+            exit 1
+          fi
+          npm install --no-save @capacitor/assets
+          npx @capacitor/assets generate \
+            --android \
+            --iconBackgroundColor '#000000' \
+            --iconBackgroundColorDark '#000000'
+
       - name: Sync Capacitor Android
         run: |
           set -euxo pipefail
