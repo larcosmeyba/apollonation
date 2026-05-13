@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { requirePremium } from "../_shared/entitlement.ts";
 import { wrapUserInput, PROMPT_INJECTION_GUARD } from "../_shared/prompt-safety.ts";
 
 const corsHeaders = {
