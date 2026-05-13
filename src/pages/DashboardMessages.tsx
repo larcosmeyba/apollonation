@@ -112,6 +112,24 @@ const DashboardMessages = () => {
         <DashboardBottomTabs />
       </div>
     );
+  }
+
+  // Non-admin clients go straight to coach DM
+  if (!isAdmin) {
+    if (!coach) {
+      return (
+        <div className="fixed inset-0 bg-background flex flex-col">
+          <div className="flex-1 flex items-center justify-center p-6 text-center">
+            <div className="max-w-xs space-y-3">
+              <MessageSquare className="w-10 h-10 text-muted-foreground/30 mx-auto" />
+              <p className="text-sm text-muted-foreground">
+                You don't have a coach assigned yet. Once a coach is paired with your account, you'll be able to message them here.
+              </p>
+            </div>
+          </div>
+          <DashboardBottomTabs />
+        </div>
+      );
     }
 
     // Gate first-time access behind a lightweight intake questionnaire.
@@ -163,23 +181,6 @@ const DashboardMessages = () => {
       );
     }
 
-  // Non-admin clients go straight to coach DM
-  if (!isAdmin) {
-    if (!coach) {
-      return (
-        <div className="fixed inset-0 bg-background flex flex-col">
-          <div className="flex-1 flex items-center justify-center p-6 text-center">
-            <div className="max-w-xs space-y-3">
-              <MessageSquare className="w-10 h-10 text-muted-foreground/30 mx-auto" />
-              <p className="text-sm text-muted-foreground">
-                You don't have a coach assigned yet. Once a coach is paired with your account, you'll be able to message them here.
-              </p>
-            </div>
-          </div>
-          <DashboardBottomTabs />
-        </div>
-      );
-    }
     return (
       <div className="fixed inset-0 bg-background flex flex-col overflow-hidden">
         {/* Chat takes remaining space above bottom tabs. ChatView's built-in
