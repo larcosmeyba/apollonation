@@ -139,13 +139,53 @@ const DashboardMyWorkouts = () => {
 
         {existing ? (
           <PlanPlaceholder onRestart={() => qc.removeQueries({ queryKey: ["mw_questionnaire_responses", user?.id] })} />
-        ) : (
+        ) : started ? (
           <MyWorkoutsQuestionnaire onComplete={handleComplete} submitting={submitting} />
+        ) : (
+          <PlanIntroCard onStart={() => setStarted(true)} />
         )}
       </div>
     </DashboardLayout>
   );
 };
+
+const PlanIntroCard = ({ onStart }: { onStart: () => void }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-8 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+  >
+    <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative space-y-6">
+      <div className="flex items-center gap-2">
+        <Dumbbell className="w-4 h-4 text-primary" />
+        <span className="text-[11px] uppercase tracking-[0.25em] text-primary">Personalized Training</span>
+      </div>
+      <h1 className="font-heading text-3xl md:text-4xl tracking-tight leading-tight">
+        Build Your <span className="text-primary">Personalized Plan</span>
+      </h1>
+      <p className="text-sm md:text-base text-muted-foreground max-w-md leading-relaxed">
+        Answer a few questions so Apollo Reborn can create your personalized training experience.
+      </p>
+      <Button onClick={onStart} variant="apollo" className="rounded-full gap-2 px-6">
+        Start Questionnaire <ChevronRight className="w-4 h-4" />
+      </Button>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-6 border-t border-border/30">
+        {[
+          "Training split",
+          "On-demand workouts",
+          "Recovery content",
+          "Equipment match",
+        ].map((t) => (
+          <div key={t} className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+            <span>{t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </motion.div>
+);
 
 // Temporary placeholder — Step 3 will replace this with the real plan dashboard.
 const PlanPlaceholder = ({ onRestart }: { onRestart: () => void }) => (
