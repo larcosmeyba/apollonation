@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { requirePremium } from "../_shared/entitlement.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -38,6 +39,10 @@ serve(async (req) => {
     }
 
     const userId = userData.user.id;
+
+    // Premium-only feature — verify entitlement server-side.
+    const denied = await requirePremium(userId, corsHeaders);
+    if (denied) return denied;
 
     // Rate limit: 10 grocery-list generations per user per hour.
     const allowed = await checkRateLimit(userId, "generate-grocery-list", 10, 60);

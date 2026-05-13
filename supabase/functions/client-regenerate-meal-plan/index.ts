@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { estimateGroceryTotal } from "../_shared/grocery-pricing.ts";
+import { requirePremium } from "../_shared/entitlement.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -47,6 +48,10 @@ serve(async (req) => {
         status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Premium-only feature — verify entitlement server-side.
+    const denied = await requirePremium(userId, corsHeaders);
+    if (denied) return denied;
 
     // Rate limit: 3 regenerations per user per day
     const allowed = await checkRateLimit(userId, "client-regenerate-meal-plan", 3, 1440);

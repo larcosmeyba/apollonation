@@ -59,7 +59,7 @@ export function useAccessControl(): AccessControl {
   const queryClient = useQueryClient();
   const userId = user?.id;
 
-  const entitlement = (profile as any)?.entitlement as
+  const entitlement = profile?.entitlement as
     | "apollo_premium"
     | "apollo_elite"
     | null

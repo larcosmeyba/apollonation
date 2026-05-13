@@ -245,6 +245,11 @@ Deno.serve(async (req) => {
     }
     const userId = userData.user.id;
 
+    // Premium-only feature — verify entitlement server-side.
+    const { requirePremium } = await import("../_shared/entitlement.ts");
+    const denied = await requirePremium(userId, corsHeaders);
+    if (denied) return denied;
+
     const body = await req.json().catch(() => ({}));
     const planId: string | undefined = body.planId;
     const week: number = Number.isFinite(body.week) ? Number(body.week) : 1;
