@@ -150,6 +150,11 @@ jobs:
             plutil -insert UIBackgroundModes -json '["remote-notification"]' "$INFO"
           fi
 
+          plutil -remove CFBundleShortVersionString "$INFO" 2>/dev/null || true
+          plutil -insert CFBundleShortVersionString -string "$VERSION_NAME" "$INFO"
+          plutil -remove CFBundleVersion "$INFO" 2>/dev/null || true
+          plutil -insert CFBundleVersion -string "$VERSION_CODE" "$INFO"
+
           plutil -lint "$INFO"
           plutil -p "$INFO" | head -60
 
