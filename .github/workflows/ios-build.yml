@@ -27,8 +27,8 @@ jobs:
       EXPORT_OPTIONS_PLIST: ios/App/ExportOptions.plist
       PROVISIONING_PROFILE_NAME: Apollo Nation App Store
       EXPECTED_TEAM_ID: 4APZGH6X99
-      VERSION_NAME: "1.6.3"
-      VERSION_CODE: "43"
+      VERSION_NAME: "1.6.4"
+      VERSION_CODE: "44"
 
     steps:
       - name: Checkout repository
