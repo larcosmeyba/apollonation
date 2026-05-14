@@ -77,22 +77,26 @@ serve(async (req) => {
 
     // ──────── FETCH EXERCISE LIBRARY ────────
     // Only use exercises the coach has uploaded (prioritize those with video URLs)
-    const { data: exerciseLibrary, error: exErr } = await supabaseAdmin
-      .from("exercises")
-      .select("title, muscle_group, equipment, difficulty")
-      .order("title");
+    let exerciseLibrary: any[] = [];
+    let exerciseList = "";
+    if (!nutritionQuestionnaireId) {
+      const { data, error: exErr } = await supabaseAdmin
+        .from("exercises")
+        .select("title, muscle_group, equipment, difficulty")
+        .order("title");
 
-    if (exErr) {
-      console.error("[AUTO-GEN] Failed to fetch exercises:", exErr);
-      throw new Error("Failed to fetch exercise library");
+      if (exErr) {
+        console.error("[AUTO-GEN] Failed to fetch exercises:", exErr);
+        throw new Error("Failed to fetch exercise library");
+      }
+
+      exerciseLibrary = data || [];
+      exerciseList = exerciseLibrary
+        .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
+        .join("\n");
+
+      console.log(`[AUTO-GEN] Exercise library loaded: ${exerciseLibrary.length} exercises`);
     }
-
-    // Build a formatted list of available exercises for the AI
-    const exerciseList = (exerciseLibrary || [])
-      .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
-      .join("\n");
-
-    console.log(`[AUTO-GEN] Exercise library loaded: ${exerciseLibrary?.length || 0} exercises`);
 
     const results: any = { training: null, nutrition: null, errors: [] };
     const listify = (value: unknown): string[] => {
