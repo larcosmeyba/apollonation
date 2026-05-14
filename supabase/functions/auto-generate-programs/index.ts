@@ -34,13 +34,13 @@ serve(async (req) => {
     }
 
     const callerId = userData.user.id;
-    const { questionnaireId, targetUserId } = await req.json();
+    const { questionnaireId, nutritionQuestionnaireId, targetUserId } = await req.json();
 
     // Rate limit: 10 requests per user per day
     const rlAllowed = await checkRateLimit(callerId, "auto-generate-programs", 10, 1440);
     if (!rlAllowed) return rateLimitResponse(corsHeaders);
 
-    if (!questionnaireId) {
+    if (!questionnaireId && !nutritionQuestionnaireId) {
       return new Response(JSON.stringify({ error: "Missing questionnaireId" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -59,13 +59,12 @@ serve(async (req) => {
       console.log("[AUTO-GEN] Admin override: generating for user", userId);
     }
 
-    // Fetch the questionnaire (admin can fetch for any user)
-    const { data: q, error: qErr } = await supabaseAdmin
-      .from("client_questionnaires")
-      .select("*")
-      .eq("id", questionnaireId)
-      .eq("user_id", userId)
-      .single();
+    // Fetch the questionnaire (admin can fetch for any user). The Fuel tab uses
+    // client_nutrition_questionnaires; the legacy onboarding generator uses client_questionnaires.
+    const query = nutritionQuestionnaireId
+      ? supabaseAdmin.from("client_nutrition_questionnaires").select("*").eq("id", nutritionQuestionnaireId).eq("user_id", userId).single()
+      : supabaseAdmin.from("client_questionnaires").select("*").eq("id", questionnaireId).eq("user_id", userId).single();
+    const { data: q, error: qErr } = await query;
 
     if (qErr || !q) {
       return new Response(JSON.stringify({ error: "Questionnaire not found" }), {
