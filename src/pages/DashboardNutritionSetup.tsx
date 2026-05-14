@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -145,6 +145,7 @@ const DashboardNutritionSetup = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
@@ -338,11 +339,6 @@ const DashboardNutritionSetup = () => {
       if (error) throw error;
 
       // Sync nutrition profile so the rest of the Fuel tab reflects new targets
-      const { data: existingProfile } = await supabase
-        .from("client_nutrition_profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
       const profilePayload: any = {
         user_id: user.id,
         age: parseInt(form.age) || null,
@@ -354,31 +350,46 @@ const DashboardNutritionSetup = () => {
         dietary_preferences: [form.gender],
         food_restrictions: form.dietary_restrictions,
       };
-      if (existingProfile) {
-        await supabase
-          .from("client_nutrition_profiles")
-          .update(profilePayload)
-          .eq("id", existingProfile.id);
-      } else {
-        await supabase.from("client_nutrition_profiles").insert(profilePayload);
-      }
+      const { error: profileError } = await (supabase as any)
+        .from("client_nutrition_profiles")
+        .upsert(profilePayload, { onConflict: "user_id" });
+      if (profileError) throw profileError;
 
-      // Kick off plan generation in the background
+      // Create the meal plan now so Fuel does not bounce users back to setup.
       const { data: q } = await supabase
         .from("client_questionnaires")
         .select("id")
         .eq("user_id", user.id)
         .eq("is_active", true)
         .maybeSingle();
-      if (q?.id) {
-        supabase.functions
-          .invoke("auto-generate-programs", { body: { questionnaireId: q.id } })
-          .catch((e) => console.error("auto-generate failed", e));
+
+      const { data: activeExistingPlan } = await supabase
+        .from("nutrition_plans")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+
+      if (q?.id && !activeExistingPlan) {
+        const { data: generated, error: generateError } = await supabase.functions
+          .invoke("auto-generate-programs", { body: { questionnaireId: q.id } });
+        if (generateError) throw new Error(generateError.message);
+        if (generated?.errors?.length && !generated?.nutrition?.success) {
+          throw new Error(generated.errors.join("; "));
+        }
       }
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["nutrition-questionnaire", user.id] }),
+        queryClient.invalidateQueries({ queryKey: ["nutrition-questionnaire-existing", user.id] }),
+        queryClient.invalidateQueries({ queryKey: ["my-nutrition-plans"] }),
+        queryClient.invalidateQueries({ queryKey: ["nutrition-profile"] }),
+      ]);
 
       toast({
         title: "Your Fuel plan is ready",
-        description: "Targets and meals are being personalized.",
+        description: "Your targets and meals are saved.",
       });
       navigate("/dashboard/nutrition");
     } catch (err: any) {

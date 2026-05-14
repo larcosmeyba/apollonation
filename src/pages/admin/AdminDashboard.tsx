@@ -11,6 +11,7 @@ import AdminClientList from "@/components/admin/AdminClientList";
 import AdminBugReports from "@/components/admin/AdminBugReports";
 import AdminExerciseLibrary from "@/components/admin/AdminExerciseLibrary";
 import AdminClassBuilder from "@/components/admin/AdminClassBuilder";
+import AdminMessages from "@/components/admin/AdminMessages";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { isNative } from "@/lib/platform";
 
@@ -43,6 +44,8 @@ const AdminDashboard = () => {
         return <AdminWorkouts />;
       case "recipes":
         return <AdminRecipes />;
+      case "messages":
+        return <AdminMessages />;
       case "contacts":
         return <AdminContactRequests />;
       case "bugs":

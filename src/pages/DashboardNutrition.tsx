@@ -137,6 +137,8 @@ const DashboardNutrition = () => {
       return data;
     },
     enabled: !!user,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const { data: hasQuestionnaire } = useQuery({
@@ -162,8 +164,10 @@ const DashboardNutrition = () => {
       return data;
     },
     enabled: !!user,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
-  const hasNutritionQuestionnaire = !!nutritionQ?.completed_at;
+  const hasNutritionQuestionnaire = !!nutritionQ?.id;
 
   // Active dietary restrictions from questionnaire
   const { data: questionnaireData } = useQuery({
