@@ -355,14 +355,6 @@ const DashboardNutritionSetup = () => {
         .upsert(profilePayload, { onConflict: "user_id" });
       if (profileError) throw profileError;
 
-      // Create the meal plan now so Fuel does not bounce users back to setup.
-      const { data: q } = await supabase
-        .from("client_questionnaires")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("is_active", true)
-        .maybeSingle();
-
       const { data: activeExistingPlan } = await supabase
         .from("nutrition_plans")
         .select("id")
@@ -371,9 +363,9 @@ const DashboardNutritionSetup = () => {
         .limit(1)
         .maybeSingle();
 
-      if (q?.id && !activeExistingPlan) {
+      if (!activeExistingPlan) {
         const { data: generated, error: generateError } = await supabase.functions
-          .invoke("auto-generate-programs", { body: { questionnaireId: q.id } });
+          .invoke("auto-generate-programs", { body: { nutritionQuestionnaireId: existing?.id } });
         if (generateError) throw new Error(generateError.message);
         if (generated?.errors?.length && !generated?.nutrition?.success) {
           throw new Error(generated.errors.join("; "));
