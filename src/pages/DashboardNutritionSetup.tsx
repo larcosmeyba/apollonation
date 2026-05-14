@@ -357,6 +357,19 @@ const DashboardNutritionSetup = () => {
         .upsert(profilePayload, { onConflict: "user_id" });
       if (profileError) throw profileError;
 
+      const { error: macroError } = await (supabase as any)
+        .from("user_macro_targets")
+        .upsert({
+          user_id: user.id,
+          calorie_target: computed.calories,
+          protein_grams: computed.protein,
+          carb_grams: computed.carbs,
+          fat_grams: computed.fat,
+          source: "auto",
+          goal_type: form.main_goal,
+        }, { onConflict: "user_id" });
+      if (macroError) throw macroError;
+
       const { data: activeExistingPlan } = await supabase
         .from("nutrition_plans")
         .select("id")
@@ -379,6 +392,7 @@ const DashboardNutritionSetup = () => {
         queryClient.invalidateQueries({ queryKey: ["nutrition-questionnaire-existing", user.id] }),
         queryClient.invalidateQueries({ queryKey: ["my-nutrition-plans"] }),
         queryClient.invalidateQueries({ queryKey: ["nutrition-profile"] }),
+        queryClient.invalidateQueries({ queryKey: ["user-macro-targets", user.id] }),
       ]);
 
       toast({
