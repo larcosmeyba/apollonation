@@ -209,34 +209,57 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
     }
   }, [messages]);
 
+  const sendContent = (content: string, tempId?: string) => {
+    const id = tempId ?? `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setPending((prev) => {
+      const without = prev.filter((p) => p.tempId !== id);
+      return [
+        ...without,
+        { tempId: id, content, created_at: new Date().toISOString(), status: "sending" as const },
+      ];
+    });
+    sendMessage.mutate(
+      { recipientId: partnerId, content },
+      {
+        onError: (err: any) => {
+          const isElite = err?.code === "elite_required" || err?.message === "elite_required";
+          setPending((prev) =>
+            prev.map((p) =>
+              p.tempId === id
+                ? {
+                    ...p,
+                    status: "failed" as const,
+                    error: isElite
+                      ? "Apollo Elite required to send messages."
+                      : err?.message ?? "Tap to retry.",
+                  }
+                : p
+            )
+          );
+          toast({
+            title: isElite ? "Apollo Elite required" : "Couldn't send message",
+            description: isElite
+              ? "Upgrade to Elite to message Coach Marcos."
+              : err?.message ?? "Tap the failed bubble to retry.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
+
   const handleSend = () => {
     if (isPartnerBlocked) return;
     const trimmed = newMessage.trim();
     if (!trimmed) return;
-    sendMessage.mutate(
-      { recipientId: partnerId, content: trimmed },
-      {
-        onError: (err: any) => {
-          if (err?.code === "elite_required" || err?.message === "elite_required") {
-            toast({
-              title: "Apollo Elite required",
-              description: "Upgrade to Elite to message Coach Marcos.",
-              variant: "destructive",
-            });
-            setNewMessage(trimmed); // restore draft
-            return;
-          }
-          toast({
-            title: "Couldn't send message",
-            description: err?.message ?? "Try again in a moment.",
-            variant: "destructive",
-          });
-          setNewMessage(trimmed);
-        },
-      }
-    );
+    sendContent(trimmed);
     setNewMessage("");
     try { localStorage.removeItem(DRAFT_KEY_PREFIX + partnerId); } catch {}
+  };
+
+  const retryPending = (p: PendingMsg) => {
+    setPending((prev) => prev.filter((x) => x.tempId !== p.tempId));
+    sendContent(p.content);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
