@@ -498,6 +498,26 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Delete / unsend message dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{deleteTarget?.isMine ? "Unsend this message?" : "Delete this message?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.isMine
+                ? "This removes the message from the conversation for both you and the other person."
+                : "This removes the message from the conversation."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction disabled={deleteMessage.isPending} onClick={handleDeleteMessage}>
+              {deleteTarget?.isMine ? "Unsend" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Coach Profile Dialog */}
       <Dialog open={showCoachProfile} onOpenChange={setShowCoachProfile}>
         <DialogContent className="max-w-sm">
