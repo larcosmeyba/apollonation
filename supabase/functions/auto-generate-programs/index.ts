@@ -34,13 +34,13 @@ serve(async (req) => {
     }
 
     const callerId = userData.user.id;
-    const { questionnaireId, targetUserId } = await req.json();
+    const { questionnaireId, nutritionQuestionnaireId, targetUserId } = await req.json();
 
     // Rate limit: 10 requests per user per day
     const rlAllowed = await checkRateLimit(callerId, "auto-generate-programs", 10, 1440);
     if (!rlAllowed) return rateLimitResponse(corsHeaders);
 
-    if (!questionnaireId) {
+    if (!questionnaireId && !nutritionQuestionnaireId) {
       return new Response(JSON.stringify({ error: "Missing questionnaireId" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -59,13 +59,12 @@ serve(async (req) => {
       console.log("[AUTO-GEN] Admin override: generating for user", userId);
     }
 
-    // Fetch the questionnaire (admin can fetch for any user)
-    const { data: q, error: qErr } = await supabaseAdmin
-      .from("client_questionnaires")
-      .select("*")
-      .eq("id", questionnaireId)
-      .eq("user_id", userId)
-      .single();
+    // Fetch the questionnaire (admin can fetch for any user). The Fuel tab uses
+    // client_nutrition_questionnaires; the legacy onboarding generator uses client_questionnaires.
+    const query = nutritionQuestionnaireId
+      ? supabaseAdmin.from("client_nutrition_questionnaires").select("*").eq("id", nutritionQuestionnaireId).eq("user_id", userId).single()
+      : supabaseAdmin.from("client_questionnaires").select("*").eq("id", questionnaireId).eq("user_id", userId).single();
+    const { data: q, error: qErr } = await query;
 
     if (qErr || !q) {
       return new Response(JSON.stringify({ error: "Questionnaire not found" }), {
@@ -78,26 +77,44 @@ serve(async (req) => {
 
     // ──────── FETCH EXERCISE LIBRARY ────────
     // Only use exercises the coach has uploaded (prioritize those with video URLs)
-    const { data: exerciseLibrary, error: exErr } = await supabaseAdmin
-      .from("exercises")
-      .select("title, muscle_group, equipment, difficulty")
-      .order("title");
+    let exerciseLibrary: any[] = [];
+    let exerciseList = "";
+    if (!nutritionQuestionnaireId) {
+      const { data, error: exErr } = await supabaseAdmin
+        .from("exercises")
+        .select("title, muscle_group, equipment, difficulty")
+        .order("title");
 
-    if (exErr) {
-      console.error("[AUTO-GEN] Failed to fetch exercises:", exErr);
-      throw new Error("Failed to fetch exercise library");
+      if (exErr) {
+        console.error("[AUTO-GEN] Failed to fetch exercises:", exErr);
+        throw new Error("Failed to fetch exercise library");
+      }
+
+      exerciseLibrary = data || [];
+      exerciseList = exerciseLibrary
+        .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
+        .join("\n");
+
+      console.log(`[AUTO-GEN] Exercise library loaded: ${exerciseLibrary.length} exercises`);
     }
 
-    // Build a formatted list of available exercises for the AI
-    const exerciseList = (exerciseLibrary || [])
-      .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
-      .join("\n");
-
-    console.log(`[AUTO-GEN] Exercise library loaded: ${exerciseLibrary?.length || 0} exercises`);
-
     const results: any = { training: null, nutrition: null, errors: [] };
+    const listify = (value: unknown): string[] => {
+      if (Array.isArray(value)) return value.map(String).filter(Boolean);
+      if (typeof value === "string") return value.split(",").map((s) => s.trim()).filter(Boolean);
+      return [];
+    };
+    const goalText = q.goal_next_4_weeks || q.main_goal || q.goals || "maintain";
+    const clientWeightLbs = Number(q.weight_lbs ?? q.current_weight_lbs ?? 150);
+    const clientHeightInches = Number(q.height_inches ?? 68);
+    const clientSex = String(q.sex ?? q.gender ?? "male").toLowerCase();
+    const clientRestrictions = listify(q.dietary_restrictions);
+    const clientDislikes = listify(q.disliked_foods);
+    const clientBudget = q.weekly_food_budget ?? q.grocery_budget_weekly ?? null;
 
     // ──────── GENERATE TRAINING PLAN ────────
+    // Fuel-only submissions should not wait on training generation.
+    if (!nutritionQuestionnaireId) {
     try {
       console.log("[AUTO-GEN] Generating training plan for", userId);
 
@@ -305,14 +322,15 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
       console.error("[AUTO-GEN] Training error:", err);
       results.errors.push(`Training: ${err instanceof Error ? err.message : "Unknown"}`);
     }
+    }
 
     // ──────── GENERATE NUTRITION PLAN ────────
     try {
       console.log("[AUTO-GEN] Generating nutrition plan for", userId);
 
-      const weightKg = (q.weight_lbs || 150) * 0.453592;
-      const heightCm = (q.height_inches || 68) * 2.54;
-      const bmr = q.sex === "female"
+      const weightKg = clientWeightLbs * 0.453592;
+      const heightCm = clientHeightInches * 2.54;
+      const bmr = clientSex === "female"
         ? 10 * weightKg + 6.25 * heightCm - 5 * (q.age || 30) - 161
         : 10 * weightKg + 6.25 * heightCm - 5 * (q.age || 30) + 5;
 
@@ -322,28 +340,29 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
 
       let tdee = bmr * (activityMultipliers[q.activity_level || "moderate"] || 1.55);
 
-      const goal = (q.goal_next_4_weeks || "").toLowerCase();
-      const hasGoalWeight = q.goal_weight && q.goal_weight < q.weight_lbs;
+      const goal = String(goalText).toLowerCase();
+      const goalWeight = q.goal_weight ?? q.goal_weight_lbs;
+      const hasGoalWeight = goalWeight && goalWeight < clientWeightLbs;
       if (hasGoalWeight || goal.includes("lose") || goal.includes("cut") || goal.includes("lean")) tdee -= 500;
-      else if ((!hasGoalWeight && q.goal_weight && q.goal_weight > q.weight_lbs) || goal.includes("gain") || goal.includes("bulk") || goal.includes("muscle")) tdee += 300;
+      else if ((!hasGoalWeight && goalWeight && goalWeight > clientWeightLbs) || goal.includes("gain") || goal.includes("bulk") || goal.includes("muscle")) tdee += 300;
 
       const dailyCalories = Math.round(tdee);
       const proteinGrams = Math.round(weightKg * 2.2);
       const fatGrams = Math.round((dailyCalories * 0.25) / 9);
       const carbsGrams = Math.round((dailyCalories - proteinGrams * 4 - fatGrams * 9) / 4);
 
-      const dietaryInfo = q.dietary_restrictions?.length > 0
-        ? `Dietary restrictions: ${q.dietary_restrictions.join(", ")}.` : "";
-      const dislikedInfo = q.disliked_foods?.length > 0
-        ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${q.disliked_foods.join(", ")}. Do NOT include these ingredients in ANY meal.` : "";
-      const budgetInfo = q.weekly_food_budget
-        ? `Weekly food budget: $${q.weekly_food_budget}. ${q.grocery_store ? `Primary grocery store: ${q.grocery_store}.` : ""}` : "";
+      const dietaryInfo = clientRestrictions.length > 0
+        ? `Dietary restrictions: ${clientRestrictions.join(", ")}.` : "";
+      const dislikedInfo = clientDislikes.length > 0
+        ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${clientDislikes.join(", ")}. Do NOT include these ingredients in ANY meal.` : "";
+      const budgetInfo = clientBudget
+        ? `Weekly food budget: $${clientBudget}. ${q.grocery_store ? `Primary grocery store: ${q.grocery_store}.` : ""}` : "";
 
       const nutritionPrompt = `Generate a complete 28-day meal plan (4 unique weeks) for a client:
 
 - Daily calories: ${dailyCalories} kcal
 - Protein: ${proteinGrams}g, Carbs: ${carbsGrams}g, Fat: ${fatGrams}g
-- Goal: ${q.goal_next_4_weeks || "maintain"}${q.goal_weight ? `\n- Goal Weight: ${q.goal_weight} lbs (current: ${q.weight_lbs} lbs)` : ""}
+- Goal: ${goalText}${goalWeight ? `\n- Goal Weight: ${goalWeight} lbs (current: ${clientWeightLbs} lbs)` : ""}
 ${dietaryInfo}
 ${dislikedInfo}
 ${budgetInfo}
@@ -407,12 +426,12 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
       await supabaseAdmin.from("client_nutrition_profiles").upsert({
         user_id: userId,
         age: q.age,
-        weight_lbs: q.weight_lbs,
-        height_inches: q.height_inches,
-        activity_level: q.activity_level,
-        goals: q.goal_next_4_weeks || "maintain",
-        dietary_preferences: q.dietary_restrictions || [],
-        food_restrictions: q.disliked_foods || [],
+        weight_lbs: clientWeightLbs,
+        height_inches: clientHeightInches,
+        activity_level: q.activity_level || "moderate",
+        goals: goalText,
+        dietary_preferences: clientRestrictions,
+        food_restrictions: clientDislikes,
       }, { onConflict: "user_id" });
 
       const { data: plan, error: planError } = await supabaseAdmin
@@ -420,7 +439,7 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
         .insert({
           user_id: userId,
           created_by: userId,
-          title: `${q.goal_next_4_weeks || "Custom"} Meal Plan - Cycle ${q.cycle_number || 1}`,
+          title: `${goalText || "Custom"} Meal Plan - Cycle ${q.cycle_number || 1}`,
           daily_calories: dailyCalories,
           protein_grams: proteinGrams,
           carbs_grams: carbsGrams,

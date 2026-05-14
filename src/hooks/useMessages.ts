@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
+const DEFAULT_COACH_ID = "b1427538-a690-4cd4-8e34-423602562f4a";
+
 const canUseRealtime = () => {
   if (typeof window === "undefined") return false;
   if (typeof window.WebSocket === "undefined") return false;
@@ -46,7 +48,7 @@ export const useMessages = (conversationPartnerId?: string) => {
 
   // Fetch messages for a specific conversation
   const messagesQuery = useQuery({
-    queryKey: ["messages", conversationPartnerId, blocksQuery.data?.length ?? 0],
+    queryKey: ["messages", user?.id, conversationPartnerId, blocksQuery.data?.length ?? 0],
     retry: false,
     queryFn: async () => {
       if (!user || !conversationPartnerId) return [];
@@ -73,7 +75,7 @@ export const useMessages = (conversationPartnerId?: string) => {
 
   // Fetch all conversations (unique partners)
   const conversationsQuery = useQuery({
-    queryKey: ["conversations", blocksQuery.data?.length ?? 0],
+    queryKey: ["conversations", user?.id, blocksQuery.data?.length ?? 0],
     retry: false,
     queryFn: async () => {
       if (!user) return [];
@@ -129,7 +131,7 @@ export const useMessages = (conversationPartnerId?: string) => {
 
   // Fetch unread count
   const unreadCountQuery = useQuery({
-    queryKey: ["unread-count"],
+    queryKey: ["unread-count", user?.id],
     retry: false,
     queryFn: async () => {
       if (!user) return 0;
@@ -162,15 +164,22 @@ export const useMessages = (conversationPartnerId?: string) => {
       content: string;
     }) => {
       if (!user) throw new Error("Not authenticated");
-      const { data, error } = await supabase
-        .from("messages")
-        .insert({
-          sender_id: user.id,
-          recipient_id: recipientId,
-          content,
-        })
-        .select()
-        .single();
+
+      const trimmed = content.trim();
+      if (!trimmed) throw new Error("Message is empty");
+
+      const isCoachThread = recipientId === DEFAULT_COACH_ID;
+      const { data, error } = isCoachThread
+        ? await supabase.rpc("send_coach_message", { _content: trimmed })
+        : await supabase
+            .from("messages")
+            .insert({
+              sender_id: user.id,
+              recipient_id: recipientId,
+              content: trimmed,
+            })
+            .select()
+            .single();
 
       if (error) {
         // Always surface the underlying error for prod debugging before translating.
@@ -187,13 +196,13 @@ export const useMessages = (conversationPartnerId?: string) => {
 
       // Trigger email notification (fire-and-forget)
       supabase.functions.invoke("send-message-notification", {
-        body: { recipientId },
+        body: { recipientId: (data as Message).recipient_id || recipientId },
       }).then(({ error }) => {
         if (error) console.error("Notification error:", error);
         else console.log("Notification sent successfully");
       });
 
-      return data;
+      return data as Message;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages"] });

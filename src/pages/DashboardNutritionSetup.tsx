@@ -333,9 +333,11 @@ const DashboardNutritionSetup = () => {
         completed_at: new Date().toISOString(),
       };
 
-      const { error } = await (supabase as any)
+      const { data: savedNutritionQ, error } = await (supabase as any)
         .from("client_nutrition_questionnaires")
-        .upsert(payload, { onConflict: "user_id" });
+        .upsert(payload, { onConflict: "user_id" })
+        .select("id")
+        .single();
       if (error) throw error;
 
       // Sync nutrition profile so the rest of the Fuel tab reflects new targets
@@ -355,13 +357,18 @@ const DashboardNutritionSetup = () => {
         .upsert(profilePayload, { onConflict: "user_id" });
       if (profileError) throw profileError;
 
-      // Create the meal plan now so Fuel does not bounce users back to setup.
-      const { data: q } = await supabase
-        .from("client_questionnaires")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("is_active", true)
-        .maybeSingle();
+      const { error: macroError } = await (supabase as any)
+        .from("user_macro_targets")
+        .upsert({
+          user_id: user.id,
+          calorie_target: computed.calories,
+          protein_grams: computed.protein,
+          carb_grams: computed.carbs,
+          fat_grams: computed.fat,
+          source: "auto",
+          goal_type: form.main_goal,
+        }, { onConflict: "user_id" });
+      if (macroError) throw macroError;
 
       const { data: activeExistingPlan } = await supabase
         .from("nutrition_plans")
@@ -371,9 +378,9 @@ const DashboardNutritionSetup = () => {
         .limit(1)
         .maybeSingle();
 
-      if (q?.id && !activeExistingPlan) {
+      if (!activeExistingPlan) {
         const { data: generated, error: generateError } = await supabase.functions
-          .invoke("auto-generate-programs", { body: { questionnaireId: q.id } });
+          .invoke("auto-generate-programs", { body: { nutritionQuestionnaireId: savedNutritionQ?.id } });
         if (generateError) throw new Error(generateError.message);
         if (generated?.errors?.length && !generated?.nutrition?.success) {
           throw new Error(generated.errors.join("; "));
@@ -385,6 +392,7 @@ const DashboardNutritionSetup = () => {
         queryClient.invalidateQueries({ queryKey: ["nutrition-questionnaire-existing", user.id] }),
         queryClient.invalidateQueries({ queryKey: ["my-nutrition-plans"] }),
         queryClient.invalidateQueries({ queryKey: ["nutrition-profile"] }),
+        queryClient.invalidateQueries({ queryKey: ["user-macro-targets", user.id] }),
       ]);
 
       toast({

@@ -141,16 +141,6 @@ const DashboardNutrition = () => {
     refetchOnMount: "always",
   });
 
-  const { data: hasQuestionnaire } = useQuery({
-    queryKey: ["has-questionnaire", user?.id],
-    queryFn: async () => {
-      if (!user) return false;
-      const { count } = await supabase.from("client_questionnaires").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("is_active", true);
-      return (count ?? 0) > 0;
-    },
-    enabled: !!user,
-  });
-
   // Premium nutrition onboarding completion gate
   const { data: nutritionQ, isLoading: nutritionQLoading } = useQuery({
     queryKey: ["nutrition-questionnaire", user?.id],
@@ -1056,15 +1046,15 @@ const DashboardNutrition = () => {
           {/* ── Meal Plan Section ── */}
           {!activePlan ? (
             <div className="card-apollo py-12 text-center">
-              {!hasQuestionnaire ? (
+              {!hasNutritionQuestionnaire ? (
                 <>
                   <div className="w-16 h-16 rounded-full bg-foreground/10 border border-foreground/20 flex items-center justify-center mx-auto mb-4">
                     <AlertCircle className="w-7 h-7 text-foreground" />
                   </div>
-                  <h3 className="font-heading text-lg text-foreground mb-2">Complete Your Profile First</h3>
-                  <p className="text-muted-foreground text-sm mb-1">Complete your questionnaire to receive a personalized meal plan.</p>
+                  <h3 className="font-heading text-lg text-foreground mb-2">Complete Your Fuel Questionnaire</h3>
+                  <p className="text-muted-foreground text-sm mb-1">Complete your nutrition questionnaire to receive a personalized meal plan.</p>
                   <p className="text-[10px] text-muted-foreground mb-6">Your meals will automatically refresh every week once set up.</p>
-                  <Link to="/questionnaire"><Button variant="apollo" className="gap-2 rounded-full"><ClipboardList className="w-4 h-4" /> Complete Questionnaire</Button></Link>
+                  <Link to="/dashboard/nutrition/setup"><Button variant="apollo" className="gap-2 rounded-full"><ClipboardList className="w-4 h-4" /> Complete Questionnaire</Button></Link>
                 </>
               ) : (
                 <>
