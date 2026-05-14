@@ -102,6 +102,31 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
   const [reportTarget, setReportTarget] = useState<{ id: string } | null>(null);
   const [submittingReport, setSubmittingReport] = useState(false);
 
+  // Optimistic outgoing messages — shown instantly, removed when the real
+  // row appears in the messages query (or marked failed if the insert errors).
+  type PendingMsg = {
+    tempId: string;
+    content: string;
+    created_at: string;
+    status: "sending" | "failed";
+    error?: string;
+  };
+  const [pending, setPending] = useState<PendingMsg[]>([]);
+
+  // Drop pending messages once their server-side counterpart shows up.
+  useEffect(() => {
+    if (pending.length === 0) return;
+    setPending((prev) =>
+      prev.filter((p) => {
+        if (p.status === "failed") return true;
+        return !messages.some(
+          (m) => m.sender_id === user?.id && m.content === p.content
+        );
+      })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
+
   // Has the current user blocked the partner?
   const { data: isPartnerBlocked = false } = useQuery({
     queryKey: ["is-blocked", user?.id, partnerId],
