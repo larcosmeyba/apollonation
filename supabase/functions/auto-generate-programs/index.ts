@@ -97,6 +97,8 @@ serve(async (req) => {
     const results: any = { training: null, nutrition: null, errors: [] };
 
     // ──────── GENERATE TRAINING PLAN ────────
+    // Fuel-only submissions should not wait on training generation.
+    if (!nutritionQuestionnaireId) {
     try {
       console.log("[AUTO-GEN] Generating training plan for", userId);
 
@@ -303,6 +305,7 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
     } catch (err) {
       console.error("[AUTO-GEN] Training error:", err);
       results.errors.push(`Training: ${err instanceof Error ? err.message : "Unknown"}`);
+    }
     }
 
     // ──────── GENERATE NUTRITION PLAN ────────
