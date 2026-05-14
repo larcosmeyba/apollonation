@@ -362,7 +362,16 @@ const DashboardNutritionSetup = () => {
         .eq("user_id", user.id)
         .eq("is_active", true)
         .maybeSingle();
-      if (q?.id) {
+
+      const { data: activeExistingPlan } = await supabase
+        .from("nutrition_plans")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+
+      if (q?.id && !activeExistingPlan) {
         const { data: generated, error: generateError } = await supabase.functions
           .invoke("auto-generate-programs", { body: { questionnaireId: q.id } });
         if (generateError) throw new Error(generateError.message);
