@@ -314,11 +314,48 @@ const DashboardTodayNutrition = () => {
           </Link>
         </div>
 
+        {/* Macro rings — show remaining toward today's targets, green check when met */}
+        <div className="mb-3 grid grid-cols-4 gap-2">
+          <MacroRing
+            label="Cal Left"
+            value={loggedTotals.calories}
+            max={activePlan.daily_calories || 0}
+            unit=""
+            color="hsl(210 100% 52%)"
+            size={68}
+            countdown
+          />
+          <MacroRing
+            label="Protein"
+            value={loggedTotals.protein}
+            max={activePlan.protein_grams || 0}
+            color="hsl(0 84% 60%)"
+            size={68}
+            countdown
+          />
+          <MacroRing
+            label="Carbs"
+            value={loggedTotals.carbs}
+            max={activePlan.carbs_grams || 0}
+            color="hsl(38 92% 50%)"
+            size={68}
+            countdown
+          />
+          <MacroRing
+            label="Fat"
+            value={loggedTotals.fat}
+            max={activePlan.fat_grams || 0}
+            color="hsl(280 65% 60%)"
+            size={68}
+            countdown
+          />
+        </div>
+
         {macroLogs.length > 0 && (
           <div className="mb-3 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/20 flex items-center gap-3">
             <Camera className="w-3 h-3 text-primary flex-shrink-0" />
             <div className="flex gap-3 flex-1 text-xs">
-              <span className="text-primary font-medium">{loggedTotals.calories} cal</span>
+              <span className="text-primary font-medium">Logged: {loggedTotals.calories} cal</span>
               <span className="text-muted-foreground">P:{loggedTotals.protein}g</span>
               <span className="text-muted-foreground">C:{loggedTotals.carbs}g</span>
               <span className="text-muted-foreground">F:{loggedTotals.fat}g</span>
