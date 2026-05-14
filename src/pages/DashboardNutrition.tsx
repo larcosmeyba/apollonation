@@ -141,16 +141,6 @@ const DashboardNutrition = () => {
     refetchOnMount: "always",
   });
 
-  const { data: hasQuestionnaire } = useQuery({
-    queryKey: ["has-questionnaire", user?.id],
-    queryFn: async () => {
-      if (!user) return false;
-      const { count } = await supabase.from("client_questionnaires").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("is_active", true);
-      return (count ?? 0) > 0;
-    },
-    enabled: !!user,
-  });
-
   // Premium nutrition onboarding completion gate
   const { data: nutritionQ, isLoading: nutritionQLoading } = useQuery({
     queryKey: ["nutrition-questionnaire", user?.id],
