@@ -95,6 +95,18 @@ serve(async (req) => {
     console.log(`[AUTO-GEN] Exercise library loaded: ${exerciseLibrary?.length || 0} exercises`);
 
     const results: any = { training: null, nutrition: null, errors: [] };
+    const listify = (value: unknown): string[] => {
+      if (Array.isArray(value)) return value.map(String).filter(Boolean);
+      if (typeof value === "string") return value.split(",").map((s) => s.trim()).filter(Boolean);
+      return [];
+    };
+    const goalText = q.goal_next_4_weeks || q.main_goal || q.goals || "maintain";
+    const clientWeightLbs = Number(q.weight_lbs ?? q.current_weight_lbs ?? 150);
+    const clientHeightInches = Number(q.height_inches ?? 68);
+    const clientSex = String(q.sex ?? q.gender ?? "male").toLowerCase();
+    const clientRestrictions = listify(q.dietary_restrictions);
+    const clientDislikes = listify(q.disliked_foods);
+    const clientBudget = q.weekly_food_budget ?? q.grocery_budget_weekly ?? null;
 
     // ──────── GENERATE TRAINING PLAN ────────
     // Fuel-only submissions should not wait on training generation.
