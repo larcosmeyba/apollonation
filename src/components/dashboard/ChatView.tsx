@@ -347,7 +347,10 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-border">
+      <div
+        className="px-4 pt-4 border-t border-border"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
+      >
         {isPartnerBlocked ? (
           <p className="text-xs text-muted-foreground text-center py-2 inline-flex items-center justify-center gap-2 w-full">
             <Ban className="w-3.5 h-3.5" />
