@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Send, ArrowLeft, Flag, Ban } from "lucide-react";
+import { Send, ArrowLeft, Flag, Ban, Trash2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -89,7 +89,7 @@ const DRAFT_KEY_PREFIX = "chat-draft-";
 const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, partnerProfileHref }: ChatViewProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { messages, messagesLoading, sendMessage, markAsRead } = useMessages(partnerId);
+  const { messages, messagesLoading, sendMessage, markAsRead, deleteMessage } = useMessages(partnerId);
   const { data: profiles } = useProfileLookup([partnerId]);
   const [newMessage, setNewMessage] = useState(() => {
     try { return localStorage.getItem(DRAFT_KEY_PREFIX + partnerId) || ""; } catch { return ""; }
@@ -100,6 +100,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [reportTarget, setReportTarget] = useState<{ id: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; isMine: boolean } | null>(null);
   const [submittingReport, setSubmittingReport] = useState(false);
 
   // Optimistic outgoing messages — shown instantly, removed when the real
@@ -288,6 +289,23 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
     }
   };
 
+  const handleDeleteMessage = () => {
+    if (!deleteTarget) return;
+    deleteMessage.mutate(deleteTarget.id, {
+      onSuccess: () => {
+        toast({ title: deleteTarget.isMine ? "Message unsent" : "Message deleted" });
+        setDeleteTarget(null);
+      },
+      onError: (err: any) => {
+        toast({
+          title: "Couldn't delete message",
+          description: err?.message ?? "Try again.",
+          variant: "destructive",
+        });
+      },
+    });
+  };
+
   // Hide messages from blocked users (defensive — list may be cached).
   const visibleMessages = isPartnerBlocked
     ? messages.filter((m) => m.sender_id !== partnerId)
@@ -377,6 +395,16 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
                     >
                       {safeRelativeTime(msg.created_at)}
                     </p>
+                    <button
+                      onClick={() => setDeleteTarget({ id: msg.id, isMine })}
+                      className={`text-[10px] inline-flex items-center gap-1 ${
+                        isMine ? "text-white/70 hover:text-white" : "text-muted-foreground/70 hover:text-foreground"
+                      }`}
+                      aria-label={isMine ? "Unsend message" : "Delete message"}
+                      disabled={deleteMessage.isPending}
+                    >
+                      <Trash2 className="w-3 h-3" /> {isMine ? "Unsend" : "Delete"}
+                    </button>
                     {canReport && (
                       <button
                         onClick={() => setReportTarget({ id: msg.id })}
@@ -466,6 +494,26 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
               Inappropriate content
             </AlertDialogAction>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete / unsend message dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{deleteTarget?.isMine ? "Unsend this message?" : "Delete this message?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.isMine
+                ? "This removes the message from the conversation for both you and the other person."
+                : "This removes the message from the conversation."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction disabled={deleteMessage.isPending} onClick={handleDeleteMessage}>
+              {deleteTarget?.isMine ? "Unsend" : "Delete"}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
