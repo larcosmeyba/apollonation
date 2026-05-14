@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
+import { MacroRing } from "@/components/dashboard/MacroRing";
 
 const MEAL_TYPE_LABELS: Record<string, string> = {
   breakfast: "🌅 Breakfast",
