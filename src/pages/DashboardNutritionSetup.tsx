@@ -333,9 +333,11 @@ const DashboardNutritionSetup = () => {
         completed_at: new Date().toISOString(),
       };
 
-      const { error } = await (supabase as any)
+      const { data: savedNutritionQ, error } = await (supabase as any)
         .from("client_nutrition_questionnaires")
-        .upsert(payload, { onConflict: "user_id" });
+        .upsert(payload, { onConflict: "user_id" })
+        .select("id")
+        .single();
       if (error) throw error;
 
       // Sync nutrition profile so the rest of the Fuel tab reflects new targets
@@ -365,7 +367,7 @@ const DashboardNutritionSetup = () => {
 
       if (!activeExistingPlan) {
         const { data: generated, error: generateError } = await supabase.functions
-          .invoke("auto-generate-programs", { body: { nutritionQuestionnaireId: existing?.id } });
+          .invoke("auto-generate-programs", { body: { nutritionQuestionnaireId: savedNutritionQ?.id } });
         if (generateError) throw new Error(generateError.message);
         if (generated?.errors?.length && !generated?.nutrition?.success) {
           throw new Error(generated.errors.join("; "));
