@@ -328,9 +328,9 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
     try {
       console.log("[AUTO-GEN] Generating nutrition plan for", userId);
 
-      const weightKg = (q.weight_lbs || 150) * 0.453592;
-      const heightCm = (q.height_inches || 68) * 2.54;
-      const bmr = q.sex === "female"
+      const weightKg = clientWeightLbs * 0.453592;
+      const heightCm = clientHeightInches * 2.54;
+      const bmr = clientSex === "female"
         ? 10 * weightKg + 6.25 * heightCm - 5 * (q.age || 30) - 161
         : 10 * weightKg + 6.25 * heightCm - 5 * (q.age || 30) + 5;
 
@@ -340,22 +340,23 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
 
       let tdee = bmr * (activityMultipliers[q.activity_level || "moderate"] || 1.55);
 
-      const goal = (q.goal_next_4_weeks || "").toLowerCase();
-      const hasGoalWeight = q.goal_weight && q.goal_weight < q.weight_lbs;
+      const goal = String(goalText).toLowerCase();
+      const goalWeight = q.goal_weight ?? q.goal_weight_lbs;
+      const hasGoalWeight = goalWeight && goalWeight < clientWeightLbs;
       if (hasGoalWeight || goal.includes("lose") || goal.includes("cut") || goal.includes("lean")) tdee -= 500;
-      else if ((!hasGoalWeight && q.goal_weight && q.goal_weight > q.weight_lbs) || goal.includes("gain") || goal.includes("bulk") || goal.includes("muscle")) tdee += 300;
+      else if ((!hasGoalWeight && goalWeight && goalWeight > clientWeightLbs) || goal.includes("gain") || goal.includes("bulk") || goal.includes("muscle")) tdee += 300;
 
       const dailyCalories = Math.round(tdee);
       const proteinGrams = Math.round(weightKg * 2.2);
       const fatGrams = Math.round((dailyCalories * 0.25) / 9);
       const carbsGrams = Math.round((dailyCalories - proteinGrams * 4 - fatGrams * 9) / 4);
 
-      const dietaryInfo = q.dietary_restrictions?.length > 0
-        ? `Dietary restrictions: ${q.dietary_restrictions.join(", ")}.` : "";
-      const dislikedInfo = q.disliked_foods?.length > 0
-        ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${q.disliked_foods.join(", ")}. Do NOT include these ingredients in ANY meal.` : "";
-      const budgetInfo = q.weekly_food_budget
-        ? `Weekly food budget: $${q.weekly_food_budget}. ${q.grocery_store ? `Primary grocery store: ${q.grocery_store}.` : ""}` : "";
+      const dietaryInfo = clientRestrictions.length > 0
+        ? `Dietary restrictions: ${clientRestrictions.join(", ")}.` : "";
+      const dislikedInfo = clientDislikes.length > 0
+        ? `IMPORTANT - The client DISLIKES and must NEVER be given these foods: ${clientDislikes.join(", ")}. Do NOT include these ingredients in ANY meal.` : "";
+      const budgetInfo = clientBudget
+        ? `Weekly food budget: $${clientBudget}. ${q.grocery_store ? `Primary grocery store: ${q.grocery_store}.` : ""}` : "";
 
       const nutritionPrompt = `Generate a complete 28-day meal plan (4 unique weeks) for a client:
 
