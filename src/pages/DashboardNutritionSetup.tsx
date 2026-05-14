@@ -339,11 +339,6 @@ const DashboardNutritionSetup = () => {
       if (error) throw error;
 
       // Sync nutrition profile so the rest of the Fuel tab reflects new targets
-      const { data: existingProfile } = await supabase
-        .from("client_nutrition_profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
       const profilePayload: any = {
         user_id: user.id,
         age: parseInt(form.age) || null,
