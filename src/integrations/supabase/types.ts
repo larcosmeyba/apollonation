@@ -3363,6 +3363,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      delete_coach_message: { Args: { _message_id: string }; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
