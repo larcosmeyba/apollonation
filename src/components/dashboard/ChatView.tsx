@@ -392,6 +392,25 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
             );
           })
         )}
+        {/* Optimistic outgoing bubbles */}
+        {pending.map((p) => (
+          <div key={p.tempId} className="flex justify-end items-end gap-2">
+            <button
+              type="button"
+              onClick={() => p.status === "failed" && retryPending(p)}
+              className={`max-w-[75%] text-left rounded-2xl px-4 py-2.5 rounded-br-sm ${
+                p.status === "failed"
+                  ? "bg-destructive/20 border border-destructive/50 text-foreground"
+                  : "bg-[hsl(210,100%,52%)]/70 text-white"
+              }`}
+            >
+              <p className="text-sm whitespace-pre-wrap">{p.content}</p>
+              <p className={`text-[10px] mt-1 ${p.status === "failed" ? "text-destructive" : "text-white/80"}`}>
+                {p.status === "sending" ? "Sending…" : `Failed — tap to retry${p.error ? ` (${p.error})` : ""}`}
+              </p>
+            </button>
+          </div>
+        ))}
       </div>
 
       {/* Input */}
