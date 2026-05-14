@@ -102,6 +102,31 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
   const [reportTarget, setReportTarget] = useState<{ id: string } | null>(null);
   const [submittingReport, setSubmittingReport] = useState(false);
 
+  // Optimistic outgoing messages — shown instantly, removed when the real
+  // row appears in the messages query (or marked failed if the insert errors).
+  type PendingMsg = {
+    tempId: string;
+    content: string;
+    created_at: string;
+    status: "sending" | "failed";
+    error?: string;
+  };
+  const [pending, setPending] = useState<PendingMsg[]>([]);
+
+  // Drop pending messages once their server-side counterpart shows up.
+  useEffect(() => {
+    if (pending.length === 0) return;
+    setPending((prev) =>
+      prev.filter((p) => {
+        if (p.status === "failed") return true;
+        return !messages.some(
+          (m) => m.sender_id === user?.id && m.content === p.content
+        );
+      })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
+
   // Has the current user blocked the partner?
   const { data: isPartnerBlocked = false } = useQuery({
     queryKey: ["is-blocked", user?.id, partnerId],
@@ -184,34 +209,57 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
     }
   }, [messages]);
 
+  const sendContent = (content: string, tempId?: string) => {
+    const id = tempId ?? `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setPending((prev) => {
+      const without = prev.filter((p) => p.tempId !== id);
+      return [
+        ...without,
+        { tempId: id, content, created_at: new Date().toISOString(), status: "sending" as const },
+      ];
+    });
+    sendMessage.mutate(
+      { recipientId: partnerId, content },
+      {
+        onError: (err: any) => {
+          const isElite = err?.code === "elite_required" || err?.message === "elite_required";
+          setPending((prev) =>
+            prev.map((p) =>
+              p.tempId === id
+                ? {
+                    ...p,
+                    status: "failed" as const,
+                    error: isElite
+                      ? "Apollo Elite required to send messages."
+                      : err?.message ?? "Tap to retry.",
+                  }
+                : p
+            )
+          );
+          toast({
+            title: isElite ? "Apollo Elite required" : "Couldn't send message",
+            description: isElite
+              ? "Upgrade to Elite to message Coach Marcos."
+              : err?.message ?? "Tap the failed bubble to retry.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
+
   const handleSend = () => {
     if (isPartnerBlocked) return;
     const trimmed = newMessage.trim();
     if (!trimmed) return;
-    sendMessage.mutate(
-      { recipientId: partnerId, content: trimmed },
-      {
-        onError: (err: any) => {
-          if (err?.code === "elite_required" || err?.message === "elite_required") {
-            toast({
-              title: "Apollo Elite required",
-              description: "Upgrade to Elite to message Coach Marcos.",
-              variant: "destructive",
-            });
-            setNewMessage(trimmed); // restore draft
-            return;
-          }
-          toast({
-            title: "Couldn't send message",
-            description: err?.message ?? "Try again in a moment.",
-            variant: "destructive",
-          });
-          setNewMessage(trimmed);
-        },
-      }
-    );
+    sendContent(trimmed);
     setNewMessage("");
     try { localStorage.removeItem(DRAFT_KEY_PREFIX + partnerId); } catch {}
+  };
+
+  const retryPending = (p: PendingMsg) => {
+    setPending((prev) => prev.filter((x) => x.tempId !== p.tempId));
+    sendContent(p.content);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -344,6 +392,25 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
             );
           })
         )}
+        {/* Optimistic outgoing bubbles */}
+        {pending.map((p) => (
+          <div key={p.tempId} className="flex justify-end items-end gap-2">
+            <button
+              type="button"
+              onClick={() => p.status === "failed" && retryPending(p)}
+              className={`max-w-[75%] text-left rounded-2xl px-4 py-2.5 rounded-br-sm ${
+                p.status === "failed"
+                  ? "bg-destructive/20 border border-destructive/50 text-foreground"
+                  : "bg-[hsl(210,100%,52%)]/70 text-white"
+              }`}
+            >
+              <p className="text-sm whitespace-pre-wrap">{p.content}</p>
+              <p className={`text-[10px] mt-1 ${p.status === "failed" ? "text-destructive" : "text-white/80"}`}>
+                {p.status === "sending" ? "Sending…" : `Failed — tap to retry${p.error ? ` (${p.error})` : ""}`}
+              </p>
+            </button>
+          </div>
+        ))}
       </div>
 
       {/* Input */}
