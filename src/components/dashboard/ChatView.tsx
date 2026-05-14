@@ -249,7 +249,10 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       {showHeader && (
-        <div className="flex items-center gap-3 p-4 border-b border-border">
+        <div
+          className="flex items-center gap-3 px-4 pb-4 border-b border-border"
+          style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
+        >
           {onBack && (
             <button onClick={onBack} className="text-muted-foreground hover:text-foreground">
               <ArrowLeft className="w-5 h-5" />
