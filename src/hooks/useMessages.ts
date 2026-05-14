@@ -231,6 +231,27 @@ export const useMessages = (conversationPartnerId?: string) => {
     },
   });
 
+  // Delete / unsend a message in the current conversation
+  const deleteMessage = useMutation({
+    mutationFn: async (messageId: string) => {
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await (supabase as any).rpc("delete_coach_message", {
+        _message_id: messageId,
+      });
+
+      if (error) {
+        console.error("[deleteMessage] failed", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+    },
+  });
+
   // Realtime subscription. Some embedded app/webview contexts block WebSocket and
   // supabase-js throws synchronously; messaging must still work without realtime.
   useEffect(() => {
@@ -279,5 +300,6 @@ export const useMessages = (conversationPartnerId?: string) => {
     unreadCount: unreadCountQuery.data || 0,
     sendMessage,
     markAsRead,
+    deleteMessage,
   };
 };
