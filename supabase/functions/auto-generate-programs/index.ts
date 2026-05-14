@@ -362,7 +362,7 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
 
 - Daily calories: ${dailyCalories} kcal
 - Protein: ${proteinGrams}g, Carbs: ${carbsGrams}g, Fat: ${fatGrams}g
-- Goal: ${q.goal_next_4_weeks || "maintain"}${q.goal_weight ? `\n- Goal Weight: ${q.goal_weight} lbs (current: ${q.weight_lbs} lbs)` : ""}
+- Goal: ${goalText}${goalWeight ? `\n- Goal Weight: ${goalWeight} lbs (current: ${clientWeightLbs} lbs)` : ""}
 ${dietaryInfo}
 ${dislikedInfo}
 ${budgetInfo}
@@ -426,12 +426,12 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
       await supabaseAdmin.from("client_nutrition_profiles").upsert({
         user_id: userId,
         age: q.age,
-        weight_lbs: q.weight_lbs,
-        height_inches: q.height_inches,
-        activity_level: q.activity_level,
-        goals: q.goal_next_4_weeks || "maintain",
-        dietary_preferences: q.dietary_restrictions || [],
-        food_restrictions: q.disliked_foods || [],
+        weight_lbs: clientWeightLbs,
+        height_inches: clientHeightInches,
+        activity_level: q.activity_level || "moderate",
+        goals: goalText,
+        dietary_preferences: clientRestrictions,
+        food_restrictions: clientDislikes,
       }, { onConflict: "user_id" });
 
       const { data: plan, error: planError } = await supabaseAdmin
@@ -439,7 +439,7 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
         .insert({
           user_id: userId,
           created_by: userId,
-          title: `${q.goal_next_4_weeks || "Custom"} Meal Plan - Cycle ${q.cycle_number || 1}`,
+          title: `${goalText || "Custom"} Meal Plan - Cycle ${q.cycle_number || 1}`,
           daily_calories: dailyCalories,
           protein_grams: proteinGrams,
           carbs_grams: carbsGrams,
