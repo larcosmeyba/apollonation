@@ -3418,6 +3418,23 @@ export type Database = {
           read_ct: number
         }[]
       }
+      send_coach_message: {
+        Args: { _content: string }
+        Returns: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_role: "admin" | "user"
