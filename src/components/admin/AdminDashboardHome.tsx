@@ -9,16 +9,20 @@ import {
   TrendingUp,
   UserPlus,
   ChevronRight,
+  MessageSquare,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format, subDays } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   onNavigate: (tab: string) => void;
 }
 
 const AdminDashboardHome = ({ onNavigate }: Props) => {
+  const { user } = useAuth();
+
   // Unread contact requests
   const { data: unreadContacts = 0 } = useQuery({
     queryKey: ["admin-unread-contacts"],
@@ -30,6 +34,20 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
       return count || 0;
     },
     refetchInterval: 60000,
+  });
+
+  const { data: unreadMessages = 0 } = useQuery({
+    queryKey: ["admin-unread-messages", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("recipient_id", user!.id)
+        .eq("is_read", false);
+      return count || 0;
+    },
+    refetchInterval: 30000,
   });
 
   // Clients without plans (excluding test accounts)
@@ -125,6 +143,7 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
 
   // Alerts
   const alerts = [
+    { icon: MessageSquare, label: "Unread client messages", count: unreadMessages, tab: "messages", color: "text-primary", bg: "bg-primary/10" },
     { icon: Inbox, label: "New contact requests", count: unreadContacts, tab: "contacts", color: "text-primary", bg: "bg-primary/10" },
     { icon: AlertCircle, label: "Clients without plans", count: clientsWithoutPlans, tab: "clients", color: "text-orange-400", bg: "bg-orange-500/10" },
   ].filter((a) => a.count > 0);
@@ -132,6 +151,7 @@ const AdminDashboardHome = ({ onNavigate }: Props) => {
   const quickAccess = [
     { id: "workouts", icon: Dumbbell, title: "On-Demand Classes", desc: "Manage video workouts", color: "text-green-400" },
     { id: "recipes", icon: Utensils, title: "Recipes", desc: "Manage meal recipes", color: "text-yellow-400" },
+    { id: "messages", icon: MessageSquare, title: "Messages", desc: "Reply to clients", color: "text-primary" },
     { id: "contacts", icon: Inbox, title: "Contact Requests", desc: "View new requests", color: "text-cyan-400" },
     { id: "clients", icon: Users, title: "Clients", desc: "Jump to client list", color: "text-blue-400" },
   ];
