@@ -69,16 +69,16 @@ export const useMessages = (
 
   // Fetch messages for a specific conversation
   const messagesQuery = useQuery({
-    queryKey: ["messages", user?.id, conversationPartnerId, blocksQuery.data?.length ?? 0],
+    queryKey: ["messages", selfId, conversationPartnerId, asCoachAdmin, blocksQuery.data?.length ?? 0],
     retry: false,
     queryFn: async () => {
-      if (!user || !conversationPartnerId) return [];
+      if (!selfId || !conversationPartnerId) return [];
       try {
         const { data, error } = await supabase
           .from("messages")
           .select("*")
           .or(
-            `and(sender_id.eq.${user.id},recipient_id.eq.${conversationPartnerId}),and(sender_id.eq.${conversationPartnerId},recipient_id.eq.${user.id})`
+            `and(sender_id.eq.${selfId},recipient_id.eq.${conversationPartnerId}),and(sender_id.eq.${conversationPartnerId},recipient_id.eq.${selfId})`
           )
           .order("created_at", { ascending: true });
         if (error) {
@@ -91,20 +91,20 @@ export const useMessages = (
         return [] as Message[];
       }
     },
-    enabled: !!user && !!conversationPartnerId,
+    enabled: !!selfId && !!conversationPartnerId,
   });
 
   // Fetch all conversations (unique partners)
   const conversationsQuery = useQuery({
-    queryKey: ["conversations", user?.id, blocksQuery.data?.length ?? 0],
+    queryKey: ["conversations", selfId, asCoachAdmin, blocksQuery.data?.length ?? 0],
     retry: false,
     queryFn: async () => {
-      if (!user) return [];
+      if (!selfId) return [];
       try {
         const { data, error } = await supabase
           .from("messages")
           .select("*")
-          .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
+          .or(`sender_id.eq.${selfId},recipient_id.eq.${selfId}`)
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -122,12 +122,12 @@ export const useMessages = (
         // Hide entire conversations with users we've blocked.
         .filter((msg) => {
           const partnerId =
-            msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
+            msg.sender_id === selfId ? msg.recipient_id : msg.sender_id;
           return !blockedSet.has(partnerId);
         })
         .forEach((msg) => {
           const partnerId =
-            msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
+            msg.sender_id === selfId ? msg.recipient_id : msg.sender_id;
           if (!conversations.has(partnerId)) {
             conversations.set(partnerId, {
               partnerId,
@@ -135,7 +135,7 @@ export const useMessages = (
               unreadCount: 0,
             });
           }
-          if (!msg.is_read && msg.recipient_id === user.id) {
+          if (!msg.is_read && msg.recipient_id === selfId) {
             const conv = conversations.get(partnerId)!;
             conv.unreadCount += 1;
           }
@@ -147,10 +147,8 @@ export const useMessages = (
         return [];
       }
     },
-    enabled: !!user,
+    enabled: !!selfId,
   });
-
-  // Fetch unread count
   const unreadCountQuery = useQuery({
     queryKey: ["unread-count", user?.id],
     retry: false,
