@@ -378,8 +378,9 @@ const Auth = () => {
               </button>
             ) : null}
 
-            {/* Toggle between admin/client login — hidden on web (web is coach-only) */}
-            {!webOnlyAdmin && (
+            {/* Toggle between admin/client login — hidden on web (coach-only)
+                AND hidden on native apps (coach must use website). */}
+            {!webOnlyAdmin && !isNative() && (
               <div>
                 <button
                   type="button"
