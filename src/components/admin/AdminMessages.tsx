@@ -85,7 +85,7 @@ const AdminMessages = () => {
 
         <div className={`flex-1 flex flex-col ${!selectedChat ? "hidden md:flex" : "flex"}`}>
           {selectedChat ? (
-            <ChatView partnerId={selectedChat} onBack={handleBack} />
+            <ChatView partnerId={selectedChat} onBack={handleBack} asCoachAdmin />
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
