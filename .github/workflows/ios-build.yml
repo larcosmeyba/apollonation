@@ -27,7 +27,7 @@ jobs:
       EXPORT_OPTIONS_PLIST: ios/App/ExportOptions.plist
       PROVISIONING_PROFILE_NAME: Apollo Nation App Store
       EXPECTED_TEAM_ID: 4APZGH6X99
-      VERSION_NAME: "1.6.7"
+      VERSION_NAME: "1.6.8"
       VERSION_CODE: "47"
 
     steps:
