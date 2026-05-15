@@ -91,6 +91,7 @@ const DRAFT_KEY_PREFIX = "chat-draft-";
 const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, partnerProfileHref, asCoachAdmin }: ChatViewProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { messages, messagesLoading, sendMessage, markAsRead, deleteMessage } = useMessages(partnerId, { asCoachAdmin });
   const effectiveSelfId = asCoachAdmin ? "b1427538-a690-4cd4-8e34-423602562f4a" : user?.id;
   const { data: profiles } = useProfileLookup([partnerId]);
   const [newMessage, setNewMessage] = useState(() => {
