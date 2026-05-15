@@ -82,14 +82,17 @@ interface ChatViewProps {
   partnerNameOverride?: string;
   /** When set, tapping the header avatar/name navigates here instead of opening the in-chat dialog. */
   partnerProfileHref?: string;
+  /** Admin viewing/replying as Coach Marcos (admin-only impersonation). */
+  asCoachAdmin?: boolean;
 }
 
 const DRAFT_KEY_PREFIX = "chat-draft-";
 
-const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, partnerProfileHref }: ChatViewProps) => {
+const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, partnerProfileHref, asCoachAdmin }: ChatViewProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { messages, messagesLoading, sendMessage, markAsRead, deleteMessage } = useMessages(partnerId);
+  const { messages, messagesLoading, sendMessage, markAsRead, deleteMessage } = useMessages(partnerId, { asCoachAdmin });
+  const effectiveSelfId = asCoachAdmin ? "b1427538-a690-4cd4-8e34-423602562f4a" : user?.id;
   const { data: profiles } = useProfileLookup([partnerId]);
   const [newMessage, setNewMessage] = useState(() => {
     try { return localStorage.getItem(DRAFT_KEY_PREFIX + partnerId) || ""; } catch { return ""; }
@@ -121,7 +124,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
       prev.filter((p) => {
         if (p.status === "failed") return true;
         return !messages.some(
-          (m) => m.sender_id === user?.id && m.content === p.content
+          (m) => m.sender_id === effectiveSelfId && m.content === p.content
         );
       })
     );
@@ -357,7 +360,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
           </p>
         ) : (
           visibleMessages.map((msg) => {
-            const isMine = msg.sender_id === user?.id;
+            const isMine = msg.sender_id === effectiveSelfId;
             const canReport = !isMine; // only inbound messages
             return (
               <div

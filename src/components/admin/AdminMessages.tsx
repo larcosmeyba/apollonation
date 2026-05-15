@@ -9,7 +9,7 @@ import { useProfileLookup } from "@/hooks/useProfileLookup";
 const AdminMessages = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedChat, setSelectedChat] = useState<string | null>(searchParams.get("chat"));
-  const { conversations, conversationsLoading } = useMessages();
+  const { conversations, conversationsLoading } = useMessages(undefined, { asCoachAdmin: true });
   const partnerIds = conversations.map((c) => c.partnerId);
   const { data: profiles } = useProfileLookup(partnerIds);
 
@@ -85,7 +85,7 @@ const AdminMessages = () => {
 
         <div className={`flex-1 flex flex-col ${!selectedChat ? "hidden md:flex" : "flex"}`}>
           {selectedChat ? (
-            <ChatView partnerId={selectedChat} onBack={handleBack} />
+            <ChatView partnerId={selectedChat} onBack={handleBack} asCoachAdmin />
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">

@@ -1,9 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useEffect } from "react";
 
 const DEFAULT_COACH_ID = "b1427538-a690-4cd4-8e34-423602562f4a";
+
+export interface UseMessagesOptions {
+  /**
+   * When true, treat the current admin as Coach Marcos for the purposes of
+   * listing conversations and replying. Conversations are grouped by the
+   * client (the non-coach party), and outgoing messages are inserted with
+   * sender_id = DEFAULT_COACH_ID so the client sees the reply in their own
+   * coach thread. Requires the caller to actually have the admin role.
+   */
+  asCoachAdmin?: boolean;
+}
 
 const canUseRealtime = () => {
   if (typeof window === "undefined") return false;
@@ -22,9 +34,18 @@ export interface Message {
   recipient_name?: string;
 }
 
-export const useMessages = (conversationPartnerId?: string) => {
+export const useMessages = (
+  conversationPartnerId?: string,
+  options: UseMessagesOptions = {}
+) => {
   const { user } = useAuth();
+  const { isAdmin } = useAdminStatus();
   const queryClient = useQueryClient();
+  // Only honor coach-admin mode if the caller is actually an admin.
+  const asCoachAdmin = !!options.asCoachAdmin && isAdmin;
+  // Identity to use as "self" for filtering / sending. Admins acting as the
+  // coach impersonate the coach so the conversation is consistent for clients.
+  const selfId = asCoachAdmin ? DEFAULT_COACH_ID : user?.id;
 
   // Pull this user's blocklist once. Used to filter messages everywhere.
   const blocksQuery = useQuery({
@@ -48,16 +69,16 @@ export const useMessages = (conversationPartnerId?: string) => {
 
   // Fetch messages for a specific conversation
   const messagesQuery = useQuery({
-    queryKey: ["messages", user?.id, conversationPartnerId, blocksQuery.data?.length ?? 0],
+    queryKey: ["messages", selfId, conversationPartnerId, asCoachAdmin, blocksQuery.data?.length ?? 0],
     retry: false,
     queryFn: async () => {
-      if (!user || !conversationPartnerId) return [];
+      if (!selfId || !conversationPartnerId) return [];
       try {
         const { data, error } = await supabase
           .from("messages")
           .select("*")
           .or(
-            `and(sender_id.eq.${user.id},recipient_id.eq.${conversationPartnerId}),and(sender_id.eq.${conversationPartnerId},recipient_id.eq.${user.id})`
+            `and(sender_id.eq.${selfId},recipient_id.eq.${conversationPartnerId}),and(sender_id.eq.${conversationPartnerId},recipient_id.eq.${selfId})`
           )
           .order("created_at", { ascending: true });
         if (error) {
@@ -70,20 +91,20 @@ export const useMessages = (conversationPartnerId?: string) => {
         return [] as Message[];
       }
     },
-    enabled: !!user && !!conversationPartnerId,
+    enabled: !!selfId && !!conversationPartnerId,
   });
 
   // Fetch all conversations (unique partners)
   const conversationsQuery = useQuery({
-    queryKey: ["conversations", user?.id, blocksQuery.data?.length ?? 0],
+    queryKey: ["conversations", selfId, asCoachAdmin, blocksQuery.data?.length ?? 0],
     retry: false,
     queryFn: async () => {
-      if (!user) return [];
+      if (!selfId) return [];
       try {
         const { data, error } = await supabase
           .from("messages")
           .select("*")
-          .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
+          .or(`sender_id.eq.${selfId},recipient_id.eq.${selfId}`)
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -101,12 +122,12 @@ export const useMessages = (conversationPartnerId?: string) => {
         // Hide entire conversations with users we've blocked.
         .filter((msg) => {
           const partnerId =
-            msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
+            msg.sender_id === selfId ? msg.recipient_id : msg.sender_id;
           return !blockedSet.has(partnerId);
         })
         .forEach((msg) => {
           const partnerId =
-            msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
+            msg.sender_id === selfId ? msg.recipient_id : msg.sender_id;
           if (!conversations.has(partnerId)) {
             conversations.set(partnerId, {
               partnerId,
@@ -114,7 +135,7 @@ export const useMessages = (conversationPartnerId?: string) => {
               unreadCount: 0,
             });
           }
-          if (!msg.is_read && msg.recipient_id === user.id) {
+          if (!msg.is_read && msg.recipient_id === selfId) {
             const conv = conversations.get(partnerId)!;
             conv.unreadCount += 1;
           }
@@ -126,10 +147,8 @@ export const useMessages = (conversationPartnerId?: string) => {
         return [];
       }
     },
-    enabled: !!user,
+    enabled: !!selfId,
   });
-
-  // Fetch unread count
   const unreadCountQuery = useQuery({
     queryKey: ["unread-count", user?.id],
     retry: false,
@@ -168,8 +187,20 @@ export const useMessages = (conversationPartnerId?: string) => {
       const trimmed = content.trim();
       if (!trimmed) throw new Error("Message is empty");
 
+      // Admin replying as Coach Marcos: insert directly with sender = coach
+      // (admin RLS allows this). Otherwise fall back to client paths.
       const isCoachThread = recipientId === DEFAULT_COACH_ID;
-      const { data, error } = isCoachThread
+      const { data, error } = asCoachAdmin
+        ? await supabase
+            .from("messages")
+            .insert({
+              sender_id: DEFAULT_COACH_ID,
+              recipient_id: recipientId,
+              content: trimmed,
+            })
+            .select()
+            .single()
+        : isCoachThread
         ? await supabase.rpc("send_coach_message", { _content: trimmed })
         : await supabase
             .from("messages")
@@ -215,11 +246,12 @@ export const useMessages = (conversationPartnerId?: string) => {
   const markAsRead = useMutation({
     mutationFn: async (senderId: string) => {
       if (!user) throw new Error("Not authenticated");
+      const recipientForRead = asCoachAdmin ? DEFAULT_COACH_ID : user.id;
       const { error } = await supabase
         .from("messages")
         .update({ is_read: true })
         .eq("sender_id", senderId)
-        .eq("recipient_id", user.id)
+        .eq("recipient_id", recipientForRead)
         .eq("is_read", false);
 
       if (error) throw error;
