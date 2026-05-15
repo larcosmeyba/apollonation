@@ -148,6 +148,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setProfileLoading(false);
         }
       }
+
+      // Reconcile entitlement with the App Store / RevenueCat in the
+      // background. Webhooks can be delayed or miss, leaving the profile
+      // showing "no active membership" even though the user has paid.
+      // We run this AFTER the initial profile load so the UI doesn't block,
+      // then refresh the profile if anything changed.
+      if (Capacitor.isNativePlatform()) {
+        void (async () => {
+          try {
+            const { error } = await supabase.functions.invoke("sync-entitlement");
+            if (error) {
+              console.warn("[Auth] sync-entitlement failed", error.message);
+              return;
+            }
+            const refreshed = await fetchProfile(uid);
+            if (!mountedRef.current) return;
+            setProfile(refreshed);
+          } catch (e) {
+            console.warn("[Auth] sync-entitlement threw", e);
+          }
+        })();
+      }
     } else {
       await detachPurchasesListener();
       if (!mountedRef.current) return;
