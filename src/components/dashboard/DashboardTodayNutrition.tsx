@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
-import { MacroRing } from "@/components/dashboard/MacroRing";
+import { CalorieHero } from "@/components/dashboard/CalorieHero";
 
 const MEAL_TYPE_LABELS: Record<string, string> = {
   breakfast: "🌅 Breakfast",
@@ -314,40 +314,13 @@ const DashboardTodayNutrition = () => {
           </Link>
         </div>
 
-        {/* Macro rings — show remaining toward today's targets, green check when met */}
-        <div className="mb-3 grid grid-cols-4 gap-2">
-          <MacroRing
-            label="Cal Left"
-            value={loggedTotals.calories}
-            max={activePlan.daily_calories || 0}
-            unit=""
-            color="hsl(210 100% 52%)"
-            size={68}
-            countdown
-          />
-          <MacroRing
-            label="Protein"
-            value={loggedTotals.protein}
-            max={activePlan.protein_grams || 0}
-            color="hsl(0 84% 60%)"
-            size={68}
-            countdown
-          />
-          <MacroRing
-            label="Carbs"
-            value={loggedTotals.carbs}
-            max={activePlan.carbs_grams || 0}
-            color="hsl(38 92% 50%)"
-            size={68}
-            countdown
-          />
-          <MacroRing
-            label="Fat"
-            value={loggedTotals.fat}
-            max={activePlan.fat_grams || 0}
-            color="hsl(280 65% 60%)"
-            size={68}
-            countdown
+        {/* Cal AI-style calorie hero + macro rings */}
+        <div className="mb-3">
+          <CalorieHero
+            calories={{ consumed: loggedTotals.calories, target: activePlan.daily_calories || 0 }}
+            protein={{ consumed: loggedTotals.protein, target: activePlan.protein_grams || 0 }}
+            carbs={{ consumed: loggedTotals.carbs, target: activePlan.carbs_grams || 0 }}
+            fat={{ consumed: loggedTotals.fat, target: activePlan.fat_grams || 0 }}
           />
         </div>
 

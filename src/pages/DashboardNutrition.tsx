@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
 import { MacroRing } from "@/components/dashboard/MacroRing";
+import { CalorieHero } from "@/components/dashboard/CalorieHero";
 import { buildGroceryListFromMeals, type PricedGroceryList } from "@/lib/groceryPricing";
 import { normalizeRestrictions, RESTRICTION_LABELS, filterMealsByRestrictions } from "@/lib/dietaryRestrictions";
 import { useMacroTargets } from "@/hooks/useMacroTargets";
@@ -964,22 +965,13 @@ const DashboardNutrition = () => {
               </button>
             </div>
 
-            {/* Calorie hero + macro rings */}
-            <div className="flex items-center gap-6">
-              <MacroRing
-                value={loggedTotals.calories}
-                max={targets.calories}
-                label="Calories"
-                unit=" cal"
-                color="hsl(var(--apollo-gold))"
-                size={96}
-              />
-              <div className="flex flex-1 justify-around">
-                <MacroRing value={loggedTotals.protein} max={targets.protein} label="Protein" color="hsl(210 80% 60%)" size={64} />
-                <MacroRing value={loggedTotals.carbs} max={targets.carbs} label="Carbs" color="hsl(35 85% 55%)" size={64} />
-                <MacroRing value={loggedTotals.fat} max={targets.fat} label="Fat" color="hsl(340 70% 60%)" size={64} />
-              </div>
-            </div>
+            {/* Cal AI-style calorie hero + macro rings */}
+            <CalorieHero
+              calories={{ consumed: loggedTotals.calories, target: targets.calories }}
+              protein={{ consumed: loggedTotals.protein, target: targets.protein }}
+              carbs={{ consumed: loggedTotals.carbs, target: targets.carbs }}
+              fat={{ consumed: loggedTotals.fat, target: targets.fat }}
+            />
 
             {/* Logged meals today */}
             {macroEntries.length > 0 && (
