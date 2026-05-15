@@ -29,8 +29,11 @@ const isInvalidEmailFormatError = (msg: string | undefined) => {
 const Auth = () => {
   const [searchParams] = useSearchParams();
   // On web, the auth page is coach-only. Clients must download the app.
+  // On native (iOS/Android) the coach login is intentionally unavailable —
+  // coaches must sign in via the website. This keeps the App Store build
+  // strictly client-facing for review.
   const webOnlyAdmin = isWeb();
-  const isAdminMode = webOnlyAdmin || searchParams.get("role") === "admin";
+  const isAdminMode = webOnlyAdmin || (!isNative() && searchParams.get("role") === "admin");
   const initialMode = (webOnlyAdmin ? "login" : (searchParams.get("mode") === "signup" ? "signup" : "login")) as "login" | "signup";
   const [mode, setMode] = useState<"login" | "signup" | "forgot">(initialMode);
   const [email, setEmail] = useState("");
@@ -375,8 +378,9 @@ const Auth = () => {
               </button>
             ) : null}
 
-            {/* Toggle between admin/client login — hidden on web (web is coach-only) */}
-            {!webOnlyAdmin && (
+            {/* Toggle between admin/client login — hidden on web (coach-only)
+                AND hidden on native apps (coach must use website). */}
+            {!webOnlyAdmin && !isNative() && (
               <div>
                 <button
                   type="button"
