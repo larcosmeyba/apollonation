@@ -1,9 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useEffect } from "react";
 
 const DEFAULT_COACH_ID = "b1427538-a690-4cd4-8e34-423602562f4a";
+
+export interface UseMessagesOptions {
+  /**
+   * When true, treat the current admin as Coach Marcos for the purposes of
+   * listing conversations and replying. Conversations are grouped by the
+   * client (the non-coach party), and outgoing messages are inserted with
+   * sender_id = DEFAULT_COACH_ID so the client sees the reply in their own
+   * coach thread. Requires the caller to actually have the admin role.
+   */
+  asCoachAdmin?: boolean;
+}
 
 const canUseRealtime = () => {
   if (typeof window === "undefined") return false;
