@@ -34,9 +34,18 @@ export interface Message {
   recipient_name?: string;
 }
 
-export const useMessages = (conversationPartnerId?: string) => {
+export const useMessages = (
+  conversationPartnerId?: string,
+  options: UseMessagesOptions = {}
+) => {
   const { user } = useAuth();
+  const { isAdmin } = useAdminStatus();
   const queryClient = useQueryClient();
+  // Only honor coach-admin mode if the caller is actually an admin.
+  const asCoachAdmin = !!options.asCoachAdmin && isAdmin;
+  // Identity to use as "self" for filtering / sending. Admins acting as the
+  // coach impersonate the coach so the conversation is consistent for clients.
+  const selfId = asCoachAdmin ? DEFAULT_COACH_ID : user?.id;
 
   // Pull this user's blocklist once. Used to filter messages everywhere.
   const blocksQuery = useQuery({
