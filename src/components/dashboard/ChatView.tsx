@@ -360,7 +360,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
           </p>
         ) : (
           visibleMessages.map((msg) => {
-            const isMine = msg.sender_id === user?.id;
+            const isMine = msg.sender_id === effectiveSelfId;
             const canReport = !isMine; // only inbound messages
             return (
               <div
