@@ -187,8 +187,20 @@ export const useMessages = (
       const trimmed = content.trim();
       if (!trimmed) throw new Error("Message is empty");
 
+      // Admin replying as Coach Marcos: insert directly with sender = coach
+      // (admin RLS allows this). Otherwise fall back to client paths.
       const isCoachThread = recipientId === DEFAULT_COACH_ID;
-      const { data, error } = isCoachThread
+      const { data, error } = asCoachAdmin
+        ? await supabase
+            .from("messages")
+            .insert({
+              sender_id: DEFAULT_COACH_ID,
+              recipient_id: recipientId,
+              content: trimmed,
+            })
+            .select()
+            .single()
+        : isCoachThread
         ? await supabase.rpc("send_coach_message", { _content: trimmed })
         : await supabase
             .from("messages")
