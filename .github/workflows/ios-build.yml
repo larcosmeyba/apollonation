@@ -28,7 +28,7 @@ jobs:
       PROVISIONING_PROFILE_NAME: Apollo Nation App Store
       EXPECTED_TEAM_ID: 4APZGH6X99
       VERSION_NAME: "1.6.8"
-      VERSION_CODE: "47"
+      VERSION_CODE: "48"
 
     steps:
       - name: Checkout repository
