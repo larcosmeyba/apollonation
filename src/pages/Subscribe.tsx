@@ -128,14 +128,21 @@ const Subscribe = () => {
 
   if (!user) return <Navigate to="/auth" replace />;
 
-  if (profile?.is_subscribed && (profile as any)?.entitlement === "apollo_elite") {
+  // Hard guard against double-paying. Any active subscriber (Reborn or
+  // Elite) should never see purchase buttons again — they manage billing
+  // through the App Store / Play Store.
+  if (profile?.is_subscribed) {
+    const isElite = (profile as any)?.entitlement === "apollo_elite";
     return (
       <div className="min-h-screen bg-black text-white">
         <div className="max-w-[440px] mx-auto px-6 pt-12 pb-24 text-center"
           style={{ paddingTop: "calc(env(safe-area-inset-top) + 3rem)" }}>
-          <h1 className="font-heading text-3xl mb-3">You're an Apollo Elite member</h1>
+          <h1 className="font-heading text-3xl mb-3">
+            {isElite ? "You're an Apollo Elite member" : "You're an Apollo Reborn member"}
+          </h1>
           <p className="text-sm text-white/60 mb-8">
-            Manage your subscription in your device's App Store settings.
+            Your membership is already active. Manage or cancel anytime in your
+            device's App Store / Play Store settings — you'll never be charged twice.
           </p>
           <button onClick={() => navigate("/dashboard")}
             className="w-full h-12 rounded-[10px] bg-white text-black font-medium text-[14px]">
