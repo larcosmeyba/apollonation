@@ -124,7 +124,7 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
       prev.filter((p) => {
         if (p.status === "failed") return true;
         return !messages.some(
-          (m) => m.sender_id === user?.id && m.content === p.content
+          (m) => m.sender_id === effectiveSelfId && m.content === p.content
         );
       })
     );
