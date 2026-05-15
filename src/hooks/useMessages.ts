@@ -246,11 +246,12 @@ export const useMessages = (
   const markAsRead = useMutation({
     mutationFn: async (senderId: string) => {
       if (!user) throw new Error("Not authenticated");
+      const recipientForRead = asCoachAdmin ? DEFAULT_COACH_ID : user.id;
       const { error } = await supabase
         .from("messages")
         .update({ is_read: true })
         .eq("sender_id", senderId)
-        .eq("recipient_id", user.id)
+        .eq("recipient_id", recipientForRead)
         .eq("is_read", false);
 
       if (error) throw error;
