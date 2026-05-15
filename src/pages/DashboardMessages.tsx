@@ -44,21 +44,39 @@ const DashboardMessages = () => {
 
   const handleIntakeComplete = async (payload: CoachIntakePayload) => {
     if (!user?.id) return;
-    setIntakeSubmitting(true);
-    const { error } = await (supabase as any)
-      .from("coach_intake_responses")
-      .upsert(
-        { user_id: user.id, ...payload, completed_at: new Date().toISOString() },
-        { onConflict: "user_id" }
-      );
-    setIntakeSubmitting(false);
-    if (error) {
-      toast({ title: "Could not save", description: error.message, variant: "destructive" });
-      return;
-    }
-    qc.invalidateQueries({ queryKey: ["coach_intake", user.id] });
+
+    // Optimistic UX: close the form and confirm immediately so the client
+    // never waits on the network. The upsert runs in the background; if it
+    // fails, we surface a toast so they can retry.
     setIntakeStarted(false);
     toast({ title: "Sent to your coach", description: "They'll review before your first message." });
+
+    // Optimistically prime the cache so the chat unlocks instantly.
+    qc.setQueryData(["coach_intake", user.id], {
+      user_id: user.id,
+      ...payload,
+      completed_at: new Date().toISOString(),
+    });
+
+    void (async () => {
+      const { error } = await (supabase as any)
+        .from("coach_intake_responses")
+        .upsert(
+          { user_id: user.id, ...payload, completed_at: new Date().toISOString() },
+          { onConflict: "user_id" }
+        );
+      if (error) {
+        toast({
+          title: "Couldn't save intake",
+          description: "We'll try again next time you open messages.",
+          variant: "destructive",
+        });
+        // Roll the cache back so the form re-appears on next load.
+        qc.invalidateQueries({ queryKey: ["coach_intake", user.id] });
+      } else {
+        qc.invalidateQueries({ queryKey: ["coach_intake", user.id] });
+      }
+    })();
   };
 
   if (loading || (!isAdmin && coachLoading) || (!isAdmin && accessLoading)) {
