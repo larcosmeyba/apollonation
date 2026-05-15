@@ -55,7 +55,7 @@ export interface AccessControl {
 }
 
 export function useAccessControl(): AccessControl {
-  const { user, profile } = useAuth();
+  const { user, profile, profileLoading } = useAuth();
   const queryClient = useQueryClient();
   const userId = user?.id;
 
@@ -207,7 +207,7 @@ export function useAccessControl(): AccessControl {
     recordWorkoutUsage,
     recordRecipeUsage,
     recordProgramUsage,
-    loading: !!userId && isLoading,
+    loading: !!userId && (isLoading || profileLoading),
     // Back-compat aliases
     canAccessPrograms: hasPremiumAccess || freeProgramsUsed < FREE_PROGRAM_LIMIT,
     freeRecipeUsed: freeRecipesViewed > 0,
