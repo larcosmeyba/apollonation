@@ -334,12 +334,32 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ═══ 8. WAITLIST CTA ═══ */}
-      <section id="download" className="py-12 md:py-16 border-t border-border/30">
+      {/* ═══ 8. DOWNLOAD CTA ═══ */}
+      <section id="download" className="py-16 md:py-24 border-t border-border/30">
         <div className="container mx-auto px-4">
-          <WaitlistForm />
+          <div className="max-w-2xl mx-auto text-center">
+            <span className="text-white/70 font-medium text-[10px] uppercase tracking-[0.25em] mb-6 block">
+              Available Now
+            </span>
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl mb-6 tracking-[0.05em] text-white">
+              Download Apollo Reborn
+            </h2>
+            <p className="text-white/70 text-base font-light leading-relaxed mb-8">
+              The full training, nutrition, and coaching experience — now live on the App Store.
+            </p>
+            <a
+              href="https://apps.apple.com/app/apollo-reborn/id6753051692"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-full font-medium hover:bg-white/90 transition-colors"
+            >
+              Download on the App Store
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </section>
+
 
       <Footer />
     </main>
