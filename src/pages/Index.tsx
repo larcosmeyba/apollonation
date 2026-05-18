@@ -2,7 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import IPhoneMockup from "@/components/IPhoneMockup";
-import WaitlistForm from "@/components/WaitlistForm";
+
 import { ArrowRight, Play, Clock, Dumbbell, Calendar, Target, Heart, BarChart3, UtensilsCrossed, ShoppingCart, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
