@@ -1,41 +1,32 @@
-import { Clock, Flame } from "lucide-react";
+import { useWorkoutCategories } from "@/hooks/useWorkoutCategories";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
 import marcosAction7 from "@/assets/marcos-action-7.jpg";
-import stockBack from "@/assets/stock-back.png";
+import marcos2 from "@/assets/marcos-2.jpg";
+import marcos3 from "@/assets/marcos-3.jpg";
+import marcos5 from "@/assets/marcos-5.jpg";
 
-const videos = [
-  {
-    title: "Full Body Power",
-    duration: "45 min",
-    calories: "450",
-    category: "Strength",
-    thumbnail: marcosAction1,
-  },
-  {
-    title: "HIIT Inferno",
-    duration: "30 min",
-    calories: "380",
-    category: "Cardio",
-    thumbnail: marcosAction6,
-  },
-  {
-    title: "Core Destroyer",
-    duration: "20 min",
-    calories: "200",
-    category: "Core",
-    thumbnail: marcosAction7,
-  },
-  {
-    title: "Upper Body Sculpt",
-    duration: "40 min",
-    calories: "320",
-    category: "Strength",
-    thumbnail: stockBack,
-  },
-];
+const FALLBACK: Record<string, string> = {
+  Strength: marcosAction6,
+  Sculpt: marcos2,
+  HIIT: marcosAction7,
+  Cardio: marcosAction1,
+  Core: marcos5,
+  Stretch: marcos3,
+};
 
 const VideosSection = () => {
+  const { data: categories = [] } = useWorkoutCategories();
+
+  // Always render the 6 canonical categories, in order, even before the query resolves.
+  const tiles = ["Strength", "Sculpt", "HIIT", "Cardio", "Core", "Stretch"].map((name) => {
+    const cat = categories.find((c) => c.name === name);
+    return {
+      name,
+      thumbnail: cat?.thumbnail_url || FALLBACK[name],
+    };
+  });
+
   return (
     <section className="py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
@@ -48,33 +39,28 @@ const VideosSection = () => {
             <span className="text-white/70 block mt-2">When You Are</span>
           </h2>
           <p className="text-white/70 text-base font-light leading-relaxed">
-            Professional workout videos designed to push your limits.
+            Strength, sculpt, HIIT, cardio, core, and stretch — all in one place.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
-          {videos.map((video, index) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+          {tiles.map((tile) => (
             <div
-              key={index}
-              className="relative overflow-hidden border border-border rounded-xl"
+              key={tile.name}
+              className="relative overflow-hidden border border-border rounded-xl aspect-[3/4]"
             >
               <img
-                src={video.thumbnail}
-                alt={video.title}
+                src={tile.thumbnail}
+                alt={tile.name}
                 loading="lazy"
                 decoding="async"
-                className="w-full h-48 md:h-56 object-cover"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <h3 className="font-heading text-lg mb-2 text-white">
-                  {video.title}
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 text-center">
+                <h3 className="font-heading text-base sm:text-lg text-white tracking-wide">
+                  {tile.name}
                 </h3>
-                <div className="flex items-center gap-3 text-xs text-white/70">
-                  <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{video.duration}</span>
-                  <span className="flex items-center gap-1"><Flame className="w-3 h-3" />{video.calories} cal</span>
-                </div>
               </div>
             </div>
           ))}
