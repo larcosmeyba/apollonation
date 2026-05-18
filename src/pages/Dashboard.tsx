@@ -213,6 +213,8 @@ const Dashboard = () => {
   });
 
   const categories = ["Strength", "Sculpt", "Cardio", "Core", "Stretch"];
+  const { data: workoutCategories } = useWorkoutCategories();
+  const categoryImages = { ...CATEGORY_FALLBACK_IMAGES, ...categoryImageMap(workoutCategories) };
 
   const SaveButton = ({ workoutId }: { workoutId: string }) => {
     const isSaved = favorites.includes(workoutId);
@@ -388,7 +390,7 @@ const Dashboard = () => {
                 className="img-overlay-premium relative flex-shrink-0 w-52 h-40 group shadow-[var(--shadow-md)]"
               >
                 <img
-                  src={CATEGORY_IMAGES[cat]}
+                  src={categoryImages[cat]}
                   alt={cat}
                   className={`w-full h-full object-cover ${
                     cat === "Strength" || cat === "Cardio" ? "object-[center_30%]" : "object-[center_top]"
