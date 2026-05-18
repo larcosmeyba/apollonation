@@ -3179,6 +3179,36 @@ export type Database = {
         }
         Relationships: []
       }
+      workout_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       workout_exercises: {
         Row: {
           created_at: string
