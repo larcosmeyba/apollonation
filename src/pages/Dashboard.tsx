@@ -33,8 +33,9 @@ import { toast } from "sonner";
 
 const WORKOUT_IMAGES = [marcosAction1, marcosAction6, marcosAction7, marcos2, marcos3, marcos5, marcos8];
 
-// Use real Marcos photos for category cards so they match the rest of the app
-const CATEGORY_IMAGES: Record<string, string> = {
+// Category cover photos are now admin-editable via the workout_categories table.
+// Local images below remain as fallbacks if no DB thumbnail is set yet.
+const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   Strength: marcosAction6,
   HIIT: marcosAction7,
   Sculpt: marcos2,
