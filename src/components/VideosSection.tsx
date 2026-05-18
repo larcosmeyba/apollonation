@@ -21,9 +21,10 @@ const VideosSection = () => {
   // Always render the 6 canonical categories, in order, even before the query resolves.
   const tiles = ["Strength", "Sculpt", "HIIT", "Cardio", "Core", "Stretch"].map((name) => {
     const cat = categories.find((c) => c.name === name);
+    const v = cat?.updated_at ? new Date(cat.updated_at).getTime() : Date.now();
     return {
       name,
-      thumbnail: cat?.thumbnail_url || FALLBACK[name],
+      thumbnail: cat?.thumbnail_url ? `${cat.thumbnail_url}?v=${v}` : FALLBACK[name],
     };
   });
 
