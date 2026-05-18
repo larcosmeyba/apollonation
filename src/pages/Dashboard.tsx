@@ -8,6 +8,7 @@ import { Play, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAccessControl } from "@/hooks/useAccessControl";
+import { useWorkoutCategories, categoryImageMap } from "@/hooks/useWorkoutCategories";
 import { supabase } from "@/integrations/supabase/client";
 import { withTimeout } from "@/lib/timeout";
 import { useMemo } from "react";
