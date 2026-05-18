@@ -20,13 +20,15 @@ import marcos3 from "@/assets/marcos-3.jpg";
 import marcos5 from "@/assets/marcos-5.jpg";
 import marcos8 from "@/assets/marcos-8.webp";
 import type { Tables } from "@/integrations/supabase/types";
+import { useWorkoutCategories, categoryImageMap } from "@/hooks/useWorkoutCategories";
 
 type Workout = Tables<"workouts">;
 
 // All Marcos action photos — keeps On-Demand consistent with the rest of the site
 const WORKOUT_IMAGES = [marcosAction1, marcosAction6, marcosAction7, marcos2, marcos3, marcos5, marcos8];
 
-const TYPE_IMAGES: Record<string, string> = {
+// Fallback images used when no admin-uploaded thumbnail exists for a category
+const TYPE_FALLBACK_IMAGES: Record<string, string> = {
   Strength: marcosAction6,
   HIIT: marcosAction7,
   Sculpt: marcos2,
@@ -79,6 +81,8 @@ const DashboardWorkouts = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [showSearch, setShowSearch] = useState(searchParams.get("search") === "true");
+  const { data: workoutCategories } = useWorkoutCategories();
+  const TYPE_IMAGES = { ...TYPE_FALLBACK_IMAGES, ...categoryImageMap(workoutCategories) };
 
   useEffect(() => {
     const cat = searchParams.get("category");
