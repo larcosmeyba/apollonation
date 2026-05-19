@@ -204,14 +204,14 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
             {WORKOUT_CATEGORIES.map((cat) => (
               <div
                 key={cat.title}
                 className="group relative rounded-2xl overflow-hidden aspect-[4/3] cursor-pointer shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_50px_rgba(0,0,0,0.7)] transition-all duration-500"
               >
                 <img
-                  src={cat.image}
+                  src={categoryImage(cat.title, cat.image)}
                   alt={cat.title}
                   loading="lazy"
                   className={`absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ${
@@ -360,7 +360,7 @@ const Index = () => {
               The full training, nutrition, and coaching experience — now live on the App Store.
             </p>
             <a
-              href="https://apps.apple.com/app/apollo-reborn/id6753051692"
+              href={APP_STORE_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-full font-medium hover:bg-white/90 transition-colors"
