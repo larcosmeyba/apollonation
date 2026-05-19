@@ -1,0 +1,1 @@
+UPDATE public.workout_categories SET thumbnail_url = 'https://zbwwbavqlbxgcfsfacwp.supabase.co/storage/v1/object/public/thumbnails/categories/sculpt-v3.jpg', updated_at = now() WHERE name = 'Sculpt';
