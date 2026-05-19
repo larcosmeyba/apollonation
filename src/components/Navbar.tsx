@@ -106,11 +106,12 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-border/30">
           <div className="container mx-auto px-4 py-6 space-y-3">
-            {navLinks.map((link) =>
-              link.isAnchor ? (
+            {navLinks.map((link: any) =>
+              link.isAnchor || link.external ? (
                 <a
                   key={link.href}
                   href={link.href}
+                  {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   className="block text-white hover:text-white/80 transition-colors py-2 text-sm font-medium"
                   onClick={() => setIsOpen(false)}
                 >
