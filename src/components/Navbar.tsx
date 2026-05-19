@@ -34,11 +34,12 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) =>
-              link.isAnchor ? (
+            {navLinks.map((link: any) =>
+              link.isAnchor || link.external ? (
                 <a
                   key={link.href}
                   href={link.href}
+                  {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   className="text-white hover:text-white/80 transition-colors duration-300 font-body text-sm font-medium"
                 >
                   {link.label}
