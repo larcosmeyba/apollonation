@@ -147,15 +147,11 @@ const Navbar = () => {
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
                     <Button variant="ghost" className="w-full text-white">Sign In</Button>
                   </Link>
-                  <Button
-                    className="w-full rounded-full bg-white text-black hover:bg-white/90 font-semibold"
-                    onClick={() => {
-                      setIsOpen(false);
-                      document.getElementById("download")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                  >
-                    Get the App
-                  </Button>
+                  <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" onClick={() => setIsOpen(false)}>
+                    <Button className="w-full rounded-full bg-white text-black hover:bg-white/90 font-semibold">
+                      Get the App
+                    </Button>
+                  </a>
                 </>
               )}
             </div>
