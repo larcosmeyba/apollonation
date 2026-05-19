@@ -12,6 +12,7 @@ import apolloLogo from "@/assets/apollo-logo-sm.png";
 import heroImage from "@/assets/marcos-1.jpg";
 import { Shield, Apple, Smartphone } from "lucide-react";
 import { isWeb, isNative } from "@/lib/platform";
+import { APP_STORE_URL } from "@/lib/appLinks";
 
 // Generic, non-leaky messages for auth errors. We deliberately do NOT echo
 // the raw Supabase message so we don't disclose whether an account exists,
@@ -402,7 +403,7 @@ const Auth = () => {
                 </p>
                 <div className="flex items-center justify-center gap-3">
                   <a
-                    href="https://apps.apple.com/app/apollo-reborn/id6753051692"
+                    href={APP_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-xs"

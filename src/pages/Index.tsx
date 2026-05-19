@@ -6,6 +6,8 @@ import IPhoneMockup from "@/components/IPhoneMockup";
 import { ArrowRight, Play, Clock, Dumbbell, Calendar, Target, Heart, BarChart3, UtensilsCrossed, ShoppingCart, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { APP_STORE_URL } from "@/lib/appLinks";
+import { useWorkoutCategories } from "@/hooks/useWorkoutCategories";
 import heroImage from "@/assets/marcos-hero.jpg";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
@@ -40,8 +42,10 @@ const FEATURES = [
 const WORKOUT_CATEGORIES = [
   { title: "Strength", image: strengthCard },
   { title: "Sculpt", image: sculptCard },
+  { title: "HIIT", image: marcosAction7 },
   { title: "Cardio", image: cardioCard },
   { title: "Core", image: coreCard },
+  { title: "Stretch", image: marcosAction6 },
 ];
 
 const APP_FEATURES = [
@@ -54,7 +58,15 @@ const APP_FEATURES = [
 
 const Index = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const { data: workoutCategories = [] } = useWorkoutCategories();
   useEffect(() => setIsVisible(true), []);
+
+  const categoryImage = (title: string, fallback: string) => {
+    const category = workoutCategories.find((cat) => cat.name === title);
+    if (!category?.thumbnail_url) return fallback;
+    const version = category.updated_at ? new Date(category.updated_at).getTime() : Date.now();
+    return `${category.thumbnail_url}?v=${version}`;
+  };
 
   return (
     <main className="min-h-screen overflow-x-hidden w-full bg-background">
@@ -192,14 +204,14 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
             {WORKOUT_CATEGORIES.map((cat) => (
               <div
                 key={cat.title}
                 className="group relative rounded-2xl overflow-hidden aspect-[4/3] cursor-pointer shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_50px_rgba(0,0,0,0.7)] transition-all duration-500"
               >
                 <img
-                  src={cat.image}
+                  src={categoryImage(cat.title, cat.image)}
                   alt={cat.title}
                   loading="lazy"
                   className={`absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ${
@@ -348,7 +360,7 @@ const Index = () => {
               The full training, nutrition, and coaching experience — now live on the App Store.
             </p>
             <a
-              href="https://apps.apple.com/app/apollo-reborn/id6753051692"
+              href={APP_STORE_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-full font-medium hover:bg-white/90 transition-colors"
