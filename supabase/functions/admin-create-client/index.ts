@@ -26,11 +26,11 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } },
     );
 
-    const { data: claimsData, error: claimsError } = await supabaseUser.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const { data: userData, error: userError } = await supabaseUser.auth.getUser(token);
+    if (userError || !userData?.user) {
       return jsonResponse(req, { error: "Unauthorized" }, 401);
     }
-    const callerId = claimsData.claims.sub;
+    const callerId = userData.user.id;
 
     const { data: roleData } = await supabaseAdmin
       .from("user_roles").select("role").eq("user_id", callerId).eq("role", "admin").maybeSingle();
