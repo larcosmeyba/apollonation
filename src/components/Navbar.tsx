@@ -81,13 +81,14 @@ const Navbar = () => {
                     Sign In
                   </Button>
                 </Link>
-                <Button
-                  size="sm"
-                  className="rounded-full px-6 bg-white text-black hover:bg-white/90 font-semibold"
-                  onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  Get the App
-                </Button>
+                <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
+                  <Button
+                    size="sm"
+                    className="rounded-full px-6 bg-white text-black hover:bg-white/90 font-semibold"
+                  >
+                    Get the App
+                  </Button>
+                </a>
               </>
             )}
           </div>
