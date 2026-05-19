@@ -18,8 +18,7 @@ import coreCard from "@/assets/core-card.jpg";
 import cardioCard from "@/assets/cardio-card.jpg";
 import sculptCard from "@/assets/sculpt-card.jpg";
 
-const scrollToDownload = () =>
-  document.getElementById("download")?.scrollIntoView({ behavior: "smooth" });
+const openAppStore = () => window.open(APP_STORE_URL, "_blank", "noopener,noreferrer");
 
 const FEATURES = [
   {
