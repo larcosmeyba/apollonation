@@ -18,8 +18,7 @@ import coreCard from "@/assets/core-card.jpg";
 import cardioCard from "@/assets/cardio-card.jpg";
 import sculptCard from "@/assets/sculpt-card.jpg";
 
-const scrollToDownload = () =>
-  document.getElementById("download")?.scrollIntoView({ behavior: "smooth" });
+const openAppStore = () => window.open(APP_STORE_URL, "_blank", "noopener,noreferrer");
 
 const FEATURES = [
   {
@@ -154,7 +153,7 @@ const Index = () => {
               <Button
                 size="lg"
                 className="plausible-event-name=Hero+CTA+Click group h-14 px-10 text-base rounded-full bg-white text-black hover:bg-white/90 border border-white font-semibold"
-                onClick={scrollToDownload}
+                onClick={openAppStore}
               >
                 Download the App
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
@@ -254,7 +253,7 @@ const Index = () => {
             <Button
               size="lg"
               className="plausible-event-name=App+Section+CTA+Click rounded-full h-14 px-10 bg-white text-black hover:bg-white/90 border border-white font-semibold"
-              onClick={scrollToDownload}
+              onClick={openAppStore}
             >
               Download the App
               <ArrowRight className="ml-2" size={18} />

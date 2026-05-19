@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { isWeb } from "@/lib/platform";
+import { APP_STORE_URL } from "@/lib/appLinks";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 const Navbar = () => {
@@ -18,7 +19,7 @@ const Navbar = () => {
     { href: "#nutrition", label: "Nutrition", isAnchor: true },
     { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Contact" },
-    { href: "#download", label: "Download the App", isAnchor: true },
+    { href: APP_STORE_URL, label: "Download the App", isAnchor: false, external: true },
   ];
 
   return (
@@ -33,11 +34,12 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) =>
-              link.isAnchor ? (
+            {navLinks.map((link: any) =>
+              link.isAnchor || link.external ? (
                 <a
                   key={link.href}
                   href={link.href}
+                  {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   className="text-white hover:text-white/80 transition-colors duration-300 font-body text-sm font-medium"
                 >
                   {link.label}
@@ -79,13 +81,14 @@ const Navbar = () => {
                     Sign In
                   </Button>
                 </Link>
-                <Button
-                  size="sm"
-                  className="rounded-full px-6 bg-white text-black hover:bg-white/90 font-semibold"
-                  onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  Get the App
-                </Button>
+                <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
+                  <Button
+                    size="sm"
+                    className="rounded-full px-6 bg-white text-black hover:bg-white/90 font-semibold"
+                  >
+                    Get the App
+                  </Button>
+                </a>
               </>
             )}
           </div>
@@ -103,11 +106,12 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-background/98 backdrop-blur-xl border-t border-border/30">
           <div className="container mx-auto px-4 py-6 space-y-3">
-            {navLinks.map((link) =>
-              link.isAnchor ? (
+            {navLinks.map((link: any) =>
+              link.isAnchor || link.external ? (
                 <a
                   key={link.href}
                   href={link.href}
+                  {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   className="block text-white hover:text-white/80 transition-colors py-2 text-sm font-medium"
                   onClick={() => setIsOpen(false)}
                 >
@@ -143,15 +147,11 @@ const Navbar = () => {
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
                     <Button variant="ghost" className="w-full text-white">Sign In</Button>
                   </Link>
-                  <Button
-                    className="w-full rounded-full bg-white text-black hover:bg-white/90 font-semibold"
-                    onClick={() => {
-                      setIsOpen(false);
-                      document.getElementById("download")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                  >
-                    Get the App
-                  </Button>
+                  <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" onClick={() => setIsOpen(false)}>
+                    <Button className="w-full rounded-full bg-white text-black hover:bg-white/90 font-semibold">
+                      Get the App
+                    </Button>
+                  </a>
                 </>
               )}
             </div>
