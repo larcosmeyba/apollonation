@@ -6,6 +6,8 @@ import IPhoneMockup from "@/components/IPhoneMockup";
 import { ArrowRight, Play, Clock, Dumbbell, Calendar, Target, Heart, BarChart3, UtensilsCrossed, ShoppingCart, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { APP_STORE_URL } from "@/lib/appLinks";
+import { useWorkoutCategories } from "@/hooks/useWorkoutCategories";
 import heroImage from "@/assets/marcos-hero.jpg";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosAction6 from "@/assets/marcos-action-6.jpg";
@@ -40,8 +42,10 @@ const FEATURES = [
 const WORKOUT_CATEGORIES = [
   { title: "Strength", image: strengthCard },
   { title: "Sculpt", image: sculptCard },
+  { title: "HIIT", image: marcosAction7 },
   { title: "Cardio", image: cardioCard },
   { title: "Core", image: coreCard },
+  { title: "Stretch", image: marcosAction6 },
 ];
 
 const APP_FEATURES = [
@@ -54,7 +58,15 @@ const APP_FEATURES = [
 
 const Index = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const { data: workoutCategories = [] } = useWorkoutCategories();
   useEffect(() => setIsVisible(true), []);
+
+  const categoryImage = (title: string, fallback: string) => {
+    const category = workoutCategories.find((cat) => cat.name === title);
+    if (!category?.thumbnail_url) return fallback;
+    const version = category.updated_at ? new Date(category.updated_at).getTime() : Date.now();
+    return `${category.thumbnail_url}?v=${version}`;
+  };
 
   return (
     <main className="min-h-screen overflow-x-hidden w-full bg-background">
