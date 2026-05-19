@@ -18,6 +18,7 @@ import PrivacyDataView from "@/components/dashboard/PrivacyDataView";
 import ReportBugView from "@/components/dashboard/ReportBugView";
 import PushPermissionModal from "@/components/PushPermissionModal";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
+import { APP_STORE_ID, APP_STORE_REVIEW_URL } from "@/lib/appLinks";
 
 import {
   AlertDialog,
@@ -36,10 +37,7 @@ import {
 
 // Apple App Store subscription management deep links
 const APP_STORE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
-const APP_STORE_ID = import.meta.env.VITE_APP_STORE_ID as string | undefined;
-const APP_STORE_RATE_URL = APP_STORE_ID
-  ? `itms-apps://itunes.apple.com/app/id${APP_STORE_ID}?action=write-review`
-  : null;
+const APP_STORE_RATE_URL = APP_STORE_REVIEW_URL;
 
 // Public website URLs — used for legal/help links so native (Capacitor) users
 // land on the live marketing site instead of an in-app route that may not
