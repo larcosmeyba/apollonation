@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { isWeb } from "@/lib/platform";
+import { APP_STORE_URL } from "@/lib/appLinks";
 import apolloLogo from "@/assets/apollo-logo-sm.png";
 
 const Navbar = () => {
