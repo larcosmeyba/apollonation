@@ -19,7 +19,7 @@ const Navbar = () => {
     { href: "#nutrition", label: "Nutrition", isAnchor: true },
     { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Contact" },
-    { href: "#download", label: "Download the App", isAnchor: true },
+    { href: APP_STORE_URL, label: "Download the App", isAnchor: false, external: true },
   ];
 
   return (
