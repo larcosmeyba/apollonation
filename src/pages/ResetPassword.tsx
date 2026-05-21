@@ -18,31 +18,101 @@ const ResetPassword = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    // If the URL has the recovery hash, supabase-js will fire PASSWORD_RECOVERY
-    // and a session will be available. Mark the form ready once we have it.
+    let cancelled = false;
+
+    const markReady = () => {
+      if (!cancelled) {
+        setErrorMsg(null);
+        setReady(true);
+      }
+    };
+
+    const fail = (msg: string) => {
+      if (!cancelled) {
+        setErrorMsg(msg);
+        setReady(false);
+      }
+    };
+
+    // Listen for PASSWORD_RECOVERY events from supabase-js (fires when the
+    // client successfully parses a recovery hash/URL and creates a session).
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || (session && window.location.hash.includes("type=recovery"))) {
-        setReady(true);
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
+        markReady();
       }
     });
 
-    // Also check existing session in case the event already fired before mount
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session && window.location.hash.includes("type=recovery")) {
-        setReady(true);
-      } else if (data.session) {
-        // No recovery hash but logged in — allow reset anyway
-        setReady(true);
-      }
-    });
+    (async () => {
+      try {
+        const url = new URL(window.location.href);
+        const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+        const errorDescription =
+          url.searchParams.get("error_description") || hash.get("error_description");
+        if (errorDescription) {
+          fail(decodeURIComponent(errorDescription).replace(/\+/g, " "));
+          return;
+        }
 
-    return () => sub.subscription.unsubscribe();
+        // Modern flow: ?token_hash=...&type=recovery
+        const tokenHash = url.searchParams.get("token_hash");
+        const type = url.searchParams.get("type");
+        if (tokenHash && type === "recovery") {
+          const { error } = await supabase.auth.verifyOtp({
+            type: "recovery",
+            token_hash: tokenHash,
+          });
+          if (error) {
+            fail(error.message);
+            return;
+          }
+          markReady();
+          return;
+        }
+
+        // PKCE flow: ?code=...
+        const code = url.searchParams.get("code");
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) {
+            fail(error.message);
+            return;
+          }
+          markReady();
+          return;
+        }
+
+        // Legacy hash flow: #access_token=...&type=recovery — supabase-js
+        // auto-processes this and fires PASSWORD_RECOVERY. Also check if a
+        // session already exists (user clicked link in same browser).
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          markReady();
+          return;
+        }
+
+        // Give the auth listener a moment to fire for hash-based recovery.
+        setTimeout(async () => {
+          const { data: d2 } = await supabase.auth.getSession();
+          if (d2.session) markReady();
+          else fail("This reset link is invalid or has expired. Please request a new one.");
+        }, 1500);
+      } catch (e: any) {
+        fail(e?.message || "Couldn't verify reset link.");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
   }, []);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
