@@ -146,11 +146,24 @@ const ResetPassword = () => {
         </div>
 
         <h2 className="font-heading text-3xl mb-2">Set new password</h2>
-        <p className="text-muted-foreground text-sm mb-10">
+        <p className="text-muted-foreground text-sm mb-6">
           {ready
             ? "Enter and confirm a new password for your account."
+            : errorMsg
+            ? errorMsg
             : "Verifying reset link…"}
         </p>
+
+        {!ready && errorMsg && (
+          <button
+            type="button"
+            onClick={() => navigate("/auth?mode=forgot", { replace: true })}
+            className="text-sm underline text-foreground hover:opacity-80 mb-6"
+          >
+            Request a new reset link
+          </button>
+        )}
+
 
         {ready && (
           <form onSubmit={handleSubmit} className="space-y-5">
