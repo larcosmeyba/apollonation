@@ -30,6 +30,33 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState("overview");
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const copyToClipboard = async (text: string, field: string) => {
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 1500);
+  };
+
+  // Fetch contact info (email/phone) via admin edge function
+  const { data: contact, isLoading: contactLoading } = useQuery({
+    queryKey: ["admin-client-contact", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("admin-get-client-contact", {
+        body: { user_id: userId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as {
+        email: string | null;
+        phone: string | null;
+        email_confirmed_at: string | null;
+        phone_confirmed_at: string | null;
+        last_sign_in_at: string | null;
+      };
+    },
+  });
 
   // Fetch profile
   const { data: profile } = useQuery({
