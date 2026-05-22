@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ChevronLeft, Snowflake, Archive, XCircle, RotateCcw, Pencil,
   User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity, BarChart3, Eye,
+  Mail, Phone, Copy, Check,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientNotesPanel from "./ClientNotesPanel";
