@@ -264,9 +264,37 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
 
       {/* Contact Information */}
       <div className="card-apollo p-5 space-y-3">
-        <h3 className="font-heading text-sm uppercase tracking-wider text-primary flex items-center gap-2">
-          <Mail className="w-4 h-4" /> Contact Information
-        </h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-heading text-sm uppercase tracking-wider text-primary flex items-center gap-2">
+            <Mail className="w-4 h-4" /> Contact Information
+          </h3>
+          {!isEditingContact ? (
+            <Button size="sm" variant="ghost" className="h-8 gap-1 text-xs" onClick={startEditingContact}>
+              <Pencil className="w-3.5 h-3.5" /> Edit
+            </Button>
+          ) : (
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                variant="apollo"
+                className="h-8 gap-1 text-xs"
+                disabled={updateContactMutation.isPending}
+                onClick={() =>
+                  updateContactMutation.mutate({
+                    email: editEmail.trim(),
+                    phone: editPhone.trim(),
+                    display_name: editName.trim(),
+                  })
+                }
+              >
+                <Save className="w-3.5 h-3.5" /> {updateContactMutation.isPending ? "Saving…" : "Save"}
+              </Button>
+              <Button size="sm" variant="ghost" className="h-8 gap-1 text-xs" onClick={() => setIsEditingContact(false)}>
+                <X className="w-3.5 h-3.5" /> Cancel
+              </Button>
+            </div>
+          )}
+        </div>
         {contactLoading ? (
           <p className="text-sm text-muted-foreground">Loading contact info…</p>
         ) : (
