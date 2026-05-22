@@ -297,6 +297,48 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
         </div>
         {contactLoading ? (
           <p className="text-sm text-muted-foreground">Loading contact info…</p>
+        ) : isEditingContact ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <Label htmlFor="edit-name" className="text-xs text-muted-foreground">Display Name</Label>
+              <Input
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Client name"
+                className="mt-1 h-9"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-email" className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Mail className="w-3 h-3" /> Email
+              </Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                placeholder="client@example.com"
+                className="mt-1 h-9"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-phone" className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Phone className="w-3 h-3" /> Phone
+              </Label>
+              <Input
+                id="edit-phone"
+                type="tel"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="+1 555 123 4567"
+                className="mt-1 h-9"
+              />
+            </div>
+            <p className="sm:col-span-2 text-xs text-muted-foreground">
+              Email changes are confirmed immediately; the client will use the new email to sign in.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
