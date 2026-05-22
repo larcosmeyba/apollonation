@@ -33,6 +33,10 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
   const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState("overview");
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isEditingContact, setIsEditingContact] = useState(false);
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editName, setEditName] = useState("");
 
   const copyToClipboard = async (text: string, field: string) => {
     if (!text) return;
