@@ -229,6 +229,77 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
         </div>
       </div>
 
+      {/* Contact Information */}
+      <div className="card-apollo p-5 space-y-3">
+        <h3 className="font-heading text-sm uppercase tracking-wider text-primary flex items-center gap-2">
+          <Mail className="w-4 h-4" /> Contact Information
+        </h3>
+        {contactLoading ? (
+          <p className="text-sm text-muted-foreground">Loading contact info…</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Mail className="w-3 h-3" /> Email
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                {contact?.email ? (
+                  <>
+                    <a
+                      href={`mailto:${contact.email}`}
+                      className="text-sm font-medium text-primary hover:underline truncate"
+                    >
+                      {contact.email}
+                    </a>
+                    <button
+                      onClick={() => copyToClipboard(contact.email!, "email")}
+                      className="text-muted-foreground hover:text-primary"
+                      title="Copy email"
+                    >
+                      {copiedField === "email" ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-sm text-muted-foreground">Not set</span>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Phone className="w-3 h-3" /> Phone
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                {contact?.phone ? (
+                  <>
+                    <a
+                      href={`tel:${contact.phone}`}
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      {contact.phone}
+                    </a>
+                    <button
+                      onClick={() => copyToClipboard(contact.phone!, "phone")}
+                      className="text-muted-foreground hover:text-primary"
+                      title="Copy phone"
+                    >
+                      {copiedField === "phone" ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-sm text-muted-foreground">Not on file</span>
+                )}
+              </div>
+            </div>
+            {contact?.last_sign_in_at && (
+              <div className="sm:col-span-2">
+                <p className="text-xs text-muted-foreground">Last Sign In</p>
+                <p className="text-sm mt-1">{new Date(contact.last_sign_in_at).toLocaleString()}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Quick Actions Bar */}
       <ClientQuickActions
         userId={userId}
