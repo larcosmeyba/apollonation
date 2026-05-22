@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ChevronLeft, Snowflake, Archive, XCircle, RotateCcw, Pencil,
   User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity, BarChart3, Eye,
+  Mail, Phone, Copy, Check,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientNotesPanel from "./ClientNotesPanel";
@@ -29,6 +30,33 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState("overview");
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const copyToClipboard = async (text: string, field: string) => {
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 1500);
+  };
+
+  // Fetch contact info (email/phone) via admin edge function
+  const { data: contact, isLoading: contactLoading } = useQuery({
+    queryKey: ["admin-client-contact", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("admin-get-client-contact", {
+        body: { user_id: userId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as {
+        email: string | null;
+        phone: string | null;
+        email_confirmed_at: string | null;
+        phone_confirmed_at: string | null;
+        last_sign_in_at: string | null;
+      };
+    },
+  });
 
   // Fetch profile
   const { data: profile } = useQuery({
@@ -199,6 +227,77 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Contact Information */}
+      <div className="card-apollo p-5 space-y-3">
+        <h3 className="font-heading text-sm uppercase tracking-wider text-primary flex items-center gap-2">
+          <Mail className="w-4 h-4" /> Contact Information
+        </h3>
+        {contactLoading ? (
+          <p className="text-sm text-muted-foreground">Loading contact info…</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Mail className="w-3 h-3" /> Email
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                {contact?.email ? (
+                  <>
+                    <a
+                      href={`mailto:${contact.email}`}
+                      className="text-sm font-medium text-primary hover:underline truncate"
+                    >
+                      {contact.email}
+                    </a>
+                    <button
+                      onClick={() => copyToClipboard(contact.email!, "email")}
+                      className="text-muted-foreground hover:text-primary"
+                      title="Copy email"
+                    >
+                      {copiedField === "email" ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-sm text-muted-foreground">Not set</span>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Phone className="w-3 h-3" /> Phone
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                {contact?.phone ? (
+                  <>
+                    <a
+                      href={`tel:${contact.phone}`}
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      {contact.phone}
+                    </a>
+                    <button
+                      onClick={() => copyToClipboard(contact.phone!, "phone")}
+                      className="text-muted-foreground hover:text-primary"
+                      title="Copy phone"
+                    >
+                      {copiedField === "phone" ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-sm text-muted-foreground">Not on file</span>
+                )}
+              </div>
+            </div>
+            {contact?.last_sign_in_at && (
+              <div className="sm:col-span-2">
+                <p className="text-xs text-muted-foreground">Last Sign In</p>
+                <p className="text-sm mt-1">{new Date(contact.last_sign_in_at).toLocaleString()}</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Quick Actions Bar */}
