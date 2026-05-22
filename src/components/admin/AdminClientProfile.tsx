@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ChevronLeft, Snowflake, Archive, XCircle, RotateCcw, Pencil,
   User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity, BarChart3, Eye,
-  Mail, Phone, Copy, Check,
+  Mail, Phone, Copy, Check, Save, X,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ClientNotesPanel from "./ClientNotesPanel";
@@ -31,6 +33,10 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
   const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState("overview");
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isEditingContact, setIsEditingContact] = useState(false);
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editName, setEditName] = useState("");
 
   const copyToClipboard = async (text: string, field: string) => {
     if (!text) return;
@@ -155,6 +161,33 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
     onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  // Update contact info mutation
+  const updateContactMutation = useMutation({
+    mutationFn: async (payload: { email?: string; phone?: string; display_name?: string }) => {
+      const { data, error } = await supabase.functions.invoke("admin-update-client-contact", {
+        body: { user_id: userId, ...payload },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-client-contact", userId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-client-profile", userId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
+      toast({ title: "Contact info saved" });
+      setIsEditingContact(false);
+    },
+    onError: (e) => toast({ title: "Save failed", description: e.message, variant: "destructive" }),
+  });
+
+  const startEditingContact = () => {
+    setEditEmail(contact?.email || "");
+    setEditPhone(contact?.phone || "");
+    setEditName(profile?.display_name || "");
+    setIsEditingContact(true);
+  };
+
   const formatHeight = (inches: number) => `${Math.floor(inches / 12)}'${inches % 12}"`;
 
   return (
@@ -231,11 +264,81 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
 
       {/* Contact Information */}
       <div className="card-apollo p-5 space-y-3">
-        <h3 className="font-heading text-sm uppercase tracking-wider text-primary flex items-center gap-2">
-          <Mail className="w-4 h-4" /> Contact Information
-        </h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-heading text-sm uppercase tracking-wider text-primary flex items-center gap-2">
+            <Mail className="w-4 h-4" /> Contact Information
+          </h3>
+          {!isEditingContact ? (
+            <Button size="sm" variant="ghost" className="h-8 gap-1 text-xs" onClick={startEditingContact}>
+              <Pencil className="w-3.5 h-3.5" /> Edit
+            </Button>
+          ) : (
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                variant="apollo"
+                className="h-8 gap-1 text-xs"
+                disabled={updateContactMutation.isPending}
+                onClick={() =>
+                  updateContactMutation.mutate({
+                    email: editEmail.trim(),
+                    phone: editPhone.trim(),
+                    display_name: editName.trim(),
+                  })
+                }
+              >
+                <Save className="w-3.5 h-3.5" /> {updateContactMutation.isPending ? "Saving…" : "Save"}
+              </Button>
+              <Button size="sm" variant="ghost" className="h-8 gap-1 text-xs" onClick={() => setIsEditingContact(false)}>
+                <X className="w-3.5 h-3.5" /> Cancel
+              </Button>
+            </div>
+          )}
+        </div>
         {contactLoading ? (
           <p className="text-sm text-muted-foreground">Loading contact info…</p>
+        ) : isEditingContact ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <Label htmlFor="edit-name" className="text-xs text-muted-foreground">Display Name</Label>
+              <Input
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Client name"
+                className="mt-1 h-9"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-email" className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Mail className="w-3 h-3" /> Email
+              </Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                placeholder="client@example.com"
+                className="mt-1 h-9"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-phone" className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Phone className="w-3 h-3" /> Phone
+              </Label>
+              <Input
+                id="edit-phone"
+                type="tel"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="+1 555 123 4567"
+                className="mt-1 h-9"
+              />
+            </div>
+            <p className="sm:col-span-2 text-xs text-muted-foreground">
+              Email changes are confirmed immediately; the client will use the new email to sign in.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
