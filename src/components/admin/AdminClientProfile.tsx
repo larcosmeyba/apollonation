@@ -161,6 +161,33 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
     onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  // Update contact info mutation
+  const updateContactMutation = useMutation({
+    mutationFn: async (payload: { email?: string; phone?: string; display_name?: string }) => {
+      const { data, error } = await supabase.functions.invoke("admin-update-client-contact", {
+        body: { user_id: userId, ...payload },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-client-contact", userId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-client-profile", userId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
+      toast({ title: "Contact info saved" });
+      setIsEditingContact(false);
+    },
+    onError: (e) => toast({ title: "Save failed", description: e.message, variant: "destructive" }),
+  });
+
+  const startEditingContact = () => {
+    setEditEmail(contact?.email || "");
+    setEditPhone(contact?.phone || "");
+    setEditName(profile?.display_name || "");
+    setIsEditingContact(true);
+  };
+
   const formatHeight = (inches: number) => `${Math.floor(inches / 12)}'${inches % 12}"`;
 
   return (
