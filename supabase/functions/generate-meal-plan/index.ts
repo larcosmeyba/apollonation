@@ -188,7 +188,7 @@ You MUST respond with ONLY valid JSON (no markdown, no code blocks) in this exac
   ]
 }
 
-Make meals practical, varied, and delicious. Each day's total macros should approximately match the targets. Ensure variety across all 4 weeks.`;
+Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: breakfast ~25%, lunch ~30%, dinner ~30%, snack ~15% of each macro. Ensure variety across all 4 weeks.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       signal: AbortSignal.timeout(45_000),
