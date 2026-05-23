@@ -280,13 +280,7 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
       }
     }
 
-    // Use service role to create the plan and meals
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    // Create the nutrition plan
+    // Create the nutrition plan (targets MIRROR user_macro_targets exactly)
     const { data: plan, error: planError } = await supabaseAdmin
       .from("nutrition_plans")
       .insert({
@@ -308,10 +302,17 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
       throw new Error("Failed to create nutrition plan");
     }
 
-    // Insert all meals (28 unique days from AI)
+    // Snap every day's 4 meals so calories/protein/carbs/fat sum EXACTLY to
+    // the dashboard targets (no day is over or under).
     const allMeals: any[] = [];
     for (const day of mealPlanData.days) {
-      for (const meal of day.meals) {
+      const snapped = snapDayToTargets(day.meals, {
+        calorie_target: dailyCalories,
+        protein_grams: proteinGrams,
+        carb_grams: carbsGrams,
+        fat_grams: fatGrams,
+      });
+      for (const meal of snapped) {
         allMeals.push({
           plan_id: plan.id,
           day_number: day.day_number,
