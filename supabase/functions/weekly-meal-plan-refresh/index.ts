@@ -218,13 +218,20 @@ Make meals practical, varied, and delicious.`;
           .delete()
           .eq("plan_id", plan.id);
 
-        // Insert new meals for 4 weeks (repeat this new week across all 4)
-        // Actually generate unique 7 days and map them across 4 weeks
+        // Insert new meals for 4 weeks (repeat this new week across all 4).
+        // Snap each day's 4 meals so totals EXACTLY match the dashboard
+        // macros (no day above or below targets).
         const allMeals: any[] = [];
         for (let week = 0; week < (plan.duration_weeks || 4); week++) {
           for (const day of mealPlanData.days) {
             const actualDay = week * 7 + day.day_number;
-            for (const meal of day.meals) {
+            const snapped = snapDayToTargets(day.meals, {
+              calorie_target: plan.daily_calories,
+              protein_grams: plan.protein_grams,
+              carb_grams: plan.carbs_grams,
+              fat_grams: plan.fat_grams,
+            });
+            for (const meal of snapped) {
               allMeals.push({
                 plan_id: plan.id,
                 day_number: actualDay,
