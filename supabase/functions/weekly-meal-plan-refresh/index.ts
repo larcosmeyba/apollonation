@@ -120,6 +120,31 @@ serve(async (req) => {
 
         const goal = profile?.goals || questionnaire?.goal_next_4_weeks || "maintain";
 
+        // CANONICAL macro targets — pulled from user_macro_targets (the same
+        // numbers shown on the client's "Today's Nutrition" dashboard). If the
+        // plan row has drifted, resync it so meals + targets always agree.
+        const targets = await resolveUserMacroTargets(supabaseAdmin, plan.user_id);
+        if (
+          plan.daily_calories !== targets.calorie_target ||
+          plan.protein_grams !== targets.protein_grams ||
+          plan.carbs_grams !== targets.carb_grams ||
+          plan.fat_grams !== targets.fat_grams
+        ) {
+          await supabaseAdmin
+            .from("nutrition_plans")
+            .update({
+              daily_calories: targets.calorie_target,
+              protein_grams: targets.protein_grams,
+              carbs_grams: targets.carb_grams,
+              fat_grams: targets.fat_grams,
+            })
+            .eq("id", plan.id);
+          plan.daily_calories = targets.calorie_target;
+          plan.protein_grams = targets.protein_grams;
+          plan.carbs_grams = targets.carb_grams;
+          plan.fat_grams = targets.fat_grams;
+        }
+
         const prompt = `Generate a complete 7-day meal plan for a new week. This should be COMPLETELY DIFFERENT meals from any previous week — use different proteins, cuisines, cooking methods, and ingredients.
 
 - Daily calories: ${plan.daily_calories} kcal
@@ -133,6 +158,7 @@ ${budgetInfo}
 ${profile?.notes ? `Additional notes: ${profile.notes}` : ""}
 
 For EACH of the 7 days, provide exactly 4 meals: breakfast, lunch, dinner, and snack.
+Each day's 4 meal totals MUST sum to the daily targets above. Distribute roughly: breakfast 25%, lunch 30%, dinner 30%, snack 15% of each macro.
 
 You MUST respond with ONLY valid JSON (no markdown, no code blocks):
 {
@@ -155,7 +181,7 @@ You MUST respond with ONLY valid JSON (no markdown, no code blocks):
   ]
 }
 
-Make meals practical, varied, and delicious. Each day's total macros should approximately match the targets.`;
+Make meals practical, varied, and delicious.`;
 
         const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       signal: AbortSignal.timeout(45_000),
