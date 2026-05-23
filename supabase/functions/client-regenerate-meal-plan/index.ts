@@ -180,7 +180,9 @@ If a meal would violate ANY of these, choose a different meal instead. Do not su
         : "";
 
       return `Generate a 7-day meal plan for Week ${week} with 4 meals/day (breakfast, lunch, dinner, snack). Varied cuisines & proteins (within the budget constraint).
-Targets: ${plan.daily_calories}cal, ${plan.protein_grams}g P, ${plan.carbs_grams}g C, ${plan.fat_grams}g F. Goal: ${goal}.${restrictionsBlock}${dislikesText}${budgetInfo}${profile?.notes ? `\nAdditional notes: ${profile.notes}` : ""}
+DAILY TARGETS (each day MUST sum to these exactly — these match the client's dashboard): ${plan.daily_calories} kcal, ${plan.protein_grams}g protein, ${plan.carbs_grams}g carbs, ${plan.fat_grams}g fat.
+Distribute roughly as: breakfast 25%, lunch 30%, dinner 30%, snack 15% of each macro.
+Goal: ${goal}.${restrictionsBlock}${dislikesText}${budgetInfo}${profile?.notes ? `\nAdditional notes: ${profile.notes}` : ""}
 
 Each meal MUST list every ingredient with an amount (e.g. "1 cup brown rice", "4 oz chicken breast"). Be exhaustive — the grocery list is built from these ingredients.
 
