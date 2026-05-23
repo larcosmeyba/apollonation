@@ -80,32 +80,20 @@ serve(async (req) => {
     }
     const { profile, clientUserId, planTitle } = parsed.data;
 
-    // Calculate macros based on profile
-    const { age, weight_lbs, height_inches, activity_level, goals } = profile;
+    // Use service role for canonical-target lookup + writes
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-    // Mifflin-St Jeor equation for BMR
-    const weightKg = (weight_lbs || 150) * 0.453592;
-    const heightCm = (height_inches || 68) * 2.54;
-    const bmr = 10 * weightKg + 6.25 * heightCm - 5 * (age || 30) + 5; // male default
-
-    const activityMultipliers: Record<string, number> = {
-      sedentary: 1.2,
-      light: 1.375,
-      moderate: 1.55,
-      active: 1.725,
-      very_active: 1.9,
-    };
-
-    let tdee = bmr * (activityMultipliers[activity_level || "moderate"] || 1.55);
-
-    // Adjust for goals
-    if (goals === "lose_weight") tdee -= 500;
-    else if (goals === "gain_muscle") tdee += 300;
-
-    const dailyCalories = Math.round(tdee);
-    const proteinGrams = Math.round(weightKg * 2.2); // ~1g per lb
-    const fatGrams = Math.round((dailyCalories * 0.25) / 9);
-    const carbsGrams = Math.round((dailyCalories - proteinGrams * 4 - fatGrams * 9) / 4);
+    // CANONICAL macros — the exact numbers shown on "Today's Nutrition".
+    // The meal plan MUST match these; we no longer recompute independently.
+    const { goals } = profile;
+    const macroTargets = await resolveUserMacroTargets(supabaseAdmin, clientUserId);
+    const dailyCalories = macroTargets.calorie_target;
+    const proteinGrams = macroTargets.protein_grams;
+    const carbsGrams = macroTargets.carb_grams;
+    const fatGrams = macroTargets.fat_grams;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
