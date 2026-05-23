@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 import { requireCronSecret } from "../_shared/cron-auth.ts";
+import { resolveUserMacroTargets, snapDayToTargets } from "../_shared/macro-scaler.ts";
 
 serve(async (req) => {
   const pre = handlePreflight(req);
