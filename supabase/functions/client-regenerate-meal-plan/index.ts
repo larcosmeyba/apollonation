@@ -85,6 +85,31 @@ serve(async (req) => {
       });
     }
 
+    // CANONICAL daily macros — match the dashboard's "Today's Nutrition".
+    // If the plan's stored targets drift from the user's current macros,
+    // resync them here so meals + targets always agree.
+    const targets = await resolveUserMacroTargets(supabaseAdmin, userId);
+    const planTargetsStale =
+      plan.daily_calories !== targets.calorie_target ||
+      plan.protein_grams !== targets.protein_grams ||
+      plan.carbs_grams !== targets.carb_grams ||
+      plan.fat_grams !== targets.fat_grams;
+    if (planTargetsStale) {
+      await supabaseAdmin
+        .from("nutrition_plans")
+        .update({
+          daily_calories: targets.calorie_target,
+          protein_grams: targets.protein_grams,
+          carbs_grams: targets.carb_grams,
+          fat_grams: targets.fat_grams,
+        })
+        .eq("id", plan.id);
+      plan.daily_calories = targets.calorie_target;
+      plan.protein_grams = targets.protein_grams;
+      plan.carbs_grams = targets.carb_grams;
+      plan.fat_grams = targets.fat_grams;
+    }
+
     // Fetch client profile data for restrictions/preferences
     const { data: profile } = await supabaseAdmin
       .from("client_nutrition_profiles")
