@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 import { requireCronSecret } from "../_shared/cron-auth.ts";
+import { resolveUserMacroTargets, snapDayToTargets } from "../_shared/macro-scaler.ts";
 
 serve(async (req) => {
   const pre = handlePreflight(req);
@@ -119,6 +120,31 @@ serve(async (req) => {
 
         const goal = profile?.goals || questionnaire?.goal_next_4_weeks || "maintain";
 
+        // CANONICAL macro targets — pulled from user_macro_targets (the same
+        // numbers shown on the client's "Today's Nutrition" dashboard). If the
+        // plan row has drifted, resync it so meals + targets always agree.
+        const targets = await resolveUserMacroTargets(supabaseAdmin, plan.user_id);
+        if (
+          plan.daily_calories !== targets.calorie_target ||
+          plan.protein_grams !== targets.protein_grams ||
+          plan.carbs_grams !== targets.carb_grams ||
+          plan.fat_grams !== targets.fat_grams
+        ) {
+          await supabaseAdmin
+            .from("nutrition_plans")
+            .update({
+              daily_calories: targets.calorie_target,
+              protein_grams: targets.protein_grams,
+              carbs_grams: targets.carb_grams,
+              fat_grams: targets.fat_grams,
+            })
+            .eq("id", plan.id);
+          plan.daily_calories = targets.calorie_target;
+          plan.protein_grams = targets.protein_grams;
+          plan.carbs_grams = targets.carb_grams;
+          plan.fat_grams = targets.fat_grams;
+        }
+
         const prompt = `Generate a complete 7-day meal plan for a new week. This should be COMPLETELY DIFFERENT meals from any previous week — use different proteins, cuisines, cooking methods, and ingredients.
 
 - Daily calories: ${plan.daily_calories} kcal
@@ -132,6 +158,7 @@ ${budgetInfo}
 ${profile?.notes ? `Additional notes: ${profile.notes}` : ""}
 
 For EACH of the 7 days, provide exactly 4 meals: breakfast, lunch, dinner, and snack.
+Each day's 4 meal totals MUST sum to the daily targets above. Distribute roughly: breakfast 25%, lunch 30%, dinner 30%, snack 15% of each macro.
 
 You MUST respond with ONLY valid JSON (no markdown, no code blocks):
 {
@@ -154,7 +181,7 @@ You MUST respond with ONLY valid JSON (no markdown, no code blocks):
   ]
 }
 
-Make meals practical, varied, and delicious. Each day's total macros should approximately match the targets.`;
+Make meals practical, varied, and delicious.`;
 
         const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       signal: AbortSignal.timeout(45_000),
@@ -191,13 +218,20 @@ Make meals practical, varied, and delicious. Each day's total macros should appr
           .delete()
           .eq("plan_id", plan.id);
 
-        // Insert new meals for 4 weeks (repeat this new week across all 4)
-        // Actually generate unique 7 days and map them across 4 weeks
+        // Insert new meals for 4 weeks (repeat this new week across all 4).
+        // Snap each day's 4 meals so totals EXACTLY match the dashboard
+        // macros (no day above or below targets).
         const allMeals: any[] = [];
         for (let week = 0; week < (plan.duration_weeks || 4); week++) {
           for (const day of mealPlanData.days) {
             const actualDay = week * 7 + day.day_number;
-            for (const meal of day.meals) {
+            const snapped = snapDayToTargets(day.meals, {
+              calorie_target: plan.daily_calories,
+              protein_grams: plan.protein_grams,
+              carb_grams: plan.carbs_grams,
+              fat_grams: plan.fat_grams,
+            });
+            for (const meal of snapped) {
               allMeals.push({
                 plan_id: plan.id,
                 day_number: actualDay,

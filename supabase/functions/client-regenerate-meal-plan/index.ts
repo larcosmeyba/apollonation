@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { estimateGroceryTotal } from "../_shared/grocery-pricing.ts";
 import { requirePremium } from "../_shared/entitlement.ts";
+import { resolveUserMacroTargets, snapDayToTargets } from "../_shared/macro-scaler.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -84,6 +85,31 @@ serve(async (req) => {
       });
     }
 
+    // CANONICAL daily macros — match the dashboard's "Today's Nutrition".
+    // If the plan's stored targets drift from the user's current macros,
+    // resync them here so meals + targets always agree.
+    const targets = await resolveUserMacroTargets(supabaseAdmin, userId);
+    const planTargetsStale =
+      plan.daily_calories !== targets.calorie_target ||
+      plan.protein_grams !== targets.protein_grams ||
+      plan.carbs_grams !== targets.carb_grams ||
+      plan.fat_grams !== targets.fat_grams;
+    if (planTargetsStale) {
+      await supabaseAdmin
+        .from("nutrition_plans")
+        .update({
+          daily_calories: targets.calorie_target,
+          protein_grams: targets.protein_grams,
+          carbs_grams: targets.carb_grams,
+          fat_grams: targets.fat_grams,
+        })
+        .eq("id", plan.id);
+      plan.daily_calories = targets.calorie_target;
+      plan.protein_grams = targets.protein_grams;
+      plan.carbs_grams = targets.carb_grams;
+      plan.fat_grams = targets.fat_grams;
+    }
+
     // Fetch client profile data for restrictions/preferences
     const { data: profile } = await supabaseAdmin
       .from("client_nutrition_profiles")
@@ -154,7 +180,9 @@ If a meal would violate ANY of these, choose a different meal instead. Do not su
         : "";
 
       return `Generate a 7-day meal plan for Week ${week} with 4 meals/day (breakfast, lunch, dinner, snack). Varied cuisines & proteins (within the budget constraint).
-Targets: ${plan.daily_calories}cal, ${plan.protein_grams}g P, ${plan.carbs_grams}g C, ${plan.fat_grams}g F. Goal: ${goal}.${restrictionsBlock}${dislikesText}${budgetInfo}${profile?.notes ? `\nAdditional notes: ${profile.notes}` : ""}
+DAILY TARGETS (each day MUST sum to these exactly — these match the client's dashboard): ${plan.daily_calories} kcal, ${plan.protein_grams}g protein, ${plan.carbs_grams}g carbs, ${plan.fat_grams}g fat.
+Distribute roughly as: breakfast 25%, lunch 30%, dinner 30%, snack 15% of each macro.
+Goal: ${goal}.${restrictionsBlock}${dislikesText}${budgetInfo}${profile?.notes ? `\nAdditional notes: ${profile.notes}` : ""}
 
 Each meal MUST list every ingredient with an amount (e.g. "1 cup brown rice", "4 oz chicken breast"). Be exhaustive — the grocery list is built from these ingredients.
 
@@ -302,11 +330,18 @@ Respond ONLY with JSON: {"days":[{"day_number":1,"meals":[{"meal_type":"breakfas
 
     if (delErr) throw new Error(`Failed to delete old meals: ${delErr.message}`);
 
-    // Insert new meals for this week
+    // Insert new meals for this week — snap each day's totals to match
+    // the dashboard macros EXACTLY (no day above or below targets).
     const newMeals: any[] = [];
     for (const day of mealPlanData.days) {
       const actualDay = (week - 1) * 7 + day.day_number;
-      for (const meal of day.meals) {
+      const snapped = snapDayToTargets(day.meals, {
+        calorie_target: plan.daily_calories,
+        protein_grams: plan.protein_grams,
+        carb_grams: plan.carbs_grams,
+        fat_grams: plan.fat_grams,
+      });
+      for (const meal of snapped) {
         newMeals.push({
           plan_id: plan.id,
           day_number: actualDay,
