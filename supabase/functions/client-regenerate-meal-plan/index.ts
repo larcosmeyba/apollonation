@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { estimateGroceryTotal } from "../_shared/grocery-pricing.ts";
 import { requirePremium } from "../_shared/entitlement.ts";
+import { resolveUserMacroTargets, snapDayToTargets } from "../_shared/macro-scaler.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
