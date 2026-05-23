@@ -330,11 +330,18 @@ Respond ONLY with JSON: {"days":[{"day_number":1,"meals":[{"meal_type":"breakfas
 
     if (delErr) throw new Error(`Failed to delete old meals: ${delErr.message}`);
 
-    // Insert new meals for this week
+    // Insert new meals for this week — snap each day's totals to match
+    // the dashboard macros EXACTLY (no day above or below targets).
     const newMeals: any[] = [];
     for (const day of mealPlanData.days) {
       const actualDay = (week - 1) * 7 + day.day_number;
-      for (const meal of day.meals) {
+      const snapped = snapDayToTargets(day.meals, {
+        calorie_target: plan.daily_calories,
+        protein_grams: plan.protein_grams,
+        carb_grams: plan.carbs_grams,
+        fat_grams: plan.fat_grams,
+      });
+      for (const meal of snapped) {
         newMeals.push({
           plan_id: plan.id,
           day_number: actualDay,
