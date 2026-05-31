@@ -15,6 +15,12 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Constrain classType to a known set so it can't be used to inject instructions.
+    const safeClassType = ["sculpt", "strength", "mobility"].includes(classType) ? classType : "sculpt";
+    const safeUserPrompt = typeof prompt === "string" && prompt.trim()
+      ? wrapUserInput(prompt)
+      : `Create a ${safeClassType} class workout`;
+
     const systemPrompt = `You are a fitness class slideshow generator for Apollo Reborn, led by Coach Marcos.
 
 Generate a group class workout organized into BLOCKS (like Orangetheory). Return a JSON object with this exact structure:
