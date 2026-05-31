@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "free_usage_update_own" ON public.free_usage;
