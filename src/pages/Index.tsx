@@ -81,7 +81,7 @@ const Index = () => {
             logo: "https://www.apolloreborn.com/favicon.png",
             description: "Premium on-demand fitness platform.",
             sameAs: [
-              "https://www.instagram.com/larcosfit",
+              "https://www.instagram.com/apollorebornapp",
               "https://www.tiktok.com/@larcosfit",
               "https://www.youtube.com/@larcosfitness",
             ],
@@ -333,12 +333,12 @@ const Index = () => {
                 Founded by Marcos Leyba, a NASM-certified coach with over a decade of experience in strength training and body transformation. His philosophy: build programs that fit your life, not the other way around.
               </p>
               <a
-                href="https://www.instagram.com/larcosfit"
+                href="https://www.instagram.com/apollorebornapp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-white text-sm font-semibold hover:text-white/70 transition-colors"
               >
-                Follow @larcosfit →
+                Follow @apollorebornapp →
               </a>
             </div>
           </div>
