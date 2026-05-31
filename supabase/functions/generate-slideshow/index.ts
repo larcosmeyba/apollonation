@@ -65,7 +65,7 @@ ${PROMPT_INJECTION_GUARD}`;
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: prompt || `Create a ${classType} class workout` },
+          { role: "user", content: safeUserPrompt },
         ],
       }),
     });
