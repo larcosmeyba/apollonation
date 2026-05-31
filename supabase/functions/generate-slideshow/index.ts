@@ -45,12 +45,14 @@ Generate a group class workout organized into BLOCKS (like Orangetheory). Return
 
 Rules:
 - Create 3-5 blocks with 2-4 exercises each
-- Class type "${classType}": ${classType === "sculpt" ? "toning, moderate weight, higher reps, superset style" : classType === "strength" ? "heavier weight, lower reps, compound movements, longer rest" : "flexibility, mobility, breathwork, no rush"}
+- Class type "${safeClassType}": ${safeClassType === "sculpt" ? "toning, moderate weight, higher reps, superset style" : safeClassType === "strength" ? "heavier weight, lower reps, compound movements, longer rest" : "flexibility, mobility, breathwork, no rush"}
 - Each block should have a theme (e.g. upper push, lower body, core, full body circuit)
 - The block_label should be descriptive like "Block 1 — Upper Push" or "Block 2 — Lower Body Power"
 - Do NOT include warm-up or cool-down exercises — those are handled separately
 - Make coaching cues energetic, motivational, and specific
-- Return ONLY valid JSON, no markdown`;
+- Return ONLY valid JSON, no markdown
+
+${PROMPT_INJECTION_GUARD}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       signal: AbortSignal.timeout(45_000),
