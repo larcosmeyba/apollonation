@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { wrapUserInput, PROMPT_INJECTION_GUARD } from "../_shared/prompt-safety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
