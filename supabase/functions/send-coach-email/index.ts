@@ -7,7 +7,18 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function escapeHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function buildEmail(recipientName: string, messageBody: string, type: "direct" | "broadcast") {
+  const safeName = escapeHtml(recipientName);
+  const safeBody = escapeHtml(messageBody);
   const fromLabel = type === "direct"
     ? "A message from your coach"
     : "A message from the Apollo Team";
@@ -21,8 +32,8 @@ function buildEmail(recipientName: string, messageBody: string, type: "direct" |
       </div>
       <div style="background-color: #141414; border: 1px solid #262626; border-radius: 8px; padding: 32px; margin-bottom: 24px;">
         <p style="margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #3b82f6;">${fromLabel}</p>
-        <p style="margin: 0 0 20px; font-size: 16px; color: #e5e5e5;">Hey ${recipientName},</p>
-        <div style="margin: 0 0 24px; font-size: 15px; color: #a3a3a3; line-height: 1.7; white-space: pre-wrap;">${messageBody}</div>
+        <p style="margin: 0 0 20px; font-size: 16px; color: #e5e5e5;">Hey ${safeName},</p>
+        <div style="margin: 0 0 24px; font-size: 15px; color: #a3a3a3; line-height: 1.7; white-space: pre-wrap;">${safeBody}</div>
       </div>
       <p style="text-align: center; font-size: 11px; color: #525252; margin: 0 0 8px;">© ${new Date().getFullYear()} Apollo Reborn. All rights reserved.</p>
       <p style="text-align: center; font-size: 10px; color: #404040; margin: 0;">

@@ -44,25 +44,19 @@ serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
     const body = await req.json().catch(() => ({}));
-    const { recipientId, senderId: triggerSenderId, fromTrigger } = body;
+    const { recipientId } = body;
 
     let senderId: string;
     let senderIsAdmin = false;
 
-    if (fromTrigger) {
-      senderId = triggerSenderId;
-      if (!senderId) return jsonResponse(req, { error: "Missing senderId" }, 400);
-      const { data: roleData } = await supabaseAdmin
-        .from("user_roles").select("role").eq("user_id", senderId).eq("role", "admin").single();
-      senderIsAdmin = !!roleData;
-    } else {
-      const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
-      if (userError || !userData.user) return jsonResponse(req, { error: "Invalid token" }, 401);
-      senderId = userData.user.id;
-      const { data: roleData } = await supabaseAdmin
-        .from("user_roles").select("role").eq("user_id", senderId).eq("role", "admin").single();
-      senderIsAdmin = !!roleData;
-    }
+    // Always derive senderId from the verified JWT — never trust the body.
+    // (Previous `fromTrigger` body path allowed sender spoofing.)
+    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+    if (userError || !userData.user) return jsonResponse(req, { error: "Invalid token" }, 401);
+    senderId = userData.user.id;
+    const { data: roleData } = await supabaseAdmin
+      .from("user_roles").select("role").eq("user_id", senderId).eq("role", "admin").single();
+    senderIsAdmin = !!roleData;
 
     if (!recipientId) return jsonResponse(req, { error: "Missing recipientId" }, 400);
 

@@ -54,6 +54,13 @@ Deno.serve(async (req) => {
     if (userErr || !user) return json({ error: "Unauthorized" }, 401);
     const userId = user.id;
 
+    // Defense-in-depth: explicit admin role check (don't rely on RLS alone).
+    const { data: isAdmin } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+    if (!isAdmin) return json({ error: "Admin access required" }, 403);
+
     const { class_id } = await req.json();
     if (!class_id || typeof class_id !== "string") {
       return json({ error: "class_id required" }, 400);
