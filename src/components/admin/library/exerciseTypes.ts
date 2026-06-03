@@ -29,6 +29,7 @@ export interface AdminExercise {
   tags: string[];
   category: ExerciseCategory | null;
   duration_seconds: number | null;
+  body_part: string | null;
 }
 
 export const EXERCISE_CATEGORIES: ExerciseCategory[] = [
