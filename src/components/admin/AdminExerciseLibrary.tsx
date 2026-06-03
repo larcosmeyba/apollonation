@@ -27,6 +27,7 @@ const AdminExerciseLibrary = () => {
   const [search, setSearch] = useState("");
   const [filterOrient, setFilterOrient] = useState<"all" | "horizontal" | "vertical">("all");
   const [filterMuscle, setFilterMuscle] = useState<string>("all");
+  const [filterBodyPart, setFilterBodyPart] = useState<string>("all");
   const [editing, setEditing] = useState<AdminExercise | null>(null);
   const [open, setOpen] = useState(false);
 
