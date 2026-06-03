@@ -39,8 +39,8 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
   const [remaining, setRemaining] = useState(0);
   const [paused, setPaused] = useState(false);
   const [showAlt, setShowAlt] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const altVideoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<MuxPlayerElement>(null);
+  const altVideoRef = useRef<MuxPlayerElement>(null);
 
   const block = blocks[idx];
   const next = blocks[idx + 1];
