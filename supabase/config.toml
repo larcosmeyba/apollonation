@@ -115,3 +115,6 @@ verify_jwt = false
 
 [functions.mux-webhook]
 verify_jwt = false
+
+[functions.get-mux-config]
+verify_jwt = false

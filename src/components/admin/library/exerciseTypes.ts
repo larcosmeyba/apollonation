@@ -1,5 +1,13 @@
 export type Orientation = "horizontal" | "vertical";
 export type Difficulty = "beginner" | "intermediate" | "advanced";
+export type ExerciseCategory =
+  | "strength"
+  | "sculpt"
+  | "stretch"
+  | "cardio"
+  | "hiit"
+  | "recovery"
+  | "beginner";
 
 export interface AdminExercise {
   id: string;
@@ -19,7 +27,19 @@ export interface AdminExercise {
   loop_in_seconds: number | null;
   loop_out_seconds: number | null;
   tags: string[];
+  category: ExerciseCategory | null;
+  duration_seconds: number | null;
 }
+
+export const EXERCISE_CATEGORIES: ExerciseCategory[] = [
+  "strength",
+  "sculpt",
+  "stretch",
+  "cardio",
+  "hiit",
+  "recovery",
+  "beginner",
+];
 
 export const MUSCLE_GROUPS = [
   "chest", "back", "shoulders", "arms", "legs", "glutes", "core", "full-body", "cardio",

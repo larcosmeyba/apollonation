@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   AdminExercise,
   EQUIPMENT_OPTIONS,
+  EXERCISE_CATEGORIES,
   MOVEMENT_TYPES,
   MUSCLE_GROUPS,
   muxMp4,
@@ -41,6 +42,8 @@ const blank: Partial<AdminExercise> = {
   loop_in_seconds: 0,
   loop_out_seconds: null,
   tags: [],
+  category: "strength",
+  duration_seconds: null,
 };
 
 const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSaved }: Props) => {
@@ -92,6 +95,8 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
       ...form,
       thumbnail_url: form.mux_playback_id ? muxThumb(form.mux_playback_id) : null,
       alternative_exercise_id: form.alternative_exercise_id || null,
+      duration_seconds:
+        form.duration_seconds ?? (duration > 0 ? Number(duration.toFixed(2)) : null),
     };
     const res = exercise
       ? await supabase.from("admin_exercises").update(payload).eq("id", exercise.id)
@@ -177,6 +182,38 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
           )}
 
           <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Category *</Label>
+              <select
+                value={form.category || ""}
+                onChange={(e) => set("category", (e.target.value || null) as any)}
+                className="w-full bg-background border border-input rounded-md h-10 px-3 text-sm capitalize"
+              >
+                <option value="">—</option>
+                {EXERCISE_CATEGORIES.map((c) => (
+                  <option key={c} value={c} className="capitalize">{c}</option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Used to filter the library and tag Mux Data analytics.
+              </p>
+            </div>
+            <div>
+              <Label>Duration (seconds)</Label>
+              <Input
+                type="number"
+                min={0}
+                step={0.1}
+                value={form.duration_seconds ?? ""}
+                onChange={(e) =>
+                  set(
+                    "duration_seconds",
+                    e.target.value === "" ? null : Number(e.target.value),
+                  )
+                }
+                placeholder={duration > 0 ? duration.toFixed(1) : "Auto from video"}
+              />
+            </div>
             <div>
               <Label>Orientation</Label>
               <select
