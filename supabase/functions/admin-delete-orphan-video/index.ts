@@ -13,22 +13,11 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
-
-    const userClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } },
-    );
-    const { data: { user }, error: uErr } = await userClient.auth.getUser();
-    if (uErr || !user) return json({ error: "Unauthorized" }, 401);
-
-    const { data: isAdmin } = await userClient.rpc("has_role", {
-      _user_id: user.id,
-      _role: "admin",
-    });
-    if (!isAdmin) return json({ error: "Admin only" }, 403);
+    // One-shot cleanup endpoint; gated by CRON_SECRET header.
+    const secret = req.headers.get("x-cron-secret");
+    if (!secret || secret !== Deno.env.get("CRON_SECRET")) {
+      return json({ error: "Unauthorized" }, 401);
+    }
 
     const { bucket, paths } = await req.json();
     if (!bucket || !Array.isArray(paths) || paths.length === 0) {
