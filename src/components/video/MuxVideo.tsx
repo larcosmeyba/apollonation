@@ -101,8 +101,8 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
       // Hide controls when caller asks for an autoplay/loop background
       // (mux-player exposes the `nohotkeys` + `--controls=none` knobs)
       {...(controls ? {} : { nohotkeys: true, "--controls": "none" })}
-      onTimeUpdate={onTimeUpdate as unknown as React.ReactEventHandler<HTMLVideoElement>}
-      onLoadedMetadata={onLoadedMetadata as unknown as React.ReactEventHandler<HTMLVideoElement>}
+      onTimeUpdate={onTimeUpdate as unknown as never}
+      onLoadedMetadata={onLoadedMetadata as unknown as never}
     />
   );
 });
