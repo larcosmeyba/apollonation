@@ -152,6 +152,7 @@ export type Database = {
       }
       admin_classes: {
         Row: {
+          body_part: string | null
           class_type: string
           cover_image_url: string | null
           created_at: string
@@ -159,6 +160,7 @@ export type Database = {
           description: string | null
           difficulty: string
           duration_minutes: number
+          duration_seconds: number | null
           equipment: string[]
           id: string
           intro_enabled: boolean
@@ -173,6 +175,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          body_part?: string | null
           class_type?: string
           cover_image_url?: string | null
           created_at?: string
@@ -180,6 +183,7 @@ export type Database = {
           description?: string | null
           difficulty?: string
           duration_minutes?: number
+          duration_seconds?: number | null
           equipment?: string[]
           id?: string
           intro_enabled?: boolean
@@ -194,6 +198,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          body_part?: string | null
           class_type?: string
           cover_image_url?: string | null
           created_at?: string
@@ -201,6 +206,7 @@ export type Database = {
           description?: string | null
           difficulty?: string
           duration_minutes?: number
+          duration_seconds?: number | null
           equipment?: string[]
           id?: string
           intro_enabled?: boolean
@@ -219,6 +225,7 @@ export type Database = {
       admin_exercises: {
         Row: {
           alternative_exercise_id: string | null
+          body_part: string | null
           category: string | null
           coaching_notes: string | null
           contraindications: string | null
@@ -246,6 +253,7 @@ export type Database = {
         }
         Insert: {
           alternative_exercise_id?: string | null
+          body_part?: string | null
           category?: string | null
           coaching_notes?: string | null
           contraindications?: string | null
@@ -273,6 +281,7 @@ export type Database = {
         }
         Update: {
           alternative_exercise_id?: string | null
+          body_part?: string | null
           category?: string | null
           coaching_notes?: string | null
           contraindications?: string | null
