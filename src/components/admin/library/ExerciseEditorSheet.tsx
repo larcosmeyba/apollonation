@@ -183,6 +183,38 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
 
           <div className="grid grid-cols-2 gap-3">
             <div>
+              <Label>Category *</Label>
+              <select
+                value={form.category || ""}
+                onChange={(e) => set("category", (e.target.value || null) as any)}
+                className="w-full bg-background border border-input rounded-md h-10 px-3 text-sm capitalize"
+              >
+                <option value="">—</option>
+                {EXERCISE_CATEGORIES.map((c) => (
+                  <option key={c} value={c} className="capitalize">{c}</option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Used to filter the library and tag Mux Data analytics.
+              </p>
+            </div>
+            <div>
+              <Label>Duration (seconds)</Label>
+              <Input
+                type="number"
+                min={0}
+                step={0.1}
+                value={form.duration_seconds ?? ""}
+                onChange={(e) =>
+                  set(
+                    "duration_seconds",
+                    e.target.value === "" ? null : Number(e.target.value),
+                  )
+                }
+                placeholder={duration > 0 ? duration.toFixed(1) : "Auto from video"}
+              />
+            </div>
+            <div>
               <Label>Orientation</Label>
               <select
                 value={form.orientation}
