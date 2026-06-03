@@ -3435,6 +3435,15 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_assigned_coach_profile: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          bio: string
+          display_name: string
+          user_id: string
+        }[]
+      }
       get_message_partner_profiles: {
         Args: { partner_ids: string[] }
         Returns: {

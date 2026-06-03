@@ -28,32 +28,20 @@ export const useAssignedCoach = () => {
     enabled: !!user && !adminLoading && !isAdmin,
     queryFn: async (): Promise<AssignedCoach | null> => {
       if (!user) return null;
-      const { data: assignment, error } = await supabase
-        .from("coach_client_assignments")
-        .select("coach_user_id")
-        .eq("client_user_id", user.id)
-        .order("created_at", { ascending: true })
-        .limit(1)
-        .maybeSingle();
+      // Safe RPC returns only display_name/avatar_url/bio for the assigned
+      // coach — no subscription/billing columns are exposed cross-user.
+      const { data, error } = await (supabase.rpc as any)("get_assigned_coach_profile");
       if (error) {
-        console.error("useAssignedCoach: assignment lookup failed", error);
+        console.error("useAssignedCoach: rpc failed", error);
         return null;
       }
-      if (!assignment?.coach_user_id) return null;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, avatar_url")
-        .eq("user_id", assignment.coach_user_id)
-        .maybeSingle();
-
-      return profile
-        ? {
-            user_id: profile.user_id,
-            display_name: profile.display_name,
-            avatar_url: profile.avatar_url,
-          }
-        : { user_id: assignment.coach_user_id, display_name: null, avatar_url: null };
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row?.user_id) return null;
+      return {
+        user_id: row.user_id,
+        display_name: row.display_name,
+        avatar_url: row.avatar_url,
+      };
     },
   });
 
