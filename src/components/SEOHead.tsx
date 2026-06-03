@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 
 const SITE_URL = "https://www.apolloreborn.com";
 const SITE_NAME = "Apollo Reborn";
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 interface SEOHeadProps {
   title?: string;
