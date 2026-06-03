@@ -43,10 +43,7 @@ const AdminWorkouts = () => {
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [linkingWorkout, setLinkingWorkout] = useState<Workout | null>(null);
   const [isUploadingThumb, setIsUploadingThumb] = useState(false);
-  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
-  const [videoUploadProgress, setVideoUploadProgress] = useState("");
   const thumbInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
