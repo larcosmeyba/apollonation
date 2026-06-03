@@ -162,7 +162,13 @@ export type Database = {
           equipment: string[]
           id: string
           intro_enabled: boolean
+          mux_asset_id: string | null
+          mux_playback_id: string | null
+          orientation: string
+          source_type: string
           status: string
+          tags: string[]
+          thumbnail_url: string | null
           title: string
           updated_at: string
         }
@@ -177,7 +183,13 @@ export type Database = {
           equipment?: string[]
           id?: string
           intro_enabled?: boolean
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          orientation?: string
+          source_type?: string
           status?: string
+          tags?: string[]
+          thumbnail_url?: string | null
           title: string
           updated_at?: string
         }
@@ -192,7 +204,13 @@ export type Database = {
           equipment?: string[]
           id?: string
           intro_enabled?: boolean
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          orientation?: string
+          source_type?: string
           status?: string
+          tags?: string[]
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string
         }
