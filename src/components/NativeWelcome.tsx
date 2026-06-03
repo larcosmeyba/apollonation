@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import splashPhoto from "@/assets/splash-photo.jpg";
+import splashPhoto from "@/assets/splash-photo.webp";
 import apolloLogo from "@/assets/apollo-logo-black.png";
 import { Button } from "@/components/ui/button";
 

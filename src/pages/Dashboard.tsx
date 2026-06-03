@@ -19,12 +19,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import stockBack from "@/assets/stock-back.png";
-import stockArms from "@/assets/stock-arms.png";
+import stockBack from "@/assets/stock-back.webp";
+import stockArms from "@/assets/stock-arms.webp";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import marcosCoachPortrait from "@/assets/marcos-coach-portrait.jpg";
-import marcosAction6 from "@/assets/marcos-action-6.jpg";
-import marcosAction7 from "@/assets/marcos-action-7.jpg";
+import marcosAction6 from "@/assets/marcos-action-6.webp";
+import marcosAction7 from "@/assets/marcos-action-7.webp";
 import marcos2 from "@/assets/marcos-2.jpg";
 import marcos3 from "@/assets/marcos-3.jpg";
 import marcos5 from "@/assets/marcos-5.jpg";

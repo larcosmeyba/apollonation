@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import splashPhoto from "@/assets/splash-photo.jpg";
+import splashPhoto from "@/assets/splash-photo.webp";
 import apolloLogo from "@/assets/apollo-logo-black.png";
 
 interface SplashScreenProps {

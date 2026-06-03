@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import marcosAction1 from "@/assets/coach-marcos-hero.jpg";
+import marcosAction1 from "@/assets/coach-marcos-hero.webp";
 import { Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAssignedCoach } from "@/hooks/useAssignedCoach";
