@@ -56,11 +56,20 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
   ref,
 ) {
   const envKey = useMuxEnvKey();
-  const viewerId = useMemo(() => {
-    // Best-effort: pull current user id from supabase session synchronously via cached client
-    // Falls back to undefined which Mux treats as anonymous.
-    return (supabase.auth as unknown as { currentSession?: { user?: { id?: string } } })
-      .currentSession?.user?.id;
+  const [viewerId, setViewerId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active) setViewerId(data.session?.user?.id);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setViewerId(session?.user?.id);
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const metadata = useMemo(
