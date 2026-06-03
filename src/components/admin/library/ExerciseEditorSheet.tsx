@@ -95,6 +95,8 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
       ...form,
       thumbnail_url: form.mux_playback_id ? muxThumb(form.mux_playback_id) : null,
       alternative_exercise_id: form.alternative_exercise_id || null,
+      duration_seconds:
+        form.duration_seconds ?? (duration > 0 ? Number(duration.toFixed(2)) : null),
     };
     const res = exercise
       ? await supabase.from("admin_exercises").update(payload).eq("id", exercise.id)
