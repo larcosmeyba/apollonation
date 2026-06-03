@@ -133,7 +133,6 @@ Deno.serve(async (req) => {
             name: parsed.name,
             body_part: parsed.bodyPart,
             muscle_group: parsed.bodyPart?.toLowerCase() ?? null,
-            category: "library",
             orientation: orientation(asset?.aspect_ratio, "vertical"),
             thumbnail_url: thumbnail,
             duration_seconds: duration,
