@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   AdminExercise,
   EQUIPMENT_OPTIONS,
+  EXERCISE_CATEGORIES,
   MOVEMENT_TYPES,
   MUSCLE_GROUPS,
   muxMp4,
