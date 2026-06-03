@@ -180,13 +180,17 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
             <div className="absolute inset-0 grid" style={{ gridTemplateColumns: showAlt && block.alt ? "1fr 1fr" : "1fr" }}>
               <div className="relative bg-black">
                 {block.exercise?.mux_playback_id ? (
-                  <video
+                  <MuxVideo
                     ref={videoRef}
-                    src={muxMp4(block.exercise.mux_playback_id)}
+                    playbackId={block.exercise.mux_playback_id}
+                    title={block.exercise.name}
+                    videoId={block.exercise.id}
+                    category={block.exercise.category}
+                    classTitle={title}
                     autoPlay
                     muted
-                    playsInline
-                    onTimeUpdate={handleTimeUpdate(videoRef, block.exercise)}
+                    controls={false}
+                    onTimeUpdate={handleTimeUpdate(videoRef, block.exercise) as never}
                     onLoadedMetadata={() => {
                       if (videoRef.current && block.exercise?.loop_in_seconds)
                         videoRef.current.currentTime = block.exercise.loop_in_seconds;
@@ -198,15 +202,19 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                 )}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
               </div>
-              {showAlt && block.alt && (
+              {showAlt && block.alt?.mux_playback_id && (
                 <div className="relative bg-black border-l border-white/10">
-                  <video
+                  <MuxVideo
                     ref={altVideoRef}
-                    src={muxMp4(block.alt.mux_playback_id)}
+                    playbackId={block.alt.mux_playback_id}
+                    title={`${block.alt.name} (alt)`}
+                    videoId={block.alt.id}
+                    category={block.alt.category}
+                    classTitle={title}
                     autoPlay
                     muted
-                    playsInline
-                    onTimeUpdate={handleTimeUpdate(altVideoRef, block.alt)}
+                    controls={false}
+                    onTimeUpdate={handleTimeUpdate(altVideoRef, block.alt) as never}
                     onLoadedMetadata={() => {
                       if (altVideoRef.current && block.alt?.loop_in_seconds)
                         altVideoRef.current.currentTime = block.alt.loop_in_seconds;
