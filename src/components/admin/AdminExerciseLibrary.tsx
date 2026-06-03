@@ -46,11 +46,16 @@ const AdminExerciseLibrary = () => {
   const filtered = exercises.filter((e) => {
     if (filterOrient !== "all" && e.orientation !== filterOrient) return false;
     if (filterMuscle !== "all" && e.muscle_group !== filterMuscle) return false;
-    if (search && !e.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (filterBodyPart !== "all" && (e.body_part || "").toLowerCase() !== filterBodyPart.toLowerCase()) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!e.name.toLowerCase().includes(q) && !(e.body_part || "").toLowerCase().includes(q)) return false;
+    }
     return true;
   });
 
   const muscles = Array.from(new Set(exercises.map((e) => e.muscle_group).filter(Boolean))) as string[];
+  const bodyParts = Array.from(new Set(exercises.map((e) => e.body_part).filter(Boolean))) as string[];
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this exercise?")) return;
