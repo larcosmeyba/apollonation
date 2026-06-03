@@ -42,6 +42,8 @@ const blank: Partial<AdminExercise> = {
   loop_in_seconds: 0,
   loop_out_seconds: null,
   tags: [],
+  category: "strength",
+  duration_seconds: null,
 };
 
 const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSaved }: Props) => {
