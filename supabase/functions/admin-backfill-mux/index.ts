@@ -74,12 +74,14 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Auth: admin user OR CRON_SECRET header (for one-shot backfills).
+    // Auth: admin user OR CRON_SECRET header OR service-role bearer (for one-shot backfills).
     const cronSecret = Deno.env.get("CRON_SECRET") ?? "";
     const providedCron = req.headers.get("x-cron-secret") ?? "";
     const isCron = cronSecret && providedCron && providedCron === cronSecret;
-    if (!isCron) {
-      const auth = req.headers.get("Authorization") ?? "";
+    const auth = req.headers.get("Authorization") ?? "";
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const isService = serviceKey && auth === `Bearer ${serviceKey}`;
+    if (!isCron && !isService) {
       const userClient = createClient(
         Deno.env.get("SUPABASE_URL")!,
         Deno.env.get("SUPABASE_ANON_KEY")!,
