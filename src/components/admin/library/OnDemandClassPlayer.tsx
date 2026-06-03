@@ -90,13 +90,17 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
     return () => clearInterval(i);
   }, [paused, phase, idx, setNum, block, blocks]);
 
-  // Loop trim
-  const handleTimeUpdate = (ref: React.RefObject<HTMLVideoElement>, ex: AdminExercise | null) => () => {
+  // Loop trim — works against mux-player which proxies the media element API.
+  const handleTimeUpdate = (
+    ref: React.RefObject<MuxPlayerElement>,
+    ex: AdminExercise | null,
+  ) => () => {
     if (!ref.current || !ex) return;
-    const out = ex.loop_out_seconds ?? ref.current.duration;
-    if (out && ref.current.currentTime >= out - 0.05) {
-      ref.current.currentTime = ex.loop_in_seconds ?? 0;
-      ref.current.play().catch(() => {});
+    const el = ref.current;
+    const out = ex.loop_out_seconds ?? el.duration;
+    if (out && el.currentTime >= out - 0.05) {
+      el.currentTime = ex.loop_in_seconds ?? 0;
+      el.play().catch(() => {});
     }
   };
 
