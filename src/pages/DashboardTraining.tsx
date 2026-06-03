@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import stockBack from "@/assets/stock-back.png";
+import stockBack from "@/assets/stock-back.webp";
 
 import { getYouTubeVideoId } from "@/utils/youtube";
 

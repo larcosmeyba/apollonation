@@ -8,15 +8,15 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { APP_STORE_URL } from "@/lib/appLinks";
 import { useWorkoutCategories } from "@/hooks/useWorkoutCategories";
-import heroImage from "@/assets/marcos-hero.jpg";
+import heroImage from "@/assets/marcos-hero.webp";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
-import marcosAction6 from "@/assets/marcos-action-6.jpg";
-import marcosAction7 from "@/assets/marcos-action-7.jpg";
+import marcosAction6 from "@/assets/marcos-action-6.webp";
+import marcosAction7 from "@/assets/marcos-action-7.webp";
 import marcos7 from "@/assets/marcos-9.webp";
 import strengthCard from "@/assets/strength-card.jpg";
-import coreCard from "@/assets/core-card.jpg";
+import coreCard from "@/assets/core-card.webp";
 import cardioCard from "@/assets/cardio-card.jpg";
-import sculptCard from "@/assets/sculpt-card.jpg";
+import sculptCard from "@/assets/sculpt-card.webp";
 
 const openAppStore = () => window.open(APP_STORE_URL, "_blank", "noopener,noreferrer");
 

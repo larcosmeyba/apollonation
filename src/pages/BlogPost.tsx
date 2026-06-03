@@ -26,7 +26,7 @@ const BlogPost = () => {
       name: "Apollo Reborn",
       logo: {
         "@type": "ImageObject",
-        url: "https://www.apolloreborn.com/og-image.png",
+        url: "https://www.apolloreborn.com/og-image.jpg",
       },
     },
     mainEntityOfPage: `https://www.apolloreborn.com/blog/${post.slug}`,

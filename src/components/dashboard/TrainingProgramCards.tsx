@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Fallback images for categories
-import imgStrength from "@/assets/program-strength.jpg";
+import imgStrength from "@/assets/program-strength.webp";
 import imgRunning from "@/assets/program-running.jpg";
 import imgHiit from "@/assets/program-hiit.jpg";
 import imgRecovery from "@/assets/program-recovery.jpg";
