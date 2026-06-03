@@ -152,6 +152,18 @@ const AdminExerciseLibrary = () => {
                 </option>
               ))}
             </select>
+            <select
+              value={filterBodyPart}
+              onChange={(e) => setFilterBodyPart(e.target.value)}
+              className="bg-card border border-border rounded-md px-3 h-10 text-sm"
+            >
+              <option value="all">All body parts</option>
+              {bodyParts.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
             <span className="text-xs text-muted-foreground ml-auto">
               {filtered.length} of {exercises.length}
             </span>
