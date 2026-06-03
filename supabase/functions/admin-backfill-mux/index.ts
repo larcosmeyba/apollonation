@@ -74,18 +74,23 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Verify caller is admin
-    const auth = req.headers.get("Authorization") ?? "";
-    const userClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: auth } } },
-    );
-    const { data: userRes } = await userClient.auth.getUser();
-    const uid = userRes?.user?.id;
-    if (!uid) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    const { data: roleRow } = await supabase.from("user_roles").select("role").eq("user_id", uid).eq("role", "admin").maybeSingle();
-    if (!roleRow) return new Response(JSON.stringify({ error: "admin_only" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    // Auth: admin user OR CRON_SECRET header (for one-shot backfills).
+    const cronSecret = Deno.env.get("CRON_SECRET") ?? "";
+    const providedCron = req.headers.get("x-cron-secret") ?? "";
+    const isCron = cronSecret && providedCron && providedCron === cronSecret;
+    if (!isCron) {
+      const auth = req.headers.get("Authorization") ?? "";
+      const userClient = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: auth } } },
+      );
+      const { data: userRes } = await userClient.auth.getUser();
+      const uid = userRes?.user?.id;
+      if (!uid) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const { data: roleRow } = await supabase.from("user_roles").select("role").eq("user_id", uid).eq("role", "admin").maybeSingle();
+      if (!roleRow) return new Response(JSON.stringify({ error: "admin_only" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     const tokenId = Deno.env.get("MUX_TOKEN_ID")!;
     const tokenSecret = Deno.env.get("MUX_TOKEN_SECRET")!;
