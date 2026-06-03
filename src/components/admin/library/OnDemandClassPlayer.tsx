@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, SkipForward, Pause, Play, Repeat } from "lucide-react";
-import { AdminExercise, muxMp4, muxThumb } from "./exerciseTypes";
+import type MuxPlayerElement from "@mux/mux-player";
+import { AdminExercise, muxThumb } from "./exerciseTypes";
+import MuxVideo from "@/components/video/MuxVideo";
 
 export interface PlayerBlock {
   exercise: AdminExercise | null;
