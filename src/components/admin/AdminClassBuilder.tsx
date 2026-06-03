@@ -47,7 +47,7 @@ const newBlock = (exercise_id: string | null, alt_id: string | null = null): Blo
   drop_set: false,
 });
 
-const CLASS_TYPES = ["strength", "sculpt", "hiit", "cycling", "recovery", "beginner"] as const;
+const CLASS_TYPES = ["strength", "sculpt", "stretch", "cardio"] as const;
 
 const AdminClassBuilder = () => {
   const qc = useQueryClient();
