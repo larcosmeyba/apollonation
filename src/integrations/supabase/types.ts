@@ -201,11 +201,13 @@ export type Database = {
       admin_exercises: {
         Row: {
           alternative_exercise_id: string | null
+          category: string | null
           coaching_notes: string | null
           contraindications: string | null
           created_at: string
           created_by: string | null
           difficulty: string
+          duration_seconds: number | null
           equipment: string[]
           id: string
           loop_in_seconds: number | null
@@ -226,11 +228,13 @@ export type Database = {
         }
         Insert: {
           alternative_exercise_id?: string | null
+          category?: string | null
           coaching_notes?: string | null
           contraindications?: string | null
           created_at?: string
           created_by?: string | null
           difficulty?: string
+          duration_seconds?: number | null
           equipment?: string[]
           id?: string
           loop_in_seconds?: number | null
@@ -251,11 +255,13 @@ export type Database = {
         }
         Update: {
           alternative_exercise_id?: string | null
+          category?: string | null
           coaching_notes?: string | null
           contraindications?: string | null
           created_at?: string
           created_by?: string | null
           difficulty?: string
+          duration_seconds?: number | null
           equipment?: string[]
           id?: string
           loop_in_seconds?: number | null
