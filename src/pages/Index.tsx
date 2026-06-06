@@ -6,7 +6,7 @@ import IPhoneMockup from "@/components/IPhoneMockup";
 import { ArrowRight, Play, Clock, Dumbbell, Calendar, Target, Heart, BarChart3, UtensilsCrossed, ShoppingCart, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { APP_STORE_URL } from "@/lib/appLinks";
+import { APP_STORE_URL, GOOGLE_PLAY_URL } from "@/lib/appLinks";
 import { useWorkoutCategories } from "@/hooks/useWorkoutCategories";
 import heroImage from "@/assets/marcos-hero.webp";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
@@ -19,6 +19,7 @@ import cardioCard from "@/assets/cardio-card.jpg";
 import sculptCard from "@/assets/sculpt-card.webp";
 
 const openAppStore = () => window.open(APP_STORE_URL, "_blank", "noopener,noreferrer");
+const openGooglePlay = () => window.open(GOOGLE_PLAY_URL, "_blank", "noopener,noreferrer");
 
 const FEATURES = [
   {
@@ -148,14 +149,22 @@ const Index = () => {
             </p>
 
             <div
-              className={`flex items-center justify-center transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             >
               <Button
                 size="lg"
-                className="plausible-event-name=Hero+CTA+Click group h-14 px-10 text-base rounded-full bg-white text-black hover:bg-white/90 border border-white font-semibold"
+                className="plausible-event-name=Hero+CTA+Click group h-14 px-8 text-base rounded-full bg-white text-black hover:bg-white/90 border border-white font-semibold"
                 onClick={openAppStore}
               >
-                Download the App
+                App Store
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+              </Button>
+              <Button
+                size="lg"
+                className="plausible-event-name=Hero+GooglePlay+Click group h-14 px-8 text-base rounded-full bg-transparent text-white hover:bg-white/10 border border-white/40 font-semibold"
+                onClick={openGooglePlay}
+              >
+                Google Play
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
               </Button>
             </div>
