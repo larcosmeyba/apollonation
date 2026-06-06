@@ -335,14 +335,14 @@ const AppleHealthCard = () => {
         />
       </div>
 
-      {/* Footer */}
-      <button
-        type="button"
+      {/* Footer — opens iOS Settings so user can adjust permissions / disconnect */}
+      <a
+        href="App-Prefs:HEALTH"
         className="group w-full flex items-center justify-between rounded-xl py-2.5 px-3 transition-colors hover:bg-foreground/[0.04]"
         style={{ border: "1px solid hsl(var(--apollo-gold) / 0.12)" }}
       >
         <span className="text-[11px] uppercase tracking-[0.2em] font-semibold" style={{ color: "hsl(var(--apollo-gold))" }}>
-          View All Health Data
+          Manage in iPhone Settings
         </span>
         <span
           className="text-base transition-transform group-hover:translate-x-0.5"
@@ -351,7 +351,7 @@ const AppleHealthCard = () => {
         >
           →
         </span>
-      </button>
+      </a>
 
       {error && <p className="text-xs text-destructive mt-3">{error}</p>}
     </div>

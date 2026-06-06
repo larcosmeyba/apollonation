@@ -726,7 +726,7 @@ const DashboardNutrition = () => {
             <div className="space-y-4">
               {previewUrl ? (
                 <div className="relative aspect-video rounded-lg overflow-hidden">
-                  <img src={previewUrl} alt="Food" className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={previewUrl} alt="Food" className="w-full h-full object-cover" />
                   <button onClick={() => { setSelectedFile(null); setPreviewUrl(null); }} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-background/50 flex items-center justify-center">
                     <Trash2 className="w-4 h-4" />
                   </button>

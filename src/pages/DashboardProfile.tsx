@@ -682,7 +682,7 @@ const DashboardProfile = () => {
                 {uploading ? (
                   <Loader2 className="w-8 h-8 animate-spin text-background" />
                 ) : avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                  <img loading="lazy" decoding="async" src={avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <span className="text-4xl font-bold text-background">
                     {(profile?.display_name || "M").charAt(0).toUpperCase()}
@@ -925,11 +925,12 @@ const DashboardProfile = () => {
                 </a>
                 <button
                   onClick={() => {
-                    if (isIOS() && !APP_STORE_RATE_URL) {
-                      toast({ title: "Rating coming soon", description: "App Store listing isn't live yet." });
-                      return;
-                    }
-                    openUrl(APP_STORE_RATE_URL ?? "https://apps.apple.com/app/id" + (APP_STORE_ID || ""));
+                    // APP_STORE_REVIEW_URL is a deep link — always defined.
+                    // On non-iOS, fall back to the public listing.
+                    const url = isIOS()
+                      ? APP_STORE_RATE_URL
+                      : `https://apps.apple.com/app/id${APP_STORE_ID}`;
+                    openUrl(url);
                   }}
                   className="flex items-center justify-between w-full py-3.5 border-b border-border"
                 >
