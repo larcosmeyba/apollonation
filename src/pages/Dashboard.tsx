@@ -335,8 +335,16 @@ const Dashboard = () => {
               to="/dashboard/profile"
               className="inline-flex items-center gap-1.5 mt-1 text-xs font-semibold text-foreground/60 hover:text-foreground transition-colors"
             >
-              <Flame className={`w-3.5 h-3.5 ${streak > 0 ? "text-orange-400" : "text-foreground/40"}`} />
-              {streak > 0 ? `${streak} day streak` : "Start your streak"}
+              <Flame
+                className="w-3.5 h-3.5"
+                style={{ color: streak > 0 ? "hsl(var(--apollo-gold))" : "hsl(0 0% 100% / 0.4)" }}
+              />
+              <span
+                className="uppercase tracking-[0.18em]"
+                style={{ color: streak > 0 ? "hsl(var(--apollo-gold))" : undefined }}
+              >
+                {streak > 0 ? `${streak} Day Streak` : "Start your streak"}
+              </span>
             </Link>
           </div>
         </div>
