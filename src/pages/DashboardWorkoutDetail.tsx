@@ -20,6 +20,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
 import DifficultyRating from "@/components/dashboard/DifficultyRating";
+import { useAppleHealth } from "@/hooks/useAppleHealth";
+
 
 // ── YouTube helpers ──────────────────────────────────────────────────
 const getYouTubeVideoId = (url: string): string | null => {
