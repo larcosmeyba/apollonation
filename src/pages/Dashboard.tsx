@@ -299,8 +299,10 @@ const Dashboard = () => {
         <h3 className="text-base font-bold text-white uppercase leading-tight truncate min-w-0">
           {workout.title}
         </h3>
-        <p className="text-xs font-bold text-white mt-1 truncate min-w-0">
-          Marcos Leyba &nbsp;/&nbsp; {workout.duration_minutes} min &nbsp;/&nbsp; Train: {workout.category}
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 mt-1.5 truncate min-w-0">
+          {workout.duration_minutes} MIN
+          <span className="mx-1.5 text-[hsl(var(--apollo-gold))]">•</span>
+          {(workout.category || "Train").toUpperCase()}
         </p>
       </div>
     </div>
