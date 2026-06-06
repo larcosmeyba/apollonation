@@ -147,8 +147,20 @@ const DashboardNutritionSetup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const force = searchParams.get("force") === "1";
+  const { profile: fitnessProfile, save: saveFitnessProfile } = useFitnessProfile();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+
+  // If user already completed Fuel intake, skip straight to Fuel dashboard
+  // unless ?force=1 is passed (retake flow).
+  useEffect(() => {
+    if (!force && fitnessProfile?.nutrition_completed) {
+      navigate("/dashboard/nutrition", { replace: true });
+    }
+  }, [fitnessProfile?.nutrition_completed, force, navigate]);
+
 
   // Pre-fill from existing nutrition questionnaire if retaking
   const { data: existing } = useQuery({
