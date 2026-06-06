@@ -425,9 +425,19 @@ const Dashboard = () => {
                     cat === "Strength" || cat === "Cardio" ? "object-[center_30%]" : "object-[center_top]"
                   } ${idx % 2 !== 0 ? "grayscale" : ""}`}
                 />
-                <span className="absolute inset-0 z-10 flex items-center justify-center text-sm font-bold text-white tracking-wide drop-shadow-lg">
-                  {cat}
-                </span>
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-4 text-center">
+                  <span className="text-base font-bold text-white tracking-wide drop-shadow-lg">
+                    {cat}
+                  </span>
+                  {categoryCounts[cat] > 0 && (
+                    <span
+                      className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                      style={{ color: "hsl(var(--apollo-gold))" }}
+                    >
+                      {categoryCounts[cat]} {categoryCounts[cat] === 1 ? "Class" : "Classes"}
+                    </span>
+                  )}
+                </div>
               </Link>
             ))}
           </div>
