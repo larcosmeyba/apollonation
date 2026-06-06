@@ -2312,6 +2312,63 @@ export type Database = {
         }
         Relationships: []
       }
+      program_workouts: {
+        Row: {
+          created_at: string
+          day_number: number
+          duration_minutes: number | null
+          focus: string[] | null
+          id: string
+          program_id: string
+          title: string | null
+          type: string | null
+          updated_at: string
+          week_number: number
+          workout_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          day_number: number
+          duration_minutes?: number | null
+          focus?: string[] | null
+          id?: string
+          program_id: string
+          title?: string | null
+          type?: string | null
+          updated_at?: string
+          week_number: number
+          workout_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          duration_minutes?: number | null
+          focus?: string[] | null
+          id?: string
+          program_id?: string
+          title?: string | null
+          type?: string | null
+          updated_at?: string
+          week_number?: number
+          workout_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_workouts_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_workouts_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       programs: {
         Row: {
           category: string
@@ -2946,6 +3003,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activity_logs: {
+        Row: {
+          activity_type: string
+          calories: number | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          logged_at: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          calories?: number | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          logged_at?: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          calories?: number | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          logged_at?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_blocks: {
         Row: {
           blocked_user_id: string
@@ -3132,6 +3225,120 @@ export type Database = {
         }
         Relationships: []
       }
+      user_program_workouts: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          is_swapped: boolean
+          program_workout_id: string
+          scheduled_date: string
+          status: string
+          swapped_workout_id: string | null
+          updated_at: string
+          user_id: string
+          user_program_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_swapped?: boolean
+          program_workout_id: string
+          scheduled_date: string
+          status?: string
+          swapped_workout_id?: string | null
+          updated_at?: string
+          user_id: string
+          user_program_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_swapped?: boolean
+          program_workout_id?: string
+          scheduled_date?: string
+          status?: string
+          swapped_workout_id?: string | null
+          updated_at?: string
+          user_id?: string
+          user_program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_program_workouts_program_workout_id_fkey"
+            columns: ["program_workout_id"]
+            isOneToOne: false
+            referencedRelation: "program_workouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_program_workouts_swapped_workout_id_fkey"
+            columns: ["swapped_workout_id"]
+            isOneToOne: false
+            referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_program_workouts_user_program_id_fkey"
+            columns: ["user_program_id"]
+            isOneToOne: false
+            referencedRelation: "user_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_programs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_day: number
+          current_week: number
+          id: string
+          program_id: string
+          progress_percent: number
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_day?: number
+          current_week?: number
+          id?: string
+          program_id: string
+          progress_percent?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_day?: number
+          current_week?: number
+          id?: string
+          program_id?: string
+          progress_percent?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_programs_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -3152,6 +3359,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_workout_completions: {
+        Row: {
+          calories: number | null
+          completed_at: string
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          user_id: string
+          user_program_workout_id: string | null
+          workout_id: string | null
+        }
+        Insert: {
+          calories?: number | null
+          completed_at?: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          user_id: string
+          user_program_workout_id?: string | null
+          workout_id?: string | null
+        }
+        Update: {
+          calories?: number | null
+          completed_at?: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          user_id?: string
+          user_program_workout_id?: string | null
+          workout_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_workout_completions_user_program_workout_id_fkey"
+            columns: ["user_program_workout_id"]
+            isOneToOne: false
+            referencedRelation: "user_program_workouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_workout_completions_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_workout_progress: {
         Row: {
@@ -3426,6 +3681,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      complete_program_workout: {
+        Args: {
+          p_calories?: number
+          p_duration?: number
+          p_user_program_workout_id: string
+        }
+        Returns: Json
+      }
       delete_coach_message: { Args: { _message_id: string }; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
@@ -3435,6 +3698,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      enroll_in_program: { Args: { p_program_id: string }; Returns: string }
       get_assigned_coach_profile: {
         Args: never
         Returns: {
@@ -3507,6 +3771,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      swap_program_workout: {
+        Args: { p_category: string; p_user_program_workout_id: string }
+        Returns: string
       }
     }
     Enums: {
