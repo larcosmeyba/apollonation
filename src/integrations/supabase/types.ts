@@ -3096,6 +3096,117 @@ export type Database = {
           },
         ]
       }
+      user_fitness_profile: {
+        Row: {
+          activity_level: string | null
+          age: number | null
+          allergies: string[] | null
+          calorie_target: number | null
+          carb_target_g: number | null
+          coach_notes: string | null
+          coaching_intake_completed: boolean
+          created_at: string
+          dietary_preferences: string[] | null
+          disliked_foods: string[] | null
+          equipment_available: string[] | null
+          fat_target_g: number | null
+          goal_weight_lbs: number | null
+          grocery_store: string | null
+          height_inches: number | null
+          id: string
+          injuries: string | null
+          meals_per_day: number | null
+          nutrition_completed: boolean
+          nutrition_goal: string | null
+          onboarding_completed: boolean
+          preferred_training_days: string[] | null
+          primary_goal: string | null
+          progress_photo_urls: string[] | null
+          protein_target_g: number | null
+          sex: string | null
+          training_days_per_week: number | null
+          training_experience: string | null
+          updated_at: string
+          user_id: string
+          weekly_food_budget: number | null
+          weight_lbs: number | null
+          workout_duration_minutes: number | null
+          workout_environment: string | null
+        }
+        Insert: {
+          activity_level?: string | null
+          age?: number | null
+          allergies?: string[] | null
+          calorie_target?: number | null
+          carb_target_g?: number | null
+          coach_notes?: string | null
+          coaching_intake_completed?: boolean
+          created_at?: string
+          dietary_preferences?: string[] | null
+          disliked_foods?: string[] | null
+          equipment_available?: string[] | null
+          fat_target_g?: number | null
+          goal_weight_lbs?: number | null
+          grocery_store?: string | null
+          height_inches?: number | null
+          id?: string
+          injuries?: string | null
+          meals_per_day?: number | null
+          nutrition_completed?: boolean
+          nutrition_goal?: string | null
+          onboarding_completed?: boolean
+          preferred_training_days?: string[] | null
+          primary_goal?: string | null
+          progress_photo_urls?: string[] | null
+          protein_target_g?: number | null
+          sex?: string | null
+          training_days_per_week?: number | null
+          training_experience?: string | null
+          updated_at?: string
+          user_id: string
+          weekly_food_budget?: number | null
+          weight_lbs?: number | null
+          workout_duration_minutes?: number | null
+          workout_environment?: string | null
+        }
+        Update: {
+          activity_level?: string | null
+          age?: number | null
+          allergies?: string[] | null
+          calorie_target?: number | null
+          carb_target_g?: number | null
+          coach_notes?: string | null
+          coaching_intake_completed?: boolean
+          created_at?: string
+          dietary_preferences?: string[] | null
+          disliked_foods?: string[] | null
+          equipment_available?: string[] | null
+          fat_target_g?: number | null
+          goal_weight_lbs?: number | null
+          grocery_store?: string | null
+          height_inches?: number | null
+          id?: string
+          injuries?: string | null
+          meals_per_day?: number | null
+          nutrition_completed?: boolean
+          nutrition_goal?: string | null
+          onboarding_completed?: boolean
+          preferred_training_days?: string[] | null
+          primary_goal?: string | null
+          progress_photo_urls?: string[] | null
+          protein_target_g?: number | null
+          sex?: string | null
+          training_days_per_week?: number | null
+          training_experience?: string | null
+          updated_at?: string
+          user_id?: string
+          weekly_food_budget?: number | null
+          weight_lbs?: number | null
+          workout_duration_minutes?: number | null
+          workout_environment?: string | null
+        }
+        Relationships: []
+      }
       user_food_budgets: {
         Row: {
           created_at: string
