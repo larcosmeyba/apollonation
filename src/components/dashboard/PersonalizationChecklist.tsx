@@ -82,9 +82,48 @@ const PersonalizationChecklist = () => {
     <motion.section
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/12 via-primary/4 to-transparent p-5 sm:p-6"
+      className="relative rounded-3xl p-5 sm:p-6"
+      style={{
+        background:
+          "linear-gradient(180deg, hsl(220 14% 11%) 0%, hsl(220 16% 7%) 100%)",
+        border: "1px solid hsl(0 0% 100% / 0.08)",
+        boxShadow: [
+          // outer ambient glow
+          "0 0 60px hsl(0 0% 100% / 0.06)",
+          "0 20px 60px hsl(0 0% 0% / 0.6)",
+          // crisp inner top highlight (the "shine")
+          "inset 0 1px 0 hsl(0 0% 100% / 0.18)",
+          // soft inner side feathering
+          "inset 0 0 40px hsl(0 0% 100% / 0.04)",
+        ].join(", "),
+      }}
     >
-      <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/15 rounded-full blur-3xl pointer-events-none" />
+      {/* Top-edge specular highlight */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-8 top-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent 0%, hsl(0 0% 100% / 0.55) 50%, transparent 100%)",
+        }}
+      />
+      {/* Soft corner glows */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-20 left-1/4 w-72 h-32 rounded-full blur-3xl"
+        style={{ background: "hsl(0 0% 100% / 0.06)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 -left-10 w-56 h-40 rounded-full blur-3xl"
+        style={{ background: "hsl(0 0% 100% / 0.04)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 -right-10 w-56 h-40 rounded-full blur-3xl"
+        style={{ background: "hsl(0 0% 100% / 0.04)" }}
+      />
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
       <div className="relative space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
