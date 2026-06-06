@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import {
-  Dumbbell, ChevronRight, Play, Plus, Flame,
+  Dumbbell, ChevronRight, Play, Plus, Flame, Clock, Activity,
   ChevronLeft, Loader2, Sparkles, ArrowLeftRight, Check,
 } from "lucide-react";
 import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
