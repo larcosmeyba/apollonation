@@ -238,8 +238,8 @@ const Questionnaire = () => {
             workout_environment: form.workout_environment,
             injuries: form.injuries_limitations.trim() || null,
             onboarding_completed: true,
-            onboarding_completed_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+
           },
           { onConflict: "user_id" }
         );
