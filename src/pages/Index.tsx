@@ -200,7 +200,7 @@ const Index = () => {
       </section>
 
       {/* ═══ 3. WORKOUT LIBRARY ═══ */}
-      <section id="workouts" className="py-16 md:py-24 border-t border-border/30">
+      <section id="workouts" className="py-12 md:py-16 border-t border-border/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">Workouts</span>
