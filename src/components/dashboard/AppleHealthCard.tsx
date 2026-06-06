@@ -216,59 +216,238 @@ const AppleHealthCard = () => {
   }
 
   const workoutMins = today?.workout_duration_minutes ?? 0;
+  const steps = today?.steps ?? 0;
+  const calories = today?.active_calories ?? 0;
+  const activityMin = workoutMins;
+  const workoutCount = today?.workout_count ?? 0;
+  const workoutHR = today?.avg_workout_heart_rate;
+
+  // Daily goals (defaults; could be wired to user_targets later)
+  const STEP_GOAL = 10000;
+  const CAL_GOAL = 600;
+  const ACTIVITY_GOAL = 30;
 
   return (
-    <div className="card-apollo p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Heart className="w-4 h-4 text-primary" />
+    <div
+      className="relative rounded-2xl overflow-hidden p-5"
+      style={{
+        background:
+          "linear-gradient(180deg, hsl(220 14% 12% / 0.95) 0%, hsl(220 16% 8% / 0.98) 100%)",
+        border: "1px solid hsl(var(--apollo-gold) / 0.18)",
+        boxShadow:
+          "var(--shadow-md), inset 0 1px 0 hsl(var(--apollo-gold) / 0.08), 0 0 40px hsl(var(--apollo-gold) / 0.04)",
+        backdropFilter: "blur(24px) saturate(140%)",
+        WebkitBackdropFilter: "blur(24px) saturate(140%)",
+      }}
+    >
+      {/* Subtle gold glow accent */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-20"
+        style={{ background: "radial-gradient(circle, hsl(var(--apollo-gold) / 0.4) 0%, transparent 70%)" }}
+      />
+
+      {/* Header */}
+      <div className="relative flex items-start justify-between mb-5">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{
+              background: "linear-gradient(135deg, hsl(var(--apollo-gold) / 0.18), hsl(var(--apollo-gold) / 0.06))",
+              border: "1px solid hsl(var(--apollo-gold) / 0.25)",
+            }}
+          >
+            <Heart className="w-4 h-4" style={{ color: "hsl(var(--apollo-gold))" }} />
           </div>
-          <h3 className="font-heading text-sm">Apple Health</h3>
-          <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-green-500/15 px-2 py-0.5 text-[10px] font-semibold text-green-500">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            Connected
-          </span>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <h3 className="font-heading text-sm tracking-wide text-foreground">Apple Health</h3>
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-500/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-green-400">
+                <span className="w-1 h-1 rounded-full bg-green-400" />
+                Connected
+              </span>
+            </div>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-foreground/40 mt-0.5">Today's Activity</p>
+          </div>
         </div>
-        <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => sync()} disabled={syncing}>
-          {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-        </Button>
+        <div className="flex items-center gap-2">
+          {lastSyncAt && (
+            <span className="text-[10px] text-foreground/40 hidden sm:inline">
+              Last synced {new Date(lastSyncAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+            </span>
+          )}
+          <button
+            onClick={() => sync()}
+            disabled={syncing}
+            aria-label="Refresh Apple Health data"
+            className="w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-foreground/5"
+            style={{ color: "hsl(var(--apollo-gold))" }}
+          >
+            {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <Stat icon={<Footprints className="w-4 h-4 text-primary" />} label="Steps" value={(today?.steps ?? 0).toLocaleString()} />
-        <Stat icon={<Flame className="w-4 h-4 text-orange-400" />} label="Calories" value={`${today?.active_calories ?? 0}`} />
-        <Stat icon={<Heart className="w-4 h-4 text-red-400" />} label="Workout HR" value={today?.avg_workout_heart_rate ? `${today.avg_workout_heart_rate} bpm` : "—"} />
-        <Stat icon={<Activity className="w-4 h-4 text-blue-400" />} label="Workout" value={workoutMins > 0 ? `${workoutMins} min` : "—"} />
+      {/* Activity Rings */}
+      <div className="grid grid-cols-3 gap-2 mb-5">
+        <RingMetric
+          value={steps}
+          goal={STEP_GOAL}
+          label="Steps"
+          display={steps.toLocaleString()}
+          color="hsl(var(--apollo-gold))"
+        />
+        <RingMetric
+          value={calories}
+          goal={CAL_GOAL}
+          label="Active Cal"
+          display={calories.toLocaleString()}
+          color="hsl(18 88% 60%)"
+        />
+        <RingMetric
+          value={activityMin}
+          goal={ACTIVITY_GOAL}
+          label="Activity"
+          display={`${activityMin}${activityMin ? " min" : ""}`}
+          color="hsl(350 80% 62%)"
+        />
       </div>
 
-      {today?.workout_count ? (
-        <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
-          <Activity className="w-3 h-3" />
-          {today.workout_count} workout{today.workout_count > 1 ? "s" : ""} today
-          {today.avg_workout_heart_rate ? ` · avg ${today.avg_workout_heart_rate} bpm` : ""}
-        </div>
-      ) : null}
+      {/* Divider */}
+      <div
+        className="h-px w-full mb-4"
+        style={{ background: "linear-gradient(90deg, transparent, hsl(var(--apollo-gold) / 0.18), transparent)" }}
+      />
 
-      {lastSyncAt && (
-        <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-muted/20 px-2.5 py-2 text-[10px] text-muted-foreground">
-          <span>{diagnostics.lastMessage || "Apple Health sync complete"}</span>
-          <span className="whitespace-nowrap">{new Date(lastSyncAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
-        </div>
-      )}
+      {/* Secondary metrics */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <SecondaryStat
+          icon={<Heart className="w-3.5 h-3.5" style={{ color: "hsl(var(--apollo-gold))" }} />}
+          label="Workout HR"
+          value={workoutHR ? `${workoutHR}` : "—"}
+          unit={workoutHR ? "bpm" : ""}
+        />
+        <SecondaryStat
+          icon={<Activity className="w-3.5 h-3.5" style={{ color: "hsl(var(--apollo-gold))" }} />}
+          label="Workouts"
+          value={`${workoutCount}`}
+          unit={workoutCount === 1 ? "session" : "sessions"}
+        />
+      </div>
 
-      {error && <p className="text-xs text-destructive mt-2">{error}</p>}
+      {/* Footer */}
+      <button
+        type="button"
+        className="group w-full flex items-center justify-between rounded-xl py-2.5 px-3 transition-colors hover:bg-foreground/[0.04]"
+        style={{ border: "1px solid hsl(var(--apollo-gold) / 0.12)" }}
+      >
+        <span className="text-[11px] uppercase tracking-[0.2em] font-semibold" style={{ color: "hsl(var(--apollo-gold))" }}>
+          View All Health Data
+        </span>
+        <span
+          className="text-base transition-transform group-hover:translate-x-0.5"
+          style={{ color: "hsl(var(--apollo-gold))" }}
+          aria-hidden
+        >
+          →
+        </span>
+      </button>
+
+      {error && <p className="text-xs text-destructive mt-3">{error}</p>}
     </div>
   );
 };
 
-const Stat = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
-  <div className="rounded-lg bg-muted/30 p-2">
-    <div className="flex items-center gap-1.5 mb-0.5">
-      {icon}
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
+/** Apple-Fitness-style circular progress ring */
+const RingMetric = ({
+  value,
+  goal,
+  label,
+  display,
+  color,
+}: {
+  value: number;
+  goal: number;
+  label: string;
+  display: string;
+  color: string;
+}) => {
+  const size = 92;
+  const stroke = 7;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const pct = Math.min(1, goal > 0 ? value / goal : 0);
+  const dash = circumference * pct;
+  const pctLabel = Math.round(pct * 100);
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="-rotate-90">
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="hsl(0 0% 100% / 0.06)"
+            strokeWidth={stroke}
+            fill="none"
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke={color}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            fill="none"
+            strokeDasharray={`${dash} ${circumference}`}
+            style={{
+              filter: `drop-shadow(0 0 6px ${color})`,
+              transition: "stroke-dasharray 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-[15px] font-bold leading-none text-foreground tracking-tight">{display}</span>
+          <span className="text-[9px] uppercase tracking-wider text-foreground/50 mt-0.5">{label}</span>
+        </div>
+      </div>
+      <span
+        className="mt-2 text-[10px] font-semibold uppercase tracking-wider"
+        style={{ color: pct >= 1 ? "hsl(var(--apollo-gold))" : "hsl(0 0% 100% / 0.45)" }}
+      >
+        {pctLabel}% Goal
+      </span>
     </div>
-    <p className="font-bold text-sm">{value}</p>
+  );
+};
+
+const SecondaryStat = ({
+  icon,
+  label,
+  value,
+  unit,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  unit?: string;
+}) => (
+  <div
+    className="rounded-xl px-3 py-2.5"
+    style={{
+      background: "hsl(0 0% 100% / 0.025)",
+      border: "1px solid hsl(0 0% 100% / 0.05)",
+    }}
+  >
+    <div className="flex items-center gap-1.5 mb-1">
+      {icon}
+      <span className="text-[9px] uppercase tracking-[0.15em] text-foreground/50 font-semibold">{label}</span>
+    </div>
+    <div className="flex items-baseline gap-1">
+      <p className="text-base font-bold text-foreground leading-none">{value}</p>
+      {unit && <span className="text-[10px] text-foreground/40">{unit}</span>}
+    </div>
   </div>
 );
 
