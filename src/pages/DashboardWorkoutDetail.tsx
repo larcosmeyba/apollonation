@@ -686,25 +686,58 @@ const DashboardWorkoutDetail = () => {
   const saveSessionMutation = useMutation({
     mutationFn: async () => {
       if (!user || !dayId) return;
+      const startedAtIso = new Date().toISOString();
       await (supabase as any)
         .from("workout_session_logs")
         .upsert({
           user_id: user.id,
           day_id: dayId,
           log_date: dateParam,
-          completed_at: new Date().toISOString(),
+          completed_at: startedAtIso,
         }, { onConflict: "user_id,day_id,log_date" });
+
+      // If this day maps to a scheduled program workout, close it out via RPC.
+      try {
+        const { data: upw } = await (supabase as any)
+          .from("user_program_workouts")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("scheduled_date", dateParam)
+          .neq("status", "completed")
+          .order("scheduled_date", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        if (upw?.id) {
+          const exCount = (dayData?.training_plan_exercises || []).length;
+          const estDuration = dayData?.duration_minutes || (exCount > 0 ? Math.max(20, exCount * 4) : 30);
+          await (supabase as any).rpc("complete_program_workout", {
+            p_user_program_workout_id: upw.id,
+            p_duration: estDuration,
+            p_calories: null,
+          });
+          queryClient.invalidateQueries({ queryKey: ["user-program-progress"] });
+        }
+      } catch (err) {
+        console.warn("[program] complete_program_workout skipped", err);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workout-session-log"] });
       queryClient.invalidateQueries({ queryKey: ["completed-sessions-week"] });
+      queryClient.invalidateQueries({ queryKey: ["completed-sessions-all"] });
       // Increment free-tier counter (no-op for premium users).
       void recordWorkoutUsage();
+      // Pull the latest workout/HR/calories from Apple Health so this session
+      // picks up Apple Watch data without a manual refresh.
+      if (healthAvailable && healthConnected) {
+        void syncAppleHealth({ silent: true });
+      }
     },
     onSettled: () => {
       setLogging(false);
     },
   });
+
 
   // Per-(exerciseId,setNumber) debounce timers so rapid typing only fires the final upsert.
   const setLogTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
