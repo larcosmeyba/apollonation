@@ -62,7 +62,7 @@ export async function resolveUserMacroTargets(
   supabaseAdmin: any,
   userId: string,
 ): Promise<MacroTargets> {
-  // 1) Prefer the canonical stored row (matches what the dashboard reads)
+  // 1) Prefer the canonical stored row (matches what the dashboard reads).
   const { data: stored } = await supabaseAdmin
     .from("user_macro_targets")
     .select("calorie_target, protein_grams, carb_grams, fat_grams")
@@ -78,29 +78,24 @@ export async function resolveUserMacroTargets(
     };
   }
 
-  // 2) Fall back to questionnaire-based calc
-  const { data: q } = await supabaseAdmin
-    .from("client_questionnaires")
-    .select("sex, age, height_inches, weight_lbs, activity_level, goal_next_4_weeks")
-    .eq("user_id", userId)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  // 2) Fall back to the canonical Apollo macro engine (computes + persists).
+  try {
+    const { recalcAndPersistMacros } = await import("./macro-engine.ts");
+    const r = await recalcAndPersistMacros(supabaseAdmin, userId, { source: "auto" });
+    if (r) {
+      return {
+        calorie_target: r.calorie_target,
+        protein_grams: r.protein_grams,
+        carb_grams: r.carb_grams,
+        fat_grams: r.fat_grams,
+      };
+    }
+  } catch (e) {
+    console.error("[macro-scaler] engine fallback failed", (e as any)?.message ?? e);
+  }
 
-  const weightLbs = Number(q?.weight_lbs) || 170;
-  const heightIn = Number(q?.height_inches) || 68;
-  const age = Number(q?.age) || 30;
-  const sex = String(q?.sex ?? "male").toLowerCase() === "female" ? "female" : "male";
-  const weightKg = weightLbs * 0.453592;
-  const heightCm = heightIn * 2.54;
-  const bmr = 10 * weightKg + 6.25 * heightCm - 5 * age + (sex === "female" ? -161 : 5);
-  const tdee = bmr * (ACTIVITY_MULTIPLIERS[normalizeActivity(q?.activity_level)] || 1.55);
-  const calories = Math.round(tdee + inferGoalDelta(q?.goal_next_4_weeks));
-  const protein = Math.round(weightLbs); // ~1g per lb
-  const fat = Math.round((calories * 0.25) / 9);
-  const carbs = Math.max(0, Math.round((calories - protein * 4 - fat * 9) / 4));
-  return { calorie_target: calories, protein_grams: protein, carb_grams: carbs, fat_grams: fat };
+  // 3) Last-resort safe defaults so meal-plan generation never crashes.
+  return { calorie_target: 2200, protein_grams: 165, carb_grams: 220, fat_grams: 70 };
 }
 
 /**
