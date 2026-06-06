@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import {
-  Dumbbell, ChevronRight, Play, Plus, Flame,
+  Dumbbell, ChevronRight, Play, Plus, Flame, Clock, Activity,
   ChevronLeft, Loader2, Sparkles, ArrowLeftRight, Check,
 } from "lucide-react";
 import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
@@ -84,6 +84,23 @@ const DashboardTraining = () => {
     enabled: !!user,
   });
 
+  // Total completed workouts across the full active program (for progress card)
+  const { data: completedAllTime = [] } = useQuery({
+    queryKey: ["completed-sessions-all", user?.id, planData?.plan?.id],
+    enabled: !!user && !!planData?.plan,
+    queryFn: async () => {
+      const cycleStart = planData?.plan?.client_questionnaires?.cycle_start_date
+        ?? planData?.plan?.created_at;
+      const { data } = await (supabase as any)
+        .from("workout_session_logs")
+        .select("log_date")
+        .eq("user_id", user!.id)
+        .gte("log_date", format(new Date(cycleStart), "yyyy-MM-dd"))
+        .not("completed_at", "is", null);
+      return data || [];
+    },
+  });
+
   const { data: exerciseLibrary = [] } = useQuery({
     queryKey: ["exercise-library-all"],
     queryFn: async () => {
@@ -147,6 +164,39 @@ const DashboardTraining = () => {
 
   const todayWorkout = getWorkoutForDate(today);
   const exercises = todayWorkout?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
+
+  // Program progress derivation
+  const programProgress = useMemo(() => {
+    if (!planData?.plan) return null;
+    const { plan, days } = planData;
+    const daysPerCycle = days.length || 7;
+    const totalWorkouts = (plan.duration_weeks || 1) * daysPerCycle;
+    const completed = Math.min(completedAllTime.length, totalWorkouts);
+    const percent = totalWorkouts > 0 ? Math.round((completed / totalWorkouts) * 100) : 0;
+    const cycleStart = plan.client_questionnaires?.cycle_start_date
+      ? new Date(plan.client_questionnaires.cycle_start_date)
+      : new Date(plan.created_at);
+    const diffDays = Math.max(0, differenceInCalendarDays(today, cycleStart));
+    const currentWeek = Math.min(plan.duration_weeks || 1, Math.floor(diffDays / 7) + 1);
+    return {
+      title: plan.title || "Training Program",
+      currentWeek,
+      totalWeeks: plan.duration_weeks || 1,
+      completed,
+      totalWorkouts,
+      percent,
+    };
+  }, [planData, completedAllTime, today]);
+
+  // Today's workout metadata
+  const todayMeta = useMemo(() => {
+    if (!todayWorkout) return null;
+    const exCount = (todayWorkout.training_plan_exercises || []).length;
+    const estDuration = todayWorkout.duration_minutes
+      || (exCount > 0 ? Math.max(20, exCount * 4) : 30);
+    const type = todayWorkout.session_type || todayWorkout.focus_type || "Strength";
+    return { duration: estDuration, type };
+  }, [todayWorkout]);
 
   const swapMutation = useMutation({
     mutationFn: async ({ sourceDay, sourceDate, targetDate }: { sourceDay: any; sourceDate: Date; targetDate: Date }) => {
@@ -258,6 +308,35 @@ const DashboardTraining = () => {
           </div>
         )}
 
+        {/* Program Progress Card */}
+        {programProgress && (
+          <div className="rounded-xl border border-border/20 p-4 bg-gradient-to-br from-foreground/[0.03] to-transparent">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/40 mb-1.5">
+                  {programProgress.title}
+                </p>
+                <h3 className="font-heading text-lg text-foreground/90 leading-tight">
+                  Week {programProgress.currentWeek} of {programProgress.totalWeeks}
+                </h3>
+                <p className="text-[11px] text-foreground/50 mt-1">
+                  {programProgress.completed} / {programProgress.totalWorkouts} Workouts Completed
+                </p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="font-heading text-2xl text-foreground">{programProgress.percent}%</p>
+                <p className="text-[10px] uppercase tracking-wider text-foreground/40 mt-0.5">Complete</p>
+              </div>
+            </div>
+            <div className="mt-3 h-1 w-full rounded-full bg-foreground/10 overflow-hidden">
+              <div
+                className="h-full bg-foreground transition-all duration-500"
+                style={{ width: `${programProgress.percent}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Current Workout */}
         {!planData ? (
           <div className="rounded-xl border border-border/20 p-8 text-center">
@@ -269,19 +348,30 @@ const DashboardTraining = () => {
           </div>
         ) : todayWorkout ? (
           <div className="rounded-xl border border-border/20 overflow-hidden">
-            <div className="p-4 flex items-center justify-between">
-              <div>
+            <div className="p-4 flex items-start justify-between gap-3">
+              <div className="min-w-0">
                 <p className="text-eyebrow uppercase text-foreground/25 mb-0.5">Today's Workout</p>
                 <h2 className="font-heading text-lg text-foreground/80">
                   {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
                 </h2>
                 {todayWorkout.focus && (
-                  <p className="text-[11px] text-foreground/30 font-light mt-0.5">{todayWorkout.focus}</p>
+                  <p className="text-[11px] text-foreground/40 font-light mt-0.5">{todayWorkout.focus}</p>
+                )}
+                {todayMeta && (
+                  <div className="flex items-center gap-3 mt-2 text-[11px] text-foreground/50">
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> {todayMeta.duration} Min
+                    </span>
+                    <span className="text-foreground/20">|</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Activity className="w-3 h-3" /> {todayMeta.type}
+                    </span>
+                  </div>
                 )}
               </div>
-              <Link to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`}>
+              <Link to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`} className="flex-shrink-0">
                 <Button variant="apollo" size="sm" className="gap-1.5 text-xs">
-                  <Play className="w-3 h-3" /> Start
+                  <Play className="w-3 h-3" /> Start Workout
                 </Button>
               </Link>
             </div>
