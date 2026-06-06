@@ -200,8 +200,8 @@ const App = () => {
                 path="/dashboard/calendar"
                 element={<ProtectedRoute>{eb(<DashboardCalendar />)}</ProtectedRoute>}
               />
-              {/* AI Workout Builder temporarily disabled — being fixed in a later build */}
-              <Route path="/dashboard/ai-workout" element={<Navigate to="/dashboard" replace />} />
+              {/* AI Workout Builder route removed — feature paused; no entry points exist.
+                  Any old deep link falls through to NotFound, which is the correct UX. */}
               <Route
                 path="/dashboard/messages"
                 element={<ProtectedRoute>{eb(<DashboardMessages />)}</ProtectedRoute>}
