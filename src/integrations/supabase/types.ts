@@ -2219,6 +2219,48 @@ export type Database = {
         }
         Relationships: []
       }
+      openai_request_logs: {
+        Row: {
+          assistant_mode: string | null
+          created_at: string
+          error_message: string | null
+          estimated_cost: number | null
+          feature_area: string
+          id: string
+          model: string | null
+          request_tokens: number | null
+          response_tokens: number | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          assistant_mode?: string | null
+          created_at?: string
+          error_message?: string | null
+          estimated_cost?: number | null
+          feature_area: string
+          id?: string
+          model?: string | null
+          request_tokens?: number | null
+          response_tokens?: number | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          assistant_mode?: string | null
+          created_at?: string
+          error_message?: string | null
+          estimated_cost?: number | null
+          feature_area?: string
+          id?: string
+          model?: string | null
+          request_tokens?: number | null
+          response_tokens?: number | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_status: string
