@@ -82,8 +82,8 @@ const DashboardMessages = () => {
               user_id: user.id,
               primary_goal: payload.biggest_goal || null,
               coaching_intake_completed: true,
-              coaching_intake_completed_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
+
             },
             { onConflict: "user_id" }
           );
