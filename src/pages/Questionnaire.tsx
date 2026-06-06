@@ -220,11 +220,36 @@ const Questionnaire = () => {
       }
       if (error) throw error;
 
+      // Mirror to master profile (sets onboarding_completed; trigger keeps legacy tables in sync)
+      await (supabase as any)
+        .from("user_fitness_profile")
+        .upsert(
+          {
+            user_id: user.id,
+            sex: form.sex,
+            age,
+            height_inches: totalInches,
+            weight_lbs: weightLbs,
+            activity_level: form.activity_level,
+            primary_goal: form.goal,
+            training_experience: form.fitness_experience,
+            training_days_per_week: form.preferred_training_days.length,
+            preferred_training_days: form.preferred_training_days,
+            workout_environment: form.workout_environment,
+            injuries: form.injuries_limitations.trim() || null,
+            onboarding_completed: true,
+            onboarding_completed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id" }
+        );
+
       // Sync display name to profile
       await supabase
         .from("profiles")
         .update({ display_name: form.full_name.trim() })
         .eq("user_id", user.id);
+
 
       // Save calculated macros to nutrition profile
       const { data: existingProfile } = await supabase
