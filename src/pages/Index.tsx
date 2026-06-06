@@ -173,9 +173,9 @@ const Index = () => {
       </header>
 
       {/* ═══ 2. PLATFORM FEATURES ═══ */}
-      <section id="pillars" className="py-16 md:py-24">
+      <section id="pillars" className="pt-8 pb-12 md:pt-12 md:pb-16">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-10">
             <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">The Platform</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight">
               Everything You Need to Train
