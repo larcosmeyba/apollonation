@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
 import { MacroRing } from "@/components/dashboard/MacroRing";
 import { CalorieHero } from "@/components/dashboard/CalorieHero";
+import { FuelAssistant } from "@/components/dashboard/FuelAssistant";
 import { buildGroceryListFromMeals, type PricedGroceryList } from "@/lib/groceryPricing";
 import { normalizeRestrictions, RESTRICTION_LABELS, filterMealsByRestrictions } from "@/lib/dietaryRestrictions";
 import { useMacroTargets } from "@/hooks/useMacroTargets";
@@ -972,6 +973,11 @@ const DashboardNutrition = () => {
               carbs={{ consumed: loggedTotals.carbs, target: targets.carbs }}
               fat={{ consumed: loggedTotals.fat, target: targets.fat }}
             />
+
+            <div className="mt-5">
+              <FuelAssistant />
+            </div>
+
 
             {/* Logged meals today */}
             {macroEntries.length > 0 && (
