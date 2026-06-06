@@ -164,6 +164,27 @@ const DashboardNutritionSetup = () => {
     enabled: !!user,
   });
 
+  // Also pull the initial intake questionnaire so we can pre-fill the body
+  // basics (height/weight/age/gender/activity/goal) the user already entered
+  // and stop asking them for the same info again.
+  const { data: intake } = useQuery({
+    queryKey: ["intake-questionnaire-for-nutrition", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await (supabase as any)
+        .from("client_questionnaires")
+        .select(
+          "height_inches, weight_lbs, age, sex, activity_level, goal_next_4_weeks, dietary_restrictions, weekly_food_budget"
+        )
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
   const [form, setForm] = useState<any>({
     current_weight_lbs: "",
     goal_weight_lbs: "",
@@ -228,6 +249,49 @@ const DashboardNutritionSetup = () => {
       }));
     }
   }, [existing]);
+
+  // Pre-fill from the initial intake questionnaire — only fills fields the
+  // user hasn't already provided so we never overwrite their edits.
+  useEffect(() => {
+    if (!intake) return;
+    const totalIn = intake.height_inches || 0;
+    const intakeFeet = totalIn ? Math.floor(totalIn / 12).toString() : "";
+    const intakeInchesPart = totalIn ? (totalIn % 12).toString() : "";
+
+    const goalMap: Record<string, string> = {
+      gain_muscle: "build_muscle",
+      build_muscle: "build_muscle",
+      lose_fat: "lose_fat",
+      reduce_bf: "recomp",
+      recomp: "recomp",
+      performance: "maintain",
+      maintain: "maintain",
+      lean_bulk: "lean_bulk",
+      health: "health",
+    };
+
+    setForm((p: any) => ({
+      ...p,
+      height_feet: p.height_feet || intakeFeet,
+      height_inches: p.height_inches || intakeInchesPart,
+      current_weight_lbs:
+        p.current_weight_lbs || (intake.weight_lbs?.toString() ?? ""),
+      age: p.age || (intake.age?.toString() ?? ""),
+      gender: p.gender || (intake.sex ?? ""),
+      activity_level:
+        p.activity_level && p.activity_level !== "moderate"
+          ? p.activity_level
+          : intake.activity_level ?? p.activity_level,
+      main_goal: p.main_goal || (goalMap[intake.goal_next_4_weeks] ?? ""),
+      dietary_restrictions: p.dietary_restrictions?.length
+        ? p.dietary_restrictions
+        : Array.isArray(intake.dietary_restrictions)
+          ? intake.dietary_restrictions
+          : [],
+      grocery_budget_weekly:
+        p.grocery_budget_weekly || (intake.weekly_food_budget?.toString() ?? ""),
+    }));
+  }, [intake]);
 
   if (loading) {
     return (

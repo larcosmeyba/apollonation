@@ -81,15 +81,32 @@ const AppleHealthCard = () => {
 
   const handleApprove = async () => {
     setPermissionStep("system");
-    const ok = await connect();
-    if (ok) {
-      setPermissionStep("success");
+    try {
+      const ok = await connect();
+      if (ok) {
+        setPermissionStep("success");
+        toast({
+          title: "Apple Health connected",
+          description: "Steps, active calories, workouts, and heart rate will refresh automatically.",
+        });
+      } else {
+        // Keep dialog open so the user can see the error rendered below
+        setPermissionStep("intro");
+        toast({
+          title: "Couldn't connect to Apple Health",
+          description:
+            rawError ||
+            "Open iPhone Settings → Privacy & Security → Health → Apollo Reborn and turn ON all categories, then try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (e: any) {
+      setPermissionStep("intro");
       toast({
-        title: "Apple Health connected",
-        description: "Steps, active calories, workouts, and heart rate will refresh automatically.",
+        title: "Apple Health error",
+        description: e?.message ?? "Something went wrong requesting Apple Health permissions.",
+        variant: "destructive",
       });
-    } else {
-      setShowPrePrompt(false);
     }
   };
 
@@ -112,6 +129,11 @@ const AppleHealthCard = () => {
             {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Heart className="w-4 h-4 mr-2" />}
             Connect Apple Health
           </Button>
+          {error && (
+            <p className="mt-2 text-[11px] text-destructive leading-snug">
+              {error}
+            </p>
+          )}
         </div>
 
         <AlertDialog open={showPrePrompt} onOpenChange={setShowPrePrompt}>
