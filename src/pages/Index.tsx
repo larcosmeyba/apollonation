@@ -244,9 +244,9 @@ const Index = () => {
       </section>
 
       {/* ═══ 4. APP EXPERIENCE ═══ */}
-      <section className="py-20 md:py-32 border-t border-border/30 overflow-hidden">
+      <section className="py-12 md:py-16 border-t border-border/30 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12 md:mb-16">
+          <div className="text-center mb-10">
             <span className="text-white font-bold text-xs uppercase tracking-[0.25em] mb-3 block">The App</span>
             <h2 className="font-heading text-3xl md:text-[40px] text-foreground leading-tight mb-4">
               Your Training System In One App
