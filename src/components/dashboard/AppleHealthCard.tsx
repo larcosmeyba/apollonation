@@ -129,6 +129,11 @@ const AppleHealthCard = () => {
             {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Heart className="w-4 h-4 mr-2" />}
             Connect Apple Health
           </Button>
+          {error && (
+            <p className="mt-2 text-[11px] text-destructive leading-snug">
+              {error}
+            </p>
+          )}
         </div>
 
         <AlertDialog open={showPrePrompt} onOpenChange={setShowPrePrompt}>
