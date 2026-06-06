@@ -118,7 +118,7 @@ const Index = () => {
           loop
           playsInline
           poster={heroImage}
-          className={`absolute inset-0 w-full h-full object-cover object-[50%_30%] transition-transform duration-[2500ms] ease-out ${isVisible ? "scale-100 animate-hero-zoom" : "scale-110"}`}
+          className={`absolute inset-0 w-full h-full object-cover object-[50%_30%] transition-transform duration-1000 ease-out ${isVisible ? "scale-100 animate-hero-zoom" : "scale-110"}`}
         >
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
