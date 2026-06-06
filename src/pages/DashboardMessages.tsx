@@ -74,9 +74,23 @@ const DashboardMessages = () => {
         // Roll the cache back so the form re-appears on next load.
         qc.invalidateQueries({ queryKey: ["coach_intake", user.id] });
       } else {
+        // Mirror coach-specific fields + flag onto master profile
+        await (supabase as any)
+          .from("user_fitness_profile")
+          .upsert(
+            {
+              user_id: user.id,
+              primary_goal: payload.biggest_goal || null,
+              coaching_intake_completed: true,
+              updated_at: new Date().toISOString(),
+
+            },
+            { onConflict: "user_id" }
+          );
         qc.invalidateQueries({ queryKey: ["coach_intake", user.id] });
       }
     })();
+
   };
 
   if (loading || (!isAdmin && coachLoading) || (!isAdmin && accessLoading)) {
