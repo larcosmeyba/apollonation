@@ -165,6 +165,39 @@ const DashboardTraining = () => {
   const todayWorkout = getWorkoutForDate(today);
   const exercises = todayWorkout?.training_plan_exercises?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
 
+  // Program progress derivation
+  const programProgress = useMemo(() => {
+    if (!planData?.plan) return null;
+    const { plan, days } = planData;
+    const daysPerCycle = days.length || 7;
+    const totalWorkouts = (plan.duration_weeks || 1) * daysPerCycle;
+    const completed = Math.min(completedAllTime.length, totalWorkouts);
+    const percent = totalWorkouts > 0 ? Math.round((completed / totalWorkouts) * 100) : 0;
+    const cycleStart = plan.client_questionnaires?.cycle_start_date
+      ? new Date(plan.client_questionnaires.cycle_start_date)
+      : new Date(plan.created_at);
+    const diffDays = Math.max(0, differenceInCalendarDays(today, cycleStart));
+    const currentWeek = Math.min(plan.duration_weeks || 1, Math.floor(diffDays / 7) + 1);
+    return {
+      title: plan.title || "Training Program",
+      currentWeek,
+      totalWeeks: plan.duration_weeks || 1,
+      completed,
+      totalWorkouts,
+      percent,
+    };
+  }, [planData, completedAllTime, today]);
+
+  // Today's workout metadata
+  const todayMeta = useMemo(() => {
+    if (!todayWorkout) return null;
+    const exCount = (todayWorkout.training_plan_exercises || []).length;
+    const estDuration = todayWorkout.duration_minutes
+      || (exCount > 0 ? Math.max(20, exCount * 4) : 30);
+    const type = todayWorkout.session_type || todayWorkout.focus_type || "Strength";
+    return { duration: estDuration, type };
+  }, [todayWorkout]);
+
   const swapMutation = useMutation({
     mutationFn: async ({ sourceDay, sourceDate, targetDate }: { sourceDay: any; sourceDate: Date; targetDate: Date }) => {
       const targetDay = getWorkoutForDate(targetDate);
