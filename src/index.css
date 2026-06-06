@@ -78,12 +78,12 @@
     /* Sidebar */
     --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 32 45% 38%;
-    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-primary: 45 53% 54%;
+    --sidebar-primary-foreground: 0 0% 8%;
     --sidebar-accent: 220 14% 10%;
     --sidebar-accent-foreground: 0 0% 92%;
     --sidebar-border: 220 12% 18%;
-    --sidebar-ring: 32 45% 38%;
+    --sidebar-ring: 45 53% 54%;
   }
 
   .dark {
