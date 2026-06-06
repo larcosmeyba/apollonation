@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import mockupHome from "@/assets/mockup-home.jpg";
 import mockupOnDemand from "@/assets/mockup-ondemand.jpg";
 import mockupFuel from "@/assets/mockup-fuel.jpg";
@@ -11,7 +11,7 @@ const SCREENS = [
 
 /* ─── Single Phone Shell ─── */
 const PhoneDevice = ({ screenImage, alt }: { screenImage: string; alt: string }) => (
-  <div className="relative flex-shrink-0">
+  <div className="relative">
     {/* Shadow */}
     <div
       className="absolute -bottom-4 left-[12%] right-[12%] h-10 rounded-[50%] blur-2xl pointer-events-none"
@@ -47,12 +47,10 @@ const PhoneDevice = ({ screenImage, alt }: { screenImage: string; alt: string })
   </div>
 );
 
-/* ─── Main: Horizontal Scrolling Carousel ─── */
+/* ─── Main: Centered Stack Carousel ─── */
 const IPhoneMockup = () => {
-  const trackRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
-  // Auto-scroll every 3s
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIdx((prev) => (prev + 1) % SCREENS.length);
@@ -60,54 +58,48 @@ const IPhoneMockup = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Scroll to active phone
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const children = track.children;
-    if (!children[activeIdx]) return;
-    const child = children[activeIdx] as HTMLElement;
-    const scrollLeft = child.offsetLeft - track.offsetWidth / 2 + child.offsetWidth / 2;
-    track.scrollTo({ left: scrollLeft, behavior: "smooth" });
-  }, [activeIdx]);
+  const OFFSET = 170; // px between phones
 
   return (
     <div className="relative w-full py-4">
       {/* Vignette */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-10"
         style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%)" }}
       />
 
-      {/* Horizontal phone track */}
-      <div
-        ref={trackRef}
-        className="relative flex items-center gap-6 md:gap-10 overflow-x-auto scrollbar-hide px-8 md:px-16 py-4 snap-x snap-mandatory"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {SCREENS.map((s, i) => (
-          <div
-            key={s.alt}
-            className={`snap-center transition-all duration-700 ease-out cursor-pointer flex-shrink-0 ${
-              i === activeIdx ? "scale-100 opacity-100" : "scale-[0.88] opacity-50"
-            }`}
-            onClick={() => setActiveIdx(i)}
-            style={{
-              transform: i === activeIdx
-                ? "perspective(1000px) rotateY(-2deg) rotateX(2deg)"
-                : i < activeIdx
-                  ? "perspective(1000px) rotateY(12deg) scale(0.88)"
-                  : "perspective(1000px) rotateY(-12deg) scale(0.88)",
-              transformStyle: "preserve-3d",
-            }}
-          >
-            <PhoneDevice screenImage={s.src} alt={s.alt} />
-          </div>
-        ))}
+      {/* Centered stage */}
+      <div className="relative w-full h-[480px] md:h-[510px] flex items-center justify-center overflow-hidden">
+        {SCREENS.map((s, i) => {
+          const diff = i - activeIdx;
+          const isActive = diff === 0;
+          const translateX = diff * OFFSET;
+          const rotateY = isActive ? -2 : diff < 0 ? 12 : -12;
+          const rotateX = isActive ? 2 : 0;
+          const scale = isActive ? 1 : 0.88;
+          const opacity = isActive ? 1 : 0.5;
+          const zIndex = isActive ? 5 : 1;
+
+          return (
+            <div
+              key={s.alt}
+              onClick={() => setActiveIdx(i)}
+              className="absolute cursor-pointer transition-all duration-700 ease-out"
+              style={{
+                transform: `translateX(${translateX}px) perspective(1000px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(${scale})`,
+                transformStyle: "preserve-3d",
+                opacity,
+                zIndex,
+              }}
+            >
+              <PhoneDevice screenImage={s.src} alt={s.alt} />
+            </div>
+          );
+        })}
       </div>
 
       {/* Dots indicator */}
-      <div className="flex items-center justify-center gap-2 mt-4">
+      <div className="flex items-center justify-center gap-2 mt-4 relative z-20">
         {SCREENS.map((s, i) => (
           <button
             key={s.alt}
