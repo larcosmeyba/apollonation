@@ -33,9 +33,9 @@
     --muted: 220 10% 12%;
     --muted-foreground: 0 0% 100%;
 
-    /* Accent — Apollo Bronze Gold */
-    --accent: 32 45% 38%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent — Apollo Gold #C9A84C */
+    --accent: 45 53% 54%;
+    --accent-foreground: 0 0% 8%;
 
     /* Destructive */
     --destructive: 0 60% 50%;
@@ -48,14 +48,14 @@
 
     --radius: 1rem;
 
-    /* Apollo custom tokens */
+    /* Apollo custom tokens — luxury gold #C9A84C */
     --apollo-black: 0 0% 0%;
     --apollo-graphite: 220 14% 10%;
     --apollo-graphite-light: 220 12% 14%;
     --apollo-border: 220 12% 18%;
-    --apollo-gold: 32 45% 38%;
-    --apollo-gold-light: 35 50% 48%;
-    --apollo-gold-dark: 30 40% 28%;
+    --apollo-gold: 45 53% 54%;
+    --apollo-gold-light: 45 72% 68%;
+    --apollo-gold-dark: 42 50% 40%;
     --apollo-white: 0 0% 100%;
     --apollo-soft-gray: 210 8% 78%;
     --apollo-divider: 220 10% 15%;
@@ -78,12 +78,12 @@
     /* Sidebar */
     --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 32 45% 38%;
-    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-primary: 45 53% 54%;
+    --sidebar-primary-foreground: 0 0% 8%;
     --sidebar-accent: 220 14% 10%;
     --sidebar-accent-foreground: 0 0% 92%;
     --sidebar-border: 220 12% 18%;
-    --sidebar-ring: 32 45% 38%;
+    --sidebar-ring: 45 53% 54%;
   }
 
   .dark {

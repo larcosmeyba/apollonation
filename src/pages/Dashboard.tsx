@@ -216,6 +216,25 @@ const Dashboard = () => {
   const { data: workoutCategories } = useWorkoutCategories();
   const categoryImages = { ...CATEGORY_FALLBACK_IMAGES, ...categoryImageMap(workoutCategories) };
 
+  // Class counts per category
+  const { data: categoryCounts = {} } = useQuery({
+    queryKey: ["category-counts-home"],
+    queryFn: async () => {
+      const counts: Record<string, number> = {};
+      await Promise.all(
+        categories.map(async (cat) => {
+          const { count } = await supabase
+            .from("workouts")
+            .select("id", { count: "exact", head: true })
+            .ilike("category", cat);
+          counts[cat] = count ?? 0;
+        })
+      );
+      return counts;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const SaveButton = ({ workoutId }: { workoutId: string }) => {
     const isSaved = favorites.includes(workoutId);
     return (
@@ -280,8 +299,10 @@ const Dashboard = () => {
         <h3 className="text-base font-bold text-white uppercase leading-tight truncate min-w-0">
           {workout.title}
         </h3>
-        <p className="text-xs font-bold text-white mt-1 truncate min-w-0">
-          Marcos Leyba &nbsp;/&nbsp; {workout.duration_minutes} min &nbsp;/&nbsp; Train: {workout.category}
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 mt-1.5 truncate min-w-0">
+          {workout.duration_minutes} MIN
+          <span className="mx-1.5 text-[hsl(var(--apollo-gold))]">•</span>
+          {(workout.category || "Train").toUpperCase()}
         </p>
       </div>
     </div>
@@ -314,8 +335,16 @@ const Dashboard = () => {
               to="/dashboard/profile"
               className="inline-flex items-center gap-1.5 mt-1 text-xs font-semibold text-foreground/60 hover:text-foreground transition-colors"
             >
-              <Flame className={`w-3.5 h-3.5 ${streak > 0 ? "text-orange-400" : "text-foreground/40"}`} />
-              {streak > 0 ? `${streak} day streak` : "Start your streak"}
+              <Flame
+                className="w-3.5 h-3.5"
+                style={{ color: streak > 0 ? "hsl(var(--apollo-gold))" : "hsl(0 0% 100% / 0.4)" }}
+              />
+              <span
+                className="uppercase tracking-[0.18em]"
+                style={{ color: streak > 0 ? "hsl(var(--apollo-gold))" : undefined }}
+              >
+                {streak > 0 ? `${streak} Day Streak` : "Start your streak"}
+              </span>
             </Link>
           </div>
         </div>
@@ -396,9 +425,19 @@ const Dashboard = () => {
                     cat === "Strength" || cat === "Cardio" ? "object-[center_30%]" : "object-[center_top]"
                   } ${idx % 2 !== 0 ? "grayscale" : ""}`}
                 />
-                <span className="absolute inset-0 z-10 flex items-center justify-center text-sm font-bold text-white tracking-wide drop-shadow-lg">
-                  {cat}
-                </span>
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-end pb-4 text-center">
+                  <span className="text-base font-bold text-white tracking-wide drop-shadow-lg">
+                    {cat}
+                  </span>
+                  {categoryCounts[cat] > 0 && (
+                    <span
+                      className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                      style={{ color: "hsl(var(--apollo-gold))" }}
+                    >
+                      {categoryCounts[cat]} {categoryCounts[cat] === 1 ? "Class" : "Classes"}
+                    </span>
+                  )}
+                </div>
               </Link>
             ))}
           </div>
