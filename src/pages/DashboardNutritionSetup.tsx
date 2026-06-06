@@ -306,6 +306,47 @@ const DashboardNutritionSetup = () => {
     }));
   }, [intake]);
 
+  // Master fitness profile takes precedence — never re-ask for fields it already has
+  useEffect(() => {
+    if (!fitnessProfile) return;
+    const totalIn = fitnessProfile.height_inches || 0;
+    const goalMap: Record<string, string> = {
+      gain_muscle: "build_muscle",
+      build_muscle: "build_muscle",
+      lose_fat: "lose_fat",
+      reduce_bf: "recomp",
+      recomp: "recomp",
+      performance: "maintain",
+      maintain: "maintain",
+      lean_bulk: "lean_bulk",
+      health: "health",
+    };
+    setForm((p: any) => ({
+      ...p,
+      height_feet: p.height_feet || (totalIn ? Math.floor(totalIn / 12).toString() : ""),
+      height_inches: p.height_inches || (totalIn ? (totalIn % 12).toString() : ""),
+      current_weight_lbs: p.current_weight_lbs || (fitnessProfile.weight_lbs?.toString() ?? ""),
+      goal_weight_lbs: p.goal_weight_lbs || (fitnessProfile.goal_weight_lbs?.toString() ?? ""),
+      age: p.age || (fitnessProfile.age?.toString() ?? ""),
+      gender: p.gender || (fitnessProfile.sex ?? ""),
+      activity_level:
+        p.activity_level && p.activity_level !== "moderate"
+          ? p.activity_level
+          : fitnessProfile.activity_level ?? p.activity_level,
+      main_goal: p.main_goal || (goalMap[fitnessProfile.primary_goal ?? ""] ?? fitnessProfile.primary_goal ?? ""),
+      meals_per_day: p.meals_per_day || fitnessProfile.meals_per_day || 3,
+      dietary_restrictions: p.dietary_restrictions?.length
+        ? p.dietary_restrictions
+        : fitnessProfile.dietary_preferences ?? [],
+      allergies: p.allergies?.length ? p.allergies : fitnessProfile.allergies ?? [],
+      disliked_foods: p.disliked_foods || (fitnessProfile.disliked_foods ?? []).join(", "),
+      grocery_budget_weekly:
+        p.grocery_budget_weekly || (fitnessProfile.weekly_food_budget?.toString() ?? ""),
+    }));
+  }, [fitnessProfile]);
+
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
