@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { MessageSquare } from "lucide-react";
 import ChatView from "@/components/dashboard/ChatView";
+import CoachSummaryPanel from "@/components/admin/CoachSummaryPanel";
 import { useMessages } from "@/hooks/useMessages";
 import { useProfileLookup } from "@/hooks/useProfileLookup";
 
@@ -83,9 +84,14 @@ const AdminMessages = () => {
           </div>
         </div>
 
-        <div className={`flex-1 flex flex-col ${!selectedChat ? "hidden md:flex" : "flex"}`}>
+        <div className={`flex-1 flex flex-col min-h-0 ${!selectedChat ? "hidden md:flex" : "flex"}`}>
           {selectedChat ? (
-            <ChatView partnerId={selectedChat} onBack={handleBack} asCoachAdmin />
+            <>
+              <CoachSummaryPanel clientId={selectedChat} />
+              <div className="flex-1 min-h-0 flex flex-col">
+                <ChatView partnerId={selectedChat} onBack={handleBack} asCoachAdmin />
+              </div>
+            </>
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
