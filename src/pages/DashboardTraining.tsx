@@ -84,6 +84,23 @@ const DashboardTraining = () => {
     enabled: !!user,
   });
 
+  // Total completed workouts across the full active program (for progress card)
+  const { data: completedAllTime = [] } = useQuery({
+    queryKey: ["completed-sessions-all", user?.id, planData?.plan?.id],
+    enabled: !!user && !!planData?.plan,
+    queryFn: async () => {
+      const cycleStart = planData?.plan?.client_questionnaires?.cycle_start_date
+        ?? planData?.plan?.created_at;
+      const { data } = await (supabase as any)
+        .from("workout_session_logs")
+        .select("log_date")
+        .eq("user_id", user!.id)
+        .gte("log_date", format(new Date(cycleStart), "yyyy-MM-dd"))
+        .not("completed_at", "is", null);
+      return data || [];
+    },
+  });
+
   const { data: exerciseLibrary = [] } = useQuery({
     queryKey: ["exercise-library-all"],
     queryFn: async () => {
