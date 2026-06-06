@@ -308,6 +308,35 @@ const DashboardTraining = () => {
           </div>
         )}
 
+        {/* Program Progress Card */}
+        {programProgress && (
+          <div className="rounded-xl border border-border/20 p-4 bg-gradient-to-br from-foreground/[0.03] to-transparent">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/40 mb-1.5">
+                  {programProgress.title}
+                </p>
+                <h3 className="font-heading text-lg text-foreground/90 leading-tight">
+                  Week {programProgress.currentWeek} of {programProgress.totalWeeks}
+                </h3>
+                <p className="text-[11px] text-foreground/50 mt-1">
+                  {programProgress.completed} / {programProgress.totalWorkouts} Workouts Completed
+                </p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="font-heading text-2xl text-foreground">{programProgress.percent}%</p>
+                <p className="text-[10px] uppercase tracking-wider text-foreground/40 mt-0.5">Complete</p>
+              </div>
+            </div>
+            <div className="mt-3 h-1 w-full rounded-full bg-foreground/10 overflow-hidden">
+              <div
+                className="h-full bg-foreground transition-all duration-500"
+                style={{ width: `${programProgress.percent}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Current Workout */}
         {!planData ? (
           <div className="rounded-xl border border-border/20 p-8 text-center">
@@ -319,19 +348,30 @@ const DashboardTraining = () => {
           </div>
         ) : todayWorkout ? (
           <div className="rounded-xl border border-border/20 overflow-hidden">
-            <div className="p-4 flex items-center justify-between">
-              <div>
+            <div className="p-4 flex items-start justify-between gap-3">
+              <div className="min-w-0">
                 <p className="text-eyebrow uppercase text-foreground/25 mb-0.5">Today's Workout</p>
                 <h2 className="font-heading text-lg text-foreground/80">
                   {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
                 </h2>
                 {todayWorkout.focus && (
-                  <p className="text-[11px] text-foreground/30 font-light mt-0.5">{todayWorkout.focus}</p>
+                  <p className="text-[11px] text-foreground/40 font-light mt-0.5">{todayWorkout.focus}</p>
+                )}
+                {todayMeta && (
+                  <div className="flex items-center gap-3 mt-2 text-[11px] text-foreground/50">
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> {todayMeta.duration} Min
+                    </span>
+                    <span className="text-foreground/20">|</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Activity className="w-3 h-3" /> {todayMeta.type}
+                    </span>
+                  </div>
                 )}
               </div>
-              <Link to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`}>
+              <Link to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`} className="flex-shrink-0">
                 <Button variant="apollo" size="sm" className="gap-1.5 text-xs">
-                  <Play className="w-3 h-3" /> Start
+                  <Play className="w-3 h-3" /> Start Workout
                 </Button>
               </Link>
             </div>
