@@ -19,6 +19,7 @@ import cardioCard from "@/assets/cardio-card.jpg";
 import sculptCard from "@/assets/sculpt-card.webp";
 
 const openAppStore = () => window.open(APP_STORE_URL, "_blank", "noopener,noreferrer");
+const openGooglePlay = () => window.open(GOOGLE_PLAY_URL, "_blank", "noopener,noreferrer");
 
 const FEATURES = [
   {
