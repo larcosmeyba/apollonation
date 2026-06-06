@@ -682,7 +682,7 @@ const DashboardProfile = () => {
                 {uploading ? (
                   <Loader2 className="w-8 h-8 animate-spin text-background" />
                 ) : avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+                  <img loading="lazy" decoding="async" src={avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <span className="text-4xl font-bold text-background">
                     {(profile?.display_name || "M").charAt(0).toUpperCase()}

@@ -88,7 +88,7 @@ const RecipeDetailSheet = ({ recipe, onClose }: RecipeDetailSheetProps) => {
         <div className="flex-1 overflow-y-auto p-4 pb-8 space-y-6">
           {recipe.thumbnail_url && (
             <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-              <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" />
             </div>
           )}
 

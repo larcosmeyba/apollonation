@@ -351,7 +351,7 @@ const DashboardWorkouts = () => {
               <div className="flex gap-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                 <Link to="/dashboard/coach/marcos" className="flex flex-col items-center gap-2 flex-shrink-0">
                   <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-white shadow-[0_0_25px_rgba(255,255,255,0.25),0_0_50px_rgba(255,255,255,0.1)]">
-                    <img src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover object-[center_15%]" />
+                    <img loading="lazy" decoding="async" src={marcosAction1} alt="Marcos Leyba" className="w-full h-full object-cover object-[center_15%]" />
                   </div>
                   <p className="text-sm font-bold text-foreground text-center">Marcos Leyba</p>
                 </Link>
@@ -454,7 +454,7 @@ const DashboardWorkouts = () => {
                 )
               ) : getWorkoutThumbnail(selectedWorkout) ? (
                 <div className="relative aspect-video w-full overflow-hidden">
-                  <img src={getWorkoutThumbnail(selectedWorkout)!} alt={selectedWorkout.title} className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={getWorkoutThumbnail(selectedWorkout)!} alt={selectedWorkout.title} className="w-full h-full object-cover" />
                 </div>
               ) : null}
 

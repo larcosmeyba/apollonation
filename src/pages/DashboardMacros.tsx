@@ -246,7 +246,7 @@ const DashboardMacros = () => {
                 <div className="space-y-4">
                   {previewUrl ? (
                     <div className="relative aspect-video rounded-lg overflow-hidden">
-                      <img src={previewUrl} alt="Food preview" className="w-full h-full object-cover" />
+                      <img loading="lazy" decoding="async" src={previewUrl} alt="Food preview" className="w-full h-full object-cover" />
                       <button onClick={() => { setSelectedFile(null); setPreviewUrl(null); }} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
                         <Trash2 className="w-4 h-4 text-white" />
                       </button>
@@ -350,7 +350,7 @@ const DashboardMacros = () => {
             {entries.map((entry) => (
               <div key={entry.id} className="card-apollo p-4 flex items-center gap-4">
                 {entry.photo_url && (
-                  <img src={entry.photo_url} alt={entry.meal_name || ""} className="w-16 h-16 rounded-lg object-cover" />
+                  <img loading="lazy" decoding="async" src={entry.photo_url} alt={entry.meal_name || ""} className="w-16 h-16 rounded-lg object-cover" />
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
