@@ -113,10 +113,24 @@ const TrainingProgramCards = () => {
 
       if (error) throw error;
 
+      // Also enroll into the program-tracking system. This is a no-op for
+      // legacy programs that have no `program_workouts` template rows yet,
+      // but it powers the new My Plan progress card / today's workout flow
+      // for any program that has been pre-baked with weekly templates.
+      try {
+        await (supabase as any).rpc("enroll_in_program", {
+          p_program_id: selected.id,
+        });
+      } catch (err) {
+        console.warn("[programs] enroll_in_program RPC skipped", err);
+      }
+
       // Count this enrollment against the free-tier program quota
       if (!hasPremiumAccess) await recordProgramUsage();
 
       queryClient.invalidateQueries({ queryKey: ["my-training-plan-full"] });
+      queryClient.invalidateQueries({ queryKey: ["user-program-progress"] });
+
       toast({
         title: `Enrolled in ${selected.name}!`,
         description: `Your ${selectedDuration}-week program is being generated.`,
