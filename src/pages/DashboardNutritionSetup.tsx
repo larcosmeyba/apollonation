@@ -513,6 +513,37 @@ const DashboardNutritionSetup = () => {
         queryClient.invalidateQueries({ queryKey: ["user-macro-targets", user.id] }),
       ]);
 
+      // Mirror to master fitness profile so Fuel/Coach/Onboarding never re-ask
+      try {
+        await saveFitnessProfile({
+          height_inches: heightInches || null,
+          weight_lbs: parseFloat(form.current_weight_lbs) || null,
+          goal_weight_lbs: form.goal_weight_lbs ? parseFloat(form.goal_weight_lbs) : null,
+          age: parseInt(form.age) || null,
+          sex: (form.gender || null) as "male" | "female" | null,
+          activity_level: form.activity_level || null,
+          primary_goal: form.main_goal || null,
+          training_days_per_week: form.training_days_per_week ? parseInt(form.training_days_per_week) : null,
+          meals_per_day: parseInt(form.meals_per_day) || 3,
+          dietary_preferences: form.dietary_restrictions || [],
+          allergies: form.allergies || [],
+          disliked_foods: form.disliked_foods
+            ? String(form.disliked_foods).split(",").map((s: string) => s.trim()).filter(Boolean)
+            : [],
+          weekly_food_budget: form.grocery_budget_weekly ? parseFloat(form.grocery_budget_weekly) : null,
+          grocery_store: form.preferred_grocery_stores
+            ? String(form.preferred_grocery_stores).split(",").map((s: string) => s.trim()).filter(Boolean)[0] ?? null
+            : null,
+          calorie_target: computed.calories,
+          protein_target_g: computed.protein,
+          carb_target_g: computed.carbs,
+          fat_target_g: computed.fat,
+          nutrition_completed: true,
+        });
+      } catch (mirrorErr: any) {
+        console.error("[NutritionSetup] master profile mirror failed", mirrorErr?.message);
+      }
+
       toast({
         title: "Your Fuel plan is ready",
         description: "Your targets and meals are saved.",
