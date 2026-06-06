@@ -6,7 +6,7 @@ import IPhoneMockup from "@/components/IPhoneMockup";
 import { ArrowRight, Play, Clock, Dumbbell, Calendar, Target, Heart, BarChart3, UtensilsCrossed, ShoppingCart, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { APP_STORE_URL } from "@/lib/appLinks";
+import { APP_STORE_URL, GOOGLE_PLAY_URL } from "@/lib/appLinks";
 import { useWorkoutCategories } from "@/hooks/useWorkoutCategories";
 import heroImage from "@/assets/marcos-hero.webp";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
