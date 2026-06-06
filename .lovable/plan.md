@@ -1,74 +1,82 @@
-# My Plan — Program-Driven Training System
+# Fuel/Nutrition Questionnaire — Unified Profile Refactor
 
-The screenshot is `src/pages/DashboardTraining.tsx` (the "Programs / Structured training programs" view behind the `My Plan` tab). Today it pulls from `client_training_plans` and renders weeks but has no real program enrollment, completion, swap, manual logging, or Health writeback. We'll evolve it into a true guided program experience while keeping the current Apollo aesthetic and section order from the screenshot.
+## Current state (what we found)
 
----
+There are **three** overlapping intake tables today:
 
-## Sections on the page (order preserved)
+- `client_questionnaires` — Apollo onboarding (sex, age, height, weight, activity, training, goal, dietary restrictions, food budget, disliked foods, injuries, equipment).
+- `client_nutrition_questionnaires` — Fuel intake (weight, height, age, gender, activity, goal, meals/day, dietary prefs, allergies, budget, **calorie/protein/carb/fat targets**).
+- `coach_intake_responses` — Coach-only (biggest goal, why coaching, struggles, commitment).
 
-1. **Header** — `Programs` / `Structured training programs` + `+ Log Activity` button (top-right).
-2. **Week calendar** — Mon–Sun strip with prev/next arrows, status dots (completed ✓, today highlighted card, upcoming, missed).
-3. **Program progress card** — Program name, `Week X of Y`, `N / Total Workouts Completed`, `%`, progress bar.
-4. **Today's Workout card** — Day label, focus muscles, duration, type, `Start Workout` CTA.
-5. **This Week** — Remaining upcoming workouts with `tap ⇄ to swap` action per row.
+They re-ask weight/height/age/gender/goal/activity in two places, and `client_nutrition_questionnaires.user_id` is `UNIQUE` so a single missing field forces the full Fuel form again. Many downstream edge functions (`generate-meal-plan`, `generate-training-plan`, `auto-generate-programs`, `weekly-meal-plan-refresh`, `client-regenerate-meal-plan`, `suggest-meal-swap`, `coach-ai-command`, `apply-budget-to-grocery-list`) read from these tables directly.
 
-Empty state (no active program): show "Choose Your First Program" with a `Browse Programs` CTA → existing `Programs` library route.
+## Strategy: one master profile, no big-bang rewrites
 
----
+Build a single **`user_fitness_profile`** as the master record. Keep the existing tables (do not drop) so legacy generators keep working, and **mirror writes** from the master profile into them via a database trigger. New code reads only from `user_fitness_profile`; old code keeps working unchanged.
 
-## Behavior
-
-- **Start Workout** → opens existing workout player route (`/dashboard/workout/:id`) with the program workout id; on completion, marks `user_workout_completions`, recomputes progress, advances `current_week` / `current_day` on `user_programs`, refreshes the calendar + Today + This Week, and (iOS only) writes `Calories Burned / Duration / Type` to Apple Health via existing `useAppleHealth` hook.
-- **Calendar tap** → opens a `WorkoutPreviewSheet` (name, exercises, duration, equipment, `Start Workout`).
-- **Swap (⇄ on a This-Week row)** → opens `SwapWorkoutSheet` with categories (Strength, HIIT, Cardio, Pilates, Mobility, Recovery). Server picks an equivalent workout matching same duration band ±10 min, same difficulty, same training day; sets `user_program_workouts.is_swapped = true` and `swapped_workout_id`.
-- **+ Log Activity** → opens `LogActivitySheet` (type, duration, calories, notes). Inserts into `user_activity_logs` (does NOT mark scheduled workout complete). Surfaces on Home dashboard activity feed.
-- **Success screen** after completion: "Workout Completed / X Minutes Logged / Progress Updated", then auto-returns to My Plan.
+This avoids rewriting 8+ edge functions in this pass.
 
 ---
 
-## Backend (new tables)
+## 1. New table
 
-We already have `programs`, `client_training_plans`, `training_plan_days`, `training_plan_exercises`, `workouts`, `workout_session_logs`. We'll add the program-enrollment + completion + manual-log layer:
+`public.user_fitness_profile` (one row per user, `user_id UNIQUE`):
 
-- **`user_programs`** — `id, user_id, program_id, current_week, current_day, started_at, completed_at, progress_percent, status ('active'|'completed'|'paused')`. Unique partial index ensures only one `active` per user.
-- **`program_workouts`** — `id, program_id, week_number, day_number, workout_id, duration_minutes, focus (text[]), type`. (Seeded from existing `training_plan_days` / `training_plan_exercises` for the user's plan, or authored per program.)
-- **`user_program_workouts`** — per-user override row: `id, user_id, user_program_id, program_workout_id, scheduled_date, is_swapped, swapped_workout_id, status ('upcoming'|'completed'|'missed')`.
-- **`user_workout_completions`** — `id, user_id, workout_id, user_program_workout_id, completed_at, duration_minutes, calories`.
-- **`user_activity_logs`** — `id, user_id, activity_type, duration_minutes, calories, notes, logged_at`.
+Core identity: `height_inches`, `weight_lbs`, `age`, `sex`, `goal_weight_lbs`
+Goals & activity: `primary_goal`, `activity_level`, `training_experience`, `training_days_per_week`, `preferred_training_days[]`, `workout_duration_minutes`, `equipment_available[]`, `workout_environment`
+Nutrition: `dietary_preferences[]`, `allergies[]`, `disliked_foods[]`, `meals_per_day`, `nutrition_goal`, `calorie_target`, `protein_target_g`, `carb_target_g`, `fat_target_g`, `weekly_food_budget`, `grocery_store`
+Coach: `injuries`, `coach_notes`, `progress_photo_urls[]`
+Flags: `onboarding_completed`, `nutrition_completed`, `coaching_intake_completed`
+Audit: `created_at`, `updated_at`
 
-All tables: RLS scoped to `auth.uid() = user_id`, GRANTs to `authenticated` + `service_role`, `updated_at` trigger where applicable. `program_workouts` is readable by `authenticated`.
+RLS: owner-only manage + admin SELECT. GRANTs to `authenticated` + `service_role`. `updated_at` trigger.
 
-**RPCs (security definer):**
-- `enroll_in_program(p_program_id uuid)` → creates `user_programs` row + materializes `user_program_workouts` with `scheduled_date` from `started_at`.
-- `complete_program_workout(p_user_program_workout_id uuid, p_duration int, p_calories int)` → inserts completion, marks row completed, advances `current_week/current_day`, recomputes `progress_percent`, marks program `completed` when 100%.
-- `swap_program_workout(p_user_program_workout_id uuid, p_category text)` → picks an eligible `workouts` row (same difficulty, duration ±10, same day-of-week), stores swap.
+## 2. Data backfill (one migration)
+
+Upsert into `user_fitness_profile` from `client_questionnaires` (most recent active) + `client_nutrition_questionnaires` so existing users skip re-asking. Mark `onboarding_completed=true` where a client_questionnaire exists, `nutrition_completed=true` where macros are present, `coaching_intake_completed=true` where a `coach_intake_responses.completed_at` exists.
+
+## 3. Sync triggers (compatibility layer)
+
+`AFTER INSERT/UPDATE ON user_fitness_profile` → `UPSERT` matching columns into `client_questionnaires` and `client_nutrition_questionnaires`. Mirror only the shared fields; never overwrite fields the legacy table owns exclusively (e.g. `cycle_start_date`). Keeps every existing edge function working without code changes.
+
+## 4. New hook + helpers
+
+- `src/hooks/useFitnessProfile.ts` — single source of truth React hook: `{ profile, loading, save, completion }`. Used by all questionnaires.
+- `getMissingNutritionFields(profile)` / `getMissingCoachFields(profile)` helpers in `src/lib/fitnessProfile.ts` — drives "only ask missing questions" logic.
+
+## 5. Questionnaire flow changes (frontend)
+
+- **First-time onboarding** (`src/pages/Questionnaire.tsx`) — saves into `user_fitness_profile` (then mirror trigger fills legacy tables). Sets `onboarding_completed=true`. Skip entire page if flag already true (redirect to dashboard).
+- **Fuel intake** (`src/pages/DashboardNutritionSetup.tsx`) — preload from `useFitnessProfile`. Build the question list dynamically from `getMissingNutritionFields()`. If nothing missing, redirect straight to `/dashboard/nutrition` and set `nutrition_completed=true`. If only meals/day + allergies + disliked foods are missing, ask only those — never re-ask weight/height/age/gender/goal/activity.
+- **Coach intake** (`src/components/dashboard/CoachIntakeQuestionnaire.tsx`) — preload profile. Hide identity/goal/activity questions when present. Ask only: injuries, equipment, training days, preferred time, biggest struggle, optional progress photos, optional coach notes. Sets `coaching_intake_completed=true`.
+- **Recalc on edit** — when `weight_lbs` / `primary_goal` / `activity_level` change, call existing `useMacroTargets` to recompute calorie/macro targets and write them back.
+
+## 6. Question-firing audit
+
+Sweep the three questionnaire components for the issues you described:
+
+- Confirm every step has a stable unique `id` and writes to the correct column.
+- Disable Next when required answers are empty (already partly done — verify each step).
+- Surface save errors via `toast` instead of silent catches (current code swallows some errors).
+- Persist in-progress answers to `localStorage` keyed by user so a refresh restores them.
+- Conditional questions: ensure follow-ups only render when their parent has the matching value (e.g. `allergies_other` only when `allergies` includes `'other'`).
 
 ---
 
-## Frontend changes
+## Out of scope (this pass)
 
-- Refactor `src/pages/DashboardTraining.tsx` into composed pieces:
-  - `components/dashboard/plan/ProgramHeader.tsx` (+ Log Activity button)
-  - `components/dashboard/plan/WeekCalendarStrip.tsx`
-  - `components/dashboard/plan/ProgramProgressCard.tsx`
-  - `components/dashboard/plan/TodaysWorkoutCard.tsx`
-  - `components/dashboard/plan/ThisWeekList.tsx`
-  - `components/dashboard/plan/WorkoutPreviewSheet.tsx`
-  - `components/dashboard/plan/SwapWorkoutSheet.tsx`
-  - `components/dashboard/plan/LogActivitySheet.tsx`
-  - `components/dashboard/plan/WorkoutCompleteOverlay.tsx`
-- New hook `src/hooks/useActiveProgram.ts` — fetches `user_programs` + derived `program_workouts` and exposes `today`, `thisWeek`, `progress`, `completeWorkout`, `swapWorkout`.
-- Hook into workout player: on completion call `complete_program_workout` and (iOS) `useAppleHealth.writeWorkout({ type, duration, calories })` — add this method to the existing hook (no-op on web/Android).
-- Empty state component when `useActiveProgram` returns null → CTA to `/dashboard/programs`.
-
-Aesthetic stays identical: pure black bg, graphite cards, gold accents, uppercase tracked labels. No restructure of the tab nav or header.
+- Rewriting edge functions to read from `user_fitness_profile` (the sync trigger keeps them green; we can migrate them in a follow-up).
+- Dropping `client_questionnaires` / `client_nutrition_questionnaires` (kept for legacy reads + admin views).
+- Coach profile UI redesign.
 
 ---
 
-## Out of scope
-- Authoring UI for program weeks/days (admin can seed via SQL for now).
-- Group programs / shared cohorts.
-- Stripe/IAP changes.
+## Risks & mitigations
 
-## Approval needed
-Reply "go" and I'll ship the migration first (you'll get a separate approval prompt for the SQL), then the frontend + workout-player hook-in.
+- **Trigger loop**: trigger only fires on `user_fitness_profile`; legacy writes stay one-way (legacy → master only via the backfill migration, not on every write).
+- **Backfill conflicts**: use `ON CONFLICT (user_id) DO UPDATE` and only set columns that are non-null in the source.
+- **Existing in-flight forms**: keep submit paths writing to legacy tables as a fallback for one release cycle so nothing breaks if a client has the old JS cached.
+
+---
+
+Reply "go" and I'll ship the migration first (you'll get a separate SQL approval), then the hook + the three questionnaire updates.

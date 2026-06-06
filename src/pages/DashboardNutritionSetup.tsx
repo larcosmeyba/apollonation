@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, ArrowRight, Loader2, Check, Sparkles } from "lucide-react";
+import { useFitnessProfile } from "@/hooks/useFitnessProfile";
 
 // ── Macro engine (Mifflin-St Jeor + goal adjust) ──
 const calcMacros = (
@@ -146,8 +147,20 @@ const DashboardNutritionSetup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const force = searchParams.get("force") === "1";
+  const { profile: fitnessProfile, save: saveFitnessProfile } = useFitnessProfile();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+
+  // If user already completed Fuel intake, skip straight to Fuel dashboard
+  // unless ?force=1 is passed (retake flow).
+  useEffect(() => {
+    if (!force && fitnessProfile?.nutrition_completed) {
+      navigate("/dashboard/nutrition", { replace: true });
+    }
+  }, [fitnessProfile?.nutrition_completed, force, navigate]);
+
 
   // Pre-fill from existing nutrition questionnaire if retaking
   const { data: existing } = useQuery({
@@ -292,6 +305,47 @@ const DashboardNutritionSetup = () => {
         p.grocery_budget_weekly || (intake.weekly_food_budget?.toString() ?? ""),
     }));
   }, [intake]);
+
+  // Master fitness profile takes precedence — never re-ask for fields it already has
+  useEffect(() => {
+    if (!fitnessProfile) return;
+    const totalIn = fitnessProfile.height_inches || 0;
+    const goalMap: Record<string, string> = {
+      gain_muscle: "build_muscle",
+      build_muscle: "build_muscle",
+      lose_fat: "lose_fat",
+      reduce_bf: "recomp",
+      recomp: "recomp",
+      performance: "maintain",
+      maintain: "maintain",
+      lean_bulk: "lean_bulk",
+      health: "health",
+    };
+    setForm((p: any) => ({
+      ...p,
+      height_feet: p.height_feet || (totalIn ? Math.floor(totalIn / 12).toString() : ""),
+      height_inches: p.height_inches || (totalIn ? (totalIn % 12).toString() : ""),
+      current_weight_lbs: p.current_weight_lbs || (fitnessProfile.weight_lbs?.toString() ?? ""),
+      goal_weight_lbs: p.goal_weight_lbs || (fitnessProfile.goal_weight_lbs?.toString() ?? ""),
+      age: p.age || (fitnessProfile.age?.toString() ?? ""),
+      gender: p.gender || (fitnessProfile.sex ?? ""),
+      activity_level:
+        p.activity_level && p.activity_level !== "moderate"
+          ? p.activity_level
+          : fitnessProfile.activity_level ?? p.activity_level,
+      main_goal: p.main_goal || (goalMap[fitnessProfile.primary_goal ?? ""] ?? fitnessProfile.primary_goal ?? ""),
+      meals_per_day: p.meals_per_day || fitnessProfile.meals_per_day || 3,
+      dietary_restrictions: p.dietary_restrictions?.length
+        ? p.dietary_restrictions
+        : fitnessProfile.dietary_preferences ?? [],
+      allergies: p.allergies?.length ? p.allergies : fitnessProfile.allergies ?? [],
+      disliked_foods: p.disliked_foods || (fitnessProfile.disliked_foods ?? []).join(", "),
+      grocery_budget_weekly:
+        p.grocery_budget_weekly || (fitnessProfile.weekly_food_budget?.toString() ?? ""),
+    }));
+  }, [fitnessProfile]);
+
+
 
   if (loading) {
     return (
@@ -458,6 +512,37 @@ const DashboardNutritionSetup = () => {
         queryClient.invalidateQueries({ queryKey: ["nutrition-profile"] }),
         queryClient.invalidateQueries({ queryKey: ["user-macro-targets", user.id] }),
       ]);
+
+      // Mirror to master fitness profile so Fuel/Coach/Onboarding never re-ask
+      try {
+        await saveFitnessProfile({
+          height_inches: heightInches || null,
+          weight_lbs: parseFloat(form.current_weight_lbs) || null,
+          goal_weight_lbs: form.goal_weight_lbs ? parseFloat(form.goal_weight_lbs) : null,
+          age: parseInt(form.age) || null,
+          sex: (form.gender || null) as "male" | "female" | null,
+          activity_level: form.activity_level || null,
+          primary_goal: form.main_goal || null,
+          training_days_per_week: form.training_days_per_week ? parseInt(form.training_days_per_week) : null,
+          meals_per_day: parseInt(form.meals_per_day) || 3,
+          dietary_preferences: form.dietary_restrictions || [],
+          allergies: form.allergies || [],
+          disliked_foods: form.disliked_foods
+            ? String(form.disliked_foods).split(",").map((s: string) => s.trim()).filter(Boolean)
+            : [],
+          weekly_food_budget: form.grocery_budget_weekly ? parseFloat(form.grocery_budget_weekly) : null,
+          grocery_store: form.preferred_grocery_stores
+            ? String(form.preferred_grocery_stores).split(",").map((s: string) => s.trim()).filter(Boolean)[0] ?? null
+            : null,
+          calorie_target: computed.calories,
+          protein_target_g: computed.protein,
+          carb_target_g: computed.carbs,
+          fat_target_g: computed.fat,
+          nutrition_completed: true,
+        });
+      } catch (mirrorErr: any) {
+        console.error("[NutritionSetup] master profile mirror failed", mirrorErr?.message);
+      }
 
       toast({
         title: "Your Fuel plan is ready",
