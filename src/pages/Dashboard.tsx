@@ -216,6 +216,25 @@ const Dashboard = () => {
   const { data: workoutCategories } = useWorkoutCategories();
   const categoryImages = { ...CATEGORY_FALLBACK_IMAGES, ...categoryImageMap(workoutCategories) };
 
+  // Class counts per category
+  const { data: categoryCounts = {} } = useQuery({
+    queryKey: ["category-counts-home"],
+    queryFn: async () => {
+      const counts: Record<string, number> = {};
+      await Promise.all(
+        categories.map(async (cat) => {
+          const { count } = await supabase
+            .from("workouts")
+            .select("id", { count: "exact", head: true })
+            .ilike("category", cat);
+          counts[cat] = count ?? 0;
+        })
+      );
+      return counts;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const SaveButton = ({ workoutId }: { workoutId: string }) => {
     const isSaved = favorites.includes(workoutId);
     return (
