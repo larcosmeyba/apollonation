@@ -585,10 +585,11 @@ const DashboardNutrition = () => {
     if (!user || !planId) return;
     setOptimizingBudget(true);
     try {
-      const { error } = await supabase.functions.invoke("apply-budget-to-grocery-list", {
+      const { data, error } = await supabase.functions.invoke("apply-budget-to-grocery-list", {
         body: { planId, week },
       });
       if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
       queryClient.invalidateQueries({ queryKey: ["grocery-item-states", user.id, planId, week] });
     } catch (err: any) {
       console.error("budget optimization failed", err);
