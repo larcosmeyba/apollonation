@@ -78,7 +78,7 @@ export const useAppleHealth = () => {
   // Load saved connection state
   useEffect(() => {
     if (!user) return;
-    (supabase as any)
+    supabase
       .from("health_connection_status")
       .select("apple_health_connected, last_sync_at")
       .eq("user_id", user.id)
@@ -254,14 +254,14 @@ export const useAppleHealth = () => {
           synced_at: new Date().toISOString(),
         }));
 
-        const { error: upsertErr } = await (supabase as any)
+        const { error: upsertErr } = await supabase
           .from("health_data_logs")
           .upsert(rows, { onConflict: "user_id,log_date,source" });
 
         if (upsertErr) throw upsertErr;
 
         const now = new Date().toISOString();
-        await (supabase as any)
+        await supabase
           .from("health_connection_status")
           .upsert(
             {
@@ -278,7 +278,7 @@ export const useAppleHealth = () => {
         // so streaks and dashboards update automatically from the native source.
         const todayRow = summaries[summaries.length - 1];
         if (todayRow) {
-          await (supabase as any)
+          await supabase
             .from("step_logs")
             .upsert(
               {
@@ -304,7 +304,7 @@ export const useAppleHealth = () => {
         console.error("[AppleHealth] sync failed", e);
         setError(e?.message ?? "Sync failed.");
         setDiagnostics((prev) => ({ ...prev, lastMessage: e?.message ?? "Sync failed." }));
-        await (supabase as any)
+        await supabase
           .from("health_connection_status")
           .upsert(
             {
@@ -333,7 +333,7 @@ export const useAppleHealth = () => {
     if (!available || !user) return false;
     syncedThisSessionRef.current = false;
     setConnected(false);
-    await (supabase as any)
+    await supabase
       .from("health_connection_status")
       .upsert(
         {
