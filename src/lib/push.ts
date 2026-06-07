@@ -1,5 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 let listenersAttached = false;
 
@@ -33,6 +34,12 @@ export const requestAndRegisterPush = async (userId: string): Promise<boolean> =
     });
     await PushNotifications.addListener("registrationError", (err) => {
       console.warn("[Push] registration error", err);
+      toast({
+        title: "Couldn't enable push notifications",
+        description:
+          "We couldn't register this device for notifications. Check your internet connection and try again from Settings → Notifications.",
+        variant: "destructive",
+      });
     });
     listenersAttached = true;
   }

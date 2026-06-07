@@ -29,7 +29,7 @@ interface TodayRow {
 
 const AppleHealthCard = () => {
   const { user } = useAuth();
-  const { available, connected, syncing, lastSyncAt, error: rawError, diagnostics, connect, sync } = useAppleHealth();
+  const { available, connected, syncing, lastSyncAt, error: rawError, diagnostics, connect, reconnect, sync } = useAppleHealth();
   const error = rawError && /not implemented|not available/i.test(rawError)
     ? "Apple Health requires the latest app update"
     : rawError;
@@ -352,6 +352,40 @@ const AppleHealthCard = () => {
           →
         </span>
       </a>
+
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const ok = await reconnect();
+            if (ok) {
+              toast({
+                title: "Apple Health reconnected",
+                description: "Re-prompted permissions and refreshed your data.",
+              });
+            } else {
+              toast({
+                title: "Apple Health reconnect failed",
+                description:
+                  "Open iPhone Settings → Privacy & Security → Health → Apollo Reborn and turn ON all categories, then try again.",
+                variant: "destructive",
+              });
+            }
+          } catch (e: any) {
+            toast({
+              title: "Apple Health reconnect failed",
+              description:
+                e?.message ||
+                "Open iPhone Settings → Privacy & Security → Health → Apollo Reborn and turn ON all categories, then try again.",
+              variant: "destructive",
+            });
+          }
+        }}
+        disabled={syncing}
+        className="mt-2 w-full text-[11px] text-foreground/50 hover:text-foreground/80 transition-colors py-2 disabled:opacity-50"
+      >
+        Not seeing your data? Reconnect Apple Health
+      </button>
 
       {error && <p className="text-xs text-destructive mt-3">{error}</p>}
     </div>
