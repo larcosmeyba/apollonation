@@ -87,11 +87,6 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     [envKey, videoId, playbackId, title, category, classId, classTitle, viewerId],
   );
 
-  // Don't render the player until we know the env key result (success or
-  // empty). When empty, the player still works — analytics just won't ship.
-  if (envKey === null) {
-    return <div className={className} style={{ background: "#000" }} />;
-  }
 
   return (
     <MuxPlayer
