@@ -329,6 +329,23 @@ export const useAppleHealth = () => {
     return false;
   }, [requestPermissions, sync]);
 
+  const reconnect = useCallback(async (): Promise<boolean> => {
+    if (!available || !user) return false;
+    syncedThisSessionRef.current = false;
+    setConnected(false);
+    await (supabase as any)
+      .from("health_connection_status")
+      .upsert(
+        {
+          user_id: user.id,
+          apple_health_connected: false,
+          last_sync_error: null,
+        },
+        { onConflict: "user_id" },
+      );
+    return connect();
+  }, [available, user, connect]);
+
   // Auto-sync on app open (once per session, only if previously connected)
   useEffect(() => {
     if (!available || !user || !connected) return;
