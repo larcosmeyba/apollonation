@@ -29,7 +29,7 @@ interface TodayRow {
 
 const AppleHealthCard = () => {
   const { user } = useAuth();
-  const { available, connected, syncing, lastSyncAt, error: rawError, diagnostics, connect, sync } = useAppleHealth();
+  const { available, connected, syncing, lastSyncAt, error: rawError, diagnostics, connect, reconnect, sync } = useAppleHealth();
   const error = rawError && /not implemented|not available/i.test(rawError)
     ? "Apple Health requires the latest app update"
     : rawError;
