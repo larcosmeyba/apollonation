@@ -382,6 +382,7 @@ export const useAppleHealth = () => {
     error,
     diagnostics,
     connect,
+    reconnect,
     sync,
   };
 };
