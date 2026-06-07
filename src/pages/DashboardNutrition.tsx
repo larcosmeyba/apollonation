@@ -585,10 +585,11 @@ const DashboardNutrition = () => {
     if (!user || !planId) return;
     setOptimizingBudget(true);
     try {
-      const { error } = await supabase.functions.invoke("apply-budget-to-grocery-list", {
+      const { data, error } = await supabase.functions.invoke("apply-budget-to-grocery-list", {
         body: { planId, week },
       });
       if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
       queryClient.invalidateQueries({ queryKey: ["grocery-item-states", user.id, planId, week] });
     } catch (err: any) {
       console.error("budget optimization failed", err);
@@ -632,12 +633,9 @@ const DashboardNutrition = () => {
     if (!activePlan || regenerating) return;
     setRegenerating(true);
     try {
-      const resp = await supabase.functions.invoke("client-regenerate-meal-plan", { body: { planId: activePlan.id, week: currentWeek } });
-      if (resp.error) {
-        const errorMsg = typeof resp.error === "object" && resp.error.message ? resp.error.message : String(resp.error);
-        throw new Error(errorMsg);
-      }
-      if (resp.data?.error) throw new Error(resp.data.error);
+      const { data, error } = await supabase.functions.invoke("client-regenerate-meal-plan", { body: { planId: activePlan.id, week: currentWeek } });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
       toast({ title: "Meal plan refreshed!", description: `Week ${currentWeek} has been regenerated.` });
       queryClient.invalidateQueries({ queryKey: ["my-plan-meals", activePlan.id] });
       // Re-run quantity optimization against the new meal set so the grocery
