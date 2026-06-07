@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/timeout";
 
 let cachedKey: string | null = null;
 let inflight: Promise<string> | null = null;
@@ -18,8 +19,11 @@ export function useMuxEnvKey(): string | null {
       return;
     }
     if (!inflight) {
-      inflight = supabase.functions
-        .invoke("get-mux-config")
+      inflight = withTimeout(
+        supabase.functions.invoke("get-mux-config"),
+        2000,
+        "Mux env key fetch timed out"
+      )
         .then(({ data }) => {
           const k = (data as { env_key?: string } | null)?.env_key ?? "";
           cachedKey = k;
