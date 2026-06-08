@@ -90,40 +90,31 @@ const AppleHealthCard = () => {
 
   if (!connected) {
     return (
-      <>
-        <div className="card-apollo p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Heart className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-heading text-sm">Connect Apple Health</h3>
-              <p className="text-xs text-muted-foreground">
-                Sync steps, active calories, workouts & heart rate with your coach
-              </p>
-            </div>
+      <div className="card-apollo p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Heart className="w-5 h-5 text-primary" />
           </div>
-          <Button size="sm" className="w-full" onClick={handleConnect} disabled={syncing}>
-            {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Heart className="w-4 h-4 mr-2" />}
-            Connect Apple Health
-          </Button>
-          {error && (
-            <p className="mt-2 text-[11px] text-destructive leading-snug">
-              {error}
+          <div>
+            <h3 className="font-heading text-sm">Connect Apple Health</h3>
+            <p className="text-xs text-muted-foreground">
+              Sync steps, active calories, workouts & heart rate with your coach
             </p>
-          )}
+          </div>
         </div>
-                    {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                    Continue
-                  </AlertDialogAction>
-                </>
-              )}
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </>
+        <Button size="sm" className="w-full" onClick={handleConnect} disabled={syncing}>
+          {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Heart className="w-4 h-4 mr-2" />}
+          Connect Apple Health
+        </Button>
+        {error && (
+          <p className="mt-2 text-[11px] text-destructive leading-snug">
+            {error}
+          </p>
+        )}
+      </div>
     );
   }
+
 
   const workoutMins = today?.workout_duration_minutes ?? 0;
   const steps = today?.steps ?? 0;
