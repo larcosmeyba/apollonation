@@ -1,30 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Lock, Sparkles, ChevronRight, Check, Dumbbell } from "lucide-react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import MyWorkoutsQuestionnaire, {
-  QuestionnairePayload,
-} from "@/components/dashboard/MyWorkoutsQuestionnaire";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyWorkoutsAccess } from "@/hooks/useMyWorkoutsAccess";
-import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const DashboardMyWorkouts = () => {
   // Route is gated in App.tsx for native — no in-component guard (would violate Rules of Hooks).
   const { user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const qc = useQueryClient();
   const access = useMyWorkoutsAccess();
-  const [submitting, setSubmitting] = useState(false);
-  const [started, setStarted] = useState(false);
 
   // Start the trial the moment a non-subscriber lands here.
   useEffect(() => {
@@ -51,32 +43,6 @@ const DashboardMyWorkouts = () => {
     },
   });
 
-  const handleComplete = async (payload: QuestionnairePayload) => {
-    if (!user?.id) return;
-    setSubmitting(true);
-    const { error } = await (supabase as any)
-      .from("mw_questionnaire_responses")
-      .upsert(
-        {
-          user_id: user.id,
-          ...payload,
-          completed_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" }
-      );
-    setSubmitting(false);
-    if (error) {
-      toast({
-        title: "Could not save",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-    qc.invalidateQueries({ queryKey: ["mw_questionnaire_responses", user.id] });
-    setStarted(false);
-    toast({ title: "Plan saved", description: "Generating your personalized recommendations." });
-  };
 
   // ---- Render gates ----
   if (access.loading || qLoading) {
@@ -138,11 +104,9 @@ const DashboardMyWorkouts = () => {
         )}
 
         {existing ? (
-          <PlanPlaceholder onRestart={() => qc.removeQueries({ queryKey: ["mw_questionnaire_responses", user?.id] })} />
-        ) : started ? (
-          <MyWorkoutsQuestionnaire onComplete={handleComplete} submitting={submitting} />
+          <PlanPlaceholder onRestart={() => navigate("/dashboard/personalize")} />
         ) : (
-          <PlanIntroCard onStart={() => setStarted(true)} />
+          <PlanIntroCard onStart={() => navigate("/dashboard/personalize")} />
         )}
       </div>
     </DashboardLayout>

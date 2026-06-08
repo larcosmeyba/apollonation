@@ -153,13 +153,19 @@ const DashboardNutritionSetup = () => {
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
-  // If user already completed Fuel intake, skip straight to Fuel dashboard
-  // unless ?force=1 is passed (retake flow).
+  // If user already completed Fuel intake, skip straight to Fuel dashboard.
+  // If they haven't, redirect them to the unified 20-question onboarding
+  // (training + nutrition combined). The old per-tab nutrition setup remains
+  // available with ?force=1 for retake/edit flows.
   useEffect(() => {
     if (!force && fitnessProfile?.nutrition_completed) {
       navigate("/dashboard/nutrition", { replace: true });
+      return;
     }
-  }, [fitnessProfile?.nutrition_completed, force, navigate]);
+    if (!force && fitnessProfile && !fitnessProfile.nutrition_completed) {
+      navigate("/dashboard/personalize", { replace: true });
+    }
+  }, [fitnessProfile?.nutrition_completed, fitnessProfile, force, navigate]);
 
 
   // Pre-fill from existing nutrition questionnaire if retaking

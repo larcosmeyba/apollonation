@@ -52,6 +52,7 @@ const DashboardRecovery = lazy(() => import("./pages/DashboardRecovery"));
 const DashboardChallenges = lazy(() => import("./pages/DashboardChallenges"));
 const DashboardMessages = lazy(() => import("./pages/DashboardMessages"));
 const DashboardMyWorkouts = lazy(() => import("./pages/DashboardMyWorkouts"));
+const DashboardPersonalize = lazy(() => import("./pages/DashboardPersonalize"));
 const Subscribe = lazy(() => import("./pages/Subscribe"));
 const PaywallPreview = lazy(() => import("./pages/PaywallPreview"));
 
@@ -187,6 +188,10 @@ const App = () => {
               <Route
                 path="/dashboard/nutrition/setup"
                 element={<ProtectedRoute>{eb(<DashboardNutritionSetup />)}</ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/personalize"
+                element={<ProtectedRoute>{eb(<DashboardPersonalize />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/training"
