@@ -971,6 +971,18 @@ const DashboardNutrition = () => {
               }}
             />
 
+            <EditMacroTargetsDialog
+              open={editTargetsOpen}
+              onOpenChange={setEditTargetsOpen}
+              focusField={editField}
+              initial={{
+                calories: Math.round(targets.calories),
+                protein: Math.round(targets.protein),
+                carbs: Math.round(targets.carbs),
+                fat: Math.round(targets.fat),
+              }}
+            />
+
             <div className="mt-5">
               <FuelAssistant />
             </div>
