@@ -505,14 +505,6 @@ const DashboardNutritionSetup = () => {
         }
       }
 
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["nutrition-questionnaire", user.id] }),
-        queryClient.invalidateQueries({ queryKey: ["nutrition-questionnaire-existing", user.id] }),
-        queryClient.invalidateQueries({ queryKey: ["my-nutrition-plans"] }),
-        queryClient.invalidateQueries({ queryKey: ["nutrition-profile"] }),
-        queryClient.invalidateQueries({ queryKey: ["user-macro-targets", user.id] }),
-      ]);
-
       // Mirror to master fitness profile so Fuel/Coach/Onboarding never re-ask
       try {
         await saveFitnessProfile({
@@ -543,6 +535,15 @@ const DashboardNutritionSetup = () => {
       } catch (mirrorErr: any) {
         console.error("[NutritionSetup] master profile mirror failed", mirrorErr?.message);
       }
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["nutrition-questionnaire", user.id] }),
+        queryClient.invalidateQueries({ queryKey: ["nutrition-questionnaire-existing", user.id] }),
+        queryClient.invalidateQueries({ queryKey: ["my-nutrition-plans"] }),
+        queryClient.invalidateQueries({ queryKey: ["nutrition-profile"] }),
+        queryClient.invalidateQueries({ queryKey: ["user-macro-targets", user.id] }),
+        queryClient.invalidateQueries({ queryKey: ["fitness_profile", user.id] }),
+      ]);
 
       toast({
         title: "Your Fuel plan is ready",
