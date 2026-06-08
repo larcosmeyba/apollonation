@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,7 +16,7 @@ import { useSignedUrl } from "@/hooks/useSignedUrl";
 import { Switch } from "@/components/ui/switch";
 import PrivacyDataView from "@/components/dashboard/PrivacyDataView";
 import ReportBugView from "@/components/dashboard/ReportBugView";
-import PushPermissionModal from "@/components/PushPermissionModal";
+import { requestAndRegisterPush } from "@/lib/push";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import { APP_STORE_ID, APP_STORE_REVIEW_URL } from "@/lib/appLinks";
 
@@ -98,77 +98,20 @@ const DashboardProfile = () => {
   const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const pushListenersRef = useRef<Array<{ remove: () => Promise<void> }>>([]);
   const { signedUrl: avatarUrl } = useSignedUrl("avatars", profile?.avatar_url);
-
-  // Tear down push listeners when the user changes or the component unmounts
-  // so a stale closure doesn't write a token under the old user's id.
-  useEffect(() => {
-    return () => {
-      const handles = pushListenersRef.current;
-      pushListenersRef.current = [];
-      for (const h of handles) {
-        h.remove().catch(() => {});
-      }
-    };
-  }, [user?.id]);
 
   // Preferences state
   const [weeklyGoalText, setWeeklyGoalText] = useState(profile?.fitness_goals || "");
   const [favoriteTypes, setFavoriteTypes] = useState<string[]>([]);
   const [additionalGoals, setAdditionalGoals] = useState("");
   const [goalFeedback, setGoalFeedback] = useState<string | null>(null);
-  const [pushModalOpen, setPushModalOpen] = useState(false);
   const { preferences: notifPrefs, update: updateNotifPrefs } = useNotificationPreferences();
 
-  // Trigger the OS push prompt only after the user accepts our pre-permission modal.
-  const handleAllowPush = async () => {
-    setPushModalOpen(false);
-    try {
-      const { Capacitor } = await import("@capacitor/core");
-      if (!Capacitor.isNativePlatform()) {
-        toast({ title: "Open Apollo Reborn on your phone to enable notifications." });
-        return;
-      }
-      const { PushNotifications } = await import("@capacitor/push-notifications");
-
-      // Attach listeners only if we don't already have handles for this user.
-      if (pushListenersRef.current.length === 0) {
-        const regHandle = await PushNotifications.addListener("registration", async (token) => {
-          if (!user) return;
-          try {
-            await (supabase as any).from("push_tokens").upsert(
-              {
-                user_id: user.id,
-                token: token.value,
-                platform: Capacitor.getPlatform(),
-              },
-              { onConflict: "user_id,token" }
-            );
-          } catch (e) {
-            console.warn("[Push] failed to save token", e);
-          }
-        });
-        const errHandle = await PushNotifications.addListener("registrationError", (err) => {
-          console.warn("Push registration error", err);
-        });
-        pushListenersRef.current.push(regHandle, errHandle);
-      }
-
-      const result = await PushNotifications.requestPermissions();
-      if (result.receive === "granted") {
-        await PushNotifications.register();
-        toast({ title: "Notifications enabled" });
-      } else {
-        toast({
-          title: "Notifications blocked",
-          description: "Enable them anytime in your phone Settings.",
-        });
-      }
-    } catch (e) {
-      console.warn("[Push] permission flow failed", e);
-    }
+  const handleEnablePush = async () => {
+    if (!user) return;
+    await requestAndRegisterPush(user.id);
   };
+
 
   const [formData, setFormData] = useState({
     display_name: profile?.display_name || "",
@@ -465,10 +408,10 @@ const DashboardProfile = () => {
               <div>
                 <span className="text-sm text-foreground">Enable push notifications</span>
                 <p className="text-xs text-foreground/60 mt-0.5">
-                  We'll explain why before asking the system.
+                  Your phone will ask for permission.
                 </p>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setPushModalOpen(true)}>
+              <Button variant="ghost" size="sm" onClick={handleEnablePush}>
                 Enable
               </Button>
             </div>
@@ -547,11 +490,6 @@ const DashboardProfile = () => {
             </div>
           </div>
 
-          <PushPermissionModal
-            open={pushModalOpen}
-            onOpenChange={setPushModalOpen}
-            onAllow={handleAllowPush}
-          />
 
           <div className="mt-8">
             <Button variant="ghost" className="w-full text-destructive hover:text-destructive/80 text-sm font-bold" onClick={handleSignOut} disabled={signingOut}>
