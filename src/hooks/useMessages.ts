@@ -305,22 +305,25 @@ export const useMessages = (
     if (!canUseRealtime()) return;
 
     let channel: ReturnType<typeof supabase.channel> | null = null;
+    let pendingTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleInvalidate = () => {
+      if (pendingTimer) return;
+      pendingTimer = setTimeout(() => {
+        pendingTimer = null;
+        queryClient.invalidateQueries({ queryKey: ["messages"] });
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+      }, 250);
+    };
 
     try {
       channel = supabase
         .channel(`messages-realtime-${user.id}`)
         .on(
           "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "messages",
-          },
-          () => {
-            queryClient.invalidateQueries({ queryKey: ["messages"] });
-            queryClient.invalidateQueries({ queryKey: ["conversations"] });
-            queryClient.invalidateQueries({ queryKey: ["unread-count"] });
-          }
+          { event: "*", schema: "public", table: "messages" },
+          scheduleInvalidate
         );
 
       channel.subscribe((status) => {
@@ -334,6 +337,7 @@ export const useMessages = (
     }
 
     return () => {
+      if (pendingTimer) clearTimeout(pendingTimer);
       if (channel) supabase.removeChannel(channel);
     };
   }, [user, queryClient]);
