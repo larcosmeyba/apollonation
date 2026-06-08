@@ -357,28 +357,34 @@ const DashboardNutrition = () => {
 
   // ── Derived state ──
   // Source of truth order:
-  //   1) Active nutrition plan (coach-set)
-  //   2) Questionnaire-derived targets (auto-computed via useMacroTargets / Mifflin-St Jeor)
-  //   3) Locally calculated from nutrition profile
-  //   4) Sensible defaults (so the rings are never blank)
+  //   1) Manual targets the user set on the Fuel screen (user_macro_targets.source === 'manual')
+  //   2) Active nutrition plan (coach-set)
+  //   3) Auto-computed targets from questionnaire (Mifflin-St Jeor via useMacroTargets)
+  //   4) Locally calculated from nutrition profile
+  //   5) Sensible defaults (so the rings are never blank)
   const macroTargetsFromQuestionnaire = useMacroTargets();
+  const manual = macroTargetsFromQuestionnaire.source === "manual" ? macroTargetsFromQuestionnaire : null;
   const targets = {
     calories:
+      manual?.calorie_target ||
       activePlan?.daily_calories ||
       macroTargetsFromQuestionnaire.calorie_target ||
       calculatedMacros?.calories ||
       2500,
     protein:
+      manual?.protein_grams ||
       activePlan?.protein_grams ||
       macroTargetsFromQuestionnaire.protein_grams ||
       calculatedMacros?.protein ||
       180,
     carbs:
+      manual?.carb_grams ||
       activePlan?.carbs_grams ||
       macroTargetsFromQuestionnaire.carb_grams ||
       calculatedMacros?.carbs ||
       300,
     fat:
+      manual?.fat_grams ||
       activePlan?.fat_grams ||
       macroTargetsFromQuestionnaire.fat_grams ||
       calculatedMacros?.fat ||
