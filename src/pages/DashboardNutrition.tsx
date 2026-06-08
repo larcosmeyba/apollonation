@@ -963,6 +963,10 @@ const DashboardNutrition = () => {
               protein={{ consumed: loggedTotals.protein, target: targets.protein }}
               carbs={{ consumed: loggedTotals.carbs, target: targets.carbs }}
               fat={{ consumed: loggedTotals.fat, target: targets.fat }}
+              onEdit={(field) => {
+                setEditField(field);
+                setEditTargetsOpen(true);
+              }}
             />
 
             <div className="mt-5">
