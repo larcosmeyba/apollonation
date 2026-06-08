@@ -245,39 +245,134 @@ const DashboardTraining = () => {
   };
 
 
+  const programFocus = useMemo(() => {
+    const t = (planData?.plan?.title || "").toLowerCase();
+    if (t.includes("fat") || t.includes("lose") || t.includes("cut")) return "Fat Loss";
+    if (t.includes("muscle") || t.includes("bulk") || t.includes("gain")) return "Muscle Gain";
+    if (t.includes("recomp")) return "Recomposition";
+    if (t.includes("endur")) return "Endurance";
+    if (t.includes("strength")) return "Strength";
+    return "Performance";
+  }, [planData]);
+
+  const avgSessionMin = useMemo(() => {
+    const days = planData?.days || [];
+    const durations = days.map((d: any) => d.duration_minutes).filter(Boolean) as number[];
+    if (!durations.length) return "45–60";
+    const lo = Math.min(...durations);
+    const hi = Math.max(...durations);
+    return lo === hi ? `${lo}` : `${lo}–${hi}`;
+  }, [planData]);
+
+  const weekSwipe = useSwipe({
+    onSwipeLeft: () => setCurrentDate(d => addWeeks(d, 1)),
+    onSwipeRight: () => setCurrentDate(d => subWeeks(d, 1)),
+  });
+
   return (
     <DashboardLayout>
-      <div className="max-w-3xl mx-auto space-y-5">
+      <div className="max-w-3xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-display-md">Programs</h1>
-            <p className="text-xs text-foreground/30 mt-0.5">Structured training programs</p>
+            <h1 className="font-heading text-display-md leading-none">Programs</h1>
+            <p className="text-xs text-foreground/40 mt-1">Structured training programs</p>
           </div>
           <Button
-            variant="outline"
+            variant="apollo-outline"
             size="sm"
-            className="gap-1.5 border-border/30 text-foreground/50 text-xs"
+            className="gap-1.5 text-xs"
             onClick={() => setShowAddActivity(true)}
           >
             <Plus className="w-3.5 h-3.5" /> Log Activity
           </Button>
         </div>
 
-        {/* Browse Programs — Hero Section */}
-        <TrainingProgramCards />
+        {/* 1) TODAY'S WORKOUT — HERO */}
+        {planData && todayWorkout ? (
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold mb-2">
+              Today's Workout
+            </p>
+            <Link
+              to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`}
+              className="group block rounded-2xl border border-border/30 overflow-hidden bg-gradient-to-br from-foreground/[0.04] to-transparent hover:border-primary/40 transition-colors"
+            >
+              <div className="flex items-stretch">
+                <div className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden">
+                  <img
+                    src={stockBack}
+                    alt={todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="eager"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/40" />
+                </div>
+                <div className="flex-1 min-w-0 flex items-center justify-between gap-3 p-4 sm:p-5">
+                  <div className="min-w-0">
+                    <h2 className="font-heading text-xl sm:text-2xl text-foreground leading-tight truncate">
+                      {todayWorkout.day_label || todayWorkout.focus || `Day ${todayWorkout.day_number}`}
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-foreground/60">
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" /> {todayMeta?.duration ?? 45} min
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Dumbbell className="w-3.5 h-3.5" /> {exercises.length} Exercises
+                      </span>
+                    </div>
+                    {programProgress && (
+                      <p className="text-[11px] text-foreground/40 mt-1.5">
+                        Week {programProgress.currentWeek} · Day {todayWorkout.day_number}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0">
+                    <Button variant="apollo" size="sm" className="rounded-full px-5 gap-1.5">
+                      <Play className="w-3.5 h-3.5 fill-current" /> Start
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        ) : planData ? (
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold mb-2">
+              Today
+            </p>
+            <div className="rounded-2xl border border-border/30 p-5 bg-gradient-to-br from-foreground/[0.03] to-transparent">
+              <h2 className="font-heading text-xl text-foreground">Rest Day</h2>
+              <p className="text-xs text-foreground/50 mt-1">
+                Recovery is part of the process. Pick a session below.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border/20 p-8 text-center">
+            <Dumbbell className="w-10 h-10 text-foreground/10 mx-auto mb-3" />
+            <h3 className="font-heading text-base mb-1.5 text-foreground/70">No Active Program</h3>
+            <p className="text-xs text-foreground/40 mb-4">
+              Choose a program below to get started with structured training.
+            </p>
+          </div>
+        )}
 
-        {/* Weekly Calendar */}
+        {/* 2) WEEKLY CALENDAR */}
         {planData && (
-          <div className="rounded-xl border border-border/20 p-3">
-            <div className="flex items-center justify-between mb-2">
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground/30" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
+          <div
+            className="rounded-2xl border border-border/25 p-3"
+            onTouchStart={weekSwipe.onTouchStart}
+            onTouchEnd={weekSwipe.onTouchEnd}
+          >
+            <div className="flex items-center justify-between mb-3 px-1">
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground/50" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
                 <ChevronLeft className="w-4 h-4" />
               </Button>
-              <span className="text-[10px] text-foreground/30 tracking-wider">
+              <span className="text-[11px] text-foreground/60 tracking-wider font-medium">
                 {format(currentWeekStart, "MMM d")} — {format(addDays(currentWeekStart, 6), "MMM d")}
               </span>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground/30" onClick={() => setCurrentDate(d => addWeeks(d, 1))}>
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground/50" onClick={() => setCurrentDate(d => addWeeks(d, 1))}>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -287,22 +382,33 @@ const DashboardTraining = () => {
                 const isTodayDate = isToday(date);
                 const dateStr = format(date, "yyyy-MM-dd");
                 const isCompleted = completedSessions.some((s: any) => s.log_date === dateStr);
+                const isPast = date < new Date(format(today, "yyyy-MM-dd"));
+                const missed = isPast && workout && !isCompleted;
 
                 return (
                   <Link
                     key={date.toISOString()}
                     to={workout ? `/dashboard/training/workout?day=${workout.id}&date=${dateStr}` : "#"}
                     onClick={(e) => !workout && e.preventDefault()}
-                    className={`flex-1 flex flex-col items-center py-2 rounded-lg transition-all ${
+                    className={`flex-1 flex flex-col items-center py-2.5 rounded-xl transition-all min-h-[64px] justify-center ${
                       isTodayDate
-                        ? "bg-foreground text-background"
-                        : "text-foreground/30 hover:bg-foreground/5"
-                    } ${!workout ? "opacity-30" : ""}`}
+                        ? "bg-primary text-primary-foreground shadow-[0_4px_18px_-2px_hsl(var(--primary)/0.45)]"
+                        : workout
+                          ? "text-foreground/80 hover:bg-foreground/5"
+                          : "text-foreground/30"
+                    }`}
                   >
-                    <span className="text-[10px] uppercase tracking-wider">{format(date, "EEE")}</span>
-                    <span className="text-sm font-heading">{format(date, "d")}</span>
-                    {isCompleted && <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-0.5" />}
-                    {workout && !isCompleted && <div className="w-1.5 h-1.5 rounded-full bg-foreground/20 mt-0.5" />}
+                    <span className="text-[10px] uppercase tracking-wider font-semibold opacity-80">{format(date, "EEE")}</span>
+                    <span className="text-base font-heading mt-0.5">{format(date, "d")}</span>
+                    <div className="h-1.5 mt-1 flex items-center justify-center">
+                      {isCompleted ? (
+                        <div className={`w-1.5 h-1.5 rounded-full ${isTodayDate ? "bg-primary-foreground" : "bg-primary"}`} />
+                      ) : missed ? (
+                        <div className="w-1.5 h-1.5 rounded-full bg-destructive/70" />
+                      ) : workout ? (
+                        <div className={`w-1 h-1 rounded-full ${isTodayDate ? "bg-primary-foreground/70" : "bg-foreground/30"}`} />
+                      ) : null}
+                    </div>
                   </Link>
                 );
               })}
@@ -310,127 +416,113 @@ const DashboardTraining = () => {
           </div>
         )}
 
-        {/* Program Progress Card */}
+        {/* 3) PROGRAM PROGRESS */}
         {programProgress && (
-          <div className="rounded-xl border border-border/20 p-4 bg-gradient-to-br from-foreground/[0.03] to-transparent">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/40 mb-1.5">
-                  {programProgress.title}
-                </p>
-                <h3 className="font-heading text-lg text-foreground/90 leading-tight">
+          <div className="rounded-2xl border border-border/25 p-5 bg-gradient-to-br from-primary/[0.06] via-foreground/[0.02] to-transparent">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-foreground/50 font-semibold mb-3">
+              {programProgress.title}
+            </p>
+            <div className="flex items-end justify-between gap-4 mb-4">
+              <div className="min-w-0">
+                <h3 className="font-heading text-2xl text-foreground leading-tight">
                   Week {programProgress.currentWeek} of {programProgress.totalWeeks}
                 </h3>
-                <p className="text-[11px] text-foreground/50 mt-1">
-                  {programProgress.completed} / {programProgress.totalWorkouts} Workouts Completed
+                <p className="text-xs text-foreground/55 mt-1">
+                  {programProgress.completed} of {programProgress.totalWorkouts} workouts completed
                 </p>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="font-heading text-2xl text-foreground">{programProgress.percent}%</p>
+                <p className="font-heading text-3xl text-primary tabular-nums">{programProgress.percent}%</p>
                 <p className="text-[10px] uppercase tracking-wider text-foreground/40 mt-0.5">Complete</p>
               </div>
             </div>
-            <div className="mt-3 h-1 w-full rounded-full bg-foreground/10 overflow-hidden">
+            <div className="h-2 w-full rounded-full bg-foreground/10 overflow-hidden">
               <div
-                className="h-full bg-foreground transition-all duration-500"
+                className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-700"
                 style={{ width: `${programProgress.percent}%` }}
               />
             </div>
           </div>
         )}
 
-        {/* Current Workout */}
-        {!planData ? (
-          <div className="rounded-xl border border-border/20 p-8 text-center">
-            <Dumbbell className="w-10 h-10 text-foreground/10 mx-auto mb-3" />
-            <h3 className="font-heading text-base mb-1.5 text-foreground/70">No Active Program</h3>
-            <p className="text-xs text-foreground/30 mb-4">
-              Choose a program above to get started with structured training.
+        {/* 4) PROGRAM OVERVIEW */}
+        {planData && programProgress && (
+          <div className="rounded-2xl border border-border/25 p-5">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold mb-4">
+              Program Overview
             </p>
-          </div>
-        ) : todayWorkout ? (
-          <div className="rounded-xl border border-border/20 overflow-hidden">
-            <div className="p-4 flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-eyebrow uppercase text-foreground/25 mb-0.5">Today's Workout</p>
-                <h2 className="font-heading text-lg text-foreground/80">
-                  {todayWorkout.day_label || `Day ${todayWorkout.day_number}`}
-                </h2>
-                {todayWorkout.focus && (
-                  <p className="text-[11px] text-foreground/40 font-light mt-0.5">{todayWorkout.focus}</p>
-                )}
-                {todayMeta && (
-                  <div className="flex items-center gap-3 mt-2 text-[11px] text-foreground/50">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {todayMeta.duration} Min
-                    </span>
-                    <span className="text-foreground/20">|</span>
-                    <span className="inline-flex items-center gap-1">
-                      <Activity className="w-3 h-3" /> {todayMeta.type}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <Link to={`/dashboard/training/workout?day=${todayWorkout.id}&date=${logDateStr}`} className="flex-shrink-0">
-                <Button variant="apollo" size="sm" className="gap-1.5 text-xs">
-                  <Play className="w-3 h-3" /> Start Workout
-                </Button>
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <div className="rounded-xl border border-border/20 overflow-hidden">
-            <div className="relative h-28 overflow-hidden">
-              <img src={stockBack} alt="Rest day" className="w-full h-full object-cover" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
-            </div>
-            <div className="text-center py-5 px-4 -mt-4 relative z-10">
-              <p className="font-heading text-base mb-1 text-foreground/70">Rest Day</p>
-              <p className="text-xs text-foreground/30">Recovery is part of the process — pick one below.</p>
-            </div>
-
-            {/* Curated recovery activities */}
-            <div className="px-4 pb-4 space-y-2">
+            <div className="grid grid-cols-4 gap-2 sm:gap-4">
               {[
-                { name: "Foam Roll Flow", time: "10 min", desc: "Roll quads, glutes, lats, upper back. 30 sec each side." },
-                { name: "Mobility Routine", time: "12 min", desc: "Hip openers, thoracic rotations, ankle circles, scap CARs." },
-                { name: "Easy Walk", time: "20–30 min", desc: "Zone 2 walk outside or on the treadmill at 3.0 mph." },
-                { name: "Box Breathing", time: "5 min", desc: "4-second inhale, 4 hold, 4 exhale, 4 hold. Reset your nervous system." },
-                { name: "Full-Body Stretch", time: "10 min", desc: "Hold each stretch 30–45 sec. Focus on tight areas." },
-                { name: "Sauna or Hot Shower", time: "15 min", desc: "Boost circulation and recovery. Hydrate after." },
-              ].map((act) => (
-                <div key={act.name} className="rounded-lg border border-border/20 p-3 flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-foreground/[0.04] flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-3.5 h-3.5 text-foreground/40" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-foreground/80">{act.name}</p>
-                      <span className="text-[10px] text-foreground/40 uppercase tracking-wider">{act.time}</span>
-                    </div>
-                    <p className="text-[11px] text-foreground/50 mt-0.5 leading-relaxed">{act.desc}</p>
-                  </div>
+                { icon: CalendarDays, label: "Weeks", value: String(programProgress.totalWeeks) },
+                { icon: Dumbbell, label: "Workouts", value: String(programProgress.totalWorkouts) },
+                { icon: Clock, label: "Min / Workout", value: avgSessionMin },
+                { icon: Flame, label: "Focus", value: programFocus },
+              ].map((m) => (
+                <div key={m.label} className="flex flex-col items-center text-center px-1 py-2 border-l border-border/15 first:border-l-0">
+                  <m.icon className="w-5 h-5 text-primary mb-2" strokeWidth={1.5} />
+                  <p className="font-heading text-base sm:text-lg text-foreground leading-none">{m.value}</p>
+                  <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-foreground/50 mt-1.5">{m.label}</p>
                 </div>
               ))}
-              <Link to="/dashboard/workouts?category=stretch" className="block pt-2">
-                <Button variant="apollo-outline" size="sm" className="w-full gap-1.5 text-xs">
-                  <Sparkles className="w-3 h-3" />
-                  Browse guided recovery sessions
-                </Button>
-              </Link>
             </div>
           </div>
         )}
 
+        {/* 5) RECOVERY & MOBILITY */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold">
+              Recovery & Mobility
+            </p>
+            <Link to="/dashboard/workouts?category=stretch" className="text-[11px] text-foreground/60 hover:text-primary uppercase tracking-wider font-semibold">
+              View All
+            </Link>
+          </div>
+          <div className="rounded-2xl border border-border/25 overflow-hidden">
+            <div className="relative h-32 overflow-hidden">
+              <img src={stockBack} alt="Recovery" className="w-full h-full object-cover opacity-60" loading="lazy" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+              <div className="absolute bottom-3 left-4 right-4">
+                <h3 className="font-heading text-xl text-foreground leading-tight">Recovery & Mobility</h3>
+                <p className="text-[11px] text-foreground/60 mt-0.5">
+                  Stretch, mobilize, foam roll — keep the body ready.
+                </p>
+              </div>
+            </div>
+            <div className="p-3 space-y-2">
+              {[
+                { name: "Foam Roll Flow", time: "10 Minutes", desc: "Roll quads, glutes, lats, upper back. 30 sec each side." },
+                { name: "Mobility Reset", time: "15 Minutes", desc: "Hip openers, thoracic rotations, scap CARs." },
+                { name: "Lower Body Recovery", time: "20 Minutes", desc: "Deep stretches for hamstrings, hips, calves." },
+                { name: "Box Breathing", time: "5 Minutes", desc: "4 in · 4 hold · 4 out · 4 hold. Reset your nervous system." },
+              ].map((act) => (
+                <div key={act.name} className="rounded-xl border border-border/20 p-3 flex items-center gap-3 hover:border-primary/30 transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Waves className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground/90">{act.name}</p>
+                    <p className="text-[11px] text-foreground/50 mt-0.5 line-clamp-1">{act.desc}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-[10px] text-primary uppercase tracking-wider font-bold">{act.time}</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-foreground/30 flex-shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* This Week's Workouts */}
         {planData && weekWorkouts.length > 0 && (
-          <div className="rounded-xl border border-border/20 overflow-hidden">
+          <div className="rounded-2xl border border-border/25 overflow-hidden">
             <div className="px-4 pt-4 pb-2 flex items-center justify-between">
               <div>
-                <p className="text-eyebrow uppercase text-foreground/25 mb-0.5">This Week</p>
-                <h3 className="font-heading text-base text-foreground/80">Upcoming Workouts</h3>
+                <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold mb-0.5">This Week</p>
+                <h3 className="font-heading text-base text-foreground/85">Upcoming Workouts</h3>
               </div>
-              <span className="text-[10px] text-foreground/30 uppercase tracking-wider">Tap ⇄ to swap</span>
+              <span className="text-[10px] text-foreground/40 uppercase tracking-wider">Tap ⇄ to swap</span>
             </div>
             <div className="divide-y divide-border/15">
               {weekWorkouts.map(({ date, day }) => {
@@ -441,7 +533,7 @@ const DashboardTraining = () => {
                 return (
                   <div
                     key={day.id}
-                    className={`flex items-center gap-3 px-4 py-3 ${isTodayRow ? "bg-foreground/[0.03]" : ""}`}
+                    className={`flex items-center gap-3 px-4 py-3 ${isTodayRow ? "bg-primary/[0.05]" : ""}`}
                   >
                     <div className="w-10 text-center flex-shrink-0">
                       <p className="text-[9px] uppercase tracking-wider text-foreground/40">{format(date, "EEE")}</p>
@@ -455,10 +547,10 @@ const DashboardTraining = () => {
                         <p className="text-sm font-medium text-foreground/85 truncate">
                           {day.day_label || `Day ${day.day_number}`}
                         </p>
-                        {completed && <Check className="w-3 h-3 text-green-500 flex-shrink-0" />}
+                        {completed && <Check className="w-3 h-3 text-primary flex-shrink-0" />}
                       </div>
                       {(muscles || day.focus) && (
-                        <p className="text-[11px] text-foreground/40 truncate mt-0.5">
+                        <p className="text-[11px] text-foreground/45 truncate mt-0.5">
                           {muscles || day.focus}
                         </p>
                       )}
@@ -476,7 +568,11 @@ const DashboardTraining = () => {
             </div>
           </div>
         )}
+
+        {/* Browse other programs */}
+        <TrainingProgramCards />
       </div>
+
 
       {/* Swap Workout Dialog */}
       <Dialog open={!!swapSource} onOpenChange={(o) => !o && setSwapSource(null)}>
