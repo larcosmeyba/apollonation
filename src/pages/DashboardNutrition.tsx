@@ -87,6 +87,8 @@ const DashboardNutrition = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [editTargetsOpen, setEditTargetsOpen] = useState(false);
+  const [editField, setEditField] = useState<MacroField>("calories");
 
   // Meal plan + grocery list are premium-only.
   const { canAccessMealPlan, loading: accessLoading } = useAccessControl();
