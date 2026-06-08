@@ -24,7 +24,8 @@ import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
 import { MacroRing } from "@/components/dashboard/MacroRing";
-import { CalorieHero } from "@/components/dashboard/CalorieHero";
+import { CalorieHero, type MacroField } from "@/components/dashboard/CalorieHero";
+import { EditMacroTargetsDialog } from "@/components/dashboard/EditMacroTargetsDialog";
 import { FuelAssistant } from "@/components/dashboard/FuelAssistant";
 import { buildGroceryListFromMeals, type PricedGroceryList } from "@/lib/groceryPricing";
 import { normalizeRestrictions, RESTRICTION_LABELS, filterMealsByRestrictions } from "@/lib/dietaryRestrictions";
@@ -86,6 +87,8 @@ const DashboardNutrition = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [editTargetsOpen, setEditTargetsOpen] = useState(false);
+  const [editField, setEditField] = useState<MacroField>("calories");
 
   // Meal plan + grocery list are premium-only.
   const { canAccessMealPlan, loading: accessLoading } = useAccessControl();
@@ -354,28 +357,34 @@ const DashboardNutrition = () => {
 
   // ── Derived state ──
   // Source of truth order:
-  //   1) Active nutrition plan (coach-set)
-  //   2) Questionnaire-derived targets (auto-computed via useMacroTargets / Mifflin-St Jeor)
-  //   3) Locally calculated from nutrition profile
-  //   4) Sensible defaults (so the rings are never blank)
+  //   1) Manual targets the user set on the Fuel screen (user_macro_targets.source === 'manual')
+  //   2) Active nutrition plan (coach-set)
+  //   3) Auto-computed targets from questionnaire (Mifflin-St Jeor via useMacroTargets)
+  //   4) Locally calculated from nutrition profile
+  //   5) Sensible defaults (so the rings are never blank)
   const macroTargetsFromQuestionnaire = useMacroTargets();
+  const manual = macroTargetsFromQuestionnaire.source === "manual" ? macroTargetsFromQuestionnaire : null;
   const targets = {
     calories:
+      manual?.calorie_target ||
       activePlan?.daily_calories ||
       macroTargetsFromQuestionnaire.calorie_target ||
       calculatedMacros?.calories ||
       2500,
     protein:
+      manual?.protein_grams ||
       activePlan?.protein_grams ||
       macroTargetsFromQuestionnaire.protein_grams ||
       calculatedMacros?.protein ||
       180,
     carbs:
+      manual?.carb_grams ||
       activePlan?.carbs_grams ||
       macroTargetsFromQuestionnaire.carb_grams ||
       calculatedMacros?.carbs ||
       300,
     fat:
+      manual?.fat_grams ||
       activePlan?.fat_grams ||
       macroTargetsFromQuestionnaire.fat_grams ||
       calculatedMacros?.fat ||
@@ -905,14 +914,6 @@ const DashboardNutrition = () => {
               <h1 className="font-heading text-display-md mb-1">Fuel</h1>
               <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
             </div>
-            {hasNutritionQuestionnaire && (
-              <Link
-                to="/dashboard/nutrition/setup"
-                className="text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Update plan
-              </Link>
-            )}
           </div>
 
           {/* Premium gate: nutrition questionnaire not yet completed */}
@@ -970,6 +971,22 @@ const DashboardNutrition = () => {
               protein={{ consumed: loggedTotals.protein, target: targets.protein }}
               carbs={{ consumed: loggedTotals.carbs, target: targets.carbs }}
               fat={{ consumed: loggedTotals.fat, target: targets.fat }}
+              onEdit={(field) => {
+                setEditField(field);
+                setEditTargetsOpen(true);
+              }}
+            />
+
+            <EditMacroTargetsDialog
+              open={editTargetsOpen}
+              onOpenChange={setEditTargetsOpen}
+              focusField={editField}
+              initial={{
+                calories: Math.round(targets.calories),
+                protein: Math.round(targets.protein),
+                carbs: Math.round(targets.carbs),
+                fat: Math.round(targets.fat),
+              }}
             />
 
             <div className="mt-5">
