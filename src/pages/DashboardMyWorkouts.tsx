@@ -1,30 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Lock, Sparkles, ChevronRight, Check, Dumbbell } from "lucide-react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import MyWorkoutsQuestionnaire, {
-  QuestionnairePayload,
-} from "@/components/dashboard/MyWorkoutsQuestionnaire";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyWorkoutsAccess } from "@/hooks/useMyWorkoutsAccess";
-import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const DashboardMyWorkouts = () => {
   // Route is gated in App.tsx for native — no in-component guard (would violate Rules of Hooks).
   const { user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const qc = useQueryClient();
   const access = useMyWorkoutsAccess();
-  const [submitting, setSubmitting] = useState(false);
-  const [started, setStarted] = useState(false);
 
   // Start the trial the moment a non-subscriber lands here.
   useEffect(() => {
