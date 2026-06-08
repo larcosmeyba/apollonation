@@ -26,7 +26,7 @@ import { getMealImage } from "@/utils/mealImages";
 import { MacroRing } from "@/components/dashboard/MacroRing";
 import { CalorieHero, type MacroField } from "@/components/dashboard/CalorieHero";
 import { EditMacroTargetsDialog } from "@/components/dashboard/EditMacroTargetsDialog";
-import { FuelAssistant } from "@/components/dashboard/FuelAssistant";
+
 import { buildGroceryListFromMeals, type PricedGroceryList } from "@/lib/groceryPricing";
 import { normalizeRestrictions, RESTRICTION_LABELS, filterMealsByRestrictions } from "@/lib/dietaryRestrictions";
 import { useMacroTargets } from "@/hooks/useMacroTargets";
