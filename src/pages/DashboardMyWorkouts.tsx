@@ -43,32 +43,6 @@ const DashboardMyWorkouts = () => {
     },
   });
 
-  const handleComplete = async (payload: QuestionnairePayload) => {
-    if (!user?.id) return;
-    setSubmitting(true);
-    const { error } = await (supabase as any)
-      .from("mw_questionnaire_responses")
-      .upsert(
-        {
-          user_id: user.id,
-          ...payload,
-          completed_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" }
-      );
-    setSubmitting(false);
-    if (error) {
-      toast({
-        title: "Could not save",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-    qc.invalidateQueries({ queryKey: ["mw_questionnaire_responses", user.id] });
-    setStarted(false);
-    toast({ title: "Plan saved", description: "Generating your personalized recommendations." });
-  };
 
   // ---- Render gates ----
   if (access.loading || qLoading) {
