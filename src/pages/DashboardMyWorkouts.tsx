@@ -138,11 +138,9 @@ const DashboardMyWorkouts = () => {
         )}
 
         {existing ? (
-          <PlanPlaceholder onRestart={() => qc.removeQueries({ queryKey: ["mw_questionnaire_responses", user?.id] })} />
-        ) : started ? (
-          <MyWorkoutsQuestionnaire onComplete={handleComplete} submitting={submitting} />
+          <PlanPlaceholder onRestart={() => navigate("/dashboard/personalize")} />
         ) : (
-          <PlanIntroCard onStart={() => setStarted(true)} />
+          <PlanIntroCard onStart={() => navigate("/dashboard/personalize")} />
         )}
       </div>
     </DashboardLayout>
