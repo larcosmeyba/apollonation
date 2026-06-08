@@ -226,20 +226,33 @@ export const useMessages = (
         throw error;
       }
 
-      // Trigger email notification (fire-and-forget)
-      supabase.functions.invoke("send-message-notification", {
-        body: { recipientId: (data as Message).recipient_id || recipientId },
-      }).then(({ error }) => {
-        if (error) console.error("Notification error:", error);
-        else console.log("Notification sent successfully");
-      });
+      // Optimistically push the new message into the messages cache so the
+      // bubble flips from "sending" to "sent" instantly — no waiting for a
+      // full refetch round-trip.
+      const newMsg = (Array.isArray(data) ? data[0] : data) as Message;
+      if (newMsg?.id) {
+        queryClient.setQueriesData<Message[]>({ queryKey: ["messages"] }, (old) => {
+          if (!old) return old;
+          if (old.some((m) => m.id === newMsg.id)) return old;
+          return [...old, newMsg];
+        });
+      }
 
-      return data as Message;
+      // Trigger email notification (fire-and-forget, do NOT block the UI)
+      supabase.functions
+        .invoke("send-message-notification", {
+          body: { recipientId: newMsg?.recipient_id || recipientId },
+        })
+        .then(({ error }) => {
+          if (error) console.error("Notification error:", error);
+        });
+
+      return newMsg;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      // Conversations list needs to refresh ordering / preview, but messages
+      // were already updated optimistically above so don't force a refetch.
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      queryClient.invalidateQueries({ queryKey: ["unread-count"] });
     },
   });
 
