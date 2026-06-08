@@ -6,16 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { isNative } from "@/lib/platform";
 import { Capacitor } from "@capacitor/core";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
 
 interface TodayRow {
@@ -34,8 +24,6 @@ const AppleHealthCard = () => {
     ? "Apple Health requires the latest app update"
     : rawError;
   const [today, setToday] = useState<TodayRow | null>(null);
-  const [showPrePrompt, setShowPrePrompt] = useState(false);
-  const [permissionStep, setPermissionStep] = useState<"intro" | "system" | "success">("intro");
 
   const isIOS = isNative() && Capacitor.getPlatform() === "ios";
 
@@ -74,24 +62,15 @@ const AppleHealthCard = () => {
   if (!isIOS) return null;
   if (!available) return null;
 
-  const handleConnectClick = () => {
-    setPermissionStep("intro");
-    setShowPrePrompt(true);
-  };
-
-  const handleApprove = async () => {
-    setPermissionStep("system");
+  const handleConnect = async () => {
     try {
       const ok = await connect();
       if (ok) {
-        setPermissionStep("success");
         toast({
           title: "Apple Health connected",
           description: "Steps, active calories, workouts, and heart rate will refresh automatically.",
         });
       } else {
-        // Keep dialog open so the user can see the error rendered below
-        setPermissionStep("intro");
         toast({
           title: "Couldn't connect to Apple Health",
           description:
@@ -101,7 +80,6 @@ const AppleHealthCard = () => {
         });
       }
     } catch (e: any) {
-      setPermissionStep("intro");
       toast({
         title: "Apple Health error",
         description: e?.message ?? "Something went wrong requesting Apple Health permissions.",
@@ -125,7 +103,7 @@ const AppleHealthCard = () => {
               </p>
             </div>
           </div>
-          <Button size="sm" className="w-full" onClick={handleConnectClick} disabled={syncing}>
+          <Button size="sm" className="w-full" onClick={handleConnect} disabled={syncing}>
             {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Heart className="w-4 h-4 mr-2" />}
             Connect Apple Health
           </Button>
@@ -135,74 +113,6 @@ const AppleHealthCard = () => {
             </p>
           )}
         </div>
-
-        <AlertDialog open={showPrePrompt} onOpenChange={setShowPrePrompt}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
-                {permissionStep === "success" ? (
-                  <>
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    Connected to Apple Health
-                  </>
-                ) : permissionStep === "system" ? (
-                  <>
-                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                    Opening Apple Health…
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck className="w-5 h-5 text-primary" />
-                    Connect Apple Health
-                  </>
-                )}
-              </AlertDialogTitle>
-              <AlertDialogDescription asChild>
-                {permissionStep === "success" ? (
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center justify-center py-3">
-                      <div className="w-16 h-16 rounded-full bg-green-500/15 flex items-center justify-center">
-                        <CheckCircle2 className="w-9 h-9 text-green-500" />
-                      </div>
-                    </div>
-                    <p className="text-center font-medium text-foreground">You're all set.</p>
-                    <p className="text-center text-muted-foreground">Apollo Reborn is now syncing the following from Apple Health:</p>
-                    <ul className="grid grid-cols-1 gap-2 pl-1">
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Steps, walking distance, exercise minutes</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Active calories and workouts</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Heart rate and resting heart rate</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" /> Heart rate during workouts</li>
-                    </ul>
-                  </div>
-                ) : (
-                  <div className="space-y-3 text-sm">
-                    <p>
-                      Apollo Reborn will ask Apple for permission next. Turn on every category so your dashboard and coach see the full picture:
-                    </p>
-                    <ul className="grid grid-cols-1 gap-2 pl-1">
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Steps, walking distance, and exercise minutes</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Active calories and workouts</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate and resting heart rate</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Heart rate during workouts</li>
-                    </ul>
-                    <p className="rounded-lg border border-primary/20 bg-primary/10 p-3 font-bold text-foreground">
-                      On Apple's permission screen, tap "Turn On All", then tap "Allow".
-                    </p>
-                    <p className="flex items-start gap-2 text-xs text-muted-foreground">
-                      <Settings className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                      If steps still show 0 after connecting, open Settings → Health → Data Access & Devices → Apollo Reborn and confirm Steps is enabled.
-                    </p>
-                  </div>
-                )}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              {permissionStep === "success" ? (
-                <AlertDialogAction onClick={() => setShowPrePrompt(false)}>Done</AlertDialogAction>
-              ) : (
-                <>
-                  <AlertDialogCancel disabled={syncing}>Not now</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleApprove} disabled={syncing}>
                     {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                     Continue
                   </AlertDialogAction>

@@ -20,7 +20,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import HealthDisclaimerSheet from "@/components/dashboard/HealthDisclaimerSheet";
-import PushPromptHost from "@/components/PushPromptHost";
+
 
 // Lazy-loaded routes — keeps the initial bundle small. Each chunk is fetched
 // only when the user navigates there.
@@ -128,7 +128,7 @@ const App = () => {
           <AuthProvider>
             <NativeDeepLinks />
             <HealthDisclaimerSheet />
-            <PushPromptHost />
+            
             <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<AppEntryRedirect />} />
