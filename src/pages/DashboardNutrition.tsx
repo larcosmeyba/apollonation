@@ -989,9 +989,6 @@ const DashboardNutrition = () => {
               }}
             />
 
-            <div className="mt-5">
-              <FuelAssistant />
-            </div>
 
 
             {/* Logged meals today */}
