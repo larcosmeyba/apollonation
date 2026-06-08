@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dumbbell, ChevronRight, Play, Plus, Flame, Clock, Activity,
   ChevronLeft, Loader2, Sparkles, ArrowLeftRight, Check,
-  CalendarDays, Target, Waves,
+  CalendarDays, Waves,
 } from "lucide-react";
 import { useSwipe } from "@/hooks/useSwipe";
 import TrainingProgramCards from "@/components/dashboard/TrainingProgramCards";
