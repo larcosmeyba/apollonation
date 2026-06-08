@@ -62,7 +62,7 @@ const PersonalizationChecklist = () => {
       icon: Dumbbell,
       title: "Build Your Training Plan",
       desc: "Tell us your goals, equipment, and schedule.",
-      href: "/dashboard/training",
+      href: "/dashboard/my-workouts",
       eta: "2 min",
     },
     {
