@@ -105,7 +105,8 @@ export const useMessages = (
           .from("messages")
           .select("*")
           .or(`sender_id.eq.${selfId},recipient_id.eq.${selfId}`)
-          .order("created_at", { ascending: false });
+          .order("created_at", { ascending: false })
+          .limit(500);
 
         if (error) {
           console.error("[useMessages] conversationsQuery error", error);
