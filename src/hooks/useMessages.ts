@@ -105,7 +105,8 @@ export const useMessages = (
           .from("messages")
           .select("*")
           .or(`sender_id.eq.${selfId},recipient_id.eq.${selfId}`)
-          .order("created_at", { ascending: false });
+          .order("created_at", { ascending: false })
+          .limit(500);
 
         if (error) {
           console.error("[useMessages] conversationsQuery error", error);
@@ -225,20 +226,33 @@ export const useMessages = (
         throw error;
       }
 
-      // Trigger email notification (fire-and-forget)
-      supabase.functions.invoke("send-message-notification", {
-        body: { recipientId: (data as Message).recipient_id || recipientId },
-      }).then(({ error }) => {
-        if (error) console.error("Notification error:", error);
-        else console.log("Notification sent successfully");
-      });
+      // Optimistically push the new message into the messages cache so the
+      // bubble flips from "sending" to "sent" instantly — no waiting for a
+      // full refetch round-trip.
+      const newMsg = (Array.isArray(data) ? data[0] : data) as Message;
+      if (newMsg?.id) {
+        queryClient.setQueriesData<Message[]>({ queryKey: ["messages"] }, (old) => {
+          if (!old) return old;
+          if (old.some((m) => m.id === newMsg.id)) return old;
+          return [...old, newMsg];
+        });
+      }
 
-      return data as Message;
+      // Trigger email notification (fire-and-forget, do NOT block the UI)
+      supabase.functions
+        .invoke("send-message-notification", {
+          body: { recipientId: newMsg?.recipient_id || recipientId },
+        })
+        .then(({ error }) => {
+          if (error) console.error("Notification error:", error);
+        });
+
+      return newMsg;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      // Conversations list needs to refresh ordering / preview, but messages
+      // were already updated optimistically above so don't force a refetch.
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      queryClient.invalidateQueries({ queryKey: ["unread-count"] });
     },
   });
 
@@ -291,22 +305,25 @@ export const useMessages = (
     if (!canUseRealtime()) return;
 
     let channel: ReturnType<typeof supabase.channel> | null = null;
+    let pendingTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleInvalidate = () => {
+      if (pendingTimer) return;
+      pendingTimer = setTimeout(() => {
+        pendingTimer = null;
+        queryClient.invalidateQueries({ queryKey: ["messages"] });
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+      }, 250);
+    };
 
     try {
       channel = supabase
         .channel(`messages-realtime-${user.id}`)
         .on(
           "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "messages",
-          },
-          () => {
-            queryClient.invalidateQueries({ queryKey: ["messages"] });
-            queryClient.invalidateQueries({ queryKey: ["conversations"] });
-            queryClient.invalidateQueries({ queryKey: ["unread-count"] });
-          }
+          { event: "*", schema: "public", table: "messages" },
+          scheduleInvalidate
         );
 
       channel.subscribe((status) => {
@@ -320,6 +337,7 @@ export const useMessages = (
     }
 
     return () => {
+      if (pendingTimer) clearTimeout(pendingTimer);
       if (channel) supabase.removeChannel(channel);
     };
   }, [user, queryClient]);

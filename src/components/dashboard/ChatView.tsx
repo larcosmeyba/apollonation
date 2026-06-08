@@ -199,12 +199,18 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
 
   const partnerName = partnerNameOverride || partnerProfile?.display_name || profiles?.[partnerId]?.display_name || "Coach";
 
-  // Mark messages as read when opening conversation
+  // Mark messages as read when opening conversation or new unread arrives.
+  // IMPORTANT: do NOT include `markAsRead` in deps — the mutation object is
+  // recreated every render and would fire a DB update on every render.
+  const unreadFromPartner = messages.filter(
+    (m) => !m.is_read && m.sender_id === partnerId
+  ).length;
   useEffect(() => {
-    if (partnerId) {
+    if (partnerId && unreadFromPartner > 0) {
       markAsRead.mutate(partnerId);
     }
-  }, [partnerId, messages.length, markAsRead]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [partnerId, unreadFromPartner]);
 
   // Auto-scroll to bottom
   useEffect(() => {
