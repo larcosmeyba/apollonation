@@ -906,14 +906,6 @@ const DashboardNutrition = () => {
               <h1 className="font-heading text-display-md mb-1">Fuel</h1>
               <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
             </div>
-            {hasNutritionQuestionnaire && (
-              <Link
-                to="/dashboard/nutrition/setup"
-                className="text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Update plan
-              </Link>
-            )}
           </div>
 
           {/* Premium gate: nutrition questionnaire not yet completed */}
