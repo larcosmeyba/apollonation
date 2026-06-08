@@ -103,11 +103,18 @@ export const useAppleHealth = () => {
         return false;
       }
       await Health.requestHealthPermissions({ permissions: READ_PERMISSIONS });
+      // iOS NEVER tells us which categories the user granted (privacy by design).
+      // We optimistically continue and let the sync surface "no data" via toast.
       setError(null);
       return true;
     } catch (e: any) {
       console.error("[AppleHealth] permission error", e);
-      setError(e?.message ?? "Could not access Apple Health.");
+      const msg = e?.message ?? "Could not access Apple Health.";
+      setError(
+        /denied|not authorized|unauthorized/i.test(msg)
+          ? "Apple Health access was denied. Open iPhone Settings → Privacy & Security → Health → Apollo Reborn and turn ON all categories."
+          : msg,
+      );
       return false;
     }
   }, [available]);
