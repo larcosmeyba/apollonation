@@ -1174,6 +1174,13 @@ const DashboardNutrition = () => {
             </div>
           )}
 
+          {/* Help The Hive — grocery/budget handoff (gated on weekly_budget) */}
+          <div className="mt-8">
+            <HelpTheHiveCTA />
+          </div>
+
+
+
 
           {/* ── Meal Plan Section ── */}
           <div className="mt-10" />
