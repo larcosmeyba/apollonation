@@ -420,7 +420,15 @@ const ExerciseRow = ({
             <DialogTitle className="font-heading text-sm tracking-wide">{exerciseData?.title || exercise.exercise_name}</DialogTitle>
           </DialogHeader>
           <div className="aspect-video w-full bg-black">
-            {isStorage && videoOpen ? (
+            {hasMux && videoOpen ? (
+              <MuxVideo
+                playbackId={exerciseData!.mux_playback_id!}
+                title={exerciseData?.title || exercise.exercise_name}
+                videoId={exercise.id}
+                autoPlay
+                controls
+              />
+            ) : isStorage && videoOpen ? (
               <StorageVideoPlayer storagePath={exerciseData!.video_url!.replace("storage:", "")} />
             ) : embedUrl && videoOpen ? (
               <iframe src={embedUrl} className="w-full h-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen title={exercise.exercise_name} style={{ border: 0 }} />
