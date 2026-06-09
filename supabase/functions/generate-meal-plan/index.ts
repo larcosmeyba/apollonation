@@ -251,7 +251,7 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
       throw new Error("No response from AI");
     }
 
-    let mealPlanData;
+    let mealPlanDataLegacy: any;
     try {
       let cleanContent = content.trim();
       if (cleanContent.startsWith("```json")) cleanContent = cleanContent.slice(7);
