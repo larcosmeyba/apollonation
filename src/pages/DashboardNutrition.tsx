@@ -1174,7 +1174,9 @@ const DashboardNutrition = () => {
 
 
           {/* ── Meal Plan Section ── */}
+          <div className="mt-10" />
           {!activePlan ? (
+
             <div className="card-apollo py-12 text-center">
               {!hasNutritionQuestionnaire ? (
                 <>
