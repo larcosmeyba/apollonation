@@ -19,6 +19,7 @@ import ReportBugView from "@/components/dashboard/ReportBugView";
 import { requestAndRegisterPush } from "@/lib/push";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import { APP_STORE_ID, APP_STORE_REVIEW_URL } from "@/lib/appLinks";
+import AppleHealthCard from "@/components/dashboard/AppleHealthCard";
 
 import {
   AlertDialog,
