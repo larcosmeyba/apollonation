@@ -1012,7 +1012,7 @@ const DashboardWorkoutDetail = () => {
                   )}
                 </div>
               </div>
-            ))}
+            );})}
           </div>
         )}
 
