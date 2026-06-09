@@ -107,7 +107,28 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
       {...(controls ? {} : { nohotkeys: true, "--controls": "none" })}
       onTimeUpdate={onTimeUpdate as unknown as never}
       onLoadedMetadata={onLoadedMetadata as unknown as never}
+      onError={((e: Event) => {
+        const detail = (e as unknown as { detail?: {
+          code?: number; message?: string; fatal?: boolean; errorCategory?: string;
+          mediaError?: { code?: number; message?: string };
+        } }).detail;
+        // eslint-disable-next-line no-console
+        console.error("[MuxVideo] error", {
+          playbackId,
+          title,
+          code: detail?.code,
+          message: detail?.message,
+          fatal: detail?.fatal,
+          errorCategory: detail?.errorCategory,
+          mediaError: detail?.mediaError && {
+            code: detail.mediaError.code,
+            message: detail.mediaError.message,
+          },
+          userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+        });
+      }) as unknown as never}
     />
+
   );
 });
 
