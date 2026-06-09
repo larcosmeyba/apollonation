@@ -19,6 +19,7 @@ import ReportBugView from "@/components/dashboard/ReportBugView";
 import { requestAndRegisterPush } from "@/lib/push";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import { APP_STORE_ID, APP_STORE_REVIEW_URL } from "@/lib/appLinks";
+import AppleHealthCard from "@/components/dashboard/AppleHealthCard";
 
 import {
   AlertDialog,
@@ -832,6 +833,13 @@ const DashboardProfile = () => {
                   <ChevronRight className="w-4 h-4 text-foreground/30" />
                 </button>
               </div>
+
+              {/* Health */}
+              <div>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/50 mb-2">Health</h3>
+                <AppleHealthCard />
+              </div>
+
 
               {/* Privacy & Legal */}
               <div>

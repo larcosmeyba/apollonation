@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Heart, Activity, RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAppleHealth } from "@/hooks/useAppleHealth";
+import { useAppleHealth, HEALTH_DENIED_MESSAGE } from "@/hooks/useAppleHealth";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { isNative } from "@/lib/platform";
@@ -72,10 +72,8 @@ const AppleHealthCard = () => {
         });
       } else {
         toast({
-          title: "Couldn't connect to Apple Health",
-          description:
-            rawError ||
-            "Open iPhone Settings → Privacy & Security → Health → Apollo Reborn and turn ON all categories, then try again.",
+          title: "Apple Health access not granted",
+          description: HEALTH_DENIED_MESSAGE,
           variant: "destructive",
         });
       }
@@ -106,11 +104,9 @@ const AppleHealthCard = () => {
           {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Heart className="w-4 h-4 mr-2" />}
           Connect Apple Health
         </Button>
-        {error && (
-          <p className="mt-2 text-[11px] text-destructive leading-snug">
-            {error}
-          </p>
-        )}
+        <p className="mt-2 text-[11px] text-foreground/50 leading-snug">
+          {error || HEALTH_DENIED_MESSAGE}
+        </p>
       </div>
     );
   }

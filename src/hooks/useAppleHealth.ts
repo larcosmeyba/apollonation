@@ -12,10 +12,15 @@ import { useAuth } from "@/contexts/AuthContext";
 const READ_PERMISSIONS: HealthPermission[] = [
   "READ_STEPS",
   "READ_WORKOUTS",
+  "WRITE_WORKOUTS",
   "READ_ACTIVE_CALORIES",
+  "READ_TOTAL_CALORIES",
   "READ_DISTANCE",
   "READ_HEART_RATE",
 ];
+
+export const HEALTH_DENIED_MESSAGE =
+  "You can enable Health access anytime in iPhone Settings → Privacy & Security → Health → Apollo Reborn.";
 
 const isAppleHealthAvailable = (): boolean =>
   isNative() && Capacitor.getPlatform() === "ios";
@@ -381,6 +386,46 @@ export const useAppleHealth = () => {
     };
   }, [available, user, connected, sync]);
 
+  /**
+   * Write a completed Apollo workout to Apple Health. capacitor-health@8 does
+   * not yet expose a public writeWorkout method, so we attempt it via the raw
+   * plugin bridge and silently no-op if the runtime doesn't support it. The
+   * WRITE_WORKOUTS permission is still requested up-front so users see Apollo
+   * listed for write access in iPhone Settings → Health.
+   */
+  const writeWorkout = useCallback(
+    async (workout: {
+      startDate: Date;
+      endDate: Date;
+      calories?: number;
+      activityType?: string;
+    }) => {
+      if (!available) return false;
+      try {
+        const anyHealth = Health as any;
+        const fn =
+          anyHealth.storeWorkout ??
+          anyHealth.writeWorkout ??
+          anyHealth.saveWorkout;
+        if (typeof fn !== "function") {
+          console.info("[AppleHealth] writeWorkout not supported by plugin");
+          return false;
+        }
+        await fn.call(anyHealth, {
+          startDate: workout.startDate.toISOString(),
+          endDate: workout.endDate.toISOString(),
+          calories: Math.max(0, Math.round(workout.calories ?? 0)),
+          workoutType: workout.activityType ?? "functional-strength-training",
+        });
+        return true;
+      } catch (e) {
+        console.warn("[AppleHealth] writeWorkout failed", e);
+        return false;
+      }
+    },
+    [available],
+  );
+
   return {
     available,
     connected,
@@ -391,5 +436,6 @@ export const useAppleHealth = () => {
     connect,
     reconnect,
     sync,
+    writeWorkout,
   };
 };
