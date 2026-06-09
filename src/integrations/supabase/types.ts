@@ -1903,6 +1903,50 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_plan_generation_log: {
+        Row: {
+          created_at: string
+          details: Json
+          gap_reason: string | null
+          generator_version: string
+          id: string
+          needs_review: boolean
+          plan_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          gap_reason?: string | null
+          generator_version: string
+          id?: string
+          needs_review?: boolean
+          plan_id?: string | null
+          status: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          gap_reason?: string | null
+          generator_version?: string
+          id?: string
+          needs_review?: boolean
+          plan_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plan_generation_log_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "nutrition_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_plan_template_examples: {
         Row: {
           breakfast_meal_code: string | null
@@ -2515,7 +2559,10 @@ export type Database = {
           daily_calories: number | null
           duration_weeks: number | null
           fat_grams: number | null
+          gap_reason: string | null
+          generator_version: string
           id: string
+          needs_review: boolean
           notes: string | null
           protein_grams: number | null
           start_date: string | null
@@ -2532,7 +2579,10 @@ export type Database = {
           daily_calories?: number | null
           duration_weeks?: number | null
           fat_grams?: number | null
+          gap_reason?: string | null
+          generator_version?: string
           id?: string
+          needs_review?: boolean
           notes?: string | null
           protein_grams?: number | null
           start_date?: string | null
@@ -2549,7 +2599,10 @@ export type Database = {
           daily_calories?: number | null
           duration_weeks?: number | null
           fat_grams?: number | null
+          gap_reason?: string | null
+          generator_version?: string
           id?: string
+          needs_review?: boolean
           notes?: string | null
           protein_grams?: number | null
           start_date?: string | null
