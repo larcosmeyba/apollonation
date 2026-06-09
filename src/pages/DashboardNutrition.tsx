@@ -956,18 +956,37 @@ const DashboardNutrition = () => {
       </Dialog>
 
       <DashboardLayout>
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <h1 className="font-heading text-display-md mb-1">Fuel</h1>
-              <p className="text-sm text-muted-foreground">Your Apollo nutrition system — macro tracking & meal planning</p>
-            </div>
-          </div>
+          {(() => {
+            const eyebrow = format(new Date(), "EEEE · MMMM d").toUpperCase();
+            const yesterdayProtein = yesterdayEntries.reduce(
+              (s: number, e: any) => s + (e.protein_grams || 0),
+              0
+            );
+            const hitYesterdayProtein =
+              yesterdayProtein > 0 && yesterdayProtein >= targets.protein;
+            const subtitle = hitYesterdayProtein
+              ? "🔥 You hit protein yesterday — let's repeat"
+              : streakDays >= 2
+                ? `${streakDays} day streak · keep it going`
+                : "Fuel your training. Track what fuels you.";
+            return (
+              <div className="mb-6">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#C9A961] font-semibold mb-2">
+                  {eyebrow}
+                </p>
+                <h1 className="font-heading text-display-md mb-1.5 leading-none">
+                  Fuel
+                </h1>
+                <p className="text-sm text-foreground/65">{subtitle}</p>
+              </div>
+            );
+          })()}
 
           {/* Premium gate: nutrition questionnaire not yet completed */}
           {!nutritionQLoading && !hasNutritionQuestionnaire && (
-            <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-8 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+            <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-8 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.5)] mb-6">
               <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-4">
@@ -1006,101 +1025,153 @@ const DashboardNutrition = () => {
           {hasNutritionQuestionnaire && (
           <>
 
-          <div className="bg-card rounded-2xl p-5 border border-border shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-heading text-lg tracking-wide text-foreground">Today's Nutrition</h2>
-              <button onClick={() => setIsLogDialogOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-sm font-bold hover:bg-foreground/80 transition-colors">
-                <Plus className="w-3.5 h-3.5 text-background" /> Log Meal
-              </button>
-            </div>
+          {/* Hero: animated gold ring + color-coded macros */}
+          <FuelHero
+            calories={{ consumed: loggedTotals.calories, target: targets.calories }}
+            protein={{ consumed: loggedTotals.protein, target: targets.protein }}
+            carbs={{ consumed: loggedTotals.carbs, target: targets.carbs }}
+            fat={{ consumed: loggedTotals.fat, target: targets.fat }}
+            mealsLoggedToday={macroEntries.length}
+            lastMeal={
+              macroEntries[0]
+                ? {
+                    name: macroEntries[0].meal_name,
+                    loggedAt: (macroEntries[0] as any).created_at,
+                  }
+                : null
+            }
+            entries={macroEntries as any}
+            onEditTarget={(field) => {
+              setEditField(field);
+              setEditTargetsOpen(true);
+            }}
+            onLogMeal={() => setIsLogDialogOpen(true)}
+          />
 
-            {/* Cal AI-style calorie hero + macro rings */}
-            <CalorieHero
-              calories={{ consumed: loggedTotals.calories, target: targets.calories }}
-              protein={{ consumed: loggedTotals.protein, target: targets.protein }}
-              carbs={{ consumed: loggedTotals.carbs, target: targets.carbs }}
-              fat={{ consumed: loggedTotals.fat, target: targets.fat }}
-              onEdit={(field) => {
-                setEditField(field);
-                setEditTargetsOpen(true);
-              }}
-            />
+          <EditMacroTargetsDialog
+            open={editTargetsOpen}
+            onOpenChange={setEditTargetsOpen}
+            focusField={editField}
+            initial={{
+              calories: Math.round(targets.calories),
+              protein: Math.round(targets.protein),
+              carbs: Math.round(targets.carbs),
+              fat: Math.round(targets.fat),
+            }}
+          />
 
-            <EditMacroTargetsDialog
-              open={editTargetsOpen}
-              onOpenChange={setEditTargetsOpen}
-              focusField={editField}
-              initial={{
-                calories: Math.round(targets.calories),
-                protein: Math.round(targets.protein),
-                carbs: Math.round(targets.carbs),
-                fat: Math.round(targets.fat),
-              }}
-            />
-
-
-
-            {/* Logged meals today */}
-            {macroEntries.length > 0 && (
-              <div className="mt-5 pt-5 border-t border-border space-y-2">
-                <p className="text-[10px] text-foreground/50 uppercase tracking-wider font-semibold mb-2">Logged Today</p>
-                {macroEntries.slice(0, 5).map((entry) => (
-                  <div key={entry.id} className="flex items-center justify-between p-3 rounded-xl bg-foreground/5 border border-border">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground truncate">{entry.meal_name}</p>
-                      <p className="text-[10px] text-foreground/60">
-                        {entry.calories} cal · P:{entry.protein_grams}g · C:{entry.carbs_grams}g · F:{entry.fat_grams}g
-                      </p>
-                    </div>
-                    <button onClick={() => removeEntry(entry.id)} className="p-1.5 text-foreground/40 hover:text-destructive transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+          {/* Logged meals today */}
+          {macroEntries.length > 0 && (
+            <div className="mt-5 space-y-2">
+              <p className="text-[10px] text-foreground/50 uppercase tracking-[0.18em] font-semibold mb-2">
+                Logged Today
+              </p>
+              {macroEntries.slice(0, 5).map((entry) => (
+                <div key={entry.id} className="flex items-center justify-between p-3 rounded-xl bg-foreground/[0.04] border border-border/40">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate">{entry.meal_name}</p>
+                    <p className="text-[10px] text-foreground/60">
+                      {entry.calories} cal · P:{entry.protein_grams}g · C:{entry.carbs_grams}g · F:{entry.fat_grams}g
+                    </p>
                   </div>
-                ))}
-                {macroEntries.length > 5 && <p className="text-[10px] text-foreground/50 text-center">+{macroEntries.length - 5} more</p>}
-              </div>
-            )}
-          </div>
+                  <button onClick={() => removeEntry(entry.id)} className="p-1.5 text-foreground/40 hover:text-destructive transition-colors">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+              {macroEntries.length > 5 && <p className="text-[10px] text-foreground/50 text-center">+{macroEntries.length - 5} more</p>}
+            </div>
+          )}
 
-          {/* ── Recipe Strip ── */}
+          {/* ── Recipe Strip ── (extra breathing room from hero card) */}
           {recipes.length > 0 && (
-            <div className="space-y-3">
+            <div className="mt-10 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-heading text-lg tracking-wide">Recipes</h2>
-                <Link to="/dashboard/recipes" className="text-xs text-white hover:text-white/80 transition-colors font-bold">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#C9A961] font-semibold mb-1">
+                    Curated for you
+                  </p>
+                  <h2 className="font-heading text-2xl tracking-tight">Recipes</h2>
+                </div>
+                <Link to="/dashboard/recipes" className="text-xs text-foreground/80 hover:text-foreground transition-colors font-bold">
                   View All →
                 </Link>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                {recipes.map((recipe) => (
-                  <Link
-                    key={recipe.id}
-                    to="/dashboard/recipes"
-                    className="flex-shrink-0 w-40 rounded-2xl border border-border bg-card overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all"
+
+              {/* Category chips */}
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+                {["Quick", "High Protein", "Recovery", "Pre-workout"].map((c, i) => (
+                  <button
+                    key={c}
+                    className={`flex-shrink-0 text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-full border transition-colors ${
+                      i === 0
+                        ? "border-[#C9A961]/60 bg-[#C9A961]/10 text-[#C9A961]"
+                        : "border-border/40 text-foreground/60 hover:text-foreground hover:border-border"
+                    }`}
                   >
-                    {recipe.thumbnail_url ? (
-                      <div className="aspect-square overflow-hidden">
-                        <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover" loading="lazy" />
-                      </div>
-                    ) : (
-                      <div className="aspect-square bg-muted flex items-center justify-center">
-                        <Utensils className="w-6 h-6 text-black/20" />
-                      </div>
-                    )}
-                    <div className="p-3">
-                      <p className="text-xs font-semibold text-foreground line-clamp-2 leading-tight">{recipe.title}</p>
-                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-foreground/60">
-                        {recipe.calories_per_serving && <span>{recipe.calories_per_serving} cal</span>}
-                        {recipe.prep_time_minutes && (
-                          <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{recipe.prep_time_minutes}m</span>
+                    {c}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                {recipes.map((recipe, idx) => {
+                  const featured = idx === 0;
+                  return (
+                    <Link
+                      key={recipe.id}
+                      to="/dashboard/recipes"
+                      className={`group relative flex-shrink-0 rounded-2xl border overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-[0_12px_40px_rgba(201,169,97,0.18)] ${
+                        featured
+                          ? "w-60 border-[#C9A961]/35 bg-card"
+                          : "w-40 border-border bg-card"
+                      }`}
+                    >
+                      {featured && (
+                        <span className="absolute top-2 left-2 z-10 text-[9px] uppercase tracking-[0.18em] font-bold px-2 py-1 rounded-full" style={{ backgroundColor: "#C9A961", color: "#000" }}>
+                          Recommended today
+                        </span>
+                      )}
+                      <div className="relative">
+                        {recipe.thumbnail_url ? (
+                          <div className={`overflow-hidden ${featured ? "aspect-[4/3]" : "aspect-square"}`}>
+                            <img src={recipe.thumbnail_url} alt={recipe.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
+                          </div>
+                        ) : (
+                          <div className={`bg-muted flex items-center justify-center ${featured ? "aspect-[4/3]" : "aspect-square"}`}>
+                            <Utensils className="w-6 h-6 text-black/20" />
+                          </div>
+                        )}
+                        {/* kcal + protein overlay */}
+                        {(recipe.calories_per_serving || (recipe as any).protein_per_serving) && (
+                          <div className="absolute bottom-0 inset-x-0 px-2.5 py-1.5 bg-black/55 backdrop-blur-sm flex items-center justify-between text-[10px] text-white/90">
+                            {recipe.calories_per_serving ? (
+                              <span className="tabular-nums">{recipe.calories_per_serving} cal</span>
+                            ) : <span />}
+                            {(recipe as any).protein_per_serving ? (
+                              <span className="tabular-nums">{(recipe as any).protein_per_serving}g P</span>
+                            ) : null}
+                          </div>
                         )}
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                      <div className="p-3">
+                        <p className={`font-semibold text-foreground line-clamp-2 leading-tight ${featured ? "text-sm" : "text-xs"}`}>
+                          {recipe.title}
+                        </p>
+                        {recipe.prep_time_minutes && (
+                          <div className="flex items-center gap-1 mt-1.5 text-[10px] text-foreground/60">
+                            <Clock className="w-2.5 h-2.5" />
+                            <span>{recipe.prep_time_minutes}m</span>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
+
 
           {/* ── Meal Plan Section ── */}
           {!activePlan ? (
