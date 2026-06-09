@@ -1735,6 +1735,261 @@ export type Database = {
           },
         ]
       }
+      meal_calorie_tiers: {
+        Row: {
+          breakfast_calories: number
+          calories: number
+          carbs_grams: number
+          created_at: string
+          dinner_calories: number
+          fat_grams: number
+          goal: string
+          id: string
+          lunch_calories: number
+          protein_grams: number
+          snack_calories: number
+        }
+        Insert: {
+          breakfast_calories: number
+          calories: number
+          carbs_grams: number
+          created_at?: string
+          dinner_calories: number
+          fat_grams: number
+          goal: string
+          id?: string
+          lunch_calories: number
+          protein_grams: number
+          snack_calories: number
+        }
+        Update: {
+          breakfast_calories?: number
+          calories?: number
+          carbs_grams?: number
+          created_at?: string
+          dinner_calories?: number
+          fat_grams?: number
+          goal?: string
+          id?: string
+          lunch_calories?: number
+          protein_grams?: number
+          snack_calories?: number
+        }
+        Relationships: []
+      }
+      meal_library: {
+        Row: {
+          allergy_tags: string[]
+          budget_level: string | null
+          calories: number
+          carbs_grams: number
+          cook_time: string | null
+          created_at: string
+          dietary_tags: string[]
+          difficulty: string | null
+          fat_grams: number
+          fiber_grams: number | null
+          goal_tags: string[]
+          id: string
+          ingredients: string | null
+          instructions: string | null
+          is_active: boolean | null
+          is_dairy_free: boolean | null
+          is_gluten_free: boolean | null
+          is_high_protein: boolean | null
+          is_kosher_friendly: boolean | null
+          is_pescatarian: boolean | null
+          is_vegan: boolean | null
+          is_vegetarian: boolean | null
+          meal_code: string
+          meal_name: string
+          meal_type: string
+          prep_time: string | null
+          protein_grams: number
+          serving_size: number | null
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          allergy_tags?: string[]
+          budget_level?: string | null
+          calories: number
+          carbs_grams: number
+          cook_time?: string | null
+          created_at?: string
+          dietary_tags?: string[]
+          difficulty?: string | null
+          fat_grams: number
+          fiber_grams?: number | null
+          goal_tags?: string[]
+          id?: string
+          ingredients?: string | null
+          instructions?: string | null
+          is_active?: boolean | null
+          is_dairy_free?: boolean | null
+          is_gluten_free?: boolean | null
+          is_high_protein?: boolean | null
+          is_kosher_friendly?: boolean | null
+          is_pescatarian?: boolean | null
+          is_vegan?: boolean | null
+          is_vegetarian?: boolean | null
+          meal_code: string
+          meal_name: string
+          meal_type: string
+          prep_time?: string | null
+          protein_grams: number
+          serving_size?: number | null
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allergy_tags?: string[]
+          budget_level?: string | null
+          calories?: number
+          carbs_grams?: number
+          cook_time?: string | null
+          created_at?: string
+          dietary_tags?: string[]
+          difficulty?: string | null
+          fat_grams?: number
+          fiber_grams?: number | null
+          goal_tags?: string[]
+          id?: string
+          ingredients?: string | null
+          instructions?: string | null
+          is_active?: boolean | null
+          is_dairy_free?: boolean | null
+          is_gluten_free?: boolean | null
+          is_high_protein?: boolean | null
+          is_kosher_friendly?: boolean | null
+          is_pescatarian?: boolean | null
+          is_vegan?: boolean | null
+          is_vegetarian?: boolean | null
+          meal_code?: string
+          meal_name?: string
+          meal_type?: string
+          prep_time?: string | null
+          protein_grams?: number
+          serving_size?: number | null
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      meal_plan_assignment_examples: {
+        Row: {
+          assigned_template: string
+          calories: number
+          created_at: string
+          dietary_preference: string
+          goal: string
+          id: string
+        }
+        Insert: {
+          assigned_template: string
+          calories: number
+          created_at?: string
+          dietary_preference: string
+          goal: string
+          id?: string
+        }
+        Update: {
+          assigned_template?: string
+          calories?: number
+          created_at?: string
+          dietary_preference?: string
+          goal?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      meal_plan_template_examples: {
+        Row: {
+          breakfast_meal_code: string | null
+          calorie_tier: number
+          carb_target: number | null
+          created_at: string
+          dietary_version: string | null
+          dinner_meal_code: string | null
+          fat_target: number | null
+          goal: string
+          id: string
+          lunch_meal_code: string | null
+          protein_target: number | null
+          snack_meal_code: string | null
+          template_code: string
+          total_calories: number | null
+          total_carbs: number | null
+          total_fat: number | null
+          total_protein: number | null
+        }
+        Insert: {
+          breakfast_meal_code?: string | null
+          calorie_tier: number
+          carb_target?: number | null
+          created_at?: string
+          dietary_version?: string | null
+          dinner_meal_code?: string | null
+          fat_target?: number | null
+          goal: string
+          id?: string
+          lunch_meal_code?: string | null
+          protein_target?: number | null
+          snack_meal_code?: string | null
+          template_code: string
+          total_calories?: number | null
+          total_carbs?: number | null
+          total_fat?: number | null
+          total_protein?: number | null
+        }
+        Update: {
+          breakfast_meal_code?: string | null
+          calorie_tier?: number
+          carb_target?: number | null
+          created_at?: string
+          dietary_version?: string | null
+          dinner_meal_code?: string | null
+          fat_target?: number | null
+          goal?: string
+          id?: string
+          lunch_meal_code?: string | null
+          protein_target?: number | null
+          snack_meal_code?: string | null
+          template_code?: string
+          total_calories?: number | null
+          total_carbs?: number | null
+          total_fat?: number | null
+          total_protein?: number | null
+        }
+        Relationships: []
+      }
+      meal_selection_rules: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          logic: string
+          rule_code: string
+          rule_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          logic: string
+          rule_code: string
+          rule_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          logic?: string
+          rule_code?: string
+          rule_name?: string
+        }
+        Relationships: []
+      }
       message_email_state: {
         Row: {
           last_email_sent_at: string
@@ -3964,6 +4219,33 @@ export type Database = {
           id?: string
           name?: string | null
           platform?: string | null
+        }
+        Relationships: []
+      }
+      weekly_meal_plan_structure: {
+        Row: {
+          created_at: string
+          goal: string
+          grocery_grouping: string | null
+          id: string
+          protein_distribution: string | null
+          rotation: string
+        }
+        Insert: {
+          created_at?: string
+          goal: string
+          grocery_grouping?: string | null
+          id?: string
+          protein_distribution?: string | null
+          rotation: string
+        }
+        Update: {
+          created_at?: string
+          goal?: string
+          grocery_grouping?: string | null
+          id?: string
+          protein_distribution?: string | null
+          rotation?: string
         }
         Relationships: []
       }
