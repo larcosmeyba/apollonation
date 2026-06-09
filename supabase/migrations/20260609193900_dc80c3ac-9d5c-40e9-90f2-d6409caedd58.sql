@@ -1,0 +1,1 @@
+DELETE FROM public.admin_exercises WHERE id = '11111111-1111-1111-1111-111111111111' AND name = 'TEST: Mux Render Smoke Clip';
