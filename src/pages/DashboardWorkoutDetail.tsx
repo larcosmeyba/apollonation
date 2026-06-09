@@ -21,6 +21,7 @@ import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
 import DifficultyRating from "@/components/dashboard/DifficultyRating";
 import { useAppleHealth } from "@/hooks/useAppleHealth";
+import MuxVideo from "@/components/video/MuxVideo";
 
 
 
@@ -203,7 +204,7 @@ const ExerciseRow = ({
     queryFn: async () => {
       const { data } = await supabase
         .from("exercises")
-        .select("title, video_url, description, thumbnail_url")
+        .select("title, video_url, description, thumbnail_url, mux_playback_id")
         .ilike("title", exercise.exercise_name)
         .maybeSingle();
       return data;
@@ -211,12 +212,15 @@ const ExerciseRow = ({
     staleTime: 1000 * 60 * 30,
   });
 
-  const isStorage = exerciseData?.video_url?.startsWith("storage:");
-  const videoId = exerciseData?.video_url && !isStorage ? getYouTubeVideoId(exerciseData.video_url) : null;
-  const thumbnail = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : exerciseData?.thumbnail_url;
+  const hasMux = !!exerciseData?.mux_playback_id;
+  const isStorage = !hasMux && exerciseData?.video_url?.startsWith("storage:");
+  const videoId = !hasMux && exerciseData?.video_url && !isStorage ? getYouTubeVideoId(exerciseData.video_url) : null;
+  const muxPoster = hasMux ? `https://image.mux.com/${exerciseData!.mux_playback_id}/thumbnail.jpg?width=320&fit_mode=preserve` : null;
+  const thumbnail = exerciseData?.thumbnail_url || muxPoster || (videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null);
   const embedUrl = videoId
     ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
     : null;
+  const hasAnyVideo = hasMux || !!exerciseData?.video_url;
 
   const repsTargetLabel = formatRepsTarget(exercise.reps);
   const isToFailure = repsTargetLabel.toLowerCase().includes("failure");
@@ -273,7 +277,7 @@ const ExerciseRow = ({
               {exercise.muscle_group && <span>· <span className="capitalize">{exercise.muscle_group}</span></span>}
             </div>
           </div>
-          {exerciseData?.video_url ? (
+          {hasAnyVideo ? (
             <button
               onClick={() => setVideoOpen(true)}
               className="relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-border hover:border-foreground/30 transition-colors"
@@ -416,7 +420,15 @@ const ExerciseRow = ({
             <DialogTitle className="font-heading text-sm tracking-wide">{exerciseData?.title || exercise.exercise_name}</DialogTitle>
           </DialogHeader>
           <div className="aspect-video w-full bg-black">
-            {isStorage && videoOpen ? (
+            {hasMux && videoOpen ? (
+              <MuxVideo
+                playbackId={exerciseData!.mux_playback_id!}
+                title={exerciseData?.title || exercise.exercise_name}
+                videoId={exercise.id}
+                autoPlay
+                controls
+              />
+            ) : isStorage && videoOpen ? (
               <StorageVideoPlayer storagePath={exerciseData!.video_url!.replace("storage:", "")} />
             ) : embedUrl && videoOpen ? (
               <iframe src={embedUrl} className="w-full h-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen title={exercise.exercise_name} style={{ border: 0 }} />

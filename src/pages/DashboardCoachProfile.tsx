@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import MuxVideo from "@/components/video/MuxVideo";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -163,7 +164,18 @@ const DashboardCoachProfile = () => {
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
           {selectedWorkout && (
             <>
-              {selectedWorkout.video_url && (
+              {(selectedWorkout as any).mux_playback_id ? (
+                <div className="aspect-video w-full bg-black">
+                  <MuxVideo
+                    playbackId={(selectedWorkout as any).mux_playback_id}
+                    title={selectedWorkout.title}
+                    videoId={selectedWorkout.id}
+                    category={selectedWorkout.category}
+                    autoPlay
+                    controls
+                  />
+                </div>
+              ) : selectedWorkout.video_url && (
                 selectedWorkout.video_url.startsWith("storage:") ? (
                   <StorageVideoPlayer storagePath={selectedWorkout.video_url.replace("storage:", "")} />
                 ) : (

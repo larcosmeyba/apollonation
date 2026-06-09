@@ -1261,6 +1261,7 @@ export type Database = {
           equipment: string | null
           id: string
           muscle_group: string
+          mux_playback_id: string | null
           thumbnail_url: string | null
           title: string
           video_url: string | null
@@ -1272,6 +1273,7 @@ export type Database = {
           equipment?: string | null
           id?: string
           muscle_group: string
+          mux_playback_id?: string | null
           thumbnail_url?: string | null
           title: string
           video_url?: string | null
@@ -1283,6 +1285,7 @@ export type Database = {
           equipment?: string | null
           id?: string
           muscle_group?: string
+          mux_playback_id?: string | null
           thumbnail_url?: string | null
           title?: string
           video_url?: string | null
@@ -3788,6 +3791,7 @@ export type Database = {
           id: string
           is_featured: boolean | null
           is_published: boolean
+          mux_playback_id: string | null
           thumbnail_url: string | null
           title: string
           video_url: string | null
@@ -3801,6 +3805,7 @@ export type Database = {
           id?: string
           is_featured?: boolean | null
           is_published?: boolean
+          mux_playback_id?: string | null
           thumbnail_url?: string | null
           title: string
           video_url?: string | null
@@ -3814,6 +3819,7 @@ export type Database = {
           id?: string
           is_featured?: boolean | null
           is_published?: boolean
+          mux_playback_id?: string | null
           thumbnail_url?: string | null
           title?: string
           video_url?: string | null
