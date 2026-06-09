@@ -277,7 +277,7 @@ const ExerciseRow = ({
               {exercise.muscle_group && <span>· <span className="capitalize">{exercise.muscle_group}</span></span>}
             </div>
           </div>
-          {exerciseData?.video_url ? (
+          {hasAnyVideo ? (
             <button
               onClick={() => setVideoOpen(true)}
               className="relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-border hover:border-foreground/30 transition-colors"
