@@ -436,7 +436,18 @@ const DashboardWorkouts = () => {
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
           {selectedWorkout && (
             <>
-              {selectedWorkout.video_url ? (
+              {(selectedWorkout as any).mux_playback_id ? (
+                <div className="relative aspect-video w-full bg-black">
+                  <MuxVideo
+                    playbackId={(selectedWorkout as any).mux_playback_id}
+                    title={selectedWorkout.title}
+                    videoId={selectedWorkout.id}
+                    category={selectedWorkout.category}
+                    autoPlay
+                    controls
+                  />
+                </div>
+              ) : selectedWorkout.video_url ? (
                 selectedWorkout.video_url.startsWith("storage:") ? (
                   <div className="relative aspect-video w-full bg-black">
                     <StorageVideoPlayer storagePath={selectedWorkout.video_url.replace("storage:", "")} title={selectedWorkout.title} />
