@@ -23,6 +23,7 @@ import DifficultyRating from "@/components/dashboard/DifficultyRating";
 import { useAppleHealth } from "@/hooks/useAppleHealth";
 
 
+
 // ── YouTube helpers ──────────────────────────────────────────────────
 const getYouTubeVideoId = (url: string): string | null => {
   try {
