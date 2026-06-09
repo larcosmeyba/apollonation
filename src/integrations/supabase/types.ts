@@ -234,17 +234,29 @@ export type Database = {
           difficulty: string
           duration_seconds: number | null
           equipment: string[]
+          exercise_code: string | null
+          goal_categories: string[]
           id: string
+          is_cooldown: boolean
+          is_recovery: boolean
+          is_warmup: boolean
+          location_type: string | null
           loop_in_seconds: number | null
           loop_out_seconds: number | null
+          movement_pattern: string | null
           movement_type: string | null
           muscle_group: string | null
           mux_asset_id: string | null
           mux_playback_id: string | null
           name: string
+          notes: string | null
           orientation: string
+          primary_muscle: string | null
+          secondary_muscle: string | null
           source_storage_path: string | null
           source_video_url: string | null
+          suggested_reps: string | null
+          suggested_time: string | null
           tags: string[]
           tempo_recommendation: string | null
           thumbnail_url: string | null
@@ -262,17 +274,29 @@ export type Database = {
           difficulty?: string
           duration_seconds?: number | null
           equipment?: string[]
+          exercise_code?: string | null
+          goal_categories?: string[]
           id?: string
+          is_cooldown?: boolean
+          is_recovery?: boolean
+          is_warmup?: boolean
+          location_type?: string | null
           loop_in_seconds?: number | null
           loop_out_seconds?: number | null
+          movement_pattern?: string | null
           movement_type?: string | null
           muscle_group?: string | null
           mux_asset_id?: string | null
           mux_playback_id?: string | null
           name: string
+          notes?: string | null
           orientation?: string
+          primary_muscle?: string | null
+          secondary_muscle?: string | null
           source_storage_path?: string | null
           source_video_url?: string | null
+          suggested_reps?: string | null
+          suggested_time?: string | null
           tags?: string[]
           tempo_recommendation?: string | null
           thumbnail_url?: string | null
@@ -290,17 +314,29 @@ export type Database = {
           difficulty?: string
           duration_seconds?: number | null
           equipment?: string[]
+          exercise_code?: string | null
+          goal_categories?: string[]
           id?: string
+          is_cooldown?: boolean
+          is_recovery?: boolean
+          is_warmup?: boolean
+          location_type?: string | null
           loop_in_seconds?: number | null
           loop_out_seconds?: number | null
+          movement_pattern?: string | null
           movement_type?: string | null
           muscle_group?: string | null
           mux_asset_id?: string | null
           mux_playback_id?: string | null
           name?: string
+          notes?: string | null
           orientation?: string
+          primary_muscle?: string | null
+          secondary_muscle?: string | null
           source_storage_path?: string | null
           source_video_url?: string | null
+          suggested_reps?: string | null
+          suggested_time?: string | null
           tags?: string[]
           tempo_recommendation?: string | null
           thumbnail_url?: string | null
@@ -1064,6 +1100,27 @@ export type Database = {
         }
         Relationships: []
       }
+      deload_rules: {
+        Row: {
+          created_at: string
+          id: string
+          program_slug: string
+          rule: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          program_slug: string
+          rule: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          program_slug?: string
+          rule?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -1148,6 +1205,33 @@ export type Database = {
           id?: string
           token?: string
           used_at?: string | null
+        }
+        Relationships: []
+      }
+      exercise_selection_rules: {
+        Row: {
+          applies_to: string | null
+          created_at: string
+          id: string
+          logic: string | null
+          rule: string
+          rule_id: string
+        }
+        Insert: {
+          applies_to?: string | null
+          created_at?: string
+          id?: string
+          logic?: string | null
+          rule: string
+          rule_id: string
+        }
+        Update: {
+          applies_to?: string | null
+          created_at?: string
+          id?: string
+          logic?: string | null
+          rule?: string
+          rule_id?: string
         }
         Relationships: []
       }
@@ -2357,6 +2441,96 @@ export type Database = {
         }
         Relationships: []
       }
+      program_blueprints: {
+        Row: {
+          allowed_equipment: string[]
+          created_at: string
+          description: string | null
+          difficulty_cap: string | null
+          experience: string | null
+          frequency: string | null
+          id: string
+          location: string
+          name: string
+          primary_goal: string
+          session_length: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+          weekly_split: string | null
+        }
+        Insert: {
+          allowed_equipment?: string[]
+          created_at?: string
+          description?: string | null
+          difficulty_cap?: string | null
+          experience?: string | null
+          frequency?: string | null
+          id?: string
+          location: string
+          name: string
+          primary_goal: string
+          session_length?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+          weekly_split?: string | null
+        }
+        Update: {
+          allowed_equipment?: string[]
+          created_at?: string
+          description?: string | null
+          difficulty_cap?: string | null
+          experience?: string | null
+          frequency?: string | null
+          id?: string
+          location?: string
+          name?: string
+          primary_goal?: string
+          session_length?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+          weekly_split?: string | null
+        }
+        Relationships: []
+      }
+      program_engine_categories: {
+        Row: {
+          allowed_filters: string | null
+          category: string
+          created_at: string
+          excluded: string | null
+          id: string
+          location: string | null
+          primary_goal: string | null
+          typical_equipment: string[]
+          updated_at: string
+        }
+        Insert: {
+          allowed_filters?: string | null
+          category: string
+          created_at?: string
+          excluded?: string | null
+          id?: string
+          location?: string | null
+          primary_goal?: string | null
+          typical_equipment?: string[]
+          updated_at?: string
+        }
+        Update: {
+          allowed_filters?: string | null
+          category?: string
+          created_at?: string
+          excluded?: string | null
+          id?: string
+          location?: string | null
+          primary_goal?: string | null
+          typical_equipment?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       program_workouts: {
         Row: {
           created_at: string
@@ -2486,6 +2660,33 @@ export type Database = {
           photo_url?: string
           user_id?: string
           weight_lbs?: number | null
+        }
+        Relationships: []
+      }
+      progression_models: {
+        Row: {
+          created_at: string
+          id: string
+          label: string | null
+          prescription: string | null
+          program_slug: string
+          week_number: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          prescription?: string | null
+          program_slug: string
+          week_number?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          prescription?: string | null
+          program_slug?: string
+          week_number?: number | null
         }
         Relationships: []
       }
@@ -2760,6 +2961,33 @@ export type Database = {
           },
         ]
       }
+      required_movement_patterns: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          pattern: string
+          program_slug: string
+          required_per_week: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pattern: string
+          program_slug: string
+          required_per_week?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pattern?: string
+          program_slug?: string
+          required_per_week?: number | null
+        }
+        Relationships: []
+      }
       secure_contact_info: {
         Row: {
           created_at: string
@@ -2781,6 +3009,95 @@ export type Database = {
           phone_encrypted?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      session_blueprint_slots: {
+        Row: {
+          block: string
+          blueprint_id: string
+          body_part_filter: string | null
+          created_at: string
+          equipment_filter: string | null
+          id: string
+          movement_pattern: string | null
+          reps_or_time: string | null
+          rest: string | null
+          role: string | null
+          sets: string | null
+          slot_order: number
+        }
+        Insert: {
+          block: string
+          blueprint_id: string
+          body_part_filter?: string | null
+          created_at?: string
+          equipment_filter?: string | null
+          id?: string
+          movement_pattern?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          role?: string | null
+          sets?: string | null
+          slot_order: number
+        }
+        Update: {
+          block?: string
+          blueprint_id?: string
+          body_part_filter?: string | null
+          created_at?: string
+          equipment_filter?: string | null
+          id?: string
+          movement_pattern?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          role?: string | null
+          sets?: string | null
+          slot_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_blueprint_slots_blueprint_id_fkey"
+            columns: ["blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "session_blueprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_blueprints: {
+        Row: {
+          created_at: string
+          day_type: string
+          frequency: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          program_slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_type: string
+          frequency?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          program_slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_type?: string
+          frequency?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          program_slug?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2867,6 +3184,33 @@ export type Database = {
           steps?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      substitution_rules: {
+        Row: {
+          applies_to: string | null
+          created_at: string
+          id: string
+          logic: string | null
+          rule: string
+          rule_id: string | null
+        }
+        Insert: {
+          applies_to?: string | null
+          created_at?: string
+          id?: string
+          logic?: string | null
+          rule: string
+          rule_id?: string | null
+        }
+        Update: {
+          applies_to?: string | null
+          created_at?: string
+          id?: string
+          logic?: string | null
+          rule?: string
+          rule_id?: string | null
         }
         Relationships: []
       }
@@ -3623,6 +3967,80 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_split_days: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          focus: string
+          id: string
+          is_deload: boolean
+          is_recovery: boolean
+          is_rest: boolean
+          template_id: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          focus: string
+          id?: string
+          is_deload?: boolean
+          is_recovery?: boolean
+          is_rest?: boolean
+          template_id: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          focus?: string
+          id?: string
+          is_deload?: boolean
+          is_recovery?: boolean
+          is_rest?: boolean
+          template_id?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_split_days_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_split_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weekly_split_templates: {
+        Row: {
+          created_at: string
+          days_per_week: number | null
+          description: string | null
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          days_per_week?: number | null
+          description?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          days_per_week?: number | null
+          description?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       workout_categories: {
         Row: {
           created_at: string
@@ -3780,6 +4198,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      workout_template_rules: {
+        Row: {
+          cooldown: string | null
+          created_at: string
+          duration_minutes: number
+          id: string
+          main_exercises: string | null
+          recommended_structure: string | null
+          rest_between_sets: string | null
+          rounds_or_sets: string | null
+          updated_at: string
+          warmup: string | null
+          work_rest_or_reps: string | null
+        }
+        Insert: {
+          cooldown?: string | null
+          created_at?: string
+          duration_minutes: number
+          id?: string
+          main_exercises?: string | null
+          recommended_structure?: string | null
+          rest_between_sets?: string | null
+          rounds_or_sets?: string | null
+          updated_at?: string
+          warmup?: string | null
+          work_rest_or_reps?: string | null
+        }
+        Update: {
+          cooldown?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          main_exercises?: string | null
+          recommended_structure?: string | null
+          rest_between_sets?: string | null
+          rounds_or_sets?: string | null
+          updated_at?: string
+          warmup?: string | null
+          work_rest_or_reps?: string | null
+        }
+        Relationships: []
       }
       workouts: {
         Row: {
