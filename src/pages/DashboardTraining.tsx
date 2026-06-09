@@ -547,60 +547,8 @@ const DashboardTraining = () => {
           </div>
         </div>
 
-        {/* This Week's Workouts */}
-        {planData && weekWorkouts.length > 0 && (
-          <div className="rounded-2xl border border-border/25 overflow-hidden">
-            <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold mb-0.5">This Week</p>
-                <h3 className="font-heading text-base text-foreground/85">Upcoming Workouts</h3>
-              </div>
-              <span className="text-[10px] text-foreground/40 uppercase tracking-wider">Tap ⇄ to swap</span>
-            </div>
-            <div className="divide-y divide-border/15">
-              {weekWorkouts.map(({ date, day }) => {
-                const dStr = format(date, "yyyy-MM-dd");
-                const completed = completedSessions.some((s: any) => s.log_date === dStr);
-                const isTodayRow = isToday(date);
-                const muscles = muscleSummary(day);
-                return (
-                  <div
-                    key={day.id}
-                    className={`flex items-center gap-3 px-4 py-3 ${isTodayRow ? "bg-primary/[0.05]" : ""}`}
-                  >
-                    <div className="w-10 text-center flex-shrink-0">
-                      <p className="text-[9px] uppercase tracking-wider text-foreground/40">{format(date, "EEE")}</p>
-                      <p className="font-heading text-base text-foreground/80 leading-tight">{format(date, "d")}</p>
-                    </div>
-                    <Link
-                      to={`/dashboard/training/workout?day=${day.id}&date=${dStr}`}
-                      className="flex-1 min-w-0"
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-medium text-foreground/85 truncate">
-                          {day.day_label || `Day ${day.day_number}`}
-                        </p>
-                        {completed && <Check className="w-3 h-3 text-primary flex-shrink-0" />}
-                      </div>
-                      {(muscles || day.focus) && (
-                        <p className="text-[11px] text-foreground/45 truncate mt-0.5">
-                          {muscles || day.focus}
-                        </p>
-                      )}
-                    </Link>
-                    <button
-                      onClick={() => setSwapSource({ day, date })}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground/40 hover:text-foreground/80 hover:bg-foreground/5 transition-colors flex-shrink-0"
-                      aria-label="Swap workout day"
-                    >
-                      <ArrowLeftRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        {/* Upcoming Workouts list removed — users see the week schedule on the calendar above. */}
+
 
         {/* Browse other programs */}
         <TrainingProgramCards />
