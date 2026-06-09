@@ -203,7 +203,7 @@ const ExerciseRow = ({
     queryFn: async () => {
       const { data } = await supabase
         .from("exercises")
-        .select("title, video_url, description, thumbnail_url")
+        .select("title, video_url, description, thumbnail_url, mux_playback_id")
         .ilike("title", exercise.exercise_name)
         .maybeSingle();
       return data;
@@ -211,9 +211,11 @@ const ExerciseRow = ({
     staleTime: 1000 * 60 * 30,
   });
 
-  const isStorage = exerciseData?.video_url?.startsWith("storage:");
-  const videoId = exerciseData?.video_url && !isStorage ? getYouTubeVideoId(exerciseData.video_url) : null;
-  const thumbnail = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : exerciseData?.thumbnail_url;
+  const hasMux = !!exerciseData?.mux_playback_id;
+  const isStorage = !hasMux && exerciseData?.video_url?.startsWith("storage:");
+  const videoId = !hasMux && exerciseData?.video_url && !isStorage ? getYouTubeVideoId(exerciseData.video_url) : null;
+  const muxPoster = hasMux ? `https://image.mux.com/${exerciseData!.mux_playback_id}/thumbnail.jpg?width=320&fit_mode=preserve` : null;
+  const thumbnail = exerciseData?.thumbnail_url || muxPoster || (videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null);
   const embedUrl = videoId
     ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
     : null;
