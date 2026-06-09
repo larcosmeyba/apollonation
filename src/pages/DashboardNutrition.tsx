@@ -24,8 +24,9 @@ import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { getMealImage } from "@/utils/mealImages";
 import { MacroRing } from "@/components/dashboard/MacroRing";
-import { CalorieHero, type MacroField } from "@/components/dashboard/CalorieHero";
+import { type MacroField } from "@/components/dashboard/CalorieHero";
 import { FuelHero } from "@/components/dashboard/FuelHero";
+
 
 import { EditMacroTargetsDialog } from "@/components/dashboard/EditMacroTargetsDialog";
 
