@@ -768,6 +768,18 @@ const DashboardWorkoutDetail = () => {
       // picks up Apple Watch data without a manual refresh.
       if (healthAvailable && healthConnected) {
         void syncAppleHealth({ silent: true });
+        // Best-effort: write this completed Apollo session to Apple Health.
+        // No-ops gracefully on plugin versions without writeWorkout support.
+        const exCount = (dayData?.training_plan_exercises || []).length;
+        const estMinutes = dayData?.duration_minutes || (exCount > 0 ? Math.max(20, exCount * 4) : 30);
+        const end = new Date();
+        const start = new Date(end.getTime() - estMinutes * 60_000);
+        void writeAppleHealthWorkout({
+          startDate: start,
+          endDate: end,
+          calories: Math.round(estMinutes * 6),
+          activityType: "functional-strength-training",
+        });
       }
     },
     onSettled: () => {
