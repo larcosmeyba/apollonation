@@ -341,11 +341,17 @@ const DashboardTraining = () => {
             <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold mb-2">
               Today
             </p>
-            <div className="rounded-2xl border border-border/30 p-5 bg-gradient-to-br from-foreground/[0.03] to-transparent">
-              <h2 className="font-heading text-xl text-foreground">Rest Day</h2>
-              <p className="text-xs text-foreground/50 mt-1">
-                Recovery is part of the process. Pick a session below.
-              </p>
+            <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] p-6 bg-gradient-to-br from-primary/[0.18] via-[#1a1a1a] to-[#0d0d0d] shadow-[0_10px_40px_-15px_hsl(var(--primary)/0.4)]">
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative">
+                <p className="text-[10px] uppercase tracking-[0.22em] text-primary/90 font-bold mb-2">Rest & Recover</p>
+                <h2 className="font-heading text-3xl text-foreground tracking-tight">Rest Day</h2>
+                <p className="text-sm text-foreground/70 mt-2 max-w-sm leading-relaxed">
+                  {completedSessions.length > 0
+                    ? `You crushed ${completedSessions.length} workout${completedSessions.length === 1 ? "" : "s"} this week. Let the body adapt.`
+                    : "Recovery is where the gains happen. Stretch, sleep, fuel up."}
+                </p>
+              </div>
             </div>
           </div>
         ) : (
