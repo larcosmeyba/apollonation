@@ -96,6 +96,22 @@ serve(async (req) => {
     const carbsGrams = macroTargets.carb_grams;
     const fatGrams = macroTargets.fat_grams;
 
+    // ---- NUTRITION_GENERATOR_V2 branch (default OFF; legacy AI remains live path) ----
+    const useV2 = isV2Enabled() || isV2ForcedForTest(req);
+    let mealPlanData: { days: any[] } = { days: [] };
+    let v2Meta: { needs_review: boolean; gap_reason: string | null; generator_version: string } | null = null;
+
+    if (useV2) {
+      const v2 = await runV2ForUser(supabaseAdmin, clientUserId, {
+        calorie_target: dailyCalories,
+        protein_grams: proteinGrams,
+        carb_grams: carbsGrams,
+        fat_grams: fatGrams,
+      }, 4);
+      mealPlanData = { days: v2.days };
+      v2Meta = { needs_review: v2.needs_review, gap_reason: v2.gap_reason, generator_version: v2.generator_version };
+    } else {
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
