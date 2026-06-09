@@ -1040,36 +1040,43 @@ const DashboardWorkoutDetail = () => {
           </div>
         )}
 
-        {/* Finish Workout Button */}
-        {totalExercises > 0 && !sessionLog?.completed_at && (
-          <Button
-            variant="apollo"
-            className="w-full gap-2 h-12"
-            onClick={() => {
-              if (logging || saveSessionMutation.isPending) return;
-              setLogging(true);
-              saveSessionMutation.mutate();
-              setTimeout(() => setShowComplete(true), 300);
-            }}
-            disabled={logging || saveSessionMutation.isPending}
-          >
-            {(logging || saveSessionMutation.isPending) ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Check className="w-4 h-4" />
-            )}
-            Finish Workout
-          </Button>
-        )}
-
         {sessionLog?.completed_at && !showComplete && (
-          <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-center">
-            <p className="text-sm font-medium text-green-500 flex items-center justify-center gap-2">
-              <Trophy className="w-4 h-4" /> Workout Completed! 💪
+          <div className="p-4 rounded-2xl bg-primary/10 border border-primary/25 text-center">
+            <p className="text-sm font-bold text-primary flex items-center justify-center gap-2 uppercase tracking-wider">
+              <Trophy className="w-4 h-4" /> Workout Completed
             </p>
           </div>
         )}
+
+        {/* Spacer so sticky bar doesn't cover content */}
+        {totalExercises > 0 && !sessionLog?.completed_at && <div className="h-20" />}
       </div>
+
+      {/* Sticky Finish Workout Bar */}
+      {totalExercises > 0 && !sessionLog?.completed_at && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d]/95 to-transparent backdrop-blur-md pointer-events-none">
+          <div className="max-w-3xl mx-auto pointer-events-auto">
+            <Button
+              variant="apollo"
+              className="w-full gap-2 h-12 rounded-2xl shadow-[0_8px_30px_-6px_hsl(var(--primary)/0.55)] font-bold uppercase tracking-wider text-xs"
+              onClick={() => {
+                if (logging || saveSessionMutation.isPending) return;
+                setLogging(true);
+                saveSessionMutation.mutate();
+                setTimeout(() => setShowComplete(true), 300);
+              }}
+              disabled={logging || saveSessionMutation.isPending}
+            >
+              {(logging || saveSessionMutation.isPending) ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Check className="w-4 h-4" />
+              )}
+              Mark Workout Complete
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Workout Complete Dialog with Watch Screenshot Upload */}
       <Dialog open={showComplete} onOpenChange={(open) => {
