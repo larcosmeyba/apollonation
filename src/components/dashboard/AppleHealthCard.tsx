@@ -72,10 +72,8 @@ const AppleHealthCard = () => {
         });
       } else {
         toast({
-          title: "Couldn't connect to Apple Health",
-          description:
-            rawError ||
-            "Open iPhone Settings → Privacy & Security → Health → Apollo Reborn and turn ON all categories, then try again.",
+          title: "Apple Health access not granted",
+          description: HEALTH_DENIED_MESSAGE,
           variant: "destructive",
         });
       }
