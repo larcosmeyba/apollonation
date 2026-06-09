@@ -257,11 +257,12 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
       if (cleanContent.startsWith("```json")) cleanContent = cleanContent.slice(7);
       if (cleanContent.startsWith("```")) cleanContent = cleanContent.slice(3);
       if (cleanContent.endsWith("```")) cleanContent = cleanContent.slice(0, -3);
-      mealPlanData = JSON.parse(cleanContent.trim());
+      mealPlanDataLegacy = JSON.parse(cleanContent.trim());
     } catch {
       console.error("Failed to parse AI response:", content);
       throw new Error("Failed to parse meal plan from AI response");
     }
+    mealPlanData = mealPlanDataLegacy;
 
     // Server-side dietary safety check
     const RESTRICTION_KEYWORDS: Record<string, string[]> = {
