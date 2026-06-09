@@ -429,34 +429,54 @@ const DashboardTraining = () => {
           </div>
         )}
 
-        {/* 3) PROGRAM PROGRESS */}
-        {programProgress && (
-          <div className="rounded-2xl border border-border/25 p-5 bg-gradient-to-br from-primary/[0.06] via-foreground/[0.02] to-transparent">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-foreground/50 font-semibold mb-3">
-              {programProgress.title}
-            </p>
-            <div className="flex items-end justify-between gap-4 mb-4">
-              <div className="min-w-0">
-                <h3 className="font-heading text-2xl text-foreground leading-tight">
-                  Week {programProgress.currentWeek} of {programProgress.totalWeeks}
-                </h3>
-                <p className="text-xs text-foreground/55 mt-1">
-                  {programProgress.completed} of {programProgress.totalWorkouts} workouts completed
-                </p>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="font-heading text-3xl text-primary tabular-nums">{programProgress.percent}%</p>
-                <p className="text-[10px] uppercase tracking-wider text-foreground/40 mt-0.5">Complete</p>
+        {/* 3) PROGRAM PROGRESS — HERO */}
+        {programProgress && (() => {
+          const r = 56;
+          const c = 2 * Math.PI * r;
+          const dash = (programProgress.percent / 100) * c;
+          const sessionsPerWeek = Math.max(1, Math.round(programProgress.totalWorkouts / programProgress.totalWeeks));
+          return (
+            <div className="relative overflow-hidden rounded-2xl border border-white/[0.05] p-6 bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d] shadow-[0_10px_40px_-20px_hsl(var(--primary)/0.3)]">
+              <div className="absolute -top-16 -left-16 w-56 h-56 bg-primary/[0.08] rounded-full blur-3xl pointer-events-none" />
+              <div className="relative flex items-center gap-5">
+                {/* Circular progress ring */}
+                <div className="relative flex-shrink-0 w-32 h-32">
+                  <svg viewBox="0 0 128 128" className="w-full h-full -rotate-90">
+                    <circle cx="64" cy="64" r={r} fill="none" stroke="hsl(var(--foreground) / 0.08)" strokeWidth="6" />
+                    <circle
+                      cx="64" cy="64" r={r} fill="none"
+                      stroke="hsl(var(--primary))" strokeWidth="6" strokeLinecap="round"
+                      strokeDasharray={`${dash} ${c}`}
+                      className="transition-all duration-700 drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="font-heading text-5xl text-foreground tracking-tight tabular-nums leading-none">
+                      {programProgress.percent}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.18em] text-primary font-bold mt-0.5">Percent</span>
+                  </div>
+                </div>
+                {/* Meta */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-foreground/50 font-semibold mb-1.5 truncate">
+                    {programProgress.title}
+                  </p>
+                  <h3 className="font-heading text-2xl text-foreground leading-tight tracking-tight">
+                    Week {programProgress.currentWeek}
+                    <span className="text-foreground/30 font-normal"> / {programProgress.totalWeeks}</span>
+                  </h3>
+                  <p className="text-xs text-foreground/55 mt-1.5 tabular-nums">
+                    {programProgress.completed} of {programProgress.totalWorkouts} workouts
+                  </p>
+                  <p className="text-[10px] uppercase tracking-wider text-foreground/40 mt-2">
+                    {programProgress.totalWeeks} wk · ~{sessionsPerWeek} sessions/wk
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="h-2 w-full rounded-full bg-foreground/10 overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-700"
-                style={{ width: `${programProgress.percent}%` }}
-              />
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* 4) PROGRAM OVERVIEW */}
         {planData && programProgress && (
