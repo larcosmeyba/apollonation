@@ -471,7 +471,7 @@ const DashboardWorkoutDetail = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { sync: syncAppleHealth, available: healthAvailable, connected: healthConnected } = useAppleHealth();
+  const { sync: syncAppleHealth, available: healthAvailable, connected: healthConnected, writeWorkout: writeAppleHealthWorkout } = useAppleHealth();
 
   const [searchParams] = useSearchParams();
   const dayId = searchParams.get("day");
