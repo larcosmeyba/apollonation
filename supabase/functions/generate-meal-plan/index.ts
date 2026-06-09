@@ -369,6 +369,9 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
         plan,
         macros: { dailyCalories, proteinGrams, carbsGrams, fatGrams },
         mealsCount: allMeals.length,
+        generator_version: v2Meta?.generator_version ?? "legacy",
+        needs_review: v2Meta?.needs_review ?? false,
+        gap_reason: v2Meta?.gap_reason ?? null,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
