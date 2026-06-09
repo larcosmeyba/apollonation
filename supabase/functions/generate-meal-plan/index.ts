@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { resolveUserMacroTargets, snapDayToTargets } from "../_shared/macro-scaler.ts";
+import { isV2Enabled, isV2ForcedForTest, runV2ForUser } from "../_shared/v2-meal-plan-runner.ts";
 import { z } from "https://esm.sh/zod@3.23.8";
 
 // Strict input validation: numbers in human ranges, capped array sizes.
@@ -94,6 +95,22 @@ serve(async (req) => {
     const proteinGrams = macroTargets.protein_grams;
     const carbsGrams = macroTargets.carb_grams;
     const fatGrams = macroTargets.fat_grams;
+
+    // ---- NUTRITION_GENERATOR_V2 branch (default OFF; legacy AI remains live path) ----
+    const useV2 = isV2Enabled() || isV2ForcedForTest(req);
+    let mealPlanData: { days: any[] } = { days: [] };
+    let v2Meta: { needs_review: boolean; gap_reason: string | null; generator_version: string } | null = null;
+
+    if (useV2) {
+      const v2 = await runV2ForUser(supabaseAdmin, clientUserId, {
+        calorie_target: dailyCalories,
+        protein_grams: proteinGrams,
+        carb_grams: carbsGrams,
+        fat_grams: fatGrams,
+      }, 4);
+      mealPlanData = { days: v2.days };
+      v2Meta = { needs_review: v2.needs_review, gap_reason: v2.gap_reason, generator_version: v2.generator_version };
+    } else {
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -234,17 +251,18 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
       throw new Error("No response from AI");
     }
 
-    let mealPlanData;
+    let mealPlanDataLegacy: any;
     try {
       let cleanContent = content.trim();
       if (cleanContent.startsWith("```json")) cleanContent = cleanContent.slice(7);
       if (cleanContent.startsWith("```")) cleanContent = cleanContent.slice(3);
       if (cleanContent.endsWith("```")) cleanContent = cleanContent.slice(0, -3);
-      mealPlanData = JSON.parse(cleanContent.trim());
+      mealPlanDataLegacy = JSON.parse(cleanContent.trim());
     } catch {
       console.error("Failed to parse AI response:", content);
       throw new Error("Failed to parse meal plan from AI response");
     }
+    mealPlanData = mealPlanDataLegacy;
 
     // Server-side dietary safety check
     const RESTRICTION_KEYWORDS: Record<string, string[]> = {
@@ -279,6 +297,8 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
         return jsonResponse(req, { error: `Generated plan violated dietary restrictions (${offenders.slice(0, 3).join(", ")}). Please retry.` }, 422);
       }
     }
+    } // end legacy AI branch
+
 
     // Create the nutrition plan (targets MIRROR user_macro_targets exactly)
     const { data: plan, error: planError } = await supabaseAdmin
@@ -293,6 +313,9 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
         fat_grams: fatGrams,
         duration_weeks: 4,
         status: "active",
+        needs_review: v2Meta?.needs_review ?? false,
+        gap_reason: v2Meta?.gap_reason ?? null,
+        generator_version: v2Meta?.generator_version ?? "legacy",
       })
       .select()
       .single();
@@ -346,6 +369,9 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
         plan,
         macros: { dailyCalories, proteinGrams, carbsGrams, fatGrams },
         mealsCount: allMeals.length,
+        generator_version: v2Meta?.generator_version ?? "legacy",
+        needs_review: v2Meta?.needs_review ?? false,
+        gap_reason: v2Meta?.gap_reason ?? null,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

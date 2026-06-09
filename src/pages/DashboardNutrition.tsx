@@ -33,6 +33,7 @@ import { EditMacroTargetsDialog } from "@/components/dashboard/EditMacroTargetsD
 import { buildGroceryListFromMeals, type PricedGroceryList } from "@/lib/groceryPricing";
 import { normalizeRestrictions, RESTRICTION_LABELS, filterMealsByRestrictions } from "@/lib/dietaryRestrictions";
 import { useMacroTargets } from "@/hooks/useMacroTargets";
+import HelpTheHiveCTA from "@/components/dashboard/HelpTheHiveCTA";
 
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"];
 const MEAL_TYPE_LABELS: Record<string, string> = {
@@ -1172,6 +1173,13 @@ const DashboardNutrition = () => {
               </div>
             </div>
           )}
+
+          {/* Help The Hive — grocery/budget handoff (gated on weekly_budget) */}
+          <div className="mt-8">
+            <HelpTheHiveCTA />
+          </div>
+
+
 
 
           {/* ── Meal Plan Section ── */}
