@@ -256,59 +256,101 @@ const ExerciseRow = ({
 
   return (
     <>
-      <div className={`rounded-xl border bg-card overflow-hidden transition-all ${isCompleted ? "border-green-500/30 opacity-70" : "border-border"} ${justCompleted ? "ring-2 ring-green-500/40" : ""}`}>
+      <div className={`rounded-2xl border overflow-hidden transition-all bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d] active:scale-[0.99] ${isCompleted ? "border-primary/25" : "border-white/[0.05]"} ${justCompleted ? "ring-2 ring-primary/40 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.5)]" : ""}`}>
         {/* Header */}
         <div className="flex items-start gap-3 p-4 pb-2">
-          <Checkbox
-            checked={isCompleted}
-            onCheckedChange={(checked) => onToggleComplete(exercise.id, !!checked)}
-            className="mt-0.5"
-          />
+          {/* Thumbnail with check overlay */}
+          <button
+            type="button"
+            onClick={() => hasAnyVideo && setVideoOpen(true)}
+            disabled={!hasAnyVideo}
+            className="relative flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border border-white/[0.06] bg-[#0a0a0a] disabled:cursor-default"
+            aria-label={hasAnyVideo ? "Play demo video" : "No video"}
+          >
+            {thumbnail ? (
+              <img src={thumbnail} alt="" className={`w-full h-full object-cover ${isCompleted ? "opacity-40" : ""}`} loading="lazy" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Dumbbell className="w-5 h-5 text-foreground/20" />
+              </div>
+            )}
+            {hasAnyVideo && !isCompleted && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <Play className="w-4 h-4 text-foreground ml-0.5" fill="currentColor" />
+              </div>
+            )}
+            {isCompleted && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-[0_0_12px_hsl(var(--primary)/0.7)]">
+                  <Check className="w-4 h-4 text-background" strokeWidth={3} />
+                </div>
+              </div>
+            )}
+          </button>
+
+          {/* Title + meta */}
           <div className="flex-1 min-w-0">
-            <p className={`font-heading text-sm tracking-wide ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
-              {exercise.exercise_name}
-            </p>
-            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
-              <span>{totalSets} sets</span>
-              <span>·</span>
-              <span className={isToFailure ? "text-[hsl(var(--apollo-gold-light))] font-medium" : "text-foreground/80 font-medium"}>
-                {repsTargetLabel}
-              </span>
-              {exercise.muscle_group && <span>· <span className="capitalize">{exercise.muscle_group}</span></span>}
+            <div className="flex items-start gap-2">
+              <Checkbox
+                checked={isCompleted}
+                onCheckedChange={(checked) => onToggleComplete(exercise.id, !!checked)}
+                className="mt-1 flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <p className={`font-heading text-sm tracking-tight leading-snug ${isCompleted ? "text-foreground/60" : "text-foreground"}`}>
+                  {exercise.exercise_name}
+                </p>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] uppercase tracking-wider text-foreground/50 font-semibold flex-wrap">
+                  <span className="tabular-nums">{totalSets} sets</span>
+                  <span className="text-foreground/20">·</span>
+                  <span className={isToFailure ? "text-primary" : "text-foreground/70"}>
+                    {repsTargetLabel}
+                  </span>
+                  {isCompleted && (
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary/15 text-primary text-[9px] font-bold tracking-wider">
+                      COMPLETED
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-          {hasAnyVideo ? (
+
+          {/* Right action icons */}
+          <div className="flex flex-col gap-1.5 flex-shrink-0">
             <button
-              onClick={() => setVideoOpen(true)}
-              className="relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-border hover:border-foreground/30 transition-colors"
-              aria-label="Play demo video"
+              onClick={() => setNoteExpanded(!noteExpanded)}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                exerciseNote?.note || noteExpanded
+                  ? "bg-primary/15 text-primary"
+                  : "bg-white/[0.03] border border-white/[0.06] text-foreground/50 hover:text-foreground"
+              }`}
+              aria-label="Question for coach"
             >
-              {thumbnail ? (
-                <img src={thumbnail} alt="" className="w-full h-full object-cover" loading="lazy" />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-muted-foreground/40" />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <Play className="w-5 h-5 text-foreground ml-0.5" fill="currentColor" />
-              </div>
+              <StickyNote className="w-3.5 h-3.5" />
             </button>
-          ) : null}
+            <button
+              onClick={onSwap}
+              className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-foreground/50 hover:text-foreground transition-colors"
+              aria-label="Substitute exercise"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Coaching Cues */}
         {exercise.notes && (
           <div className="px-4 pb-1">
-            <p className="text-[10px] text-primary/80 uppercase tracking-wider mb-0.5">Coaching Cues</p>
-            <p className="text-[11px] text-muted-foreground italic">{exercise.notes}</p>
+            <p className="text-[10px] text-primary/80 uppercase tracking-wider mb-0.5 font-bold">Coaching Cues</p>
+            <p className="text-[11px] text-foreground/60 italic leading-relaxed">{exercise.notes}</p>
           </div>
         )}
 
         {/* Set Logging */}
-        <div className="px-4 pb-3 pt-1">
+        <div className="px-4 pb-3 pt-2">
           <div className="space-y-1.5">
-            <div className="grid grid-cols-[20px_1fr_1fr_36px_22px] gap-1.5 text-[9px] uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="grid grid-cols-[20px_1fr_1fr_40px_22px] gap-1.5 text-[9px] uppercase tracking-[0.12em] text-foreground/40 font-semibold">
               <span></span>
               <span>Weight</span>
               <span>Reps</span>
@@ -320,41 +362,41 @@ const ExerciseRow = ({
               const prevLog = previousSetLogs.find(l => l.set_number === setNum);
               const logged = isSetLogged(setNum);
               return (
-                <div key={setNum} className="relative grid grid-cols-[20px_1fr_1fr_36px_22px] gap-1.5 items-center">
-                  <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
+                <div key={setNum} className="relative grid grid-cols-[20px_1fr_1fr_40px_22px] gap-1.5 items-center">
+                  <span className="text-xs font-heading text-foreground/40 text-center tabular-nums">{setNum}</span>
                   <Input
                     type="number"
                     inputMode="decimal"
-                    placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
-                    className="h-8 text-xs text-center px-1"
+                    placeholder={prevLog?.weight ? String(prevLog.weight) : "lbs"}
+                    className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
                     value={log?.weight ?? ""}
                     onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
                   />
                   <Input
                     type="number"
                     inputMode="numeric"
-                    placeholder={isToFailure ? "AMRAP" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : "—")}
-                    className="h-8 text-xs text-center px-1"
+                    placeholder={isToFailure ? "AMRAP" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : "reps")}
+                    className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
                     value={log?.reps_completed ?? ""}
                     onChange={(e) => {
                       onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
                       if (e.target.value) setShowTimer(true);
                     }}
                   />
-                  <span className="text-[10px] text-muted-foreground text-center font-mono">
+                  <span className="text-[10px] text-foreground/40 text-center font-mono tabular-nums">
                     {exercise.rest_seconds ? `${exercise.rest_seconds}s` : "—"}
                   </span>
                   <div className="flex items-center justify-center">
                     {logged ? (
-                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center transition-all animate-in zoom-in duration-200">
+                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center transition-all animate-in zoom-in duration-200 shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
                         <Check className="w-3 h-3 text-background" strokeWidth={3} />
                       </div>
                     ) : (
-                      <div className="w-5 h-5 rounded-full border border-border" />
+                      <div className="w-5 h-5 rounded-full border border-white/10" />
                     )}
                   </div>
                   {isPR(log?.weight ?? null) && (
-                    <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-gradient-to-br from-[hsl(var(--apollo-gold-light))] to-[hsl(var(--apollo-gold-dark))] text-background shadow-[var(--shadow-glow-gold)]">
+                    <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-primary text-background shadow-[0_0_8px_hsl(var(--primary)/0.6)]">
                       PR
                     </span>
                   )}
@@ -365,34 +407,16 @@ const ExerciseRow = ({
               <InlineRestTimer seconds={exercise.rest_seconds} />
             )}
             {previousSetLogs.length > 0 && (
-              <p className="text-[9px] text-muted-foreground/50 text-right pt-0.5">Placeholders = last session</p>
+              <p className="text-[9px] text-foreground/30 text-right pt-0.5 uppercase tracking-wider">Placeholders = last session</p>
             )}
           </div>
         </div>
 
-        {/* Bottom actions */}
-        <div className="px-4 pb-3 flex items-center justify-between gap-3">
-          <button
-            onClick={() => setNoteExpanded(!noteExpanded)}
-            className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <StickyNote className="w-3 h-3" />
-            {exerciseNote?.note ? "Edit question for coach" : "Question for Coach"}
-          </button>
-          <button
-            onClick={onSwap}
-            className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <RefreshCw className="w-3 h-3" />
-            Substitute
-          </button>
-        </div>
-
         {noteExpanded && (
-          <div className="px-4 pb-4 space-y-2">
+          <div className="px-4 pb-4 pt-1 space-y-2 border-t border-white/[0.04] mt-1">
             <Textarea
               placeholder="Ask Marcos anything about this exercise — form, weight, alternatives..."
-              className="text-xs min-h-[60px] resize-none"
+              className="text-xs min-h-[60px] resize-none bg-white/[0.04] border-white/[0.08] rounded-lg"
               value={exerciseNote?.note || ""}
               onChange={(e) => onNoteChange(exercise.id, e.target.value)}
               maxLength={500}
@@ -401,7 +425,7 @@ const ExerciseRow = ({
               <Button
                 size="sm"
                 variant="apollo"
-                className="h-7 text-[11px] gap-1.5"
+                className="h-7 text-[11px] gap-1.5 rounded-full px-4"
                 disabled={sendingQuestion || !(exerciseNote?.note || "").trim()}
                 onClick={sendQuestion}
               >
@@ -902,62 +926,85 @@ const DashboardWorkoutDetail = () => {
         ) : null}
 
         {/* Day header */}
-        {dayData && exercises.length > 0 && (
-          <div className="rounded-xl border border-border bg-card p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="section-label mb-1">{dayData.client_training_plans?.title}</p>
-                <h1 className="font-heading text-2xl tracking-wide">
-                  {dayData.day_label || `Day ${dayData.day_number}`}
-                </h1>
-                {dayData.focus && (
-                  <Badge variant="outline" className="mt-2 text-foreground/70 border-border">
-                    {dayData.focus}
-                  </Badge>
+        {dayData && exercises.length > 0 && (() => {
+          // Derive a clean "Week N · Day M" from day_number (assume 7-day cycle).
+          const dn = Number(dayData.day_number) || 1;
+          const weekNum = Math.max(1, Math.ceil(dn / 7));
+          const dayInWeek = ((dn - 1) % 7) + 1;
+          // Strip leading "Week X" / "Day X" prefixes from day_label to avoid "Week 2 - Week 1 - Day 1".
+          const cleanLabel = (dayData.day_label || "")
+            .replace(/^\s*week\s*\d+\s*[-–·:]?\s*/i, "")
+            .replace(/^\s*day\s*\d+\s*[-–·:]?\s*/i, "")
+            .trim();
+          const titleLine = cleanLabel || dayData.focus || `Day ${dn}`;
+          return (
+            <div className="rounded-2xl border border-white/[0.05] p-5 bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d] shadow-[0_8px_30px_-15px_rgba(0,0,0,0.6)]">
+              <div className="flex items-start justify-between mb-4">
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold mb-1.5">
+                    Week {weekNum} · Day {dayInWeek}
+                  </p>
+                  <h1 className="font-heading text-2xl tracking-tight text-foreground leading-tight">
+                    {titleLine}
+                  </h1>
+                  {dayData.focus && cleanLabel && (
+                    <Badge variant="outline" className="mt-2 text-foreground/70 border-white/10 bg-white/[0.03]">
+                      {dayData.focus}
+                    </Badge>
+                  )}
+                </div>
+                {sessionLog?.completed_at && (
+                  <div className="flex items-center gap-1.5 text-primary text-xs uppercase tracking-wider font-bold flex-shrink-0">
+                    <Check className="w-4 h-4" /> Done
+                  </div>
                 )}
               </div>
-              {sessionLog?.completed_at && (
-                <div className="flex items-center gap-1.5 text-green-500 text-sm">
-                  <Check className="w-4 h-4" /> Done
+
+              {/* Progress */}
+              {totalExercises > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] uppercase tracking-wider text-foreground/50 font-semibold tabular-nums">{displayCompleted}/{totalExercises} exercises</span>
+                    <span className="text-[10px] uppercase tracking-wider text-primary font-bold tabular-nums">{Math.round(displayPercent)}%</span>
+                  </div>
+                  <div className="h-1.5 bg-foreground/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all duration-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
+                      style={{ width: `${displayPercent}%` }}
+                    />
+                  </div>
                 </div>
               )}
             </div>
-
-            {/* Progress */}
-            {totalExercises > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-muted-foreground">{displayCompleted}/{totalExercises} exercises</span>
-                  <span className="text-xs text-muted-foreground">{Math.round(displayPercent)}%</span>
-                </div>
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-foreground rounded-full transition-all duration-500"
-                    style={{ width: `${displayPercent}%` }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+          );
+        })()}
 
         {/* Blocks: Warm-Up → Main → Cool-Down */}
         {dayData && exercises.length > 0 && (
           <div className="space-y-6">
             {[
-              { key: "warmup", title: "Warm-Up Block", subtitle: "5 min · prep your body", list: warmupExercises, locked: false, doneCount: hasGeneratedWarmup ? warmupExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length : (quickWarmupComplete ? 1 : 0), complete: warmupDone },
-              { key: "main", title: "Main Workout", subtitle: "Today's training", list: mainExercises, locked: !warmupDone, doneCount: mainExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: mainDone },
-              { key: "cooldown", title: "Cool-Down Block", subtitle: "5 min · stretches for today's muscles", list: cooldownExercises, locked: !warmupDone || !mainDone, doneCount: cooldownExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: allDoneIn(cooldownExercises) },
-            ].map((block) => (block.list.length > 0 || block.key === "warmup") && (
+              { key: "warmup", title: "Warm-Up Block", duration: "5 min", subtitle: "Prep your body", list: warmupExercises, locked: false, doneCount: hasGeneratedWarmup ? warmupExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length : (quickWarmupComplete ? 1 : 0), complete: warmupDone },
+              { key: "main", title: "Main Workout", duration: `~${Math.max(20, mainExercises.length * 4)} min`, subtitle: "Today's training", list: mainExercises, locked: !warmupDone, doneCount: mainExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: mainDone },
+              { key: "cooldown", title: "Cool-Down Block", duration: "5 min", subtitle: "Stretches for today's muscles", list: cooldownExercises, locked: !warmupDone || !mainDone, doneCount: cooldownExercises.filter((ex: any) => localNotes[ex.id]?.is_completed).length, complete: allDoneIn(cooldownExercises) },
+            ].map((block) => {
+              const total = block.key === "warmup" && !hasGeneratedWarmup ? 1 : block.list.length;
+              return (block.list.length > 0 || block.key === "warmup") && (
               <div key={block.key} className="space-y-3">
                 <div className="flex items-center justify-between px-1">
-                  <div>
-                    <p className="text-eyebrow uppercase tracking-wider text-foreground/50">{block.title}</p>
-                    <p className="text-[11px] text-muted-foreground">{block.subtitle}</p>
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${block.complete ? "bg-primary shadow-[0_0_6px_hsl(var(--primary))]" : "bg-primary/40"}`} />
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/80">{block.title}</p>
+                      <p className="text-[10px] text-foreground/40 uppercase tracking-wider mt-0.5">{block.subtitle}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                    {block.complete && <Check className="w-3.5 h-3.5 text-green-500" />}
-                    <span>{block.doneCount}/{block.key === "warmup" && !hasGeneratedWarmup ? 1 : block.list.length}</span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-primary tabular-nums">
+                      {block.doneCount}/{total}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-[10px] uppercase tracking-wider text-foreground/60 inline-flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5" /> {block.duration}
+                    </span>
                   </div>
                 </div>
                 <div className={`relative space-y-3 ${block.locked ? "opacity-50 pointer-events-none select-none" : ""}`}>
@@ -989,40 +1036,47 @@ const DashboardWorkoutDetail = () => {
                   )}
                 </div>
               </div>
-            ))}
+            );})}
           </div>
-        )}
-
-        {/* Finish Workout Button */}
-        {totalExercises > 0 && !sessionLog?.completed_at && (
-          <Button
-            variant="apollo"
-            className="w-full gap-2 h-12"
-            onClick={() => {
-              if (logging || saveSessionMutation.isPending) return;
-              setLogging(true);
-              saveSessionMutation.mutate();
-              setTimeout(() => setShowComplete(true), 300);
-            }}
-            disabled={logging || saveSessionMutation.isPending}
-          >
-            {(logging || saveSessionMutation.isPending) ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Check className="w-4 h-4" />
-            )}
-            Finish Workout
-          </Button>
         )}
 
         {sessionLog?.completed_at && !showComplete && (
-          <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-center">
-            <p className="text-sm font-medium text-green-500 flex items-center justify-center gap-2">
-              <Trophy className="w-4 h-4" /> Workout Completed! 💪
+          <div className="p-4 rounded-2xl bg-primary/10 border border-primary/25 text-center">
+            <p className="text-sm font-bold text-primary flex items-center justify-center gap-2 uppercase tracking-wider">
+              <Trophy className="w-4 h-4" /> Workout Completed
             </p>
           </div>
         )}
+
+        {/* Spacer so sticky bar doesn't cover content */}
+        {totalExercises > 0 && !sessionLog?.completed_at && <div className="h-20" />}
       </div>
+
+      {/* Sticky Finish Workout Bar */}
+      {totalExercises > 0 && !sessionLog?.completed_at && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d]/95 to-transparent backdrop-blur-md pointer-events-none">
+          <div className="max-w-3xl mx-auto pointer-events-auto">
+            <Button
+              variant="apollo"
+              className="w-full gap-2 h-12 rounded-2xl shadow-[0_8px_30px_-6px_hsl(var(--primary)/0.55)] font-bold uppercase tracking-wider text-xs"
+              onClick={() => {
+                if (logging || saveSessionMutation.isPending) return;
+                setLogging(true);
+                saveSessionMutation.mutate();
+                setTimeout(() => setShowComplete(true), 300);
+              }}
+              disabled={logging || saveSessionMutation.isPending}
+            >
+              {(logging || saveSessionMutation.isPending) ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Check className="w-4 h-4" />
+              )}
+              Mark Workout Complete
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Workout Complete Dialog with Watch Screenshot Upload */}
       <Dialog open={showComplete} onOpenChange={(open) => {
