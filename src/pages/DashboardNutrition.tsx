@@ -265,6 +265,52 @@ const DashboardNutrition = () => {
     enabled: !!user,
   });
 
+  // Yesterday's logs — for the dynamic eyebrow line ("hit protein yesterday")
+  const yesterdayDate = format(new Date(Date.now() - 86_400_000), "yyyy-MM-dd");
+  const { data: yesterdayEntries = [] } = useQuery({
+    queryKey: ["macro-logs", user?.id, yesterdayDate],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await supabase
+        .from("macro_logs")
+        .select("protein_grams, calories")
+        .eq("user_id", user.id)
+        .eq("log_date", yesterdayDate);
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Streak — count consecutive days back from today with at least one logged meal.
+  const { data: streakDays = 0 } = useQuery({
+    queryKey: ["macro-streak", user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const since = format(new Date(Date.now() - 30 * 86_400_000), "yyyy-MM-dd");
+      const { data } = await supabase
+        .from("macro_logs")
+        .select("log_date")
+        .eq("user_id", user.id)
+        .gte("log_date", since);
+      if (!data) return 0;
+      const dayset = new Set(data.map((r: any) => r.log_date));
+      let count = 0;
+      // Allow streak to count from yesterday if today not yet logged.
+      let cursor = new Date();
+      cursor.setHours(0, 0, 0, 0);
+      if (!dayset.has(format(cursor, "yyyy-MM-dd"))) {
+        cursor = new Date(cursor.getTime() - 86_400_000);
+      }
+      while (dayset.has(format(cursor, "yyyy-MM-dd"))) {
+        count++;
+        cursor = new Date(cursor.getTime() - 86_400_000);
+      }
+      return count;
+    },
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+
   const { data: recipes = [] } = useQuery({
     queryKey: ["all-recipes"],
     queryFn: async () => {
@@ -273,6 +319,7 @@ const DashboardNutrition = () => {
       return data;
     },
   });
+
 
   const { data: nutritionProfile } = useQuery({
     queryKey: ["nutrition-profile", user?.id],
