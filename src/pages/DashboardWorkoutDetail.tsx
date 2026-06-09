@@ -256,59 +256,101 @@ const ExerciseRow = ({
 
   return (
     <>
-      <div className={`rounded-xl border bg-card overflow-hidden transition-all ${isCompleted ? "border-green-500/30 opacity-70" : "border-border"} ${justCompleted ? "ring-2 ring-green-500/40" : ""}`}>
+      <div className={`rounded-2xl border overflow-hidden transition-all bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d] active:scale-[0.99] ${isCompleted ? "border-primary/25" : "border-white/[0.05]"} ${justCompleted ? "ring-2 ring-primary/40 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.5)]" : ""}`}>
         {/* Header */}
         <div className="flex items-start gap-3 p-4 pb-2">
-          <Checkbox
-            checked={isCompleted}
-            onCheckedChange={(checked) => onToggleComplete(exercise.id, !!checked)}
-            className="mt-0.5"
-          />
+          {/* Thumbnail with check overlay */}
+          <button
+            type="button"
+            onClick={() => hasAnyVideo && setVideoOpen(true)}
+            disabled={!hasAnyVideo}
+            className="relative flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border border-white/[0.06] bg-[#0a0a0a] disabled:cursor-default"
+            aria-label={hasAnyVideo ? "Play demo video" : "No video"}
+          >
+            {thumbnail ? (
+              <img src={thumbnail} alt="" className={`w-full h-full object-cover ${isCompleted ? "opacity-40" : ""}`} loading="lazy" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Dumbbell className="w-5 h-5 text-foreground/20" />
+              </div>
+            )}
+            {hasAnyVideo && !isCompleted && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <Play className="w-4 h-4 text-foreground ml-0.5" fill="currentColor" />
+              </div>
+            )}
+            {isCompleted && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-[0_0_12px_hsl(var(--primary)/0.7)]">
+                  <Check className="w-4 h-4 text-background" strokeWidth={3} />
+                </div>
+              </div>
+            )}
+          </button>
+
+          {/* Title + meta */}
           <div className="flex-1 min-w-0">
-            <p className={`font-heading text-sm tracking-wide ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
-              {exercise.exercise_name}
-            </p>
-            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
-              <span>{totalSets} sets</span>
-              <span>·</span>
-              <span className={isToFailure ? "text-[hsl(var(--apollo-gold-light))] font-medium" : "text-foreground/80 font-medium"}>
-                {repsTargetLabel}
-              </span>
-              {exercise.muscle_group && <span>· <span className="capitalize">{exercise.muscle_group}</span></span>}
+            <div className="flex items-start gap-2">
+              <Checkbox
+                checked={isCompleted}
+                onCheckedChange={(checked) => onToggleComplete(exercise.id, !!checked)}
+                className="mt-1 flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <p className={`font-heading text-sm tracking-tight leading-snug ${isCompleted ? "text-foreground/60" : "text-foreground"}`}>
+                  {exercise.exercise_name}
+                </p>
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] uppercase tracking-wider text-foreground/50 font-semibold flex-wrap">
+                  <span className="tabular-nums">{totalSets} sets</span>
+                  <span className="text-foreground/20">·</span>
+                  <span className={isToFailure ? "text-primary" : "text-foreground/70"}>
+                    {repsTargetLabel}
+                  </span>
+                  {isCompleted && (
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary/15 text-primary text-[9px] font-bold tracking-wider">
+                      COMPLETED
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-          {hasAnyVideo ? (
+
+          {/* Right action icons */}
+          <div className="flex flex-col gap-1.5 flex-shrink-0">
             <button
-              onClick={() => setVideoOpen(true)}
-              className="relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-border hover:border-foreground/30 transition-colors"
-              aria-label="Play demo video"
+              onClick={() => setNoteExpanded(!noteExpanded)}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                exerciseNote?.note || noteExpanded
+                  ? "bg-primary/15 text-primary"
+                  : "bg-white/[0.03] border border-white/[0.06] text-foreground/50 hover:text-foreground"
+              }`}
+              aria-label="Question for coach"
             >
-              {thumbnail ? (
-                <img src={thumbnail} alt="" className="w-full h-full object-cover" loading="lazy" />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-muted-foreground/40" />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <Play className="w-5 h-5 text-foreground ml-0.5" fill="currentColor" />
-              </div>
+              <StickyNote className="w-3.5 h-3.5" />
             </button>
-          ) : null}
+            <button
+              onClick={onSwap}
+              className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-foreground/50 hover:text-foreground transition-colors"
+              aria-label="Substitute exercise"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Coaching Cues */}
         {exercise.notes && (
           <div className="px-4 pb-1">
-            <p className="text-[10px] text-primary/80 uppercase tracking-wider mb-0.5">Coaching Cues</p>
-            <p className="text-[11px] text-muted-foreground italic">{exercise.notes}</p>
+            <p className="text-[10px] text-primary/80 uppercase tracking-wider mb-0.5 font-bold">Coaching Cues</p>
+            <p className="text-[11px] text-foreground/60 italic leading-relaxed">{exercise.notes}</p>
           </div>
         )}
 
         {/* Set Logging */}
-        <div className="px-4 pb-3 pt-1">
+        <div className="px-4 pb-3 pt-2">
           <div className="space-y-1.5">
-            <div className="grid grid-cols-[20px_1fr_1fr_36px_22px] gap-1.5 text-[9px] uppercase tracking-wider text-muted-foreground font-medium">
+            <div className="grid grid-cols-[20px_1fr_1fr_40px_22px] gap-1.5 text-[9px] uppercase tracking-[0.12em] text-foreground/40 font-semibold">
               <span></span>
               <span>Weight</span>
               <span>Reps</span>
@@ -320,41 +362,41 @@ const ExerciseRow = ({
               const prevLog = previousSetLogs.find(l => l.set_number === setNum);
               const logged = isSetLogged(setNum);
               return (
-                <div key={setNum} className="relative grid grid-cols-[20px_1fr_1fr_36px_22px] gap-1.5 items-center">
-                  <span className="text-xs font-heading text-muted-foreground text-center">{setNum}</span>
+                <div key={setNum} className="relative grid grid-cols-[20px_1fr_1fr_40px_22px] gap-1.5 items-center">
+                  <span className="text-xs font-heading text-foreground/40 text-center tabular-nums">{setNum}</span>
                   <Input
                     type="number"
                     inputMode="decimal"
-                    placeholder={prevLog?.weight ? String(prevLog.weight) : "—"}
-                    className="h-8 text-xs text-center px-1"
+                    placeholder={prevLog?.weight ? String(prevLog.weight) : "lbs"}
+                    className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
                     value={log?.weight ?? ""}
                     onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
                   />
                   <Input
                     type="number"
                     inputMode="numeric"
-                    placeholder={isToFailure ? "AMRAP" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : "—")}
-                    className="h-8 text-xs text-center px-1"
+                    placeholder={isToFailure ? "AMRAP" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : "reps")}
+                    className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
                     value={log?.reps_completed ?? ""}
                     onChange={(e) => {
                       onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
                       if (e.target.value) setShowTimer(true);
                     }}
                   />
-                  <span className="text-[10px] text-muted-foreground text-center font-mono">
+                  <span className="text-[10px] text-foreground/40 text-center font-mono tabular-nums">
                     {exercise.rest_seconds ? `${exercise.rest_seconds}s` : "—"}
                   </span>
                   <div className="flex items-center justify-center">
                     {logged ? (
-                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center transition-all animate-in zoom-in duration-200">
+                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center transition-all animate-in zoom-in duration-200 shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
                         <Check className="w-3 h-3 text-background" strokeWidth={3} />
                       </div>
                     ) : (
-                      <div className="w-5 h-5 rounded-full border border-border" />
+                      <div className="w-5 h-5 rounded-full border border-white/10" />
                     )}
                   </div>
                   {isPR(log?.weight ?? null) && (
-                    <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-gradient-to-br from-[hsl(var(--apollo-gold-light))] to-[hsl(var(--apollo-gold-dark))] text-background shadow-[var(--shadow-glow-gold)]">
+                    <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-primary text-background shadow-[0_0_8px_hsl(var(--primary)/0.6)]">
                       PR
                     </span>
                   )}
@@ -365,34 +407,16 @@ const ExerciseRow = ({
               <InlineRestTimer seconds={exercise.rest_seconds} />
             )}
             {previousSetLogs.length > 0 && (
-              <p className="text-[9px] text-muted-foreground/50 text-right pt-0.5">Placeholders = last session</p>
+              <p className="text-[9px] text-foreground/30 text-right pt-0.5 uppercase tracking-wider">Placeholders = last session</p>
             )}
           </div>
         </div>
 
-        {/* Bottom actions */}
-        <div className="px-4 pb-3 flex items-center justify-between gap-3">
-          <button
-            onClick={() => setNoteExpanded(!noteExpanded)}
-            className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <StickyNote className="w-3 h-3" />
-            {exerciseNote?.note ? "Edit question for coach" : "Question for Coach"}
-          </button>
-          <button
-            onClick={onSwap}
-            className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <RefreshCw className="w-3 h-3" />
-            Substitute
-          </button>
-        </div>
-
         {noteExpanded && (
-          <div className="px-4 pb-4 space-y-2">
+          <div className="px-4 pb-4 pt-1 space-y-2 border-t border-white/[0.04] mt-1">
             <Textarea
               placeholder="Ask Marcos anything about this exercise — form, weight, alternatives..."
-              className="text-xs min-h-[60px] resize-none"
+              className="text-xs min-h-[60px] resize-none bg-white/[0.04] border-white/[0.08] rounded-lg"
               value={exerciseNote?.note || ""}
               onChange={(e) => onNoteChange(exercise.id, e.target.value)}
               maxLength={500}
@@ -401,7 +425,7 @@ const ExerciseRow = ({
               <Button
                 size="sm"
                 variant="apollo"
-                className="h-7 text-[11px] gap-1.5"
+                className="h-7 text-[11px] gap-1.5 rounded-full px-4"
                 disabled={sendingQuestion || !(exerciseNote?.note || "").trim()}
                 onClick={sendQuestion}
               >
