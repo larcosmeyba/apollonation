@@ -40,6 +40,7 @@ const TYPE_FALLBACK_IMAGES: Record<string, string> = {
 };
 
 import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/utils/youtube";
+import MuxVideo from "@/components/video/MuxVideo";
 
 const StorageVideoPlayer = ({ storagePath, title }: { storagePath: string; title: string }) => {
   const [bucket, ...pathParts] = storagePath.split("/");
