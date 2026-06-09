@@ -313,6 +313,9 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
         fat_grams: fatGrams,
         duration_weeks: 4,
         status: "active",
+        needs_review: v2Meta?.needs_review ?? false,
+        gap_reason: v2Meta?.gap_reason ?? null,
+        generator_version: v2Meta?.generator_version ?? "legacy",
       })
       .select()
       .single();
