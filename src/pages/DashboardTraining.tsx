@@ -366,58 +366,65 @@ const DashboardTraining = () => {
 
         {/* 2) WEEKLY CALENDAR */}
         {planData && (
-          <div
-            className="rounded-2xl border border-border/25 p-3"
-            onTouchStart={weekSwipe.onTouchStart}
-            onTouchEnd={weekSwipe.onTouchEnd}
-          >
-            <div className="flex items-center justify-between mb-3 px-1">
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground/50" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="text-[11px] text-foreground/60 tracking-wider font-medium">
-                {format(currentWeekStart, "MMM d")} — {format(addDays(currentWeekStart, 6), "MMM d")}
-              </span>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground/50" onClick={() => setCurrentDate(d => addWeeks(d, 1))}>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex items-center gap-1">
-              {weekDates.map((date) => {
-                const workout = getWorkoutForDate(date);
-                const isTodayDate = isToday(date);
-                const dateStr = format(date, "yyyy-MM-dd");
-                const isCompleted = completedSessions.some((s: any) => s.log_date === dateStr);
-                const isPast = date < new Date(format(today, "yyyy-MM-dd"));
-                const missed = isPast && workout && !isCompleted;
+          <div>
+            {programProgress && (
+              <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold mb-2 px-1">
+                Week {programProgress.currentWeek}
+              </p>
+            )}
+            <div
+              className="rounded-2xl border border-white/[0.05] p-3 bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d]"
+              onTouchStart={weekSwipe.onTouchStart}
+              onTouchEnd={weekSwipe.onTouchEnd}
+            >
+              <div className="flex items-center justify-between mb-3 px-1">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground/50" onClick={() => setCurrentDate(d => subWeeks(d, 1))}>
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <span className="text-[11px] text-foreground/60 tracking-wider font-medium">
+                  {format(currentWeekStart, "MMM d")} — {format(addDays(currentWeekStart, 6), "MMM d")}
+                </span>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground/50" onClick={() => setCurrentDate(d => addWeeks(d, 1))}>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex items-center gap-1">
+                {weekDates.map((date) => {
+                  const workout = getWorkoutForDate(date);
+                  const isTodayDate = isToday(date);
+                  const dateStr = format(date, "yyyy-MM-dd");
+                  const isCompleted = completedSessions.some((s: any) => s.log_date === dateStr);
+                  const isPast = date < new Date(format(today, "yyyy-MM-dd"));
+                  const missed = isPast && workout && !isCompleted;
 
-                return (
-                  <Link
-                    key={date.toISOString()}
-                    to={workout ? `/dashboard/training/workout?day=${workout.id}&date=${dateStr}` : "#"}
-                    onClick={(e) => !workout && e.preventDefault()}
-                    className={`flex-1 flex flex-col items-center py-2.5 rounded-xl transition-all min-h-[64px] justify-center ${
-                      isTodayDate
-                        ? "bg-primary text-primary-foreground shadow-[0_4px_18px_-2px_hsl(var(--primary)/0.45)]"
-                        : workout
-                          ? "text-foreground/80 hover:bg-foreground/5"
-                          : "text-foreground/30"
-                    }`}
-                  >
-                    <span className="text-[10px] uppercase tracking-wider font-semibold opacity-80">{format(date, "EEE")}</span>
-                    <span className="text-base font-heading mt-0.5">{format(date, "d")}</span>
-                    <div className="h-1.5 mt-1 flex items-center justify-center">
-                      {isCompleted ? (
-                        <div className={`w-1.5 h-1.5 rounded-full ${isTodayDate ? "bg-primary-foreground" : "bg-primary"}`} />
-                      ) : missed ? (
-                        <div className="w-1.5 h-1.5 rounded-full bg-destructive/70" />
-                      ) : workout ? (
-                        <div className={`w-1 h-1 rounded-full ${isTodayDate ? "bg-primary-foreground/70" : "bg-foreground/30"}`} />
-                      ) : null}
-                    </div>
-                  </Link>
-                );
-              })}
+                  return (
+                    <Link
+                      key={date.toISOString()}
+                      to={workout ? `/dashboard/training/workout?day=${workout.id}&date=${dateStr}` : "#"}
+                      onClick={(e) => !workout && e.preventDefault()}
+                      className={`flex-1 flex flex-col items-center py-2.5 rounded-xl transition-all min-h-[68px] justify-center active:scale-[0.96] ${
+                        isTodayDate
+                          ? "ring-2 ring-primary ring-offset-2 ring-offset-[#0d0d0d] bg-primary/10 text-primary shadow-[0_0_20px_-4px_hsl(var(--primary)/0.6)]"
+                          : workout
+                            ? "text-foreground/80 hover:bg-foreground/5"
+                            : "text-foreground/30"
+                      }`}
+                    >
+                      <span className="text-[10px] uppercase tracking-wider font-semibold opacity-80">{format(date, "EEE")}</span>
+                      <span className={`text-base font-heading mt-0.5 ${isTodayDate ? "font-bold" : ""}`}>{format(date, "d")}</span>
+                      <div className="h-1.5 mt-1 flex items-center justify-center">
+                        {isCompleted ? (
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary))]" />
+                        ) : missed ? (
+                          <div className="w-1.5 h-1.5 rounded-full bg-destructive/70" />
+                        ) : workout ? (
+                          <div className={`w-1 h-1 rounded-full ${isTodayDate ? "bg-primary/70" : "bg-foreground/30"}`} />
+                        ) : null}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
