@@ -834,6 +834,13 @@ const DashboardProfile = () => {
                 </button>
               </div>
 
+              {/* Health */}
+              <div>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/50 mb-2">Health</h3>
+                <AppleHealthCard />
+              </div>
+
+
               {/* Privacy & Legal */}
               <div>
                 <h3 className="text-[11px] uppercase tracking-[0.18em] font-bold text-foreground/50 mb-1">Privacy & Legal</h3>
