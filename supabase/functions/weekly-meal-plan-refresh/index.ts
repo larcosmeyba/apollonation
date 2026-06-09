@@ -146,6 +146,20 @@ serve(async (req) => {
           plan.fat_grams = targets.fat_grams;
         }
 
+        const useV2 = isV2Enabled() || isV2ForcedForTest(req);
+        let mealPlanData: { days: any[] };
+        let v2Meta: { needs_review: boolean; gap_reason: string | null; generator_version: string } | null = null;
+
+        if (useV2) {
+          const v2 = await runV2ForUser(supabaseAdmin, plan.user_id, {
+            calorie_target: plan.daily_calories,
+            protein_grams: plan.protein_grams,
+            carb_grams: plan.carbs_grams,
+            fat_grams: plan.fat_grams,
+          }, 1); // engine returns 1 week; legacy loop below repeats across duration_weeks
+          mealPlanData = { days: v2.days.slice(0, 7) };
+          v2Meta = { needs_review: v2.needs_review, gap_reason: v2.gap_reason, generator_version: v2.generator_version };
+        } else {
         const prompt = `Generate a complete 7-day meal plan for a new week. This should be COMPLETELY DIFFERENT meals from any previous week — use different proteins, cuisines, cooking methods, and ingredients.
 
 - Daily calories: ${plan.daily_calories} kcal
@@ -206,12 +220,25 @@ Make meals practical, varied, and delicious.`;
         const content = aiData.choices?.[0]?.message?.content;
         if (!content) throw new Error("No AI response");
 
-        let mealPlanData;
         let clean = content.trim();
         if (clean.startsWith("```json")) clean = clean.slice(7);
         if (clean.startsWith("```")) clean = clean.slice(3);
         if (clean.endsWith("```")) clean = clean.slice(0, -3);
         mealPlanData = JSON.parse(clean.trim());
+        } // end legacy branch
+
+        // Persist v2 metadata on the plan when available
+        if (v2Meta) {
+          await supabaseAdmin
+            .from("nutrition_plans")
+            .update({
+              needs_review: v2Meta.needs_review,
+              gap_reason: v2Meta.gap_reason,
+              generator_version: v2Meta.generator_version,
+            })
+            .eq("id", plan.id);
+        }
+
 
         // Delete old meals for this plan
         await supabaseAdmin
