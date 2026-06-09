@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { buildCorsHeaders, handlePreflight, jsonResponse } from "../_shared/cors.ts";
 import { resolveUserMacroTargets, snapDayToTargets } from "../_shared/macro-scaler.ts";
+import { isV2Enabled, isV2ForcedForTest, runV2ForUser } from "../_shared/v2-meal-plan-runner.ts";
 import { z } from "https://esm.sh/zod@3.23.8";
 
 // Strict input validation: numbers in human ranges, capped array sizes.
