@@ -12,10 +12,15 @@ import { useAuth } from "@/contexts/AuthContext";
 const READ_PERMISSIONS: HealthPermission[] = [
   "READ_STEPS",
   "READ_WORKOUTS",
+  "WRITE_WORKOUTS",
   "READ_ACTIVE_CALORIES",
+  "READ_TOTAL_CALORIES",
   "READ_DISTANCE",
   "READ_HEART_RATE",
 ];
+
+export const HEALTH_DENIED_MESSAGE =
+  "You can enable Health access anytime in iPhone Settings → Privacy & Security → Health → Apollo Reborn.";
 
 const isAppleHealthAvailable = (): boolean =>
   isNative() && Capacitor.getPlatform() === "ios";
