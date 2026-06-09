@@ -972,7 +972,7 @@ const DashboardNutrition = () => {
                 ? `${streakDays} day streak · keep it going`
                 : "Fuel your training. Track what fuels you.";
             return (
-              <div className="mb-6">
+              <div>
                 <p className="text-[10px] uppercase tracking-[0.28em] text-[#C9A961] font-semibold mb-2">
                   {eyebrow}
                 </p>
