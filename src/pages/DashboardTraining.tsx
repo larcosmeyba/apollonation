@@ -279,9 +279,9 @@ const DashboardTraining = () => {
             <p className="text-xs text-foreground/40 mt-1">Structured training programs</p>
           </div>
           <Button
-            variant="apollo-outline"
+            variant="apollo"
             size="sm"
-            className="gap-1.5 text-xs"
+            className="gap-1.5 text-xs rounded-full px-4 shadow-[0_4px_18px_-2px_hsl(var(--primary)/0.45)]"
             onClick={() => setShowAddActivity(true)}
           >
             <Plus className="w-3.5 h-3.5" /> Log Activity
