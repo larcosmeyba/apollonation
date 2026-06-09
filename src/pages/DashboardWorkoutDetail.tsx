@@ -902,44 +902,58 @@ const DashboardWorkoutDetail = () => {
         ) : null}
 
         {/* Day header */}
-        {dayData && exercises.length > 0 && (
-          <div className="rounded-xl border border-border bg-card p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="section-label mb-1">{dayData.client_training_plans?.title}</p>
-                <h1 className="font-heading text-2xl tracking-wide">
-                  {dayData.day_label || `Day ${dayData.day_number}`}
-                </h1>
-                {dayData.focus && (
-                  <Badge variant="outline" className="mt-2 text-foreground/70 border-border">
-                    {dayData.focus}
-                  </Badge>
+        {dayData && exercises.length > 0 && (() => {
+          // Derive a clean "Week N · Day M" from day_number (assume 7-day cycle).
+          const dn = Number(dayData.day_number) || 1;
+          const weekNum = Math.max(1, Math.ceil(dn / 7));
+          const dayInWeek = ((dn - 1) % 7) + 1;
+          // Strip leading "Week X" / "Day X" prefixes from day_label to avoid "Week 2 - Week 1 - Day 1".
+          const cleanLabel = (dayData.day_label || "")
+            .replace(/^\s*week\s*\d+\s*[-–·:]?\s*/i, "")
+            .replace(/^\s*day\s*\d+\s*[-–·:]?\s*/i, "")
+            .trim();
+          const titleLine = cleanLabel || dayData.focus || `Day ${dn}`;
+          return (
+            <div className="rounded-2xl border border-white/[0.05] p-5 bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d] shadow-[0_8px_30px_-15px_rgba(0,0,0,0.6)]">
+              <div className="flex items-start justify-between mb-4">
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold mb-1.5">
+                    Week {weekNum} · Day {dayInWeek}
+                  </p>
+                  <h1 className="font-heading text-2xl tracking-tight text-foreground leading-tight">
+                    {titleLine}
+                  </h1>
+                  {dayData.focus && cleanLabel && (
+                    <Badge variant="outline" className="mt-2 text-foreground/70 border-white/10 bg-white/[0.03]">
+                      {dayData.focus}
+                    </Badge>
+                  )}
+                </div>
+                {sessionLog?.completed_at && (
+                  <div className="flex items-center gap-1.5 text-primary text-xs uppercase tracking-wider font-bold flex-shrink-0">
+                    <Check className="w-4 h-4" /> Done
+                  </div>
                 )}
               </div>
-              {sessionLog?.completed_at && (
-                <div className="flex items-center gap-1.5 text-green-500 text-sm">
-                  <Check className="w-4 h-4" /> Done
+
+              {/* Progress */}
+              {totalExercises > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] uppercase tracking-wider text-foreground/50 font-semibold tabular-nums">{displayCompleted}/{totalExercises} exercises</span>
+                    <span className="text-[10px] uppercase tracking-wider text-primary font-bold tabular-nums">{Math.round(displayPercent)}%</span>
+                  </div>
+                  <div className="h-1.5 bg-foreground/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all duration-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
+                      style={{ width: `${displayPercent}%` }}
+                    />
+                  </div>
                 </div>
               )}
             </div>
-
-            {/* Progress */}
-            {totalExercises > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-muted-foreground">{displayCompleted}/{totalExercises} exercises</span>
-                  <span className="text-xs text-muted-foreground">{Math.round(displayPercent)}%</span>
-                </div>
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-foreground rounded-full transition-all duration-500"
-                    style={{ width: `${displayPercent}%` }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+          );
+        })()}
 
         {/* Blocks: Warm-Up → Main → Cool-Down */}
         {dayData && exercises.length > 0 && (
