@@ -297,6 +297,8 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
         return jsonResponse(req, { error: `Generated plan violated dietary restrictions (${offenders.slice(0, 3).join(", ")}). Please retry.` }, 422);
       }
     }
+    } // end legacy AI branch
+
 
     // Create the nutrition plan (targets MIRROR user_macro_targets exactly)
     const { data: plan, error: planError } = await supabaseAdmin
