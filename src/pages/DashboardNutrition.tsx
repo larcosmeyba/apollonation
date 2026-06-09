@@ -986,7 +986,7 @@ const DashboardNutrition = () => {
 
           {/* Premium gate: nutrition questionnaire not yet completed */}
           {!nutritionQLoading && !hasNutritionQuestionnaire && (
-            <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-8 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.5)] mb-6">
+            <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-8 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
               <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-4">
