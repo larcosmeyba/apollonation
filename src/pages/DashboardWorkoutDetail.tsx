@@ -21,7 +21,7 @@ import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
 import DifficultyRating from "@/components/dashboard/DifficultyRating";
 import { useAppleHealth } from "@/hooks/useAppleHealth";
-import MuxVideo from "@/components/video/MuxVideo";
+
 
 
 // ── YouTube helpers ──────────────────────────────────────────────────
