@@ -148,9 +148,13 @@ serve(async (req) => {
   try {
     // 1) Provision users
     for (const u of USERS) {
-      // Check if user already exists
-      const { data: existing } = await admin.auth.admin.listUsers();
-      let userId = existing?.users.find((x: any) => x.email === u.email)?.id;
+      // Find existing user by paginating auth.admin.listUsers
+      let userId: string | undefined;
+      for (let page = 1; page <= 20 && !userId; page++) {
+        const { data: pageData } = await admin.auth.admin.listUsers({ page, perPage: 200 });
+        userId = pageData?.users.find((x: any) => x.email === u.email)?.id;
+        if (!pageData?.users || pageData.users.length < 200) break;
+      }
       if (!userId) {
         const { data: created, error: cErr } = await admin.auth.admin.createUser({
           email: u.email, password: u.password, email_confirm: true,
