@@ -137,8 +137,11 @@ const DashboardNutrition = () => {
 
   const selectedDate = format(new Date(), "yyyy-MM-dd");
 
+  const [autoGenerating, setAutoGenerating] = useState(false);
+  const autoGenTriedRef = (globalThis as any).__apolloMealPlanAutoGenRef || ((globalThis as any).__apolloMealPlanAutoGenRef = { current: false });
+
   // ── Queries ──
-  const { data: plans } = useQuery({
+  const { data: plans, isLoading: plansLoading } = useQuery({
     queryKey: ["my-nutrition-plans"],
     queryFn: async () => {
       const { data, error } = await supabase.from("nutrition_plans").select("*").eq("user_id", user?.id).order("created_at", { ascending: false });
@@ -148,6 +151,7 @@ const DashboardNutrition = () => {
     enabled: !!user,
     staleTime: 0,
     refetchOnMount: "always",
+
   });
 
   // Premium nutrition onboarding completion gate
