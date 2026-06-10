@@ -200,8 +200,39 @@ const ExerciseRow = ({
     weight !== null && weight > previousMaxWeight && previousMaxWeight > 0;
 
   const { data: exerciseData } = useQuery({
-    queryKey: ["exercise-tile", exercise.exercise_name],
+    queryKey: ["exercise-tile", exercise.exercise_id || exercise.exercise_name],
     queryFn: async () => {
+      // Prefer admin_exercises (canonical Mux library). Match by id first, then name.
+      if (exercise.exercise_id) {
+        const { data } = await supabase
+          .from("admin_exercises")
+          .select("name, video_url, coaching_notes, thumbnail_url, mux_playback_id")
+          .eq("id", exercise.exercise_id)
+          .maybeSingle();
+        if (data) {
+          return {
+            title: data.name,
+            video_url: data.video_url,
+            description: data.coaching_notes,
+            thumbnail_url: data.thumbnail_url,
+            mux_playback_id: data.mux_playback_id,
+          };
+        }
+      }
+      const { data: adminByName } = await supabase
+        .from("admin_exercises")
+        .select("name, video_url, coaching_notes, thumbnail_url, mux_playback_id")
+        .ilike("name", exercise.exercise_name)
+        .maybeSingle();
+      if (adminByName) {
+        return {
+          title: adminByName.name,
+          video_url: adminByName.video_url,
+          description: adminByName.coaching_notes,
+          thumbnail_url: adminByName.thumbnail_url,
+          mux_playback_id: adminByName.mux_playback_id,
+        };
+      }
       const { data } = await supabase
         .from("exercises")
         .select("title, video_url, description, thumbnail_url, mux_playback_id")
@@ -212,15 +243,22 @@ const ExerciseRow = ({
     staleTime: 1000 * 60 * 30,
   });
 
-  const hasMux = !!exerciseData?.mux_playback_id;
-  const isStorage = !hasMux && exerciseData?.video_url?.startsWith("storage:");
-  const videoId = !hasMux && exerciseData?.video_url && !isStorage ? getYouTubeVideoId(exerciseData.video_url) : null;
-  const muxPoster = hasMux ? `https://image.mux.com/${exerciseData!.mux_playback_id}/thumbnail.jpg?width=320&fit_mode=preserve` : null;
+  // Prefer the playback id already stored on the training_plan_exercises row
+  // (set by the v2 generator). Fall back to the lookup result.
+  const resolvedPlaybackId: string | null =
+    (exercise.mux_playback_id as string | null) || (exerciseData?.mux_playback_id ?? null);
+  const resolvedVideoUrl: string | null =
+    (exercise.video_url as string | null) || (exerciseData?.video_url ?? null);
+
+  const hasMux = !!resolvedPlaybackId;
+  const isStorage = !hasMux && !!resolvedVideoUrl?.startsWith("storage:");
+  const videoId = !hasMux && resolvedVideoUrl && !isStorage ? getYouTubeVideoId(resolvedVideoUrl) : null;
+  const muxPoster = hasMux ? `https://image.mux.com/${resolvedPlaybackId}/thumbnail.jpg?width=320&fit_mode=preserve` : null;
   const thumbnail = exerciseData?.thumbnail_url || muxPoster || (videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null);
   const embedUrl = videoId
     ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&controls=1&iv_load_policy=3&fs=1`
     : null;
-  const hasAnyVideo = hasMux || !!exerciseData?.video_url;
+  const hasAnyVideo = hasMux || !!resolvedVideoUrl;
 
   const repsTargetLabel = formatRepsTarget(exercise.reps);
   const isToFailure = repsTargetLabel.toLowerCase().includes("failure");
