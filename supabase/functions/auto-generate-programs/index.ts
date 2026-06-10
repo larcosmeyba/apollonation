@@ -378,7 +378,8 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
       console.error("[AUTO-GEN] Training error:", err);
       results.errors.push(`Training: ${err instanceof Error ? err.message : "Unknown"}`);
     }
-    }
+    } // end !v2Done
+    } // end !nutritionQuestionnaireId
 
     // ──────── GENERATE NUTRITION PLAN ────────
     try {
