@@ -97,6 +97,44 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     [envKey, videoId, playbackId, title, category, classId, classTitle, viewerId],
   );
 
+  // iOS WKWebView: render a native <video> using Mux's HLS URL. AVPlayer plays
+  // it natively without the mux-player web component's HLS pipeline.
+  if (IS_NATIVE_IOS) {
+    const src = `https://stream.mux.com/${playbackId}.m3u8`;
+    return (
+      <video
+        ref={ref as unknown as React.Ref<HTMLVideoElement>}
+        src={src}
+        poster={poster}
+        autoPlay={autoPlay}
+        muted={muted}
+        loop={loop}
+        playsInline={playsInline}
+        controls={controls}
+        preload="metadata"
+        className={className}
+        style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", backgroundColor: "#000" }}
+        onTimeUpdate={onTimeUpdate}
+        onLoadedMetadata={onLoadedMetadata}
+        onError={(e) => {
+          const v = e.currentTarget;
+          // eslint-disable-next-line no-console
+          console.error("[MuxVideo:native-ios] error", {
+            playbackId,
+            title,
+            code: v.error?.code,
+            message: v.error?.message,
+            networkState: v.networkState,
+            readyState: v.readyState,
+            src,
+          });
+        }}
+      />
+    );
+  }
+
+
+
 
   return (
     <MuxPlayer
