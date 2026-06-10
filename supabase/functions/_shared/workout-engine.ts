@@ -461,18 +461,46 @@ export function generateProgram(
   let anyReview = false;
   const recent = new Set<string>(profile.history ?? []);
 
-  for (let w = 1; w <= 4; w++) {
-    const sessions: Session[] = [];
-    // Sliding window: forget exercises older than 2 days back
-    const weekRecent = new Set<string>(recent);
-    for (let d = 0; d < days.length; d++) {
-      const sess = fillSession(days[d], profile, w, d, library, weekRecent);
-      sessions.push(sess);
-      if (sess.needs_review) anyReview = true;
-      if (sess.gap_reason) allGaps.push(`W${w}D${d + 1}: ${sess.gap_reason}`);
-    }
-    weeks.push(sessions);
+  // T1: Build week 1 first, then clone its exercise selections forward to
+  // weeks 2–4 (re-applying progression only). This guarantees the Primary
+  // and Accessory movements stay identical across the 4-week block so
+  // progression cues like "add load vs last week" reference the SAME lift.
+  // Block boundaries (next 4-week cycle) re-pick exercises.
+  const week1: Session[] = [];
+  const weekRecent = new Set<string>(recent);
+  for (let d = 0; d < days.length; d++) {
+    const sess = fillSession(days[d], profile, 1, d, library, weekRecent);
+    week1.push(sess);
+    if (sess.needs_review) anyReview = true;
+    if (sess.gap_reason) allGaps.push(`W1D${d + 1}: ${sess.gap_reason}`);
   }
+  weeks.push(week1);
+
+  for (let w = 2; w <= 4; w++) {
+    const cloned: Session[] = week1.map((s1) => {
+      const reprog = (slot: FilledSlot): FilledSlot => {
+        // Fresh slot (drop prior week's coaching/load) then re-apply progression.
+        const base: FilledSlot = {
+          ...slot,
+          sets: Math.min(parseSets(String(slot.sets)), TIME_RULES[profile.session_minutes].setsCap),
+          suggested_load: null,
+          coaching_note: slot.gap_reason ? `Substituted via ${slot.gap_reason}.` : null,
+        };
+        return progressionAdjust(base, w);
+      };
+      return {
+        ...s1,
+        week: w,
+        blocks: {
+          warmup: s1.blocks.warmup.map(reprog),
+          main: s1.blocks.main.map(reprog),
+          cooldown: s1.blocks.cooldown.map(reprog),
+        },
+      };
+    });
+    weeks.push(cloned);
+  }
+
 
   return {
     program_slug: slug,
