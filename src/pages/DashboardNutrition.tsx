@@ -137,8 +137,11 @@ const DashboardNutrition = () => {
 
   const selectedDate = format(new Date(), "yyyy-MM-dd");
 
+  const [autoGenerating, setAutoGenerating] = useState(false);
+  const autoGenTriedRef = (globalThis as any).__apolloMealPlanAutoGenRef || ((globalThis as any).__apolloMealPlanAutoGenRef = { current: false });
+
   // ── Queries ──
-  const { data: plans } = useQuery({
+  const { data: plans, isLoading: plansLoading } = useQuery({
     queryKey: ["my-nutrition-plans"],
     queryFn: async () => {
       const { data, error } = await supabase.from("nutrition_plans").select("*").eq("user_id", user?.id).order("created_at", { ascending: false });
@@ -148,6 +151,7 @@ const DashboardNutrition = () => {
     enabled: !!user,
     staleTime: 0,
     refetchOnMount: "always",
+
   });
 
   // Premium nutrition onboarding completion gate
@@ -257,6 +261,32 @@ const DashboardNutrition = () => {
     },
     enabled: !!activePlan,
   });
+
+  // Auto-trigger meal-plan generation when the user has completed the
+  // nutrition questionnaire but no plan exists yet. Prevents the "Plan Being
+  // Prepared" page from sitting forever waiting on a manual kick.
+  useEffect(() => {
+    if (!user) return;
+    if (plansLoading) return;
+    if (activePlan) return;
+    if (!hasNutritionQuestionnaire) return;
+    if (autoGenTriedRef.current || autoGenerating) return;
+    autoGenTriedRef.current = true;
+    setAutoGenerating(true);
+    (async () => {
+      try {
+        const { error } = await supabase.functions.invoke("generate-meal-plan", { body: {} });
+        if (error) throw error;
+        await queryClient.invalidateQueries({ queryKey: ["my-nutrition-plans"] });
+      } catch (err: any) {
+        console.error("[DashboardNutrition] auto-generate failed:", err?.message ?? err);
+        autoGenTriedRef.current = false; // allow retry on next mount
+      } finally {
+        setAutoGenerating(false);
+      }
+    })();
+  }, [user, plansLoading, activePlan, hasNutritionQuestionnaire]);
+
 
   const { data: macroEntries = [] } = useQuery({
     queryKey: ["macro-logs", user?.id, selectedDate],
@@ -1202,10 +1232,17 @@ const DashboardNutrition = () => {
                   <div className="w-16 h-16 rounded-full bg-foreground/10 border border-foreground/20 flex items-center justify-center mx-auto mb-4">
                     <Utensils className="w-7 h-7 text-foreground" />
                   </div>
-                  <h3 className="font-heading text-lg text-foreground mb-2">Plan Being Prepared</h3>
-                  <p className="text-muted-foreground text-sm mb-1">Your nutrition plan is being set up. Check back soon!</p>
+                  <h3 className="font-heading text-lg text-foreground mb-2">
+                    {autoGenerating ? "Building Your Meal Plan…" : "Plan Being Prepared"}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-1">
+                    {autoGenerating
+                      ? "Generating meals that hit your calories and macros. This takes ~20–40 seconds."
+                      : "Your nutrition plan is being set up. Check back soon!"}
+                  </p>
                   <p className="text-[10px] text-muted-foreground">Once ready, meals refresh automatically every Monday.</p>
                 </>
+
               )}
             </div>
           ) : (
