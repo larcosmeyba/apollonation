@@ -307,7 +307,7 @@ const DashboardRecipes = () => {
                               {totalTime} min
                             </span>
                           )}
-                          {recipe.servings && (
+                          {recipe.servings != null && recipe.servings > 0 && (
                             <span className="flex items-center gap-1">
                               <Users className="w-3 h-3" />
                               {recipe.servings}
