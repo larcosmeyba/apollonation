@@ -1,12 +1,10 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Search, Bookmark } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Search, Bookmark } from "lucide-react";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
 import HeaderAvatar from "@/components/dashboard/HeaderAvatar";
 
 const DashboardMobileNav = () => {
-  const [open, setOpen] = useState(false);
+
 
   return (
     <header className="sticky top-0 z-40 bg-background/70 backdrop-blur-2xl border-b border-white/[0.06] px-5 py-3.5" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.875rem)" }}>
