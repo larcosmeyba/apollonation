@@ -49,6 +49,8 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const PlanReady = lazy(() => import("./pages/PlanReady"));
 const DashboardTransformation = lazy(() => import("./pages/DashboardTransformation"));
 const DashboardRecovery = lazy(() => import("./pages/DashboardRecovery"));
+const RecoveryProgram = lazy(() => import("./pages/RecoveryProgram"));
+const RecoveryDay = lazy(() => import("./pages/RecoveryDay"));
 const DashboardChallenges = lazy(() => import("./pages/DashboardChallenges"));
 const DashboardMessages = lazy(() => import("./pages/DashboardMessages"));
 const DashboardMyWorkouts = lazy(() => import("./pages/DashboardMyWorkouts"));
