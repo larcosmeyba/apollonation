@@ -857,7 +857,11 @@ export type Database = {
           created_at: string
           cycle_number: number
           duration_weeks: number
+          gap_reason: string | null
+          generator_version: string
           id: string
+          needs_review: boolean
+          program_slug: string | null
           questionnaire_id: string | null
           status: string
           title: string
@@ -869,7 +873,11 @@ export type Database = {
           created_at?: string
           cycle_number?: number
           duration_weeks?: number
+          gap_reason?: string | null
+          generator_version?: string
           id?: string
+          needs_review?: boolean
+          program_slug?: string | null
           questionnaire_id?: string | null
           status?: string
           title: string
@@ -881,7 +889,11 @@ export type Database = {
           created_at?: string
           cycle_number?: number
           duration_weeks?: number
+          gap_reason?: string | null
+          generator_version?: string
           id?: string
+          needs_review?: boolean
+          program_slug?: string | null
           questionnaire_id?: string | null
           status?: string
           title?: string
@@ -3628,40 +3640,52 @@ export type Database = {
       }
       training_plan_exercises: {
         Row: {
+          block: string | null
           created_at: string
           day_id: string
+          exercise_id: string | null
           exercise_name: string
           id: string
           muscle_group: string | null
+          mux_playback_id: string | null
           notes: string | null
           reps: string | null
           rest_seconds: number | null
           sets: number | null
           sort_order: number
+          video_url: string | null
         }
         Insert: {
+          block?: string | null
           created_at?: string
           day_id: string
+          exercise_id?: string | null
           exercise_name: string
           id?: string
           muscle_group?: string | null
+          mux_playback_id?: string | null
           notes?: string | null
           reps?: string | null
           rest_seconds?: number | null
           sets?: number | null
           sort_order?: number
+          video_url?: string | null
         }
         Update: {
+          block?: string | null
           created_at?: string
           day_id?: string
+          exercise_id?: string | null
           exercise_name?: string
           id?: string
           muscle_group?: string | null
+          mux_playback_id?: string | null
           notes?: string | null
           reps?: string | null
           rest_seconds?: number | null
           sets?: number | null
           sort_order?: number
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -3669,6 +3693,13 @@ export type Database = {
             columns: ["day_id"]
             isOneToOne: false
             referencedRelation: "training_plan_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_plan_exercises_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "admin_exercises"
             referencedColumns: ["id"]
           },
         ]
