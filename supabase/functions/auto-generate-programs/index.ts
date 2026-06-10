@@ -86,15 +86,15 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    // ──────── FETCH EXERCISE LIBRARY ────────
-    // Only use exercises the coach has uploaded (prioritize those with video URLs)
+    // ──────── FETCH EXERCISE LIBRARY (MUX-ONLY) ────────
     let exerciseLibrary: any[] = [];
     let exerciseList = "";
     if (!nutritionQuestionnaireId) {
       const { data, error: exErr } = await supabaseAdmin
-        .from("exercises")
-        .select("title, muscle_group, equipment, difficulty")
-        .order("title");
+        .from("admin_exercises")
+        .select("name, body_part, equipment, difficulty, mux_playback_id")
+        .not("mux_playback_id", "is", null)
+        .order("name");
 
       if (exErr) {
         console.error("[AUTO-GEN] Failed to fetch exercises:", exErr);
@@ -103,10 +103,10 @@ serve(async (req) => {
 
       exerciseLibrary = data || [];
       exerciseList = exerciseLibrary
-        .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
+        .map((e: any) => `- ${e.name} [${e.body_part}] (${Array.isArray(e.equipment) ? e.equipment.join("/") : (e.equipment || "bodyweight")})`)
         .join("\n");
 
-      console.log(`[AUTO-GEN] Exercise library loaded: ${exerciseLibrary.length} exercises`);
+      console.log(`[AUTO-GEN] Exercise library loaded (mux-only): ${exerciseLibrary.length} exercises`);
     }
 
     const results: any = { training: null, nutrition: null, errors: [] };

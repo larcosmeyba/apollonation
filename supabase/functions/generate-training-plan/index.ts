@@ -142,11 +142,12 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // ──────── FETCH EXERCISE LIBRARY ────────
+    // ──────── FETCH EXERCISE LIBRARY (MUX-ONLY) ────────
     const { data: exerciseLibrary, error: exErr } = await supabaseAdmin
-      .from("exercises")
-      .select("title, muscle_group, equipment, difficulty")
-      .order("title");
+      .from("admin_exercises")
+      .select("name, body_part, equipment, difficulty, mux_playback_id")
+      .not("mux_playback_id", "is", null)
+      .order("name");
 
     if (exErr) {
       console.error("Failed to fetch exercises:", exErr);
@@ -154,7 +155,7 @@ serve(async (req) => {
     }
 
     const exerciseList = (exerciseLibrary || [])
-      .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
+      .map((e: any) => `- ${e.name} [${e.body_part}] (${Array.isArray(e.equipment) ? e.equipment.join("/") : (e.equipment || "bodyweight")})`)
       .join("\n");
 
     console.log(`Exercise library loaded: ${exerciseLibrary?.length || 0} exercises`);

@@ -116,21 +116,33 @@ serve(async (req) => {
     // Equipment normalization
     const eqLower = equipment.map((e) => e.toLowerCase());
 
-    let query = supabaseAdmin.from("exercises").select("id,title,muscle_group,equipment,description").limit(80);
+    // MUX-ONLY: pull from admin_exercises with a playback id; map to legacy shape.
+    let query = supabaseAdmin
+      .from("admin_exercises")
+      .select("id,name,body_part,equipment,coaching_notes,mux_playback_id")
+      .not("mux_playback_id", "is", null)
+      .limit(80);
     const muscleFilter = goalToMuscles[goal];
     if (muscleFilter && muscleFilter.length > 0) {
-      const ors = muscleFilter.map((m) => `muscle_group.ilike.%${m}%`).join(",");
+      const ors = muscleFilter.map((m) => `body_part.ilike.%${m}%`).join(",");
       query = query.or(ors);
     }
 
-    const { data: exercisesAll, error: exErr } = await query;
+    const { data: exercisesRaw, error: exErr } = await query;
     if (exErr) {
       console.error("[generate-daily-workout] exercises fetch failed:", exErr.message);
       throw new Error("Failed to load exercise library");
     }
+    const exercisesAll = (exercisesRaw ?? []).map((r: any) => ({
+      id: r.id,
+      title: r.name,
+      muscle_group: r.body_part,
+      equipment: Array.isArray(r.equipment) ? r.equipment.join(", ") : (r.equipment ?? ""),
+      description: r.coaching_notes ?? "",
+    }));
 
     // Filter by equipment in JS (equipment column free-form)
-    const exercises = (exercisesAll ?? []).filter((ex: any) => {
+    const exercises = exercisesAll.filter((ex: any) => {
       if (!ex.equipment) return eqLower.includes("bodyweight");
       const e = String(ex.equipment).toLowerCase();
       if (eqLower.includes("full gym")) return true;
