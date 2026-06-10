@@ -1,82 +1,45 @@
-# Fuel/Nutrition Questionnaire — Unified Profile Refactor
 
-## Current state (what we found)
+# Fix plan — nutrition v2 + workout blueprint rotation + suggested_load
 
-There are **three** overlapping intake tables today:
+## Step 0 — Restore live nutrition path immediately
+- Flip `NUTRITION_GENERATOR_V2` → `false` (requires you to confirm the secret update in the form I'll open). All live users return to the working legacy Gemini path while v2 is being fixed.
 
-- `client_questionnaires` — Apollo onboarding (sex, age, height, weight, activity, training, goal, dietary restrictions, food budget, disliked foods, injuries, equipment).
-- `client_nutrition_questionnaires` — Fuel intake (weight, height, age, gender, activity, goal, meals/day, dietary prefs, allergies, budget, **calorie/protein/carb/fat targets**).
-- `coach_intake_responses` — Coach-only (biggest goal, why coaching, struggles, commitment).
+## Step 1 — Fix v2 meal plan persistence (#3 + #4)
+**Edge function `generate-meal-plan`:**
+- Replace `supabaseClient.auth.getClaims(token)` (deprecated, source of the 500) with `supabaseAdmin.auth.getUser(token)` — same pattern already used by `auto-generate-programs`. `adminId = userData.user.id`.
 
-They re-ask weight/height/age/gender/goal/activity in two places, and `client_nutrition_questionnaires.user_id` is `UNIQUE` so a single missing field forces the full Fuel form again. Many downstream edge functions (`generate-meal-plan`, `generate-training-plan`, `auto-generate-programs`, `weekly-meal-plan-refresh`, `client-regenerate-meal-plan`, `suggest-meal-swap`, `coach-ai-command`, `apply-budget-to-grocery-list`) read from these tables directly.
+**Schema migration (`nutrition_plan_meals` + log):**
+- `ALTER TABLE public.nutrition_plan_meals ADD COLUMN meal_id text` (nullable text — `meal_library.meal_code` is a code, not a uuid; nullable so legacy AI rows remain valid). Index on `(plan_id, meal_id)`.
+- Confirm `meal_plan_generation_log` has the columns we need (`user_id`, `plan_id`, `generator_version`, `needs_review`, `gap_reason`, `meal_count`, `created_at`). Add any missing.
+- Ensure GRANTs on both for `authenticated` + `service_role`.
 
-## Strategy: one master profile, no big-bang rewrites
+**Edge function wiring:**
+- In the v2 branch of `generate-meal-plan` and `weekly-meal-plan-refresh`, stop stripping `meal_id` — write `meal.meal_id` (the `meal_code` from the engine) into the inserted row.
+- After a successful insert, INSERT one row into `meal_plan_generation_log` with `{ user_id, plan_id, generator_version: 'v2', needs_review, gap_reason, meal_count: allMeals.length }`.
 
-Build a single **`user_fitness_profile`** as the master record. Keep the existing tables (do not drop) so legacy generators keep working, and **mirror writes** from the master profile into them via a database trigger. New code reads only from `user_fitness_profile`; old code keeps working unchanged.
+**Verify (real client path):**
+- Test user signs in; mint a short-lived JWT via service role; POST to `generate-meal-plan` over HTTPS with v2 forced via `x-nutrition-generator: v2` header.
+- Show the inserted `nutrition_plans` row, a sample of `nutrition_plan_meals` with non-null `meal_id`s that resolve in `meal_library`, and the `meal_plan_generation_log` row.
+- Only after this passes: flip `NUTRITION_GENERATOR_V2` back to `true`.
 
-This avoids rewriting 8+ edge functions in this pass.
+## Step 2 — Fix program slug + blueprint rotation (#2)
+In `supabase/functions/_shared/workout-engine.ts`:
+- `assignProgramSlug(profile)`: `Gym + Muscle Gain` → `gym_muscle_build` (currently mapping to `gym_upper_body`). Add explicit mapping table covering all goal × location combos used in W1–W15.
+- `dayPlan(programSlug, dayIndex, daysPerWeek)`: instead of picking the first blueprint that matches the slug, build the week's split from the slug's full blueprint pool. For a 4-day `gym_muscle_build`, rotate `Upper / Lower / Push+Pull / Legs` (or `Upper / Lower / Upper / Lower`) so each session is unique and no two heavy-leg days sit back-to-back. Audit `session_blueprints` rows and seed any missing day_types for the slugs the matrix exercises.
 
----
+Re-run W1–W15 against `auto-generate-programs` for a fresh test user; produce PASS/FAIL table + one full 4-week trace (slot → exercise_id → mux_playback_id → .m3u8) confirming W9 (leg-day spacing) is a true PASS.
 
-## 1. New table
+## Step 3 — Persist `suggested_load` (#1)
+- Migration: `ALTER TABLE public.training_plan_exercises ADD COLUMN suggested_load text` (nullable; engine emits strings like `"+5lb"` or `"-40% deload"`).
+- `sessionToRows` in `_shared/v2-workout-runner.ts`: add `suggested_load: slot.suggested_load ?? null` to the mapped row.
+- Re-run the same W1–W15 trace; show W6 progression deltas (W1→W2→W3 increase, W4 −40% deload) reading directly from the persisted column.
 
-`public.user_fitness_profile` (one row per user, `user_id UNIQUE`):
+## What you need to do
+1. Approve this plan.
+2. When the secret form appears at Step 0, set `NUTRITION_GENERATOR_V2=false`.
+3. After I verify Step 1 end-to-end, I'll prompt you to set it back to `true`.
 
-Core identity: `height_inches`, `weight_lbs`, `age`, `sex`, `goal_weight_lbs`
-Goals & activity: `primary_goal`, `activity_level`, `training_experience`, `training_days_per_week`, `preferred_training_days[]`, `workout_duration_minutes`, `equipment_available[]`, `workout_environment`
-Nutrition: `dietary_preferences[]`, `allergies[]`, `disliked_foods[]`, `meals_per_day`, `nutrition_goal`, `calorie_target`, `protein_target_g`, `carb_target_g`, `fat_target_g`, `weekly_food_budget`, `grocery_store`
-Coach: `injuries`, `coach_notes`, `progress_photo_urls[]`
-Flags: `onboarding_completed`, `nutrition_completed`, `coaching_intake_completed`
-Audit: `created_at`, `updated_at`
-
-RLS: owner-only manage + admin SELECT. GRANTs to `authenticated` + `service_role`. `updated_at` trigger.
-
-## 2. Data backfill (one migration)
-
-Upsert into `user_fitness_profile` from `client_questionnaires` (most recent active) + `client_nutrition_questionnaires` so existing users skip re-asking. Mark `onboarding_completed=true` where a client_questionnaire exists, `nutrition_completed=true` where macros are present, `coaching_intake_completed=true` where a `coach_intake_responses.completed_at` exists.
-
-## 3. Sync triggers (compatibility layer)
-
-`AFTER INSERT/UPDATE ON user_fitness_profile` → `UPSERT` matching columns into `client_questionnaires` and `client_nutrition_questionnaires`. Mirror only the shared fields; never overwrite fields the legacy table owns exclusively (e.g. `cycle_start_date`). Keeps every existing edge function working without code changes.
-
-## 4. New hook + helpers
-
-- `src/hooks/useFitnessProfile.ts` — single source of truth React hook: `{ profile, loading, save, completion }`. Used by all questionnaires.
-- `getMissingNutritionFields(profile)` / `getMissingCoachFields(profile)` helpers in `src/lib/fitnessProfile.ts` — drives "only ask missing questions" logic.
-
-## 5. Questionnaire flow changes (frontend)
-
-- **First-time onboarding** (`src/pages/Questionnaire.tsx`) — saves into `user_fitness_profile` (then mirror trigger fills legacy tables). Sets `onboarding_completed=true`. Skip entire page if flag already true (redirect to dashboard).
-- **Fuel intake** (`src/pages/DashboardNutritionSetup.tsx`) — preload from `useFitnessProfile`. Build the question list dynamically from `getMissingNutritionFields()`. If nothing missing, redirect straight to `/dashboard/nutrition` and set `nutrition_completed=true`. If only meals/day + allergies + disliked foods are missing, ask only those — never re-ask weight/height/age/gender/goal/activity.
-- **Coach intake** (`src/components/dashboard/CoachIntakeQuestionnaire.tsx`) — preload profile. Hide identity/goal/activity questions when present. Ask only: injuries, equipment, training days, preferred time, biggest struggle, optional progress photos, optional coach notes. Sets `coaching_intake_completed=true`.
-- **Recalc on edit** — when `weight_lbs` / `primary_goal` / `activity_level` change, call existing `useMacroTargets` to recompute calorie/macro targets and write them back.
-
-## 6. Question-firing audit
-
-Sweep the three questionnaire components for the issues you described:
-
-- Confirm every step has a stable unique `id` and writes to the correct column.
-- Disable Next when required answers are empty (already partly done — verify each step).
-- Surface save errors via `toast` instead of silent catches (current code swallows some errors).
-- Persist in-progress answers to `localStorage` keyed by user so a refresh restores them.
-- Conditional questions: ensure follow-ups only render when their parent has the matching value (e.g. `allergies_other` only when `allergies` includes `'other'`).
-
----
-
-## Out of scope (this pass)
-
-- Rewriting edge functions to read from `user_fitness_profile` (the sync trigger keeps them green; we can migrate them in a follow-up).
-- Dropping `client_questionnaires` / `client_nutrition_questionnaires` (kept for legacy reads + admin views).
-- Coach profile UI redesign.
-
----
-
-## Risks & mitigations
-
-- **Trigger loop**: trigger only fires on `user_fitness_profile`; legacy writes stay one-way (legacy → master only via the backfill migration, not on every write).
-- **Backfill conflicts**: use `ON CONFLICT (user_id) DO UPDATE` and only set columns that are non-null in the source.
-- **Existing in-flight forms**: keep submit paths writing to legacy tables as a fallback for one release cycle so nothing breaks if a client has the old JS cached.
-
----
-
-Reply "go" and I'll ship the migration first (you'll get a separate SQL approval), then the hook + the three questionnaire updates.
+## Deliverables (in this order)
+- (after Step 1) Nutrition plan trace: plan row + meals with `meal_id` FKs + `meal_plan_generation_log` row.
+- (after Step 2) W1–W15 PASS/FAIL table + traced 4-week program with rotation + leg-day spacing.
+- (after Step 3) W6 row flips to PASS with `suggested_load` values read back from the DB.
