@@ -326,17 +326,18 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
       throw new Error("Failed to create nutrition plan");
     }
 
-    // Snap every day's 4 meals so calories/protein/carbs/fat sum EXACTLY to
-    // the dashboard targets (no day is over or under).
+    // P4 FIX: snap to exact targets ONLY on the legacy AI path. For v2,
+    // the engine already scales servings — snapping would overwrite per-meal
+    // macros with target-derived numbers, hiding what the user actually eats.
     const allMeals: any[] = [];
     for (const day of mealPlanData.days) {
-      const snapped = snapDayToTargets(day.meals, {
+      const dayMeals = useV2 ? day.meals : snapDayToTargets(day.meals, {
         calorie_target: dailyCalories,
         protein_grams: proteinGrams,
         carb_grams: carbsGrams,
         fat_grams: fatGrams,
       });
-      for (const meal of snapped) {
+      for (const meal of dayMeals) {
         allMeals.push({
           plan_id: plan.id,
           day_number: day.day_number,
