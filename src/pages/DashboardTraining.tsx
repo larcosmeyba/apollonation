@@ -501,50 +501,39 @@ const DashboardTraining = () => {
           </div>
         )}
 
-        {/* 5) RECOVERY & MOBILITY */}
+        {/* 5) 7-DAY RECOVERY RESET */}
         <div>
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold">
               Recovery & Mobility
             </p>
-            <Link to="/dashboard/workouts?category=stretch" className="text-[11px] text-foreground/60 hover:text-primary uppercase tracking-wider font-semibold">
-              View All
+            <Link to="/dashboard/recovery-program" className="text-[11px] text-foreground/60 hover:text-primary uppercase tracking-wider font-semibold">
+              Open Program
             </Link>
           </div>
-          <div className="rounded-2xl border border-border/25 overflow-hidden">
+          <Link to="/dashboard/recovery-program" className="block rounded-2xl border border-border/25 overflow-hidden hover:border-primary/40 transition-colors">
             <div className="relative h-32 overflow-hidden">
               <img src={stockBack} alt="Recovery" className="w-full h-full object-cover opacity-60" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
               <div className="absolute bottom-3 left-4 right-4">
-                <h3 className="font-heading text-xl text-foreground leading-tight">Recovery & Mobility</h3>
+                <h3 className="font-heading text-xl text-foreground leading-tight">7-Day Recovery Reset</h3>
                 <p className="text-[11px] text-foreground/60 mt-0.5">
-                  Stretch, mobilize, foam roll — keep the body ready.
+                  Off-day flow — foam roll, mobilize, stretch, breathe. Built from in-house video.
                 </p>
               </div>
             </div>
-            <div className="p-3 space-y-2">
-              {[
-                { name: "Foam Roll Flow", time: "10 Minutes", desc: "Roll quads, glutes, lats, upper back. 30 sec each side." },
-                { name: "Mobility Reset", time: "15 Minutes", desc: "Hip openers, thoracic rotations, scap CARs." },
-                { name: "Lower Body Recovery", time: "20 Minutes", desc: "Deep stretches for hamstrings, hips, calves." },
-                { name: "Box Breathing", time: "5 Minutes", desc: "4 in · 4 hold · 4 out · 4 hold. Reset your nervous system." },
-              ].map((act) => (
-                <div key={act.name} className="rounded-xl border border-border/20 p-3 flex items-center gap-3 hover:border-primary/30 transition-colors">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Waves className="w-4 h-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground/90">{act.name}</p>
-                    <p className="text-[11px] text-foreground/50 mt-0.5 line-clamp-1">{act.desc}</p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-[10px] text-primary uppercase tracking-wider font-bold">{act.time}</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-foreground/30 flex-shrink-0" />
+            <div className="p-3 grid grid-cols-7 gap-1.5">
+              {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+                <div
+                  key={n}
+                  className="aspect-square rounded-lg border border-border/20 flex flex-col items-center justify-center"
+                >
+                  <p className="text-[8px] uppercase tracking-wider text-foreground/40">Day</p>
+                  <p className="font-heading text-sm text-foreground">{n}</p>
                 </div>
               ))}
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Upcoming Workouts list removed — users see the week schedule on the calendar above. */}
