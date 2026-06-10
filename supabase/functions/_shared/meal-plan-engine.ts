@@ -162,7 +162,13 @@ function pickForSlot(
     if (pb !== pa) return pb - pa;
     return Math.abs(a.calories - targetCal) - Math.abs(b.calories - targetCal);
   });
-  return pool[0];
+  // T3: Rotate among the top-N protein-dense matches instead of always [0].
+  // The recent-code filter above already enforces the anti-repeat window;
+  // randomising within top-N adds variety so a 28-day plan uses more of the
+  // library (target ≥20 distinct meals).
+  const TOP_N = 5;
+  const topN = pool.slice(0, Math.min(TOP_N, pool.length));
+  return topN[Math.floor(Math.random() * topN.length)];
 }
 
 function sumDay(meals: GeneratedMeal[]) {

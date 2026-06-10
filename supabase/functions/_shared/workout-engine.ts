@@ -272,10 +272,29 @@ function substitute(slot: Slot, profile: WorkoutProfile, library: Exercise[]): {
   return { pool, reason: "S7 last-resort same-block" };
 }
 
-function pickPreferred(pool: Exercise[], profile: WorkoutProfile, recent: Set<string>): Exercise {
+// T2: compound-loaded movements for Primary slots.
+const COMPOUND_EQUIPMENT = ["barbell", "dumbbell", "machine", "cable", "smith", "kettlebell"];
+const COMPOUND_PATTERNS = ["squat", "hinge", "press", "row", "pull", "deadlift", "lunge"];
+const ISOLATION_PATTERN_HINTS = ["fly", "curl", "raise", "extension", "kickback", "pulldown abs"];
+const isCompound = (e: Exercise): boolean => {
+  const eq = exerciseEquipment(e);
+  const mp = norm(e.movement_pattern);
+  const nm = e.name.toLowerCase();
+  const hasLoadedEq = eq.some((q) => COMPOUND_EQUIPMENT.includes(q));
+  const matchesPattern = COMPOUND_PATTERNS.some((p) => mp.includes(p));
+  const looksIsolation = ISOLATION_PATTERN_HINTS.some((p) => nm.includes(p));
+  return hasLoadedEq && matchesPattern && !looksIsolation;
+};
+
+function pickPreferred(pool: Exercise[], profile: WorkoutProfile, recent: Set<string>, slot?: Slot): Exercise {
   // R1: drop recent if possible.
   let candidates = pool.filter((e) => !recent.has(e.id));
   if (!candidates.length) candidates = pool;
+  // T2: For Primary roles in Gym/At-Home, bias toward loaded compounds.
+  if (slot && norm(slot.block) === "primary" && profile.location !== "Recovery") {
+    const compounds = candidates.filter(isCompound);
+    if (compounds.length) candidates = compounds;
+  }
   // R9: weight body_focus.
   const focus = profile.body_focus.map((b) => b.toLowerCase());
   if (focus.length) {
@@ -349,7 +368,7 @@ function fillSession(
       continue;
     }
 
-    const ex = pickPreferred(pool, profile, recent);
+    const ex = pickPreferred(pool, profile, recent, slot);
     recent.add(ex.id);
 
     let f: FilledSlot = {
@@ -442,18 +461,46 @@ export function generateProgram(
   let anyReview = false;
   const recent = new Set<string>(profile.history ?? []);
 
-  for (let w = 1; w <= 4; w++) {
-    const sessions: Session[] = [];
-    // Sliding window: forget exercises older than 2 days back
-    const weekRecent = new Set<string>(recent);
-    for (let d = 0; d < days.length; d++) {
-      const sess = fillSession(days[d], profile, w, d, library, weekRecent);
-      sessions.push(sess);
-      if (sess.needs_review) anyReview = true;
-      if (sess.gap_reason) allGaps.push(`W${w}D${d + 1}: ${sess.gap_reason}`);
-    }
-    weeks.push(sessions);
+  // T1: Build week 1 first, then clone its exercise selections forward to
+  // weeks 2–4 (re-applying progression only). This guarantees the Primary
+  // and Accessory movements stay identical across the 4-week block so
+  // progression cues like "add load vs last week" reference the SAME lift.
+  // Block boundaries (next 4-week cycle) re-pick exercises.
+  const week1: Session[] = [];
+  const weekRecent = new Set<string>(recent);
+  for (let d = 0; d < days.length; d++) {
+    const sess = fillSession(days[d], profile, 1, d, library, weekRecent);
+    week1.push(sess);
+    if (sess.needs_review) anyReview = true;
+    if (sess.gap_reason) allGaps.push(`W1D${d + 1}: ${sess.gap_reason}`);
   }
+  weeks.push(week1);
+
+  for (let w = 2; w <= 4; w++) {
+    const cloned: Session[] = week1.map((s1) => {
+      const reprog = (slot: FilledSlot): FilledSlot => {
+        // Fresh slot (drop prior week's coaching/load) then re-apply progression.
+        const base: FilledSlot = {
+          ...slot,
+          sets: Math.min(parseSets(String(slot.sets)), TIME_RULES[profile.session_minutes].setsCap),
+          suggested_load: null,
+          coaching_note: slot.gap_reason ? `Substituted via ${slot.gap_reason}.` : null,
+        };
+        return progressionAdjust(base, w);
+      };
+      return {
+        ...s1,
+        week: w,
+        blocks: {
+          warmup: s1.blocks.warmup.map(reprog),
+          main: s1.blocks.main.map(reprog),
+          cooldown: s1.blocks.cooldown.map(reprog),
+        },
+      };
+    });
+    weeks.push(cloned);
+  }
+
 
   return {
     program_slug: slug,
