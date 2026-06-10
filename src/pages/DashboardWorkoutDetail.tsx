@@ -206,7 +206,7 @@ const ExerciseRow = ({
       if (exercise.exercise_id) {
         const { data } = await supabase
           .from("admin_exercises")
-          .select("name, video_url, coaching_notes, thumbnail_url, mux_playback_id")
+          .select("name, coaching_notes, thumbnail_url, mux_playback_id")
           .eq("id", exercise.exercise_id)
           .maybeSingle();
         if (data) {
@@ -221,7 +221,7 @@ const ExerciseRow = ({
       }
       const { data: adminByName } = await supabase
         .from("admin_exercises")
-        .select("name, video_url, coaching_notes, thumbnail_url, mux_playback_id")
+        .select("name, coaching_notes, thumbnail_url, mux_playback_id")
         .ilike("name", exercise.exercise_name)
         .maybeSingle();
       if (adminByName) {
