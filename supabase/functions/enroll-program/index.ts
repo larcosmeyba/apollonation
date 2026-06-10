@@ -132,14 +132,15 @@ serve(async (req) => {
       }
     }
 
-    // Fetch exercise library
+    // Fetch exercise library (MUX-ONLY)
     const { data: exerciseLibrary } = await supabaseAdmin
-      .from("exercises")
-      .select("title, muscle_group, equipment, difficulty")
-      .order("title");
+      .from("admin_exercises")
+      .select("name, body_part, equipment, difficulty, mux_playback_id")
+      .not("mux_playback_id", "is", null)
+      .order("name");
 
     const exerciseList = (exerciseLibrary || [])
-      .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
+      .map((e: any) => `- ${e.name} [${e.body_part}] (${Array.isArray(e.equipment) ? e.equipment.join("/") : (e.equipment || "bodyweight")})`)
       .join("\n");
 
     console.log(`[ENROLL] Generating ${programName} (${weeks} weeks) for user ${userId}`);
