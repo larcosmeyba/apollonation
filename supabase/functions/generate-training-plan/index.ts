@@ -71,6 +71,72 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
+    // ──────── PHASE 3: V2 STRUCTURED ENGINE (behind flag) ────────
+    const useV2 = isV2Enabled() || isV2ForcedForTest(req);
+    if (useV2) {
+      try {
+        const [library, blueprints] = await Promise.all([
+          fetchExerciseLibrary(supabaseAdmin),
+          fetchBlueprints(supabaseAdmin),
+        ]);
+        const profile = buildWorkoutProfileFromQuestionnaire(questionnaire);
+        const result = runV2Workout(profile, blueprints, library);
+
+        const { data: plan, error: planError } = await supabaseAdmin
+          .from("client_training_plans")
+          .insert({
+            user_id: clientUserId,
+            questionnaire_id: questionnaire.id,
+            title: `${questionnaire.goal_next_4_weeks || "Training"} Program - Cycle ${questionnaire.cycle_number || 1}`,
+            cycle_number: questionnaire.cycle_number || 1,
+            workout_days_per_week: profile.days_per_week,
+            duration_weeks: 4,
+            status: "active",
+            program_slug: result.program_slug,
+            generator_version: "v2",
+            needs_review: result.needs_review,
+            gap_reason: result.gap_reason,
+          })
+          .select()
+          .single();
+        if (planError) throw new Error(`v2 plan insert failed: ${planError.message}`);
+
+        for (let w = 0; w < result.weeks.length; w++) {
+          const sessions = result.weeks[w];
+          for (let d = 0; d < sessions.length; d++) {
+            const sess = sessions[d];
+            const { data: dayRow, error: dayErr } = await supabaseAdmin
+              .from("training_plan_days")
+              .insert({
+                plan_id: plan.id,
+                day_number: w * 7 + d + 1,
+                day_label: `Week ${w + 1} - ${sess.day_focus}`,
+                focus: sess.day_focus,
+              })
+              .select()
+              .single();
+            if (dayErr) { console.error("v2 day insert", dayErr); continue; }
+
+            const rows = sessionToRows(sess).map((r) => ({ ...r, day_id: dayRow.id }));
+            if (rows.length) await supabaseAdmin.from("training_plan_exercises").insert(rows);
+          }
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          plan,
+          generator: "v2",
+          program_slug: result.program_slug,
+          needs_review: result.needs_review,
+          gap_reason: result.gap_reason,
+          daysCount: result.weeks.reduce((n, w) => n + w.length, 0),
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      } catch (v2err) {
+        console.error("v2 engine failed, falling back to legacy AI:", v2err);
+        // fall through to legacy path
+      }
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
