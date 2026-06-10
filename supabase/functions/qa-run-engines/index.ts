@@ -255,8 +255,11 @@ serve(async (req) => {
 
       const allMeals: any[] = [];
       for (const day of v2n.days) {
-        const snapped = snapDayToTargets(day.meals as any, targets);
-        for (const meal of snapped) {
+        // P4 FIX: do NOT call snapDayToTargets here — v2 already scales
+        // serving sizes via the engine. snap would overwrite per-meal macros
+        // with target-derived numbers; we want displayed macros to be the
+        // real sum of the meals chosen for the day.
+        for (const meal of day.meals) {
           allMeals.push({
             plan_id: np.id, day_number: day.day_number,
             meal_type: meal.meal_type, meal_name: meal.meal_name,
