@@ -39,9 +39,10 @@ const toEx = (r: any): Exercise => ({
 export async function fetchExerciseLibrary(supabaseAdmin: any): Promise<Exercise[]> {
   const { data, error } = await supabaseAdmin
     .from("admin_exercises")
-    .select("id,name,body_part,movement_pattern,location_type,difficulty,equipment,is_warmup,is_cooldown,is_recovery,mux_playback_id,suggested_reps,suggested_time");
+    .select("id,name,body_part,movement_pattern,location_type,difficulty,equipment,is_warmup,is_cooldown,is_recovery,mux_playback_id,suggested_reps,suggested_time")
+    .not("mux_playback_id", "is", null); // MUX-ONLY HARD GATE: never select exercises without an in-house video.
   if (error) throw new Error(`admin_exercises fetch failed: ${error.message}`);
-  return (data ?? []).map(toEx);
+  return (data ?? []).map(toEx).filter((e) => !!e.mux_playback_id);
 }
 
 export async function fetchBlueprints(supabaseAdmin: any): Promise<Blueprint[]> {
