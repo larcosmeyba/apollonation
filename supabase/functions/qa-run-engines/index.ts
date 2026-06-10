@@ -148,13 +148,19 @@ serve(async (req) => {
   try {
     // 1) Provision users
     for (const u of USERS) {
-      // Find existing user by paginating auth.admin.listUsers
+      // Find existing user via REST filter API (paginated listUsers misses them)
       let userId: string | undefined;
-      for (let page = 1; page <= 20 && !userId; page++) {
-        const { data: pageData } = await admin.auth.admin.listUsers({ page, perPage: 200 });
-        userId = pageData?.users.find((x: any) => x.email === u.email)?.id;
-        if (!pageData?.users || pageData.users.length < 200) break;
-      }
+      try {
+        const r = await fetch(
+          `${Deno.env.get("SUPABASE_URL")}/auth/v1/admin/users?filter=${encodeURIComponent(u.email)}`,
+          { headers: {
+            apikey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+            Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""}`,
+          }},
+        );
+        const j = await r.json();
+        userId = j?.users?.find((x: any) => x.email === u.email)?.id;
+      } catch { /* noop */ }
       if (!userId) {
         const { data: created, error: cErr } = await admin.auth.admin.createUser({
           email: u.email, password: u.password, email_confirm: true,
