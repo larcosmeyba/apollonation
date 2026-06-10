@@ -77,44 +77,71 @@ serve(async (req) => {
   );
 
   const url = new URL(req.url);
-  if (url.searchParams.get("mode") === "debug-u2") {
-    // Diagnose U2 nutrition filter — return resolved profile + pool sizes.
-    const userId = "b0cc3e18-9437-48ec-885e-88723630c9af";
-    const { data: q } = await admin.from("client_questionnaires")
-      .select("dietary_restrictions, disliked_foods, weekly_food_budget, goal_next_4_weeks, household_size")
-      .eq("user_id", userId).eq("is_active", true).maybeSingle();
-    const { data: fitness } = await admin.from("user_fitness_profile")
-      .select("primary_goal, dietary_preferences, allergies, disliked_foods, meals_per_day, household_size, weekly_food_budget")
-      .eq("user_id", userId).maybeSingle();
-    const { fetchMealLibrary } = await import("../_shared/v2-meal-plan-runner.ts");
-    const { buildProfile } = await import("../_shared/meal-plan-engine.ts");
-    const profileInput = {
-      goal: fitness?.primary_goal ?? q?.goal_next_4_weeks ?? null,
-      daily_calories: 1700, protein_target: 130, carb_target: 180, fat_target: 55,
-      dietary_preferences: fitness?.dietary_preferences ?? q?.dietary_restrictions ?? [],
-      allergies: fitness?.allergies ?? [],
-      foods_disliked: fitness?.disliked_foods ?? q?.disliked_foods ?? [],
-      meals_per_day: fitness?.meals_per_day ?? 4,
-      cooking_skill: "Medium", prep_time_pref: "Standard",
-      household_size: 1, budget_help_needed: false, weekly_budget: null,
-    };
-    const profile = buildProfile(profileInput as any);
-    const meals = await fetchMealLibrary(admin);
-    const vegan = meals.filter((m: any) => m.is_vegan);
-    const veganNoNuts = vegan.filter((m: any) =>
-      !(m.allergy_tags || []).map((t: string) => t.toLowerCase()).some((t: string) => t.includes("nut")));
-    return new Response(JSON.stringify({
-      q, fitness, profileInput, builtProfile: profile,
-      libCount: meals.length, veganCount: vegan.length, veganNoNutsCount: veganNoNuts.length,
-      veganNoNutsByType: {
-        breakfast: veganNoNuts.filter((m: any) => m.meal_type === "Breakfast").length,
-        lunch: veganNoNuts.filter((m: any) => m.meal_type === "Lunch").length,
-        dinner: veganNoNuts.filter((m: any) => m.meal_type === "Dinner").length,
-        snack: veganNoNuts.filter((m: any) => m.meal_type === "Snack").length,
-      },
-      veganSample: vegan.slice(0, 5).map((m: any) => ({ code: m.meal_code, name: m.meal_name, type: m.meal_type, is_vegan: m.is_vegan, allergy: m.allergy_tags })),
-    }, null, 2), { headers: { ...cors, "Content-Type": "application/json" } });
+  // P0 debug endpoint — accept params in POST body (root-cause fix #1).
+  // Body: { user_id: string, macros?: {...}, mode: "debug-profile" }
+  if (url.searchParams.get("mode") === "debug-profile" || req.method === "POST") {
+    let body: any = {};
+    try { body = req.method === "POST" ? await req.json() : {}; } catch { /* noop */ }
+    if ((body?.mode ?? url.searchParams.get("mode")) === "debug-profile") {
+      const userId = body.user_id ?? "b0cc3e18-9437-48ec-885e-88723630c9af";
+      const macros = body.macros ?? { calorie_target: 1700, protein_grams: 130, carb_grams: 180, fat_grams: 55 };
+
+      // Mirror runV2ForUser exactly to dump the resolved Profile.
+      const { data: q, error: qErr } = await admin.from("client_questionnaires")
+        .select("dietary_restrictions, disliked_foods, weekly_food_budget, goal_next_4_weeks")
+        .eq("user_id", userId).eq("is_active", true)
+        .order("created_at", { ascending: false }).limit(1).maybeSingle();
+      const { data: nq, error: nqErr } = await admin.from("client_nutrition_questionnaires")
+        .select("allergies, dietary_restrictions, meals_per_day, grocery_budget_weekly")
+        .eq("user_id", userId).maybeSingle();
+      const { data: fitness, error: fErr } = await admin.from("user_fitness_profile")
+        .select("primary_goal, dietary_preferences, allergies, disliked_foods, meals_per_day, weekly_food_budget")
+        .eq("user_id", userId).maybeSingle();
+
+      const { fetchMealLibrary } = await import("../_shared/v2-meal-plan-runner.ts");
+      const { buildProfile } = await import("../_shared/meal-plan-engine.ts");
+      const nz = <T,>(v: T[] | null | undefined): T[] | null => (v && v.length > 0 ? v : null);
+      const profileInput = {
+        goal: fitness?.primary_goal ?? q?.goal_next_4_weeks ?? null,
+        daily_calories: macros.calorie_target, protein_target: macros.protein_grams,
+        carb_target: macros.carb_grams, fat_target: macros.fat_grams,
+        dietary_preferences:
+          nz(fitness?.dietary_preferences) ?? nz(q?.dietary_restrictions) ?? nz(nq?.dietary_restrictions) ?? [],
+        allergies: nz(fitness?.allergies) ?? nz(nq?.allergies) ?? [],
+        foods_disliked: nz(fitness?.disliked_foods) ?? nz(q?.disliked_foods) ?? [],
+        meals_per_day: fitness?.meals_per_day ?? nq?.meals_per_day ?? 4,
+        cooking_skill: "Medium", prep_time_pref: "Standard",
+        household_size: 1, budget_help_needed: false, weekly_budget: null,
+      };
+      const profile = buildProfile(profileInput as any);
+      const meals = await fetchMealLibrary(admin);
+      const allowed = meals.filter((m: any) => {
+        const dietOk =
+          profile.dietary_preference === "Standard" ? true :
+          profile.dietary_preference === "Vegan" ? m.is_vegan :
+          profile.dietary_preference === "Vegetarian" ? m.is_vegetarian :
+          profile.dietary_preference === "Pescatarian" ? m.is_pescatarian : true;
+        const tags = (m.allergy_tags || []).map((t: string) => String(t).toLowerCase());
+        const blocked = profile.allergies.map((a) => a.toLowerCase());
+        const allergyHit = tags.some((t: string) => blocked.some((b) => t === b || t.includes(b) || b.includes(t)));
+        return dietOk && !allergyHit;
+      });
+      return new Response(JSON.stringify({
+        user_id: userId,
+        rawRows: { q, qErr, nq, nqErr, fitness, fErr },
+        profileInput, resolvedProfile: profile,
+        libCount: meals.length, allowedCount: allowed.length,
+        allowedByType: {
+          breakfast: allowed.filter((m: any) => m.meal_type === "Breakfast").length,
+          lunch: allowed.filter((m: any) => m.meal_type === "Lunch").length,
+          dinner: allowed.filter((m: any) => m.meal_type === "Dinner").length,
+          snack: allowed.filter((m: any) => m.meal_type === "Snack").length,
+        },
+        allowedSample: allowed.slice(0, 8).map((m: any) => ({ code: m.meal_code, name: m.meal_name, type: m.meal_type })),
+      }, null, 2), { headers: { ...cors, "Content-Type": "application/json" } });
+    }
   }
+
 
   const out: any = { users: [], workout: [], nutrition: [] };
 
