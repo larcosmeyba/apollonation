@@ -253,7 +253,9 @@ Make meals practical, varied, and delicious.`;
         for (let week = 0; week < (plan.duration_weeks || 4); week++) {
           for (const day of mealPlanData.days) {
             const actualDay = week * 7 + day.day_number;
-            const snapped = snapDayToTargets(day.meals, {
+            // P4 FIX: v2 engine output preserves real per-meal macros; only
+            // snap on the legacy AI path.
+            const snapped = useV2 ? day.meals : snapDayToTargets(day.meals, {
               calorie_target: plan.daily_calories,
               protein_grams: plan.protein_grams,
               carb_grams: plan.carbs_grams,
