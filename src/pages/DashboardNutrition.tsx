@@ -138,6 +138,7 @@ const DashboardNutrition = () => {
   const selectedDate = format(new Date(), "yyyy-MM-dd");
 
   const [autoGenerating, setAutoGenerating] = useState(false);
+  const [autoGenError, setAutoGenError] = useState<string | null>(null);
   const autoGenTriedRef = (globalThis as any).__apolloMealPlanAutoGenRef || ((globalThis as any).__apolloMealPlanAutoGenRef = { current: false });
 
   // ── Queries ──
