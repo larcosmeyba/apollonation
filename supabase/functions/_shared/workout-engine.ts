@@ -368,7 +368,7 @@ function fillSession(
       continue;
     }
 
-    const ex = pickPreferred(pool, profile, recent);
+    const ex = pickPreferred(pool, profile, recent, slot);
     recent.add(ex.id);
 
     let f: FilledSlot = {
