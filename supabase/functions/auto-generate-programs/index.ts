@@ -1,6 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import {
+  isV2Enabled, isV2ForcedForTest,
+  fetchExerciseLibrary, fetchBlueprints,
+  buildWorkoutProfileFromQuestionnaire, runV2Workout, sessionToRows,
+} from "../_shared/v2-workout-runner.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -115,6 +120,57 @@ serve(async (req) => {
     // ──────── GENERATE TRAINING PLAN ────────
     // Fuel-only submissions should not wait on training generation.
     if (!nutritionQuestionnaireId) {
+    // V2 structured engine (behind PROGRAM_ENGINE_V2 flag) — falls back to legacy AI on throw
+    const useV2 = isV2Enabled() || isV2ForcedForTest(req);
+    let v2Done = false;
+    if (useV2) {
+      try {
+        console.log("[AUTO-GEN] Using v2 workout engine for", userId);
+        const [library, blueprints] = await Promise.all([
+          fetchExerciseLibrary(supabaseAdmin),
+          fetchBlueprints(supabaseAdmin),
+        ]);
+        const profile = buildWorkoutProfileFromQuestionnaire(q);
+        const v2result = runV2Workout(profile, blueprints, library);
+        const { data: v2plan, error: v2planErr } = await supabaseAdmin
+          .from("client_training_plans")
+          .insert({
+            user_id: userId,
+            questionnaire_id: questionnaireId,
+            title: `${q.goal_next_4_weeks || "Training"} Program - Cycle ${q.cycle_number || 1}`,
+            cycle_number: q.cycle_number || 1,
+            workout_days_per_week: profile.days_per_week,
+            duration_weeks: 4,
+            status: "active",
+            program_slug: v2result.program_slug,
+            generator_version: "v2",
+            needs_review: v2result.needs_review,
+            gap_reason: v2result.gap_reason,
+          })
+          .select().single();
+        if (v2planErr) throw new Error(`v2 plan insert: ${v2planErr.message}`);
+        for (let w = 0; w < v2result.weeks.length; w++) {
+          for (let d = 0; d < v2result.weeks[w].length; d++) {
+            const sess = v2result.weeks[w][d];
+            const { data: dayRow, error: dayErr } = await supabaseAdmin
+              .from("training_plan_days")
+              .insert({ plan_id: v2plan.id, day_number: w * 7 + d + 1,
+                day_label: `Week ${w + 1} - ${sess.day_focus}`, focus: sess.day_focus })
+              .select().single();
+            if (dayErr) { console.error("v2 day insert", dayErr); continue; }
+            const rows = sessionToRows(sess).map((r) => ({ ...r, day_id: dayRow.id }));
+            if (rows.length) await supabaseAdmin.from("training_plan_exercises").insert(rows);
+          }
+        }
+        results.training = { success: true, planId: v2plan.id, generator: "v2",
+          program_slug: v2result.program_slug, needs_review: v2result.needs_review };
+        console.log("[AUTO-GEN] v2 training plan created:", v2plan.id);
+        v2Done = true;
+      } catch (v2err) {
+        console.error("[AUTO-GEN] v2 engine failed, falling back to legacy AI:", v2err);
+      }
+    }
+    if (!v2Done) {
     try {
       console.log("[AUTO-GEN] Generating training plan for", userId);
 
