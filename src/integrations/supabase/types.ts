@@ -2851,102 +2851,6 @@ export type Database = {
         }
         Relationships: []
       }
-      program_workouts: {
-        Row: {
-          created_at: string
-          day_number: number
-          duration_minutes: number | null
-          focus: string[] | null
-          id: string
-          program_id: string
-          title: string | null
-          type: string | null
-          updated_at: string
-          week_number: number
-          workout_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          day_number: number
-          duration_minutes?: number | null
-          focus?: string[] | null
-          id?: string
-          program_id: string
-          title?: string | null
-          type?: string | null
-          updated_at?: string
-          week_number: number
-          workout_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          day_number?: number
-          duration_minutes?: number | null
-          focus?: string[] | null
-          id?: string
-          program_id?: string
-          title?: string | null
-          type?: string | null
-          updated_at?: string
-          week_number?: number
-          workout_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "program_workouts_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "programs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "program_workouts_workout_id_fkey"
-            columns: ["workout_id"]
-            isOneToOne: false
-            referencedRelation: "workouts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      programs: {
-        Row: {
-          category: string
-          cover_image_url: string | null
-          created_at: string
-          description: string | null
-          durations: number[]
-          id: string
-          is_active: boolean
-          name: string
-          sort_order: number
-          updated_at: string
-        }
-        Insert: {
-          category?: string
-          cover_image_url?: string | null
-          created_at?: string
-          description?: string | null
-          durations?: number[]
-          id?: string
-          is_active?: boolean
-          name: string
-          sort_order?: number
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          cover_image_url?: string | null
-          created_at?: string
-          description?: string | null
-          durations?: number[]
-          id?: string
-          is_active?: boolean
-          name?: string
-          sort_order?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
       progress_photos: {
         Row: {
           body_fat_pct: number | null
@@ -4106,13 +4010,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_program_workouts_program_workout_id_fkey"
-            columns: ["program_workout_id"]
-            isOneToOne: false
-            referencedRelation: "program_workouts"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "user_program_workouts_swapped_workout_id_fkey"
             columns: ["swapped_workout_id"]
             isOneToOne: false
@@ -4168,15 +4065,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_programs_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "programs"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_roles: {
         Row: {
