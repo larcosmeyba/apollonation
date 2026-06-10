@@ -435,8 +435,10 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
 
           const v2nMeals: any[] = [];
           for (const day of v2n.days) {
-            const snapped = snapDayToTargets(day.meals as any, targets);
-            for (const meal of snapped) {
+            // P4 FIX: v2 engine already scales servings; do NOT call
+            // snapDayToTargets here — stored per-meal macros must reflect
+            // the real meals chosen, not target-derived numbers.
+            for (const meal of day.meals) {
               v2nMeals.push({
                 plan_id: v2nPlan.id,
                 day_number: day.day_number,
