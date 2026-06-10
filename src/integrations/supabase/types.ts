@@ -2517,6 +2517,7 @@ export type Database = {
           fat_grams: number | null
           id: string
           ingredients: Json | null
+          meal_id: string | null
           meal_name: string
           meal_type: string
           plan_id: string
@@ -2532,6 +2533,7 @@ export type Database = {
           fat_grams?: number | null
           id?: string
           ingredients?: Json | null
+          meal_id?: string | null
           meal_name: string
           meal_type: string
           plan_id: string
@@ -2547,6 +2549,7 @@ export type Database = {
           fat_grams?: number | null
           id?: string
           ingredients?: Json | null
+          meal_id?: string | null
           meal_name?: string
           meal_type?: string
           plan_id?: string
@@ -3557,6 +3560,7 @@ export type Database = {
           rest_seconds: number | null
           sets: number | null
           sort_order: number
+          suggested_load: string | null
           video_url: string | null
         }
         Insert: {
@@ -3573,6 +3577,7 @@ export type Database = {
           rest_seconds?: number | null
           sets?: number | null
           sort_order?: number
+          suggested_load?: string | null
           video_url?: string | null
         }
         Update: {
@@ -3589,6 +3594,7 @@ export type Database = {
           rest_seconds?: number | null
           sets?: number | null
           sort_order?: number
+          suggested_load?: string | null
           video_url?: string | null
         }
         Relationships: [
