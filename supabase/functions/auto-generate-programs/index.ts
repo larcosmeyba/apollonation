@@ -6,6 +6,12 @@ import {
   fetchExerciseLibrary, fetchBlueprints,
   buildWorkoutProfileFromQuestionnaire, runV2Workout, sessionToRows,
 } from "../_shared/v2-workout-runner.ts";
+import {
+  isV2Enabled as isNutritionV2Enabled,
+  isV2ForcedForTest as isNutritionV2ForcedForTest,
+  runV2ForUser as runV2NutritionForUser,
+} from "../_shared/v2-meal-plan-runner.ts";
+import { resolveUserMacroTargets, snapDayToTargets } from "../_shared/macro-scaler.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
