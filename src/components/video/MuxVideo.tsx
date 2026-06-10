@@ -1,8 +1,18 @@
 import { forwardRef, useEffect, useMemo, useState } from "react";
 import MuxPlayer from "@mux/mux-player-react";
 import type MuxPlayerElement from "@mux/mux-player";
+import { Capacitor } from "@capacitor/core";
 import { useMuxEnvKey } from "@/hooks/useMuxEnvKey";
 import { supabase } from "@/integrations/supabase/client";
+
+// iOS WKWebView (Capacitor) intermittently shows mux-player's
+// "A network error caused the media download to fail" overlay when its
+// web component drives HLS playback. WKWebView plays HLS reliably via AVPlayer
+// when handed a plain <video> with the .m3u8 URL and no crossorigin attribute,
+// so on native iOS we bypass mux-player entirely.
+const IS_NATIVE_IOS =
+  Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+
 
 export interface MuxVideoProps {
   playbackId: string;
@@ -86,6 +96,44 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     }),
     [envKey, videoId, playbackId, title, category, classId, classTitle, viewerId],
   );
+
+  // iOS WKWebView: render a native <video> using Mux's HLS URL. AVPlayer plays
+  // it natively without the mux-player web component's HLS pipeline.
+  if (IS_NATIVE_IOS) {
+    const src = `https://stream.mux.com/${playbackId}.m3u8`;
+    return (
+      <video
+        ref={ref as unknown as React.Ref<HTMLVideoElement>}
+        src={src}
+        poster={poster}
+        autoPlay={autoPlay}
+        muted={muted}
+        loop={loop}
+        playsInline={playsInline}
+        controls={controls}
+        preload="metadata"
+        className={className}
+        style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", backgroundColor: "#000" }}
+        onTimeUpdate={onTimeUpdate}
+        onLoadedMetadata={onLoadedMetadata}
+        onError={(e) => {
+          const v = e.currentTarget;
+          // eslint-disable-next-line no-console
+          console.error("[MuxVideo:native-ios] error", {
+            playbackId,
+            title,
+            code: v.error?.code,
+            message: v.error?.message,
+            networkState: v.networkState,
+            readyState: v.readyState,
+            src,
+          });
+        }}
+      />
+    );
+  }
+
+
 
 
   return (
