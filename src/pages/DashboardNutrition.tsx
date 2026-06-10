@@ -1232,10 +1232,17 @@ const DashboardNutrition = () => {
                   <div className="w-16 h-16 rounded-full bg-foreground/10 border border-foreground/20 flex items-center justify-center mx-auto mb-4">
                     <Utensils className="w-7 h-7 text-foreground" />
                   </div>
-                  <h3 className="font-heading text-lg text-foreground mb-2">Plan Being Prepared</h3>
-                  <p className="text-muted-foreground text-sm mb-1">Your nutrition plan is being set up. Check back soon!</p>
+                  <h3 className="font-heading text-lg text-foreground mb-2">
+                    {autoGenerating ? "Building Your Meal Plan…" : "Plan Being Prepared"}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-1">
+                    {autoGenerating
+                      ? "Generating meals that hit your calories and macros. This takes ~20–40 seconds."
+                      : "Your nutrition plan is being set up. Check back soon!"}
+                  </p>
                   <p className="text-[10px] text-muted-foreground">Once ready, meals refresh automatically every Monday.</p>
                 </>
+
               )}
             </div>
           ) : (
