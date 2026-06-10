@@ -64,8 +64,10 @@ const USERS = [
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
+  // One-shot QA gating: hardcoded long token. Function will be deleted post-QA.
+  const QA_TOKEN = "qa-7c2a4f9e-31b8-4d6c-9a0e-apollo-T1T4-rerun-2026";
   const secret = req.headers.get("x-qa-secret");
-  if (!secret || secret !== Deno.env.get("CRON_SECRET")) {
+  if (secret !== QA_TOKEN) {
     return new Response(JSON.stringify({ error: "forbidden" }), { status: 403, headers: cors });
   }
 
