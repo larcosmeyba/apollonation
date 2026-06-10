@@ -1,8 +1,18 @@
 import { forwardRef, useEffect, useMemo, useState } from "react";
 import MuxPlayer from "@mux/mux-player-react";
 import type MuxPlayerElement from "@mux/mux-player";
+import { Capacitor } from "@capacitor/core";
 import { useMuxEnvKey } from "@/hooks/useMuxEnvKey";
 import { supabase } from "@/integrations/supabase/client";
+
+// iOS WKWebView (Capacitor) intermittently shows mux-player's
+// "A network error caused the media download to fail" overlay when its
+// web component drives HLS playback. WKWebView plays HLS reliably via AVPlayer
+// when handed a plain <video> with the .m3u8 URL and no crossorigin attribute,
+// so on native iOS we bypass mux-player entirely.
+const IS_NATIVE_IOS =
+  Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+
 
 export interface MuxVideoProps {
   playbackId: string;
