@@ -163,6 +163,14 @@ const App = () => {
                 element={<ProtectedRoute>{eb(<DashboardRecovery />)}</ProtectedRoute>}
               />
               <Route
+                path="/dashboard/recovery-program"
+                element={<ProtectedRoute>{eb(<RecoveryProgram />)}</ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/recovery-program/:day"
+                element={<ProtectedRoute>{eb(<RecoveryDay />)}</ProtectedRoute>}
+              />
+              <Route
                 path="/dashboard/challenges"
                 element={<ProtectedRoute>{eb(<DashboardChallenges />)}</ProtectedRoute>}
               />
