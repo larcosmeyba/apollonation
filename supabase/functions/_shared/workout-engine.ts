@@ -131,8 +131,9 @@ const locationOk = (e: Exercise, profile: WorkoutProfile): boolean => {
     if (norm(e.location_type) === "gym" && hasGymOnly) return false;
     return true;
   }
-  // Gym: allow anything that isn't recovery-only.
-  return !e.is_recovery;
+  // Gym: allow anything (recovery rows fill warmup/cooldown slots; main slots
+  // are already gated by pattern/body-part filters so they won't pull mobility items).
+  return true;
 };
 
 const equipmentOk = (e: Exercise, profile: WorkoutProfile): boolean => {
