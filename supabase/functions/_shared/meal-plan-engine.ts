@@ -103,18 +103,24 @@ const calorieSplits: Record<number, Record<string, number>> = {
   5: { Breakfast: 0.22, Lunch: 0.28, Dinner: 0.28, Snack: 0.11, "Snack 2": 0.11 },
 };
 
-const slotsFor = (n: number): string[] =>
-  n <= 3 ? ["Breakfast", "Lunch", "Dinner"]
+const slotsFor = (n: number, dailyCalories = 0): string[] => {
+  // FIX 1.2: force 5th meal (2nd snack) at high tiers (≥2800 kcal) when allowed.
+  if (dailyCalories >= 2800 && n >= 4) {
+    return ["Breakfast", "Lunch", "Dinner", "Snack", "Snack 2"];
+  }
+  return n <= 3 ? ["Breakfast", "Lunch", "Dinner"]
     : n === 4 ? ["Breakfast", "Lunch", "Dinner", "Snack"]
       : ["Breakfast", "Lunch", "Dinner", "Snack", "Snack 2"];
+};
 
 const slotType = (slot: string) => (slot.startsWith("Snack") ? "Snack" : slot);
 
-const roundHalf = (n: number) => Math.round(n * 2) / 2;
+// FIX 1.3: finer 0.25× granularity.
+const roundQuarter = (n: number) => Math.round(n * 4) / 4;
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
 const scale = (m: MealRow, slot: string, target: number): GeneratedMeal => {
-  const servings = clamp(roundHalf(target / m.calories), 0.5, 2.0);
+  const servings = clamp(roundQuarter(target / Math.max(1, m.calories)), 0.25, 2.0);
   return {
     ...m, slot, servings,
     scaled_calories: Math.round(m.calories * servings),
