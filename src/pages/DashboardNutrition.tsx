@@ -263,25 +263,32 @@ const DashboardNutrition = () => {
     enabled: !!activePlan,
   });
 
-  // Auto-trigger meal-plan generation when the user has completed the
-  // nutrition questionnaire but no plan exists yet. Prevents the "Plan Being
-  // Prepared" page from sitting forever waiting on a manual kick.
+  // Auto-trigger meal-plan generation when the user has completed onboarding
+  // (macros + dietary prefs are on file) but no plan exists yet. Uses the
+  // client-callable v2 engine — NOT the admin-gated generate-meal-plan.
   useEffect(() => {
     if (!user) return;
     if (plansLoading) return;
     if (activePlan) return;
+    // We can generate as long as the user has a nutrition questionnaire OR a
+    // fitness-profile-derived macro target. Without macros there is nothing
+    // to scale meals against.
     if (!hasNutritionQuestionnaire) return;
     if (autoGenTriedRef.current || autoGenerating) return;
     autoGenTriedRef.current = true;
     setAutoGenerating(true);
+    setAutoGenError(null);
     (async () => {
       try {
-        const { error } = await supabase.functions.invoke("generate-meal-plan", { body: {} });
-        if (error) throw error;
+        const { data, error } = await supabase.functions.invoke("client-generate-meal-plan", { body: {} });
+        if (error) throw new Error((error as any)?.message ?? "Generation failed");
+        if (data?.error) throw new Error(data.message || data.error);
         await queryClient.invalidateQueries({ queryKey: ["my-nutrition-plans"] });
       } catch (err: any) {
         console.error("[DashboardNutrition] auto-generate failed:", err?.message ?? err);
-        autoGenTriedRef.current = false; // allow retry on next mount
+        setAutoGenError(err?.message ?? "Generation failed");
+        // Allow a manual retry from the placeholder.
+        autoGenTriedRef.current = false;
       } finally {
         setAutoGenerating(false);
       }
