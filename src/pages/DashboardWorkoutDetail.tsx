@@ -212,7 +212,7 @@ const ExerciseRow = ({
         if (data) {
           return {
             title: data.name,
-            video_url: data.video_url,
+            video_url: null as string | null,
             description: data.coaching_notes,
             thumbnail_url: data.thumbnail_url,
             mux_playback_id: data.mux_playback_id,
