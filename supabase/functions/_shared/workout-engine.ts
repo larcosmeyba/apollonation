@@ -272,10 +272,29 @@ function substitute(slot: Slot, profile: WorkoutProfile, library: Exercise[]): {
   return { pool, reason: "S7 last-resort same-block" };
 }
 
-function pickPreferred(pool: Exercise[], profile: WorkoutProfile, recent: Set<string>): Exercise {
+// T2: compound-loaded movements for Primary slots.
+const COMPOUND_EQUIPMENT = ["barbell", "dumbbell", "machine", "cable", "smith", "kettlebell"];
+const COMPOUND_PATTERNS = ["squat", "hinge", "press", "row", "pull", "deadlift", "lunge"];
+const ISOLATION_PATTERN_HINTS = ["fly", "curl", "raise", "extension", "kickback", "pulldown abs"];
+const isCompound = (e: Exercise): boolean => {
+  const eq = exerciseEquipment(e);
+  const mp = norm(e.movement_pattern);
+  const nm = e.name.toLowerCase();
+  const hasLoadedEq = eq.some((q) => COMPOUND_EQUIPMENT.includes(q));
+  const matchesPattern = COMPOUND_PATTERNS.some((p) => mp.includes(p));
+  const looksIsolation = ISOLATION_PATTERN_HINTS.some((p) => nm.includes(p));
+  return hasLoadedEq && matchesPattern && !looksIsolation;
+};
+
+function pickPreferred(pool: Exercise[], profile: WorkoutProfile, recent: Set<string>, slot?: Slot): Exercise {
   // R1: drop recent if possible.
   let candidates = pool.filter((e) => !recent.has(e.id));
   if (!candidates.length) candidates = pool;
+  // T2: For Primary roles in Gym/At-Home, bias toward loaded compounds.
+  if (slot && norm(slot.block) === "primary" && profile.location !== "Recovery") {
+    const compounds = candidates.filter(isCompound);
+    if (compounds.length) candidates = compounds;
+  }
   // R9: weight body_focus.
   const focus = profile.body_focus.map((b) => b.toLowerCase());
   if (focus.length) {
