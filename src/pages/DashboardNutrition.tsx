@@ -1238,17 +1238,43 @@ const DashboardNutrition = () => {
               ) : (
                 <>
                   <div className="w-16 h-16 rounded-full bg-foreground/10 border border-foreground/20 flex items-center justify-center mx-auto mb-4">
-                    <Utensils className="w-7 h-7 text-foreground" />
+                    {autoGenError ? <AlertCircle className="w-7 h-7 text-destructive" /> : <Utensils className="w-7 h-7 text-foreground" />}
                   </div>
                   <h3 className="font-heading text-lg text-foreground mb-2">
-                    {autoGenerating ? "Building Your Meal Plan…" : "Plan Being Prepared"}
+                    {autoGenerating ? "Building Your Meal Plan…" : autoGenError ? "We couldn't build your plan" : "Plan Being Prepared"}
                   </h3>
-                  <p className="text-muted-foreground text-sm mb-1">
+                  <p className="text-muted-foreground text-sm mb-1 px-6">
                     {autoGenerating
-                      ? "Generating meals that hit your calories and macros. This takes ~20–40 seconds."
-                      : "Your nutrition plan is being set up. Check back soon!"}
+                      ? "Generating meals that hit your calories and macros. This takes a few seconds."
+                      : autoGenError
+                      ? autoGenError
+                      : "Your nutrition plan is being set up."}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">Once ready, meals refresh automatically every Monday.</p>
+                  {!autoGenerating && (
+                    <div className="mt-4">
+                      <Button
+                        variant="apollo"
+                        className="gap-2 rounded-full"
+                        onClick={async () => {
+                          setAutoGenError(null);
+                          setAutoGenerating(true);
+                          try {
+                            const { data, error } = await supabase.functions.invoke("client-generate-meal-plan", { body: {} });
+                            if (error) throw new Error((error as any)?.message ?? "Generation failed");
+                            if (data?.error) throw new Error(data.message || data.error);
+                            await queryClient.invalidateQueries({ queryKey: ["my-nutrition-plans"] });
+                          } catch (err: any) {
+                            setAutoGenError(err?.message ?? "Generation failed");
+                          } finally {
+                            setAutoGenerating(false);
+                          }
+                        }}
+                      >
+                        {autoGenError ? "Try Again" : "Generate Now"}
+                      </Button>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-muted-foreground mt-3">Once ready, meals refresh automatically every Monday.</p>
                 </>
 
               )}
