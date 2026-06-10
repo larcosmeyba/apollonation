@@ -181,8 +181,8 @@ export function generateDailyPlan(
   dayNumber: number,
   history: Set<string>,
 ): GeneratedDay {
-  const slots = slotsFor(p.meals_per_day);
-  const split = calorieSplits[Math.min(5, Math.max(3, p.meals_per_day))];
+  const slots = slotsFor(p.meals_per_day, p.daily_calories);
+  const split = calorieSplits[Math.min(5, Math.max(3, slots.length))];
   const targets = Object.fromEntries(slots.map((s) => [s, p.daily_calories * (split[s] ?? 0.2)]));
 
   const fallbackSteps: Array<{ skill?: number; time?: number; widenCalTol?: boolean; allowWithinDayRepeat?: boolean; label: string }> = [
@@ -206,24 +206,60 @@ export function generateDailyPlan(
       const t = slotType(slot);
       const cands = pool.filter((m) => m.meal_type === t);
       if (cands.length === 0) { missing = true; break; }
-      const pick = pickForSlot(cands, targets[slot], step.allowWithinDayRepeat ? history : new Set([...history, ...usedThisDay]));
+      // FIX 1.4: cap protein overshoot — once running protein ≥ target+10g,
+      // prefer carb/fat-leaning candidates (low protein/cal) to fill calories.
+      const running = sumDay(chosen);
+      const proteinSaturated = running.protein >= p.protein_target + 10;
+      const slotCandidates = proteinSaturated
+        ? [...cands].sort((a, b) => {
+            const pa = a.protein_grams / Math.max(1, a.calories);
+            const pb = b.protein_grams / Math.max(1, b.calories);
+            if (pa !== pb) return pa - pb; // lowest protein/cal first
+            return Math.abs(a.calories - targets[slot]) - Math.abs(b.calories - targets[slot]);
+          })
+        : cands;
+      const pick = proteinSaturated
+        ? slotCandidates.find((m) => !(step.allowWithinDayRepeat ? history : new Set([...history, ...usedThisDay])).has(m.meal_code)) ?? slotCandidates[0]
+        : pickForSlot(cands, targets[slot], step.allowWithinDayRepeat ? history : new Set([...history, ...usedThisDay]));
       if (!pick) { missing = true; break; }
       usedThisDay.add(pick.meal_code);
       chosen.push(scale(pick, slot, targets[slot]));
     }
     if (!missing) {
-      const totals = sumDay(chosen);
+      // FIX 1.1: calorie close-out pass — scale up lowest-protein slot(s)
+      // up to 2.0× until total reaches target − 5%.
+      const minCal = p.daily_calories * 0.95;
+      let totals = sumDay(chosen);
+      let safety = 16;
+      while (totals.calories < minCal && safety-- > 0) {
+        // pick slot with lowest protein-density that still has headroom
+        const candidates = chosen
+          .map((m, i) => ({ m, i, pd: m.protein_grams / Math.max(1, m.calories) }))
+          .filter((x) => x.m.servings < 2.0)
+          .sort((a, b) => a.pd - b.pd);
+        if (candidates.length === 0) break;
+        const { m, i } = candidates[0];
+        const newServings = clamp(roundQuarter(m.servings + 0.25), 0.25, 2.0);
+        if (newServings === m.servings) break;
+        const base = { ...m, servings: newServings,
+          scaled_calories: Math.round(m.calories * newServings),
+          scaled_protein: Math.round(m.protein_grams * newServings),
+          scaled_carbs: Math.round(m.carbs_grams * newServings),
+          scaled_fat: Math.round(m.fat_grams * newServings),
+        };
+        chosen[i] = base;
+        totals = sumDay(chosen);
+      }
+
       const tol = step.widenCalTol ? 0.08 : 0.05;
       const calOk = Math.abs(totals.calories - p.daily_calories) <= tol * p.daily_calories;
       const protOk = totals.protein >= p.protein_target - 10;
       if (calOk && protOk) {
         needsReview = step.widenCalTol === true;
         gap = step.label === "baseline" ? null : `fallback: ${step.label}`;
-        // Add history
         chosen.forEach((m) => history.add(m.meal_code));
         return { day_number: dayNumber, meals: chosen, totals, needs_review: needsReview, gap_reason: gap };
       }
-      // Continue to next fallback step to try to satisfy SOFT validation.
       needsReview = true;
       gap = `soft miss (${step.label}): cal=${totals.calories}/${p.daily_calories}, protein=${totals.protein}/${p.protein_target}`;
     }
