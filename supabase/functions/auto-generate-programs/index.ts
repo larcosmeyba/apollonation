@@ -391,6 +391,122 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
     try {
       console.log("[AUTO-GEN] Generating nutrition plan for", userId);
 
+      // T4: Route the nutrition leg through the v2 deterministic engine
+      // (same path as standalone generate-meal-plan) instead of the legacy
+      // 45 s Gemini call that has been timing out. Gated by the same
+      // NUTRITION_GENERATOR_V2 flag / x-nutrition-generator header so the
+      // legacy AI path remains available as fallback on any throw.
+      const useNutritionV2 = isNutritionV2Enabled() || isNutritionV2ForcedForTest(req);
+      let nutritionV2Done = false;
+      if (useNutritionV2) {
+        try {
+          const targets = await resolveUserMacroTargets(supabaseAdmin, userId);
+          const v2n = await runV2NutritionForUser(supabaseAdmin, userId, targets, 4);
+
+          await supabaseAdmin.from("client_nutrition_profiles").upsert({
+            user_id: userId,
+            age: q.age,
+            weight_lbs: clientWeightLbs,
+            height_inches: clientHeightInches,
+            activity_level: q.activity_level || "moderate",
+            goals: goalText,
+            dietary_preferences: clientRestrictions,
+            food_restrictions: clientDislikes,
+          }, { onConflict: "user_id" });
+
+          const { data: v2nPlan, error: v2nPlanErr } = await supabaseAdmin
+            .from("nutrition_plans")
+            .insert({
+              user_id: userId,
+              created_by: userId,
+              title: `${goalText || "Custom"} Meal Plan - Cycle ${q.cycle_number || 1}`,
+              daily_calories: targets.calorie_target,
+              protein_grams: targets.protein_grams,
+              carbs_grams: targets.carb_grams,
+              fat_grams: targets.fat_grams,
+              duration_weeks: 4,
+              status: "active",
+              needs_review: v2n.needs_review,
+              gap_reason: v2n.gap_reason,
+              generator_version: v2n.generator_version,
+            })
+            .select().single();
+          if (v2nPlanErr) throw new Error(`v2 nutrition insert: ${v2nPlanErr.message}`);
+
+          const v2nMeals: any[] = [];
+          for (const day of v2n.days) {
+            const snapped = snapDayToTargets(day.meals as any, targets);
+            for (const meal of snapped) {
+              v2nMeals.push({
+                plan_id: v2nPlan.id,
+                day_number: day.day_number,
+                meal_type: meal.meal_type,
+                meal_name: meal.meal_name,
+                description: meal.description,
+                ingredients: meal.ingredients,
+                calories: meal.calories,
+                protein_grams: meal.protein_grams,
+                carbs_grams: meal.carbs_grams,
+                fat_grams: meal.fat_grams,
+                meal_id: (meal as any).meal_id ?? null,
+                sort_order: meal.meal_type === "breakfast" ? 0 : meal.meal_type === "lunch" ? 1 : meal.meal_type === "dinner" ? 2 : 3,
+              });
+            }
+          }
+          const { error: v2nMealsErr } = await supabaseAdmin
+            .from("nutrition_plan_meals").insert(v2nMeals);
+          if (v2nMealsErr) {
+            await supabaseAdmin.from("nutrition_plans").delete().eq("id", v2nPlan.id);
+            throw new Error(`v2 nutrition meals insert: ${v2nMealsErr.message}`);
+          }
+
+          await supabaseAdmin.from("meal_plan_generation_log").insert({
+            user_id: userId,
+            plan_id: v2nPlan.id,
+            generator_version: v2n.generator_version,
+            status: "success",
+            needs_review: v2n.needs_review,
+            gap_reason: v2n.gap_reason,
+            details: {
+              meal_count: v2nMeals.length,
+              days: v2n.days.length,
+              macros: {
+                dailyCalories: targets.calorie_target,
+                proteinGrams: targets.protein_grams,
+                carbsGrams: targets.carb_grams,
+                fatGrams: targets.fat_grams,
+              },
+              source: "auto-generate-programs",
+            },
+          });
+
+          results.nutrition = {
+            success: true,
+            planId: v2nPlan.id,
+            generator: v2n.generator_version,
+            needs_review: v2n.needs_review,
+            macros: {
+              dailyCalories: targets.calorie_target,
+              proteinGrams: targets.protein_grams,
+              carbsGrams: targets.carb_grams,
+              fatGrams: targets.fat_grams,
+            },
+          };
+          console.log("[AUTO-GEN] v2 nutrition plan created:", v2nPlan.id);
+          nutritionV2Done = true;
+        } catch (v2nErr) {
+          console.error("[AUTO-GEN] v2 nutrition failed, falling back to legacy AI:", v2nErr);
+        }
+      }
+
+      if (nutritionV2Done) {
+        // Skip legacy AI path entirely when v2 succeeded.
+        return new Response(JSON.stringify(results), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+
       const weightKg = clientWeightLbs * 0.453592;
       const heightCm = clientHeightInches * 2.54;
       const bmr = clientSex === "female"
