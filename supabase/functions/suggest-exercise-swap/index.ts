@@ -57,12 +57,13 @@ serve(async (req) => {
     );
 
     const { data: exerciseLibrary } = await supabaseAdmin
-      .from("exercises")
-      .select("title, muscle_group, equipment, difficulty")
-      .order("title");
+      .from("admin_exercises")
+      .select("name, body_part, equipment, difficulty, mux_playback_id")
+      .not("mux_playback_id", "is", null)
+      .order("name");
 
     const exerciseList = (exerciseLibrary || [])
-      .map((e: any) => `- ${e.title} [${e.muscle_group}] (${e.equipment || "bodyweight"})`)
+      .map((e: any) => `- ${e.name} [${e.body_part}] (${Array.isArray(e.equipment) ? e.equipment.join("/") : (e.equipment || "bodyweight")})`)
       .join("\n");
 
     const prompt = `Suggest 3 alternative exercises to replace ${wrapUserInput(exerciseName)} that target the same movement pattern and muscle group (${wrapUserInput(muscleGroup || "unknown")}).
