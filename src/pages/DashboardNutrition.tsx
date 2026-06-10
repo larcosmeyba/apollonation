@@ -262,6 +262,32 @@ const DashboardNutrition = () => {
     enabled: !!activePlan,
   });
 
+  // Auto-trigger meal-plan generation when the user has completed the
+  // nutrition questionnaire but no plan exists yet. Prevents the "Plan Being
+  // Prepared" page from sitting forever waiting on a manual kick.
+  useEffect(() => {
+    if (!user) return;
+    if (plansLoading) return;
+    if (activePlan) return;
+    if (!hasNutritionQuestionnaire) return;
+    if (autoGenTriedRef.current || autoGenerating) return;
+    autoGenTriedRef.current = true;
+    setAutoGenerating(true);
+    (async () => {
+      try {
+        const { error } = await supabase.functions.invoke("generate-meal-plan", { body: {} });
+        if (error) throw error;
+        await queryClient.invalidateQueries({ queryKey: ["my-nutrition-plans"] });
+      } catch (err: any) {
+        console.error("[DashboardNutrition] auto-generate failed:", err?.message ?? err);
+        autoGenTriedRef.current = false; // allow retry on next mount
+      } finally {
+        setAutoGenerating(false);
+      }
+    })();
+  }, [user, plansLoading, activePlan, hasNutritionQuestionnaire]);
+
+
   const { data: macroEntries = [] } = useQuery({
     queryKey: ["macro-logs", user?.id, selectedDate],
     queryFn: async () => {
