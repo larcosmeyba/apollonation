@@ -43,3 +43,32 @@ Re-run W1–W15 against `auto-generate-programs` for a fresh test user; produce 
 - (after Step 1) Nutrition plan trace: plan row + meals with `meal_id` FKs + `meal_plan_generation_log` row.
 - (after Step 2) W1–W15 PASS/FAIL table + traced 4-week program with rotation + leg-day spacing.
 - (after Step 3) W6 row flips to PASS with `suggested_load` values read back from the DB.
+
+## Follow-up tickets (non-blocking, opened 2026-06-10)
+
+- **NUTRITION_GENERATOR_V2 = true** (flipped, live).
+
+### T1 — Lock primary + key accessory exercises across 4-week block
+Workout engine currently re-picks each slot per week, so "+5lb vs last week" cues can
+reference a different movement. Fix: in `generateProgram` (workout-engine.ts), pick the
+exercise for each primary + key-accessory slot once at W1 and reuse the same `exercise_id`
+across W2/W3/W4 (deload still scales sets). Only rotate at block boundaries (new 4-week
+block). Finishers/warmup/cooldown can keep rotating freely.
+
+### T2 — Primary slots prefer compound loaded lifts
+In `pickPreferred`, when `slot.block === 'Primary'`, bias selection toward exercises whose
+equipment includes barbell|dumbbell|cable|machine AND movement_pattern in
+(squat|hinge|press|row|pull). Only fall back to bodyweight/isolation if the compound pool
+is empty after S2 substitution.
+
+### T3 — Meal variety: rotate top-N protein-dense matches
+v2 nutrition picker today returns argmax → 10 distinct meals across 140 rows. Change to
+top-N (N=8, configurable) sorted by protein density and rotate with a per-slot pointer
+seeded by (user_id, slot_index, week). Target ≥30 distinct meals per 28-day plan against
+the 102-meal library.
+
+### T4 (separate) — Route nutrition leg in auto-generate-programs through runV2ForUser
+`auto-generate-programs/index.ts` still calls the legacy Gemini path with
+`AbortSignal.timeout(45_000)` and timed out in today's E2E. Replace that branch with a
+call to the same `runV2ForUser` helper used by `generate-meal-plan`, dropping the 45s
+hard timeout in favour of the v2 deterministic path.
