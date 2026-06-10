@@ -79,29 +79,62 @@ const SLOT_TO_TYPE = (slot: string): string => {
   return "snack";
 };
 
+// ---- P0 safety belt: hard post-generation validator ----
+// Even if the engine pool filter is bypassed (data bug, library mistag),
+// refuse to emit any meal violating dietary_preference or allergies.
+import { type DietPref } from "./meal-plan-engine.ts";
+
+const _dietOk = (m: any, p: DietPref) => {
+  switch (p) {
+    case "Vegan": return !!m.is_vegan;
+    case "Vegetarian": return !!m.is_vegetarian;
+    case "Pescatarian": return !!m.is_pescatarian;
+    case "Kosher Friendly": return !!m.is_kosher_friendly;
+    case "Gluten Free": return !!m.is_gluten_free;
+    case "Dairy Free": return !!m.is_dairy_free;
+    default: return true;
+  }
+};
+const _allergensOverlap = (allergyTags: string[] | null | undefined, allergies: string[]) => {
+  if (!allergies?.length) return false;
+  const tags = (allergyTags || []).map((s) => String(s).toLowerCase()).filter((t) => t && t !== "none");
+  const blocked = allergies.map((s) => String(s).toLowerCase());
+  return tags.some((t) => blocked.some((b) => t === b || t.includes(b) || b.includes(t)));
+};
+
 export async function runV2ForUser(
   supabaseAdmin: any,
   userId: string,
   macros: { calorie_target: number; protein_grams: number; carb_grams: number; fat_grams: number },
   weeks = 4,
 ): Promise<V2Result> {
-  // Pull questionnaire + profile fields needed to build the engine Profile.
-  const { data: q } = await supabaseAdmin
+  // P0 ROOT-CAUSE FIX: previously these SELECTs included `household_size`,
+  // which does NOT exist on any of these three tables. PostgREST returned
+  // an error, `data` came back null, and dietary_preferences/allergies
+  // silently fell back to defaults (Standard, none). That is why U2's
+  // vegan + nut-allergy plan included chicken/turkey/almond butter.
+  // Column removed. Errors are now logged instead of swallowed.
+  const { data: q, error: qErr } = await supabaseAdmin
     .from("client_questionnaires")
-    .select("dietary_restrictions, disliked_foods, weekly_food_budget, goal_next_4_weeks, household_size")
+    .select("dietary_restrictions, disliked_foods, weekly_food_budget, goal_next_4_weeks")
     .eq("user_id", userId).eq("is_active", true)
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (qErr) console.error("[v2-meal] client_questionnaires error:", qErr.message);
 
-  const { data: nq } = await supabaseAdmin
+  const { data: nq, error: nqErr } = await supabaseAdmin
     .from("client_nutrition_questionnaires")
-    .select("allergies, dietary_restrictions, meals_per_day, household_size, grocery_budget_weekly")
+    .select("allergies, dietary_restrictions, meals_per_day, grocery_budget_weekly")
     .eq("user_id", userId).maybeSingle();
+  if (nqErr) console.error("[v2-meal] client_nutrition_questionnaires error:", nqErr.message);
 
-  const { data: fitness } = await supabaseAdmin
+  const { data: fitness, error: fErr } = await supabaseAdmin
     .from("user_fitness_profile")
-    .select("primary_goal, dietary_preferences, allergies, disliked_foods, meals_per_day, household_size, weekly_food_budget")
+    .select("primary_goal, dietary_preferences, allergies, disliked_foods, meals_per_day, weekly_food_budget")
     .eq("user_id", userId).maybeSingle();
+  if (fErr) console.error("[v2-meal] user_fitness_profile error:", fErr.message);
 
+  // Treat empty arrays as "not provided" so the cascade reaches the next source.
+  const nz = <T>(v: T[] | null | undefined): T[] | null => (v && v.length > 0 ? v : null);
   const profileInput = {
     goal: fitness?.primary_goal ?? q?.goal_next_4_weeks ?? null,
     daily_calories: macros.calorie_target,
@@ -109,27 +142,43 @@ export async function runV2ForUser(
     carb_target: macros.carb_grams,
     fat_target: macros.fat_grams,
     dietary_preferences:
-      fitness?.dietary_preferences ?? q?.dietary_restrictions ?? nq?.dietary_restrictions ?? [],
-    allergies: fitness?.allergies ?? nq?.allergies ?? [],
-    foods_disliked: fitness?.disliked_foods ?? q?.disliked_foods ?? [],
+      nz(fitness?.dietary_preferences) ?? nz(q?.dietary_restrictions) ?? nz(nq?.dietary_restrictions) ?? [],
+    allergies: nz(fitness?.allergies) ?? nz(nq?.allergies) ?? [],
+    foods_disliked: nz(fitness?.disliked_foods) ?? nz(q?.disliked_foods) ?? [],
     meals_per_day: fitness?.meals_per_day ?? nq?.meals_per_day ?? 4,
     cooking_skill: "Medium",
     prep_time_pref: "Standard",
-    household_size: fitness?.household_size ?? q?.household_size ?? nq?.household_size ?? 1,
+    household_size: 1,
     budget_help_needed: !!(q?.weekly_food_budget ?? nq?.grocery_budget_weekly ?? fitness?.weekly_food_budget),
     weekly_budget: q?.weekly_food_budget ?? nq?.grocery_budget_weekly ?? fitness?.weekly_food_budget ?? null,
   };
   const profile: Profile = buildProfile(profileInput);
+  console.log(`[v2-meal] user=${userId} diet=${profile.dietary_preference} allergies=${JSON.stringify(profile.allergies)}`);
 
   const meals = await fetchMealLibrary(supabaseAdmin);
+  const codeMap = new Map(meals.map((m) => [m.meal_code, m]));
   const week = generateWeek(meals, profile);
 
   const days: V2Result["days"] = [];
+  let violationsCount = 0;
+  const violationSamples: any[] = [];
+
   for (let w = 0; w < weeks; w++) {
     for (const d of week.days) {
-      days.push({
-        day_number: w * 7 + d.day_number,
-        meals: d.meals.map((m) => ({
+      const kept: V2DayMeal[] = [];
+      for (const m of d.meals) {
+        const lib = codeMap.get(m.meal_code);
+        const dietBad = lib ? !_dietOk(lib, profile.dietary_preference) : false;
+        const allergyBad = lib ? _allergensOverlap(lib.allergy_tags, profile.allergies) : false;
+        if (dietBad || allergyBad) {
+          violationsCount++;
+          if (violationSamples.length < 10) {
+            violationSamples.push({ day: w * 7 + d.day_number, meal_id: m.meal_code, meal_name: m.meal_name,
+              reasons: [dietBad && `diet:${profile.dietary_preference}`, allergyBad && `allergy`].filter(Boolean) });
+          }
+          continue; // DROP — never persist a forbidden meal.
+        }
+        kept.push({
           meal_type: SLOT_TO_TYPE(m.slot),
           meal_name: m.meal_name,
           description: m.instructions || "",
@@ -141,15 +190,22 @@ export async function runV2ForUser(
           carbs_grams: m.scaled_carbs,
           fat_grams: m.scaled_fat,
           meal_id: m.meal_code,
-        })),
-      });
+        });
+      }
+      days.push({ day_number: w * 7 + d.day_number, meals: kept });
     }
+  }
+  if (violationsCount > 0) {
+    console.error(`[v2-meal] POST-GEN VALIDATOR dropped ${violationsCount} forbidden meals`,
+      JSON.stringify(violationSamples));
   }
 
   return {
     days,
-    needs_review: week.needs_review,
-    gap_reason: week.gap_reasons[0] ?? null,
+    needs_review: week.needs_review || violationsCount > 0,
+    gap_reason: violationsCount > 0
+      ? `post-gen validator dropped ${violationsCount} forbidden meals (${week.gap_reasons[0] ?? "ok"})`
+      : (week.gap_reasons[0] ?? null),
     generator_version: "v2",
   };
 }
