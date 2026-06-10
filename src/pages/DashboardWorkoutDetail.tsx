@@ -227,7 +227,7 @@ const ExerciseRow = ({
       if (adminByName) {
         return {
           title: adminByName.name,
-          video_url: adminByName.video_url,
+          video_url: null as string | null,
           description: adminByName.coaching_notes,
           thumbnail_url: adminByName.thumbnail_url,
           mux_playback_id: adminByName.mux_playback_id,
