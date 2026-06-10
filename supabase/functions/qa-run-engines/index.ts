@@ -148,9 +148,19 @@ serve(async (req) => {
   try {
     // 1) Provision users
     for (const u of USERS) {
-      // Check if user already exists
-      const { data: existing } = await admin.auth.admin.listUsers();
-      let userId = existing?.users.find((x: any) => x.email === u.email)?.id;
+      // Find existing user via REST filter API (paginated listUsers misses them)
+      let userId: string | undefined;
+      try {
+        const r = await fetch(
+          `${Deno.env.get("SUPABASE_URL")}/auth/v1/admin/users?filter=${encodeURIComponent(u.email)}`,
+          { headers: {
+            apikey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+            Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""}`,
+          }},
+        );
+        const j = await r.json();
+        userId = j?.users?.find((x: any) => x.email === u.email)?.id;
+      } catch { /* noop */ }
       if (!userId) {
         const { data: created, error: cErr } = await admin.auth.admin.createUser({
           email: u.email, password: u.password, email_confirm: true,
