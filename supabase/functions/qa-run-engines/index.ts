@@ -76,6 +76,46 @@ serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
   );
 
+  const url = new URL(req.url);
+  if (url.searchParams.get("mode") === "debug-u2") {
+    // Diagnose U2 nutrition filter — return resolved profile + pool sizes.
+    const userId = "b0cc3e18-9437-48ec-885e-88723630c9af";
+    const { data: q } = await admin.from("client_questionnaires")
+      .select("dietary_restrictions, disliked_foods, weekly_food_budget, goal_next_4_weeks, household_size")
+      .eq("user_id", userId).eq("is_active", true).maybeSingle();
+    const { data: fitness } = await admin.from("user_fitness_profile")
+      .select("primary_goal, dietary_preferences, allergies, disliked_foods, meals_per_day, household_size, weekly_food_budget")
+      .eq("user_id", userId).maybeSingle();
+    const { fetchMealLibrary } = await import("../_shared/v2-meal-plan-runner.ts");
+    const { buildProfile } = await import("../_shared/meal-plan-engine.ts");
+    const profileInput = {
+      goal: fitness?.primary_goal ?? q?.goal_next_4_weeks ?? null,
+      daily_calories: 1700, protein_target: 130, carb_target: 180, fat_target: 55,
+      dietary_preferences: fitness?.dietary_preferences ?? q?.dietary_restrictions ?? [],
+      allergies: fitness?.allergies ?? [],
+      foods_disliked: fitness?.disliked_foods ?? q?.disliked_foods ?? [],
+      meals_per_day: fitness?.meals_per_day ?? 4,
+      cooking_skill: "Medium", prep_time_pref: "Standard",
+      household_size: 1, budget_help_needed: false, weekly_budget: null,
+    };
+    const profile = buildProfile(profileInput as any);
+    const meals = await fetchMealLibrary(admin);
+    const vegan = meals.filter((m: any) => m.is_vegan);
+    const veganNoNuts = vegan.filter((m: any) =>
+      !(m.allergy_tags || []).map((t: string) => t.toLowerCase()).some((t: string) => t.includes("nut")));
+    return new Response(JSON.stringify({
+      q, fitness, profileInput, builtProfile: profile,
+      libCount: meals.length, veganCount: vegan.length, veganNoNutsCount: veganNoNuts.length,
+      veganNoNutsByType: {
+        breakfast: veganNoNuts.filter((m: any) => m.meal_type === "Breakfast").length,
+        lunch: veganNoNuts.filter((m: any) => m.meal_type === "Lunch").length,
+        dinner: veganNoNuts.filter((m: any) => m.meal_type === "Dinner").length,
+        snack: veganNoNuts.filter((m: any) => m.meal_type === "Snack").length,
+      },
+      veganSample: vegan.slice(0, 5).map((m: any) => ({ code: m.meal_code, name: m.meal_name, type: m.meal_type, is_vegan: m.is_vegan, allergy: m.allergy_tags })),
+    }, null, 2), { headers: { ...cors, "Content-Type": "application/json" } });
+  }
+
   const out: any = { users: [], workout: [], nutrition: [] };
 
   try {
