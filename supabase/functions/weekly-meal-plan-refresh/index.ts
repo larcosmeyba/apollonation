@@ -271,6 +271,7 @@ Make meals practical, varied, and delicious.`;
                 protein_grams: meal.protein_grams,
                 carbs_grams: meal.carbs_grams,
                 fat_grams: meal.fat_grams,
+                meal_id: (meal as any).meal_id ?? null,
                 sort_order: meal.meal_type === "breakfast" ? 0 : meal.meal_type === "lunch" ? 1 : meal.meal_type === "dinner" ? 2 : 3,
               });
             }
@@ -282,6 +283,17 @@ Make meals practical, varied, and delicious.`;
           .insert(allMeals);
 
         if (mealsErr) throw new Error(`Failed to insert meals: ${mealsErr.message}`);
+
+        // Traceability log for v2 + legacy refreshes alike.
+        await supabaseAdmin.from("meal_plan_generation_log").insert({
+          user_id: plan.user_id,
+          plan_id: plan.id,
+          generator_version: v2Meta?.generator_version ?? "legacy",
+          status: "success",
+          needs_review: v2Meta?.needs_review ?? false,
+          gap_reason: v2Meta?.gap_reason ?? null,
+          details: { meal_count: allMeals.length, weeks: plan.duration_weeks || 4, source: "weekly-refresh" },
+        });
 
         results.success.push(plan.user_id);
         console.log(`[MEAL-REFRESH] ✅ Refreshed plan ${plan.id} for user ${plan.user_id}`);

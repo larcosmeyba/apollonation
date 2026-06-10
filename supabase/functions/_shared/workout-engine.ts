@@ -201,9 +201,16 @@ export function assignProgramSlug(profile: WorkoutProfile): string {
   if (goal.includes("fat") || goal.includes("loss")) return "gym_fat_loss";
   if (goal.includes("glute") || profile.body_focus.some((b) => /glute/i.test(b))) return "gym_glutes_legs";
   if (goal.includes("strength")) return "gym_strength";
-  if (profile.days_per_week >= 5) return "gym_muscle_build";  // PPL
+  // Muscle Gain / Hypertrophy → PPL split whenever ≥3 days available (covers 4-day clients).
+  if (goal.includes("muscle") || goal.includes("gain") || goal.includes("hypertrophy") || goal.includes("build")) {
+    if (profile.days_per_week >= 3) return "gym_muscle_build";
+    return "gym_upper_body";
+  }
+  if (profile.days_per_week >= 5) return "gym_muscle_build";
   if (profile.days_per_week === 3) return "gym_full_body";
-  return "gym_upper_body"; // 4-day upper/lower fallback
+  // 2- or 4-day clients without a hypertrophy/strength goal → Upper/Lower from strength pool
+  if (profile.days_per_week === 4 || profile.days_per_week === 2) return "gym_strength";
+  return "gym_upper_body";
 }
 
 // ---------- Time compression ----------
@@ -386,15 +393,27 @@ function fillSession(
 
 // ---------- Weekly split → which blueprints per day ----------
 function dayPlan(slug: string, blueprints: Blueprint[], daysPerWeek: number): Blueprint[] {
-  const pool = blueprints.filter((b) => b.program_slug === slug);
+  // Canonical split order: push/upper → pull → lower/legs → other.
+  const rank = (dt: string): number => {
+    const t = dt.toLowerCase();
+    if (t.includes("push") || (t.includes("upper") && !t.includes("lower"))) return 0;
+    if (t.includes("pull")) return 1;
+    if (t.includes("lower") || t.includes("leg") || t.includes("glute")) return 2;
+    return 3;
+  };
+  const pool = blueprints
+    .filter((b) => b.program_slug === slug)
+    .sort((a, b) => rank(a.day_type) - rank(b.day_type) || a.day_type.localeCompare(b.day_type));
   if (!pool.length) return [];
+
   const out: Blueprint[] = [];
   for (let i = 0; i < daysPerWeek; i++) out.push(pool[i % pool.length]);
-  // R2: avoid back-to-back lower-dominant days by rotating once if needed.
+
+  // R2: avoid back-to-back lower-dominant days. Walk the week and swap any
+  // adjacent leg pair with the next non-leg slot in the rotation.
   const isLower = (bp: Blueprint) => /leg|lower|glute|squat|hinge|lunge/i.test(bp.day_type);
   for (let i = 1; i < out.length; i++) {
-    if (isLower(out[i]) && isLower(out[i - 1]) && pool.length > 1) {
-      // swap with a non-lower day if available later in the list
+    if (isLower(out[i]) && isLower(out[i - 1])) {
       const swap = out.findIndex((b, idx) => idx > i && !isLower(b));
       if (swap > -1) { const t = out[i]; out[i] = out[swap]; out[swap] = t; }
     }

@@ -108,6 +108,7 @@ export function sessionToRows(s: Session) {
     reps: String(slot.reps_or_time),
     rest_seconds: slot.rest_seconds,
     notes: slot.coaching_note,
+    suggested_load: slot.suggested_load ?? null,
     mux_playback_id: slot.mux_playback_id,
     video_url: slot.video_url,
   }));

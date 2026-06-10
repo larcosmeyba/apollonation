@@ -38,31 +38,29 @@ serve(async (req) => {
       );
     }
 
-    const supabaseClient = createClient(
+    // Use service role for canonical-target lookup + writes
+    const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
-
-    if (claimsError || !claimsData?.claims) {
+    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+    if (userError || !userData?.user) {
       return new Response(
         JSON.stringify({ error: "Invalid token" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    const adminId = claimsData.claims.sub;
+    const adminId = userData.user.id;
 
     // Verify admin role
-    const { data: roleData } = await supabaseClient
+    const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", adminId)
       .eq("role", "admin")
-      .single();
+      .maybeSingle();
 
     if (!roleData) {
       return new Response(
@@ -70,6 +68,13 @@ serve(async (req) => {
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Authenticated client (anon key + caller JWT) for caller-scoped reads only.
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
 
     // Rate limit: 5 requests per admin per day (1440 min)
     const allowed = await checkRateLimit(adminId as string, "generate-meal-plan", 5, 1440);
@@ -81,11 +86,7 @@ serve(async (req) => {
     }
     const { profile, clientUserId, planTitle } = parsed.data;
 
-    // Use service role for canonical-target lookup + writes
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+    // (supabaseAdmin already created above for token verification)
 
     // CANONICAL macros — the exact numbers shown on "Today's Nutrition".
     // The meal plan MUST match these; we no longer recompute independently.
@@ -347,6 +348,7 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
           protein_grams: meal.protein_grams,
           carbs_grams: meal.carbs_grams,
           fat_grams: meal.fat_grams,
+          meal_id: (meal as any).meal_id ?? null,
           sort_order: meal.meal_type === "breakfast" ? 0 : meal.meal_type === "lunch" ? 1 : meal.meal_type === "dinner" ? 2 : 3,
         });
       }
@@ -362,6 +364,21 @@ Each day's 4 meal totals MUST sum to the daily targets above. Distribute as: bre
       await supabaseAdmin.from("nutrition_plans").delete().eq("id", plan.id);
       throw new Error("Failed to create meal entries");
     }
+
+    // Log this generation for traceability (v2 + legacy both logged).
+    await supabaseAdmin.from("meal_plan_generation_log").insert({
+      user_id: clientUserId,
+      plan_id: plan.id,
+      generator_version: v2Meta?.generator_version ?? "legacy",
+      status: "success",
+      needs_review: v2Meta?.needs_review ?? false,
+      gap_reason: v2Meta?.gap_reason ?? null,
+      details: {
+        meal_count: allMeals.length,
+        days: mealPlanData.days.length,
+        macros: { dailyCalories, proteinGrams, carbsGrams, fatGrams },
+      },
+    });
 
     return new Response(
       JSON.stringify({
