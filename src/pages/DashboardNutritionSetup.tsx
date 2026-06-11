@@ -615,19 +615,19 @@ const DashboardNutritionSetup = () => {
           {step === 0 && (
             <>
               <Field label="Current weight">
-                <Suffix value={form.current_weight_lbs} onChange={(v) => set("current_weight_lbs", v)} placeholder="175" suffix="lbs" />
+                <Suffix value={form.current_weight_lbs} onChange={(v) => set("current_weight_lbs", v)} placeholder="" suffix="lbs" />
               </Field>
               <Field label="Goal weight" optional>
-                <Suffix value={form.goal_weight_lbs} onChange={(v) => set("goal_weight_lbs", v)} placeholder="165" suffix="lbs" />
+                <Suffix value={form.goal_weight_lbs} onChange={(v) => set("goal_weight_lbs", v)} placeholder="" suffix="lbs" />
               </Field>
               <Field label="Height">
                 <div className="grid grid-cols-2 gap-3">
-                  <Suffix value={form.height_feet} onChange={(v) => set("height_feet", v)} placeholder="5" suffix="ft" />
-                  <Suffix value={form.height_inches} onChange={(v) => set("height_inches", v)} placeholder="10" suffix="in" />
+                  <Suffix value={form.height_feet} onChange={(v) => set("height_feet", v)} placeholder="" suffix="ft" />
+                  <Suffix value={form.height_inches} onChange={(v) => set("height_inches", v)} placeholder="" suffix="in" />
                 </div>
               </Field>
               <Field label="Age">
-                <Input type="number" value={form.age} onChange={(e) => set("age", e.target.value)} placeholder="28" />
+                <Input type="number" value={form.age} onChange={(e) => set("age", e.target.value)} placeholder="" />
               </Field>
               <Field label="Gender">
                 <PillRow options={GENDERS} value={form.gender} onChange={(v) => set("gender", v)} cols={2} />
