@@ -402,7 +402,7 @@ const Questionnaire = () => {
                       type="number"
                       value={form.height_feet}
                       onChange={(e) => updateField("height_feet", e.target.value)}
-                      placeholder="5"
+                      placeholder=""
                       min={3}
                       max={8}
                     />
@@ -413,7 +413,7 @@ const Questionnaire = () => {
                       type="number"
                       value={form.height_inches}
                       onChange={(e) => updateField("height_inches", e.target.value)}
-                      placeholder="10"
+                      placeholder=""
                       min={0}
                       max={11}
                     />
@@ -427,7 +427,7 @@ const Questionnaire = () => {
                     type="number"
                     value={form.weight_lbs}
                     onChange={(e) => updateField("weight_lbs", e.target.value)}
-                    placeholder="175"
+                    placeholder=""
                     min={50}
                     max={600}
                   />

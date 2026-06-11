@@ -541,7 +541,7 @@ const DashboardPersonalize = () => {
                     inputMode="numeric"
                     value={f.age}
                     onChange={(e) => set("age", e.target.value)}
-                    placeholder="28"
+                    placeholder=""
                   />
                 </Q>
                 <Q label="Gender">
@@ -571,8 +571,9 @@ const DashboardPersonalize = () => {
                     inputMode="decimal"
                     value={f.weight_lbs}
                     onChange={(e) => set("weight_lbs", e.target.value)}
-                    placeholder="175"
+                    placeholder=""
                   />
+
                 </Q>
                 <Q label="Dietary preference?">
                   <Pills value={f.dietary} onChange={(v) => set("dietary", v)} options={DIETARY} cols={2} />
