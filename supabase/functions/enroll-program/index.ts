@@ -135,7 +135,7 @@ serve(async (req) => {
     // Fetch exercise library (MUX-ONLY)
     const { data: exerciseLibrary } = await supabaseAdmin
       .from("admin_exercises")
-      .select("name, body_part, equipment, difficulty, mux_playback_id")
+      .select("id, name, body_part, equipment, difficulty, mux_playback_id")
       .not("mux_playback_id", "is", null)
       .order("name");
 
@@ -234,15 +234,16 @@ Respond with ONLY valid JSON:
     if (clean.endsWith("```")) clean = clean.slice(0, -3);
     planData = JSON.parse(clean.trim());
 
-    // Validate exercises against library
-    const libraryTitles = new Set((exerciseLibrary || []).map((e: any) => e.title.toLowerCase()));
+    // Validate exercises against library and build a name->library map
+    const libIndex = new Map<string, any>();
+    for (const e of exerciseLibrary || []) libIndex.set((e.name || "").toLowerCase(), e);
     const allowedExceptions = ["dynamic warm-up", "treadmill walk", "cool-down stretches", "warmup", "cooldown"];
     for (const day of planData.days) {
       day.exercises = day.exercises.filter((ex: any) => {
         const name = ex.exercise_name.toLowerCase();
         const isException = allowedExceptions.some((ae) => name.includes(ae)) ||
           ex.muscle_group === "warmup" || ex.muscle_group === "cooldown";
-        return libraryTitles.has(name) || isException;
+        return libIndex.has(name) || isException;
       });
     }
 
@@ -290,16 +291,21 @@ Respond with ONLY valid JSON:
           continue;
         }
 
-        const exercises = day.exercises.map((ex: any, i: number) => ({
-          day_id: dayRow.id,
-          exercise_name: ex.exercise_name,
-          muscle_group: ex.muscle_group || null,
-          sets: ex.sets || 3,
-          reps: ex.reps || "10",
-          rest_seconds: ex.rest_seconds || 60,
-          notes: ex.notes || null,
-          sort_order: i,
-        }));
+        const exercises = day.exercises.map((ex: any, i: number) => {
+          const lib = libIndex.get((ex.exercise_name || "").toLowerCase());
+          return {
+            day_id: dayRow.id,
+            exercise_name: ex.exercise_name,
+            muscle_group: ex.muscle_group || null,
+            sets: ex.sets || 3,
+            reps: ex.reps || "10",
+            rest_seconds: ex.rest_seconds || 60,
+            notes: ex.notes || null,
+            sort_order: i,
+            exercise_id: lib?.id ?? null,
+            mux_playback_id: lib?.mux_playback_id ?? null,
+          };
+        });
 
         await supabaseAdmin.from("training_plan_exercises").insert(exercises);
       }
