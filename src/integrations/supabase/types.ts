@@ -401,6 +401,86 @@ export type Database = {
         }
         Relationships: []
       }
+      blueprint_analytics: {
+        Row: {
+          blueprint_id: string
+          created_at: string
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          blueprint_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          blueprint_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blueprint_analytics_blueprint_id_fkey"
+            columns: ["blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "blueprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blueprints: {
+        Row: {
+          category: string
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          goal_tags: string[]
+          id: string
+          is_archived: boolean
+          is_published: boolean
+          pdf_path: string
+          read_time_minutes: number | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          goal_tags?: string[]
+          id?: string
+          is_archived?: boolean
+          is_published?: boolean
+          pdf_path: string
+          read_time_minutes?: number | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          goal_tags?: string[]
+          id?: string
+          is_archived?: boolean
+          is_published?: boolean
+          pdf_path?: string
+          read_time_minutes?: number | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       body_metrics: {
         Row: {
           body_fat_pct: number | null
