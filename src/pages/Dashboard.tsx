@@ -428,8 +428,12 @@ const Dashboard = () => {
                 </div>
               </Link>
             ))}
-          </div>
         </div>
+
+        {/* Success Blueprints */}
+        <BlueprintsCarousel />
+
+
 
         {/* Your Coaches */}
         <div>
