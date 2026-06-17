@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { RECOVERY_PROGRAM, type RecoveryDay } from "@/data/recoveryProgram";
-import { ChevronRight, Waves, Clock, Loader2 } from "lucide-react";
+import { ChevronRight, Waves, Clock, Loader2, Timer } from "lucide-react";
 
 type RecoveryExercise = {
   id: string;

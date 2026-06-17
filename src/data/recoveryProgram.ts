@@ -16,6 +16,8 @@ export type RecoveryDay = {
   exclude?: string[];
   /** Cap on how many exercises to surface (post de-dupe). */
   cap: number;
+  /** Prescription for hold time / sets / rounds so the client knows how long to perform each movement. */
+  holdInstructions: string;
 };
 
 export const RECOVERY_PROGRAM: RecoveryDay[] = [
