@@ -81,6 +81,7 @@ const DashboardWorkouts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [pendingWorkout, setPendingWorkout] = useState<Workout | null>(null);
   const [showSearch, setShowSearch] = useState(searchParams.get("search") === "true");
   const { data: workoutCategories } = useWorkoutCategories();
   const TYPE_IMAGES = { ...TYPE_FALLBACK_IMAGES, ...categoryImageMap(workoutCategories) };
@@ -201,7 +202,7 @@ const DashboardWorkouts = () => {
             navigate("/subscribe?reason=workouts");
             return;
           }
-          setSelectedWorkout(workout);
+          setPendingWorkout(workout);
         }}
         className="group relative overflow-hidden rounded-2xl text-left transition-all w-full"
       >

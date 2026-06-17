@@ -157,16 +157,23 @@ serve(async (req) => {
     } else {
       const { data: senderProfile } = await supabaseAdmin
         .from("profiles").select("display_name").eq("user_id", senderId).maybeSingle();
+      const { data: senderAuth } = await supabaseAdmin.auth.admin.getUserById(senderId);
 
       const clientName = senderProfile?.display_name || "A client";
+      const clientEmail = senderAuth?.user?.email || "unknown";
       const previewLine = escapedPreview ? `“${escapedPreview}”` : `${clientName} just sent you a new message.`;
+      const adminBody = `
+        <p style="margin: 0 0 12px; font-size: 14px; color: #e5e5e5;"><strong>From:</strong> ${clientName} &lt;${clientEmail}&gt;</p>
+        <p style="margin: 0 0 16px; font-size: 15px; color: #a3a3a3; font-style: italic;">${previewLine}</p>
+        <p style="margin: 0; font-size: 14px; color: #a3a3a3;">Log in to your admin panel to read and reply.</p>
+      `;
 
       try {
         await resend.emails.send({
           from: EMAIL_FROM,
           to: [ADMIN_EMAIL],
-          subject: `${clientName} sent you a message`,
-          html: buildEmail("Coach", `${previewLine}<br/><br/>Log in to your admin panel to read and reply.`, `${APP_URL}/admin`),
+          subject: `New Client Message in Apollo Reborn`,
+          html: buildEmail("Coach", adminBody, `${APP_URL}/admin`),
         });
         await supabaseAdmin.from("message_email_state").upsert({
           user_a: pairA, user_b: pairB, last_email_sent_at: new Date().toISOString(),
