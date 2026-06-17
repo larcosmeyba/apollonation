@@ -24,6 +24,7 @@ const DashboardSidebar = () => {
     { label: "My Plan", href: "/dashboard/my-workouts", icon: Dumbbell },
     { label: "Calendar", href: "/dashboard/calendar", icon: Calendar },
     { label: "Recipes", href: "/dashboard/recipes", icon: BookOpen },
+    { label: "Blueprints", href: "/dashboard/blueprints", icon: BookOpen },
     { label: "Transformation", href: "/dashboard/transformation", icon: ImageIcon },
     { label: "Recovery", href: "/dashboard/recovery", icon: Heart },
     { label: "Challenges", href: "/dashboard/challenges", icon: Dumbbell },
