@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import MuxVideo from "@/components/video/MuxVideo";
 import { RECOVERY_PROGRAM } from "@/data/recoveryProgram";
 import { useRecoveryPool, resolveDayExercises } from "./RecoveryProgram";
-import { ChevronLeft, Clock, Loader2 } from "lucide-react";
+import { ChevronLeft, Clock, Loader2, Timer } from "lucide-react";
 
 const RecoveryDay = () => {
   const { day } = useParams<{ day: string }>();
@@ -38,6 +38,10 @@ const RecoveryDay = () => {
           </div>
           <h1 className="font-heading text-2xl text-foreground leading-tight mt-1">{meta.title}</h1>
           <p className="text-sm text-foreground/60 mt-1">{meta.subtitle}</p>
+          <p className="text-[11px] text-foreground/45 mt-2 flex items-center gap-1.5">
+            <Timer className="w-3.5 h-3.5 text-primary/80" />
+            <span className="font-medium">{meta.holdInstructions}</span>
+          </p>
         </header>
 
         {isLoading && (
