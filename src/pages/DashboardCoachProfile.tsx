@@ -172,6 +172,8 @@ const DashboardCoachProfile = () => {
                     videoId={selectedWorkout.id}
                     category={selectedWorkout.category}
                     autoPlay
+                    muted
+                    playsInline
                     controls
                   />
                 </div>
@@ -238,7 +240,7 @@ const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
 
   return (
     <div className="aspect-video w-full bg-black">
-      <video src={signedUrl} controls autoPlay playsInline className="w-full h-full" />
+      <video src={signedUrl} controls autoPlay muted playsInline className="w-full h-full" />
     </div>
   );
 };

@@ -119,7 +119,9 @@ const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
     staleTime: 1000 * 60 * 30,
   });
   if (!signedUrl) return <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
-  return <video src={signedUrl} controls autoPlay className="w-full h-full" />;
+  // Muted + playsInline so the workout demo never hijacks the iOS/Android
+  // audio session — users can keep their own music playing in the background.
+  return <video src={signedUrl} controls autoPlay muted playsInline className="w-full h-full" />;
 };
 
 // ── Exercise Row ─────────────────────────────────────────────────────
@@ -483,6 +485,8 @@ const ExerciseRow = ({
                 title={exerciseData?.title || exercise.exercise_name}
                 videoId={exercise.id}
                 autoPlay
+                muted
+                playsInline
                 controls
               />
             ) : isStorage && videoOpen ? (
