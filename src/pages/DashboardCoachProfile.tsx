@@ -172,6 +172,8 @@ const DashboardCoachProfile = () => {
                     videoId={selectedWorkout.id}
                     category={selectedWorkout.category}
                     autoPlay
+                    muted
+                    playsInline
                     controls
                   />
                 </div>
