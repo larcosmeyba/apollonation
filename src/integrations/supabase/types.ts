@@ -2638,6 +2638,7 @@ export type Database = {
           agreed_to_terms_at: string | null
           avatar_url: string | null
           bio: string | null
+          birthday: string | null
           certifications: string[]
           created_at: string
           display_name: string | null
@@ -2668,6 +2669,7 @@ export type Database = {
           agreed_to_terms_at?: string | null
           avatar_url?: string | null
           bio?: string | null
+          birthday?: string | null
           certifications?: string[]
           created_at?: string
           display_name?: string | null
@@ -2698,6 +2700,7 @@ export type Database = {
           agreed_to_terms_at?: string | null
           avatar_url?: string | null
           bio?: string | null
+          birthday?: string | null
           certifications?: string[]
           created_at?: string
           display_name?: string | null

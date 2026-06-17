@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
-  ChevronLeft, Snowflake, Archive, XCircle, RotateCcw, Pencil,
+  ChevronLeft, Archive, XCircle, RotateCcw, Pencil,
   User, Target, FileText, StickyNote, Utensils, Dumbbell, Activity, BarChart3, Eye,
   Mail, Phone, Copy, Check, Save, X,
 } from "lucide-react";
@@ -239,14 +239,9 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
 
             {/* Status actions */}
             {profile?.account_status === "active" && (
-              <>
-                <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={() => statusMutation.mutate({ status: "frozen" })} disabled={statusMutation.isPending}>
-                  <Snowflake className="w-3 h-3" /> Freeze
-                </Button>
-                <Button size="sm" variant="outline" className="h-8 text-xs gap-1 text-destructive" onClick={() => statusMutation.mutate({ status: "cancelled" })} disabled={statusMutation.isPending}>
-                  <XCircle className="w-3 h-3" /> Cancel
-                </Button>
-              </>
+              <Button size="sm" variant="outline" className="h-8 text-xs gap-1 text-destructive" onClick={() => statusMutation.mutate({ status: "cancelled" })} disabled={statusMutation.isPending}>
+                <XCircle className="w-3 h-3" /> Cancel
+              </Button>
             )}
             {profile?.account_status !== "active" && (
               <Button size="sm" variant="apollo" className="h-8 text-xs gap-1" onClick={() => statusMutation.mutate({ status: "active" })} disabled={statusMutation.isPending}>

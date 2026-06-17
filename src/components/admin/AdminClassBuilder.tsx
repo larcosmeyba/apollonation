@@ -11,12 +11,15 @@ import { toast } from "sonner";
 import {
   AdminExercise,
   EQUIPMENT_OPTIONS,
+  EXERCISE_CATEGORIES,
+  ExerciseCategory,
   muxThumb,
 } from "./library/exerciseTypes";
 import OnDemandClassPlayer, { PlayerBlock } from "./library/OnDemandClassPlayer";
 import RenderMp4Panel from "./library/RenderMp4Panel";
 import {
   Plus, Play, Save, Trash2, GripVertical, Sparkles, Loader2, ChevronUp, ChevronDown, FolderOpen,
+  Bookmark, Download,
 } from "lucide-react";
 
 interface Block {
@@ -63,10 +66,12 @@ const AdminClassBuilder = () => {
   });
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | "all">("all");
   const [previewing, setPreviewing] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showOpenList, setShowOpenList] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const { data: exercises = [] } = useQuery({
     queryKey: ["admin-exercises"],
@@ -90,9 +95,11 @@ const AdminClassBuilder = () => {
     [exercises]
   );
 
-  const filteredLib = horizontalLib.filter(
-    (e) => !search || e.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredLib = horizontalLib.filter((e) => {
+    if (search && !e.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (categoryFilter !== "all" && e.category !== categoryFilter) return false;
+    return true;
+  });
 
   const exById = useMemo(() => {
     const m = new Map<string, AdminExercise>();
@@ -227,6 +234,75 @@ const AdminClassBuilder = () => {
     qc.invalidateQueries({ queryKey: ["admin-classes"] });
   };
 
+  // ── Templates ────────────────────────────────────────────────
+  const { data: templates = [] } = useQuery({
+    queryKey: ["admin-class-templates"],
+    queryFn: async () => {
+      const { data } = await supabase.from("admin_class_templates" as any).select("*").order("created_at", { ascending: false });
+      return (data || []) as any[];
+    },
+  });
+
+  const saveTemplate = async () => {
+    if (blocks.length === 0) return toast.error("Add exercises before saving as template");
+    const name = window.prompt("Template name:", meta.title || `${meta.class_type} ${meta.duration_minutes}m`);
+    if (!name) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from("admin_class_templates" as any).insert({
+      title: name,
+      description: meta.description || null,
+      duration_minutes: meta.duration_minutes,
+      class_type: meta.class_type,
+      payload: { meta, blocks },
+      created_by: user?.id,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Template saved");
+    qc.invalidateQueries({ queryKey: ["admin-class-templates"] });
+  };
+
+  const loadTemplate = (t: any) => {
+    const p = t.payload || {};
+    if (p.meta) setMeta((m) => ({ ...m, ...p.meta }));
+    if (Array.isArray(p.blocks)) setBlocks(p.blocks.map((b: any) => ({ ...newBlock(b.exercise_id, b.alt_exercise_id), ...b, id: crypto.randomUUID() })));
+    setClassId(null);
+    setShowTemplates(false);
+    toast.success(`Loaded "${t.title}"`);
+  };
+
+  const deleteTemplate = async (id: string) => {
+    if (!window.confirm("Delete this template?")) return;
+    const { error } = await supabase.from("admin_class_templates" as any).delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    qc.invalidateQueries({ queryKey: ["admin-class-templates"] });
+  };
+
+  const exportClass = () => {
+    const payload = {
+      version: 1,
+      exported_at: new Date().toISOString(),
+      meta,
+      blocks: blocks.map((b) => {
+        const ex = b.exercise_id ? exById.get(b.exercise_id) : null;
+        return {
+          ...b,
+          exercise: ex ? { id: ex.id, name: ex.name, mux_playback_id: ex.mux_playback_id, category: ex.category } : null,
+        };
+      }),
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(meta.title || "class").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Class exported");
+  };
+
+
   const aiGenerate = async () => {
     if (horizontalLib.length === 0) return toast.error("Add horizontal exercises to your library first");
     setAiLoading(true);
@@ -283,11 +359,20 @@ const AdminClassBuilder = () => {
           <Button variant="outline" onClick={() => setShowOpenList((s) => !s)}>
             <FolderOpen className="w-4 h-4" /> Open
           </Button>
+          <Button variant="outline" onClick={() => setShowTemplates((s) => !s)}>
+            <Bookmark className="w-4 h-4" /> Templates
+          </Button>
           <Button variant="outline" onClick={newClass}>
             <Plus className="w-4 h-4" /> New
           </Button>
           <Button variant="outline" onClick={() => setPreviewing(true)} disabled={blocks.length === 0}>
             <Play className="w-4 h-4" /> Preview
+          </Button>
+          <Button variant="outline" onClick={saveTemplate} disabled={blocks.length === 0}>
+            <Bookmark className="w-4 h-4" /> Save as Template
+          </Button>
+          <Button variant="outline" onClick={exportClass} disabled={blocks.length === 0}>
+            <Download className="w-4 h-4" /> Export
           </Button>
           <Button variant="outline" onClick={() => saveClass("draft")} disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -298,6 +383,31 @@ const AdminClassBuilder = () => {
           </Button>
         </div>
       </div>
+
+      {showTemplates && (
+        <Card className="p-4 mb-4">
+          <div className="text-sm font-medium mb-2">Class templates</div>
+          {templates.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No templates saved yet. Click "Save as Template" to create one.</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {templates.map((t: any) => (
+                <div key={t.id} className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card/40">
+                  <button onClick={() => loadTemplate(t)} className="flex-1 text-left min-w-0">
+                    <div className="text-sm font-medium truncate">{t.title}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t.duration_minutes}m · {t.class_type}
+                    </div>
+                  </button>
+                  <button onClick={() => deleteTemplate(t.id)} className="p-1 hover:bg-muted rounded">
+                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
 
       {showOpenList && (
         <Card className="p-4 mb-4">

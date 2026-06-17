@@ -7,6 +7,7 @@ export type ExerciseCategory =
   | "cardio"
   | "hiit"
   | "recovery"
+  | "cycling"
   | "beginner";
 
 export interface AdminExercise {
@@ -39,6 +40,7 @@ export const EXERCISE_CATEGORIES: ExerciseCategory[] = [
   "cardio",
   "hiit",
   "recovery",
+  "cycling",
   "beginner",
 ];
 
