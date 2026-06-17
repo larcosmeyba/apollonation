@@ -20,14 +20,6 @@ export type RecoveryDay = {
 
 export const RECOVERY_PROGRAM: RecoveryDay[] = [
   {
-    day: 1,
-    title: "Full-Body Foam Roll & Reset",
-    subtitle: "Roll quads, glutes, lats, upper back. Reset the system.",
-    durationMinutes: 15,
-    include: ["foam roll", "roll", "smr", "trigger"],
-    cap: 6,
-  },
-  {
     day: 2,
     title: "Hip & Lower Back Mobility",
     subtitle: "Open the hips, decompress the lumbar spine.",
