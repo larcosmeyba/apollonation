@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { format, startOfWeek } from "date-fns";
 import { toast } from "sonner";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
+import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import marcosAction6 from "@/assets/marcos-action-6.webp";
 import marcosAction7 from "@/assets/marcos-action-7.webp";
 import marcos2 from "@/assets/marcos-2.jpg";
@@ -81,6 +82,7 @@ const DashboardWorkouts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [pendingWorkout, setPendingWorkout] = useState<Workout | null>(null);
   const [showSearch, setShowSearch] = useState(searchParams.get("search") === "true");
   const { data: workoutCategories } = useWorkoutCategories();
   const TYPE_IMAGES = { ...TYPE_FALLBACK_IMAGES, ...categoryImageMap(workoutCategories) };
@@ -201,7 +203,7 @@ const DashboardWorkouts = () => {
             navigate("/subscribe?reason=workouts");
             return;
           }
-          setSelectedWorkout(workout);
+          setPendingWorkout(workout);
         }}
         className="group relative overflow-hidden rounded-2xl text-left transition-all w-full"
       >
@@ -418,6 +420,16 @@ const DashboardWorkouts = () => {
           </div>
         )}
       </div>
+
+      <PreWorkoutMusicPrompt
+        open={!!pendingWorkout}
+        onCancel={() => setPendingWorkout(null)}
+        onReady={() => {
+          const w = pendingWorkout;
+          setPendingWorkout(null);
+          if (w) setSelectedWorkout(w);
+        }}
+      />
 
       <Dialog open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">

@@ -40,6 +40,25 @@ serve(async (req) => {
 
     if (!email) return jsonResponse(req, { error: "No email provided" }, 400);
 
+    // Pull subscription status from profiles (defaults to 'free' until IAP webhook upgrades it)
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("entitlement, subscription_tier, is_subscribed, subscription_plan")
+      .eq("user_id", userData.user.id)
+      .maybeSingle();
+
+    const subscriptionStatus =
+      profile?.entitlement ||
+      profile?.subscription_tier ||
+      profile?.subscription_plan ||
+      (profile?.is_subscribed ? "Subscribed" : "Free / Trial");
+
+    const signupDate = new Date(userData.user.created_at || Date.now()).toLocaleString("en-US", {
+      dateStyle: "long",
+      timeStyle: "short",
+      timeZone: "America/New_York",
+    });
+
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) throw new Error("RESEND_API_KEY is not configured");
 
@@ -48,7 +67,7 @@ serve(async (req) => {
     await resend.emails.send({
       from: EMAIL_FROM,
       to: [ADMIN_EMAIL],
-      subject: `New Client Signup: ${displayName}`,
+      subject: `New Apollo Reborn Client Signup`,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #0a0a0a; color: #e5e5e5;">
           <div style="text-align: center; margin-bottom: 32px;">
@@ -61,7 +80,9 @@ serve(async (req) => {
             <p style="margin: 0 0 8px; font-size: 16px; color: #a3a3a3;">A new client just signed up!</p>
             <div style="background-color: #1a1a1a; border: 1px solid #333; padding: 16px; margin: 16px 0; border-radius: 4px;">
               <p style="margin: 0 0 8px; font-size: 14px; color: #e5e5e5;"><strong>Name:</strong> ${displayName}</p>
-              <p style="margin: 0; font-size: 14px; color: #e5e5e5;"><strong>Email:</strong> ${email}</p>
+              <p style="margin: 0 0 8px; font-size: 14px; color: #e5e5e5;"><strong>Email:</strong> ${email}</p>
+              <p style="margin: 0 0 8px; font-size: 14px; color: #e5e5e5;"><strong>Signup Date:</strong> ${signupDate} ET</p>
+              <p style="margin: 0; font-size: 14px; color: #e5e5e5;"><strong>Subscription:</strong> ${subscriptionStatus}</p>
             </div>
             <div style="text-align: center; margin-top: 24px;">
               <a href="${APP_URL}/admin" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 32px; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.05em;">VIEW IN ADMIN</a>
