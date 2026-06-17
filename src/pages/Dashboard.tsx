@@ -4,6 +4,7 @@ import { useSignedUrl } from "@/hooks/useSignedUrl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AppleHealthCard from "@/components/dashboard/AppleHealthCard";
 import PersonalizationChecklist from "@/components/dashboard/PersonalizationChecklist";
+import BlueprintsCarousel from "@/components/dashboard/BlueprintsCarousel";
 import { Play, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
