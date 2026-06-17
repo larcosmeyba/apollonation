@@ -104,7 +104,11 @@ const RecoveryProgram = () => {
                   </div>
                   <h3 className="font-heading text-lg text-foreground leading-tight mt-1">{d.title}</h3>
                   <p className="text-xs text-foreground/55 mt-1 line-clamp-2">{d.subtitle}</p>
-                  <p className="text-[11px] text-foreground/40 mt-2">
+                  <p className="text-[11px] text-foreground/40 mt-1.5 flex items-center gap-1">
+                    <Timer className="w-3 h-3" />
+                    {d.holdInstructions}
+                  </p>
+                  <p className="text-[11px] text-foreground/40 mt-1">
                     {d.exercises.length} {d.exercises.length === 1 ? "movement" : "movements"}
                   </p>
                 </div>
