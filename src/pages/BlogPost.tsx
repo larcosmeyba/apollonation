@@ -1,33 +1,79 @@
+import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
-import { getPostBySlug, blogPosts } from "@/data/blogPosts";
+import { supabase } from "@/integrations/supabase/client";
+
+type Post = {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  author: string;
+  read_minutes: number;
+  content: string;
+  published_at: string;
+  cover_url: string | null;
+};
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const post = slug ? getPostBySlug(slug) : undefined;
+  const [post, setPost] = useState<Post | null>(null);
+  const [related, setRelated] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!post) return <Navigate to="/blog" replace />;
+  useEffect(() => {
+    if (!slug) return;
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("blog_posts" as any)
+        .select("*")
+        .eq("slug", slug)
+        .eq("published", true)
+        .maybeSingle();
+      if (!data) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+      setPost(data as any);
+      const { data: rel } = await supabase
+        .from("blog_posts" as any)
+        .select("slug,title,description,category,author,read_minutes,content,published_at,cover_url")
+        .neq("slug", slug)
+        .eq("published", true)
+        .order("published_at", { ascending: false })
+        .limit(3);
+      setRelated(((rel as any) || []) as Post[]);
+      setLoading(false);
+    })();
+  }, [slug]);
 
-  const related = blogPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
+  if (notFound) return <Navigate to="/blog" replace />;
+  if (loading || !post) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="animate-spin text-white/60" />
+      </div>
+    );
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
     description: post.description,
-    datePublished: post.date,
+    datePublished: post.published_at,
     author: { "@type": "Person", name: post.author },
     publisher: {
       "@type": "Organization",
       name: "Apollo Reborn",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://www.apolloreborn.com/og-image.jpg",
-      },
+      logo: { "@type": "ImageObject", url: "https://www.apolloreborn.com/og-image.jpg" },
     },
     mainEntityOfPage: `https://www.apolloreborn.com/blog/${post.slug}`,
   };
@@ -57,7 +103,7 @@ const BlogPost = () => {
               <span className="px-2.5 py-1 rounded-full bg-white/10 text-white/80 tracking-wide">
                 {post.category}
               </span>
-              <span className="text-white/40">{post.readMinutes} min read</span>
+              <span className="text-white/40">{post.read_minutes} min read</span>
             </div>
             <h1 className="font-heading text-3xl md:text-5xl font-bold text-white leading-tight mb-5">
               {post.title}
@@ -66,8 +112,8 @@ const BlogPost = () => {
             <div className="flex items-center gap-3 text-sm text-white/50 pb-6 border-b border-white/10">
               <span>{post.author}</span>
               <span>·</span>
-              <time dateTime={post.date}>
-                {new Date(post.date).toLocaleDateString("en-US", {
+              <time dateTime={post.published_at}>
+                {new Date(post.published_at).toLocaleDateString("en-US", {
                   month: "long",
                   day: "numeric",
                   year: "numeric",
@@ -75,6 +121,10 @@ const BlogPost = () => {
               </time>
             </div>
           </header>
+
+          {post.cover_url && (
+            <img src={post.cover_url} alt={post.title} className="w-full rounded-2xl mb-10" loading="lazy" />
+          )}
 
           <div
             className="prose-blog text-white/85 leading-relaxed space-y-5
@@ -86,7 +136,6 @@ const BlogPost = () => {
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
-          {/* CTA */}
           <div className="mt-16 bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
             <h3 className="font-heading text-xl md:text-2xl font-bold text-white mb-3">
               Want a plan built around this?
@@ -102,7 +151,6 @@ const BlogPost = () => {
           </div>
         </article>
 
-        {/* Related */}
         {related.length > 0 && (
           <section className="container mx-auto px-4 max-w-6xl mt-20">
             <h2 className="font-heading text-2xl font-bold text-white mb-6">Keep reading</h2>

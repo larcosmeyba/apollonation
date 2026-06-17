@@ -21,6 +21,7 @@ import {
   Film,
   MessageSquare,
   Image as ImageIcon,
+  Newspaper,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -47,6 +48,7 @@ const navItems = [
   { id: "categories", label: "Categories", icon: ImageIcon, color: "text-[hsl(320,70%,60%)]" },
   { id: "recipes", label: "Recipes", icon: Utensils, color: "text-[hsl(30,80%,55%)]" },
   { id: "messages", label: "Messages", icon: MessageSquare, color: "text-primary" },
+  { id: "blog", label: "Blog", icon: Newspaper, color: "text-[hsl(260,60%,65%)]" },
   { id: "contacts", label: "Contact Requests", icon: Inbox, color: "text-[hsl(180,60%,45%)]" },
   { id: "bugs", label: "Bug Reports", icon: Bug, color: "text-[hsl(0,80%,55%)]" },
   { id: "profile", label: "Coach Profile", icon: User, color: "text-[hsl(220,60%,60%)]" },
