@@ -302,14 +302,25 @@ const ExerciseRow = ({
             className="relative flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border border-white/[0.06] bg-[#0a0a0a] disabled:cursor-default"
             aria-label={hasAnyVideo ? "Play demo video" : "No video"}
           >
-            {thumbnail ? (
+            {hasMux ? (
+              <video
+                src={`https://stream.mux.com/${resolvedPlaybackId}/low.mp4`}
+                poster={muxPoster || undefined}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                className={`w-full h-full object-cover ${isCompleted ? "opacity-40" : ""}`}
+              />
+            ) : thumbnail ? (
               <img src={thumbnail} alt="" className={`w-full h-full object-cover ${isCompleted ? "opacity-40" : ""}`} loading="lazy" />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <Dumbbell className="w-5 h-5 text-foreground/20" />
               </div>
             )}
-            {hasAnyVideo && !isCompleted && (
+            {hasAnyVideo && !isCompleted && !hasMux && (
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                 <Play className="w-4 h-4 text-foreground ml-0.5" fill="currentColor" />
               </div>
