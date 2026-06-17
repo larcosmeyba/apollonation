@@ -291,16 +291,21 @@ Respond with ONLY valid JSON:
           continue;
         }
 
-        const exercises = day.exercises.map((ex: any, i: number) => ({
-          day_id: dayRow.id,
-          exercise_name: ex.exercise_name,
-          muscle_group: ex.muscle_group || null,
-          sets: ex.sets || 3,
-          reps: ex.reps || "10",
-          rest_seconds: ex.rest_seconds || 60,
-          notes: ex.notes || null,
-          sort_order: i,
-        }));
+        const exercises = day.exercises.map((ex: any, i: number) => {
+          const lib = libIndex.get((ex.exercise_name || "").toLowerCase());
+          return {
+            day_id: dayRow.id,
+            exercise_name: ex.exercise_name,
+            muscle_group: ex.muscle_group || null,
+            sets: ex.sets || 3,
+            reps: ex.reps || "10",
+            rest_seconds: ex.rest_seconds || 60,
+            notes: ex.notes || null,
+            sort_order: i,
+            exercise_id: lib?.id ?? null,
+            mux_playback_id: lib?.mux_playback_id ?? null,
+          };
+        });
 
         await supabaseAdmin.from("training_plan_exercises").insert(exercises);
       }
