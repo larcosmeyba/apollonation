@@ -233,12 +233,7 @@ const ExerciseRow = ({
           mux_playback_id: adminByName.mux_playback_id,
         };
       }
-      const { data } = await supabase
-        .from("exercises")
-        .select("title, video_url, description, thumbnail_url, mux_playback_id")
-        .ilike("title", exercise.exercise_name)
-        .maybeSingle();
-      return data;
+      return null;
     },
     staleTime: 1000 * 60 * 30,
   });

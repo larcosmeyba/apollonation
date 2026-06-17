@@ -181,20 +181,7 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
-  const { data: workoutExercises = [] } = useQuery({
-    queryKey: ["workout-exercises-home", selectedWorkout?.id],
-    queryFn: async () => {
-      if (!selectedWorkout) return [];
-      const { data, error } = await supabase
-        .from("workout_exercises")
-        .select("*, exercises(*)")
-        .eq("workout_id", selectedWorkout.id)
-        .order("sort_order");
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!selectedWorkout,
-  });
+  const workoutExercises: any[] = [];
 
   const toggleFavorite = useMutation({
     mutationFn: async (workoutId: string) => {

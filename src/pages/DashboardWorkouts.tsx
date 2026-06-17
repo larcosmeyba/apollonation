@@ -108,20 +108,7 @@ const DashboardWorkouts = () => {
   // Lock set is computed AFTER the filtered list (see below) so category filtering
   // doesn't cause all unlocked items to fall outside the user's view.
 
-  const { data: workoutExercises = [] } = useQuery({
-    queryKey: ["workout-exercises", selectedWorkout?.id],
-    queryFn: async () => {
-      if (!selectedWorkout) return [];
-      const { data, error } = await supabase
-        .from("workout_exercises")
-        .select("*, exercises(*)")
-        .eq("workout_id", selectedWorkout.id)
-        .order("sort_order");
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!selectedWorkout,
-  });
+  const workoutExercises: any[] = [];
 
   const { data: favorites = [] } = useQuery({
     queryKey: ["user-favorites", user?.id],
