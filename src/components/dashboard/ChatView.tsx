@@ -527,11 +527,11 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Coach Profile Dialog */}
+      {/* Profile Dialog */}
       <Dialog open={showCoachProfile} onOpenChange={setShowCoachProfile}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Coach Profile</DialogTitle>
+            <DialogTitle>{asCoachAdmin ? "Client Profile" : "Coach Profile"}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center text-center space-y-4 py-4">
             <Avatar className="h-20 w-20">
@@ -542,8 +542,9 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
             </Avatar>
             <div>
               <h3 className="font-heading text-xl">{partnerName}</h3>
-              <p className="text-xs text-primary uppercase tracking-wider mt-1">Your Coach</p>
+              <p className="text-xs text-primary uppercase tracking-wider mt-1">{asCoachAdmin ? "Your Client" : "Your Coach"}</p>
             </div>
+
             {partnerProfile?.bio && (
               <div className="text-sm text-muted-foreground leading-relaxed">
                 {partnerProfile.bio}
