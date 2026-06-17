@@ -12,7 +12,7 @@ import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy,
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import WorkoutExerciseLinker from "./WorkoutExerciseLinker";
+
 
 interface Workout {
   id: string;
@@ -41,7 +41,7 @@ const AdminWorkouts = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
-  const [linkingWorkout, setLinkingWorkout] = useState<Workout | null>(null);
+  
   const [isUploadingThumb, setIsUploadingThumb] = useState(false);
   const thumbInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
@@ -211,17 +211,6 @@ const AdminWorkouts = () => {
     }
   };
 
-  // If linking exercises to a workout, show the linker
-  if (linkingWorkout) {
-    return (
-      <div className="space-y-6">
-        <Button variant="outline" onClick={() => setLinkingWorkout(null)}>
-          ← Back to Workouts
-        </Button>
-        <WorkoutExerciseLinker workoutId={linkingWorkout.id} workoutTitle={linkingWorkout.title} />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -500,9 +489,6 @@ const AdminWorkouts = () => {
                   <p className="font-medium text-sm truncate">{workout.title}</p>
                   <p className="text-xs text-muted-foreground capitalize">{workout.category}</p>
                   <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="icon" variant="ghost" className="h-7 w-7" title="Link exercises" onClick={() => setLinkingWorkout(workout)}>
-                      <ListChecks className="w-3.5 h-3.5 text-primary" />
-                    </Button>
                     <Button size="icon" variant="ghost" className="h-7 w-7" title="Edit" onClick={() => handleEdit(workout)}>
                       <Pencil className="w-3.5 h-3.5" />
                     </Button>

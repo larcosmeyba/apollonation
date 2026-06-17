@@ -103,22 +103,6 @@ const DashboardTraining = () => {
     },
   });
 
-  const { data: exerciseLibrary = [] } = useQuery({
-    queryKey: ["exercise-library-all"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("exercises")
-        .select("title, video_url, thumbnail_url");
-      return data || [];
-    },
-    staleTime: 1000 * 60 * 30,
-  });
-
-  const getExerciseVideo = (exerciseName: string) => {
-    return exerciseLibrary.find(
-      (e: any) => e.title?.toLowerCase() === exerciseName?.toLowerCase()
-    );
-  };
 
   const addActivityMutation = useMutation({
     mutationFn: async (activity: { name: string; duration: number | null; calories: number | null; notes: string }) => {
