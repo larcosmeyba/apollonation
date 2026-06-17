@@ -438,11 +438,36 @@ const AdminClassBuilder = () => {
         <Card className="p-3 lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto">
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Library (horizontal)</div>
           <Input
-            placeholder="Search…"
+            placeholder="Search exercises by name…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="mb-2"
           />
+          <div className="flex flex-wrap gap-1 mb-3">
+            <button
+              onClick={() => setCategoryFilter("all")}
+              className={`text-[10px] px-2 py-1 rounded-full border transition ${
+                categoryFilter === "all"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "border-border text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              All
+            </button>
+            {EXERCISE_CATEGORIES.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCategoryFilter(c)}
+                className={`text-[10px] px-2 py-1 rounded-full border transition capitalize ${
+                  categoryFilter === c
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border text-muted-foreground hover:border-primary/40"
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
           <div className="space-y-1.5">
             {filteredLib.map((ex) => (
               <button
@@ -456,7 +481,7 @@ const AdminClassBuilder = () => {
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-medium truncate">{ex.name}</div>
                   <div className="text-[10px] text-muted-foreground truncate">
-                    {ex.muscle_group} · {ex.difficulty}
+                    {ex.category ? <span className="capitalize">{ex.category}</span> : ex.muscle_group} · {ex.difficulty}
                   </div>
                 </div>
                 <Plus className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
