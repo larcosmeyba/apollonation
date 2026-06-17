@@ -234,15 +234,16 @@ Respond with ONLY valid JSON:
     if (clean.endsWith("```")) clean = clean.slice(0, -3);
     planData = JSON.parse(clean.trim());
 
-    // Validate exercises against library
-    const libraryTitles = new Set((exerciseLibrary || []).map((e: any) => e.title.toLowerCase()));
+    // Validate exercises against library and build a name->library map
+    const libIndex = new Map<string, any>();
+    for (const e of exerciseLibrary || []) libIndex.set((e.name || "").toLowerCase(), e);
     const allowedExceptions = ["dynamic warm-up", "treadmill walk", "cool-down stretches", "warmup", "cooldown"];
     for (const day of planData.days) {
       day.exercises = day.exercises.filter((ex: any) => {
         const name = ex.exercise_name.toLowerCase();
         const isException = allowedExceptions.some((ae) => name.includes(ae)) ||
           ex.muscle_group === "warmup" || ex.muscle_group === "cooldown";
-        return libraryTitles.has(name) || isException;
+        return libIndex.has(name) || isException;
       });
     }
 
