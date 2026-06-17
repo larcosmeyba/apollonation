@@ -421,6 +421,16 @@ const DashboardWorkouts = () => {
         )}
       </div>
 
+      <PreWorkoutMusicPrompt
+        open={!!pendingWorkout}
+        onCancel={() => setPendingWorkout(null)}
+        onReady={() => {
+          const w = pendingWorkout;
+          setPendingWorkout(null);
+          if (w) setSelectedWorkout(w);
+        }}
+      />
+
       <Dialog open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
           {selectedWorkout && (
