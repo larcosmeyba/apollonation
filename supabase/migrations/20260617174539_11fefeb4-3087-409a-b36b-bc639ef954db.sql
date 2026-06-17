@@ -1,0 +1,1 @@
+CREATE POLICY "temp_blueprint_upload" ON storage.objects FOR INSERT TO anon, authenticated WITH CHECK (bucket_id IN ('blueprint-pdfs','blueprint-covers'));
