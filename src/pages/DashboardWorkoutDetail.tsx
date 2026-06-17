@@ -485,6 +485,8 @@ const ExerciseRow = ({
                 title={exerciseData?.title || exercise.exercise_name}
                 videoId={exercise.id}
                 autoPlay
+                muted
+                playsInline
                 controls
               />
             ) : isStorage && videoOpen ? (
