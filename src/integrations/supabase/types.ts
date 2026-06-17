@@ -1349,45 +1349,6 @@ export type Database = {
           },
         ]
       }
-      exercises: {
-        Row: {
-          created_at: string
-          description: string | null
-          difficulty: string | null
-          equipment: string | null
-          id: string
-          muscle_group: string
-          mux_playback_id: string | null
-          thumbnail_url: string | null
-          title: string
-          video_url: string | null
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          difficulty?: string | null
-          equipment?: string | null
-          id?: string
-          muscle_group: string
-          mux_playback_id?: string | null
-          thumbnail_url?: string | null
-          title: string
-          video_url?: string | null
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          difficulty?: string | null
-          equipment?: string | null
-          id?: string
-          muscle_group?: string
-          mux_playback_id?: string | null
-          thumbnail_url?: string | null
-          title?: string
-          video_url?: string | null
-        }
-        Relationships: []
-      }
       food_spend_logs: {
         Row: {
           amount_spent: number
@@ -4331,57 +4292,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      workout_exercises: {
-        Row: {
-          created_at: string
-          exercise_id: string
-          id: string
-          notes: string | null
-          reps: string | null
-          rest_seconds: number | null
-          sets: number | null
-          sort_order: number
-          workout_id: string
-        }
-        Insert: {
-          created_at?: string
-          exercise_id: string
-          id?: string
-          notes?: string | null
-          reps?: string | null
-          rest_seconds?: number | null
-          sets?: number | null
-          sort_order?: number
-          workout_id: string
-        }
-        Update: {
-          created_at?: string
-          exercise_id?: string
-          id?: string
-          notes?: string | null
-          reps?: string | null
-          rest_seconds?: number | null
-          sets?: number | null
-          sort_order?: number
-          workout_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "workout_exercises_exercise_id_fkey"
-            columns: ["exercise_id"]
-            isOneToOne: false
-            referencedRelation: "exercises"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "workout_exercises_workout_id_fkey"
-            columns: ["workout_id"]
-            isOneToOne: false
-            referencedRelation: "workouts"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       workout_recommendations: {
         Row: {
