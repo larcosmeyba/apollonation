@@ -135,7 +135,7 @@ serve(async (req) => {
     // Fetch exercise library (MUX-ONLY)
     const { data: exerciseLibrary } = await supabaseAdmin
       .from("admin_exercises")
-      .select("name, body_part, equipment, difficulty, mux_playback_id")
+      .select("id, name, body_part, equipment, difficulty, mux_playback_id")
       .not("mux_playback_id", "is", null)
       .order("name");
 
