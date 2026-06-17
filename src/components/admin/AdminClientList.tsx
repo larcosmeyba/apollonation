@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { UserPlus, Search, Snowflake, Archive, XCircle, ChevronRight, FlaskConical } from "lucide-react";
+import { UserPlus, Search, Archive, XCircle, ChevronRight, FlaskConical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { Switch } from "@/components/ui/switch";
@@ -86,7 +86,6 @@ const AdminClientList = () => {
 
   const statusCounts = {
     active: visibleProfiles?.filter((p) => p.account_status === "active").length || 0,
-    frozen: visibleProfiles?.filter((p) => p.account_status === "frozen").length || 0,
     cancelled: visibleProfiles?.filter((p) => p.account_status === "cancelled").length || 0,
     archived: visibleProfiles?.filter((p) => p.account_status === "archived").length || 0,
   };
@@ -153,9 +152,6 @@ const AdminClientList = () => {
           <TabsList className="bg-muted/50">
             <TabsTrigger value="active" className="gap-1.5">
               Active <span className="text-[10px] opacity-60">({statusCounts.active})</span>
-            </TabsTrigger>
-            <TabsTrigger value="frozen" className="gap-1.5">
-              <Snowflake className="w-3 h-3" /> Frozen <span className="text-[10px] opacity-60">({statusCounts.frozen})</span>
             </TabsTrigger>
             <TabsTrigger value="cancelled" className="gap-1.5">
               <XCircle className="w-3 h-3" /> Cancelled <span className="text-[10px] opacity-60">({statusCounts.cancelled})</span>

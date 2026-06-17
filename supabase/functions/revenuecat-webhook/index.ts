@@ -215,6 +215,17 @@ serve(async (req) => {
     if (store) update.subscription_store = store;
     if (expiresAt) update.subscription_expires_at = expiresAt;
 
+    // Account status: mark cancelled when user cancels, archive once subscription truly expires/refunds.
+    if (event.type === "CANCELLATION") {
+      update.account_status = "cancelled";
+      update.status_changed_at = new Date().toISOString();
+    } else if (event.type === "EXPIRATION" || event.type === "REFUND") {
+      update.account_status = "archived";
+      update.status_changed_at = new Date().toISOString();
+    } else if (ACTIVATING.includes(event.type)) {
+      update.account_status = "active";
+    }
+
     const { error: updateError } = await supabase
       .from("profiles")
       .update(update)

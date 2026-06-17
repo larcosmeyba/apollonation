@@ -1,74 +1,65 @@
+## Admin Panel Overhaul — Implementation Plan
 
-# Fix plan — nutrition v2 + workout blueprint rotation + suggested_load
+Scope is large, so I'll ship in four sequential phases. Each phase is independently testable. I'll start Phase 1 immediately after approval and report back between phases.
 
-## Step 0 — Restore live nutrition path immediately
-- Flip `NUTRITION_GENERATOR_V2` → `false` (requires you to confirm the secret update in the form I'll open). All live users return to the working legacy Gemini path while v2 is being fixed.
+---
 
-## Step 1 — Fix v2 meal plan persistence (#3 + #4)
-**Edge function `generate-meal-plan`:**
-- Replace `supabaseClient.auth.getClaims(token)` (deprecated, source of the 500) with `supabaseAdmin.auth.getUser(token)` — same pattern already used by `auto-generate-programs`. `adminId = userData.user.id`.
+### Phase 1 — Admin Dashboard Redesign
 
-**Schema migration (`nutrition_plan_meals` + log):**
-- `ALTER TABLE public.nutrition_plan_meals ADD COLUMN meal_id text` (nullable text — `meal_library.meal_code` is a code, not a uuid; nullable so legacy AI rows remain valid). Index on `(plan_id, meal_id)`.
-- Confirm `meal_plan_generation_log` has the columns we need (`user_id`, `plan_id`, `generator_version`, `needs_review`, `gap_reason`, `meal_count`, `created_at`). Add any missing.
-- Ensure GRANTs on both for `authenticated` + `service_role`.
+**Add**
+- Signup line graph (last 14 days, daily count of non-test profiles)
+- Unified Inbox card: unread messages + bug reports + contact requests + support tickets, each a quick link
+- Upcoming Milestones panel: client birthdays this month + membership anniversaries (subscription start +1yr) + program completions in last 7d
+- New Sign-Ups (last 7d) — full list with name/email/date/tier
+- MRR card, Trial Users, Cancellations — pulled live from RevenueCat REST API via a new `revenuecat-stats` edge function (uses existing `REVENUECAT_SECRET_API_KEY`)
+- Active Members, New Members This Week, Most Viewed On-Demand Classes (top 5 from `user_workout_completions`), Most Completed Programs (top 5 from `user_programs` where status=completed)
 
-**Edge function wiring:**
-- In the v2 branch of `generate-meal-plan` and `weekly-meal-plan-refresh`, stop stripping `meal_id` — write `meal.meal_id` (the `meal_code` from the engine) into the inserted row.
-- After a successful insert, INSERT one row into `meal_plan_generation_log` with `{ user_id, plan_id, generator_version: 'v2', needs_review, gap_reason, meal_count: allMeals.length }`.
+**Remove**
+- "Client Overview" stats grid (Total Clients / Active Today / Workouts Done / New Signups) — replaced by the new metrics above
 
-**Verify (real client path):**
-- Test user signs in; mint a short-lived JWT via service role; POST to `generate-meal-plan` over HTTPS with v2 forced via `x-nutrition-generator: v2` header.
-- Show the inserted `nutrition_plans` row, a sample of `nutrition_plan_meals` with non-null `meal_id`s that resolve in `meal_library`, and the `meal_plan_generation_log` row.
-- Only after this passes: flip `NUTRITION_GENERATOR_V2` back to `true`.
+**Keep**
+- Recent Clients, Quick Access tools, Alerts
 
-## Step 2 — Fix program slug + blueprint rotation (#2)
-In `supabase/functions/_shared/workout-engine.ts`:
-- `assignProgramSlug(profile)`: `Gym + Muscle Gain` → `gym_muscle_build` (currently mapping to `gym_upper_body`). Add explicit mapping table covering all goal × location combos used in W1–W15.
-- `dayPlan(programSlug, dayIndex, daysPerWeek)`: instead of picking the first blueprint that matches the slug, build the week's split from the slug's full blueprint pool. For a 4-day `gym_muscle_build`, rotate `Upper / Lower / Push+Pull / Legs` (or `Upper / Lower / Upper / Lower`) so each session is unique and no two heavy-leg days sit back-to-back. Audit `session_blueprints` rows and seed any missing day_types for the slugs the matrix exercises.
+**Files:** rewrite `AdminDashboardHome.tsx`, new `supabase/functions/revenuecat-stats/index.ts`, add `birthday DATE` column to profiles (nullable).
 
-Re-run W1–W15 against `auto-generate-programs` for a fresh test user; produce PASS/FAIL table + one full 4-week trace (slot → exercise_id → mux_playback_id → .m3u8) confirming W9 (leg-day spacing) is a true PASS.
+---
 
-## Step 3 — Persist `suggested_load` (#1)
-- Migration: `ALTER TABLE public.training_plan_exercises ADD COLUMN suggested_load text` (nullable; engine emits strings like `"+5lb"` or `"-40% deload"`).
-- `sessionToRows` in `_shared/v2-workout-runner.ts`: add `suggested_load: slot.suggested_load ?? null` to the mapped row.
-- Re-run the same W1–W15 trace; show W6 progression deltas (W1→W2→W3 increase, W4 −40% deload) reading directly from the persisted column.
+### Phase 2 — Clients + Intake
 
-## What you need to do
-1. Approve this plan.
-2. When the secret form appears at Step 0, set `NUTRITION_GENERATOR_V2=false`.
-3. After I verify Step 1 end-to-end, I'll prompt you to set it back to `true`.
+- Remove "Frozen" status everywhere (filters, badges, status enums in UI). Statuses become: Active, Canceled, Archived.
+- Auto-archive on RevenueCat cancellation webhook (`revenuecat-webhook` already exists — extend to flip `account_status='archived'` on CANCELLATION / EXPIRATION events).
+- Add **required** phone number step to onboarding questionnaire (`Questionnaire.tsx` + `user_fitness_profile.phone_number` column with validation).
+- Full client roster view already exists in `AdminClientList` — add phone column + birthday + filter by status (Active/Canceled/Archived only).
+- Client profile additions: phone, birthday, join date, programs assigned count, notes (already exists).
 
-## Deliverables (in this order)
-- (after Step 1) Nutrition plan trace: plan row + meals with `meal_id` FKs + `meal_plan_generation_log` row.
-- (after Step 2) W1–W15 PASS/FAIL table + traced 4-week program with rotation + leg-day spacing.
-- (after Step 3) W6 row flips to PASS with `suggested_load` values read back from the DB.
+---
 
-## Follow-up tickets (non-blocking, opened 2026-06-10)
+### Phase 3 — Exercise Library Categories
 
-- **NUTRITION_GENERATOR_V2 = true** (flipped, live).
+- `admin_exercises.category` enum already exists. Add `"cycling"` to `ExerciseCategory` type + DB enum.
+- Add category filter chips to the admin exercise library view (`AdminClassBuilder.tsx` exercise picker).
+- Display category badge on each exercise card.
 
-### T1 — Lock primary + key accessory exercises across 4-week block
-Workout engine currently re-picks each slot per week, so "+5lb vs last week" cues can
-reference a different movement. Fix: in `generateProgram` (workout-engine.ts), pick the
-exercise for each primary + key-accessory slot once at W1 and reuse the same `exercise_id`
-across W2/W3/W4 (deload still scales sets). Only rotate at block boundaries (new 4-week
-block). Finishers/warmup/cooldown can keep rotating freely.
+---
 
-### T2 — Primary slots prefer compound loaded lifts
-In `pickPreferred`, when `slot.block === 'Primary'`, bias selection toward exercises whose
-equipment includes barbell|dumbbell|cable|machine AND movement_pattern in
-(squat|hinge|press|row|pull). Only fall back to bodyweight/isolation if the compound pool
-is empty after S2 substitution.
+### Phase 4 — Class Builder Upgrades
 
-### T3 — Meal variety: rotate top-N protein-dense matches
-v2 nutrition picker today returns argmax → 10 distinct meals across 140 rows. Change to
-top-N (N=8, configurable) sorted by protein density and rotate with a per-slot pointer
-seeded by (user_id, slot_index, week). Target ≥30 distinct meals per 28-day plan against
-the 102-meal library.
+- Filter exercise picker by category (8 chips: Strength/Sculpt/Cardio/Stretch/Recovery/Cycling/HIIT/Beginner)
+- Search exercises by name (debounced input)
+- Save class as template → new `admin_class_templates` row (table exists with 8 cols, currently 1 policy — verify schema fits)
+- "Load from template" picker in class builder
+- Export class to computer: download as JSON file (exercise list + metadata + Mux playback IDs) via a "Download" button
 
-### T4 (separate) — Route nutrition leg in auto-generate-programs through runV2ForUser
-`auto-generate-programs/index.ts` still calls the legacy Gemini path with
-`AbortSignal.timeout(45_000)` and timed out in today's E2E. Replace that branch with a
-call to the same `runV2ForUser` helper used by `generate-meal-plan`, dropping the 45s
-hard timeout in favour of the v2 deterministic path.
+---
+
+### Out of scope for this batch (separate follow-ups)
+- Birthday/anniversary push notifications (just shown on dashboard for now)
+- Trial Users requires RevenueCat introductory pricing events — will surface if data is available, else hide the card
+
+---
+
+### Technical notes
+- RevenueCat REST: `GET https://api.revenuecat.com/v1/subscribers/{app_user_id}` is per-user. For aggregate MRR I'll use `GET https://api.revenuecat.com/v2/projects/{project_id}/metrics/overview` (Charts API). If the existing key lacks Charts API scope, the card shows "Connect Charts API" with instructions instead of failing silently.
+- Migrations needed: add `birthday DATE` to profiles, add `phone_number TEXT` to `user_fitness_profile`, add `'cycling'` to exercise category enum (if PG enum) or just use TEXT.
+
+Ready to start Phase 1 on approval.

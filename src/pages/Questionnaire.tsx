@@ -118,7 +118,8 @@ const Questionnaire = () => {
 
   const canProceed = () => {
     if (step === 0) {
-      return form.full_name.trim() && form.email.trim() && form.date_of_birth && form.sex;
+      const phoneDigits = form.phone.replace(/\D/g, "");
+      return form.full_name.trim() && form.email.trim() && phoneDigits.length >= 10 && form.date_of_birth && form.sex;
     }
     if (step === 1) {
       return form.height_feet && form.weight_lbs;
@@ -244,11 +245,15 @@ const Questionnaire = () => {
           { onConflict: "user_id" }
         );
 
-      // Sync display name to profile
+      // Sync display name + birthday to profile
       await supabase
         .from("profiles")
-        .update({ display_name: form.full_name.trim() })
+        .update({
+          display_name: form.full_name.trim(),
+          birthday: form.date_of_birth || null,
+        } as any)
         .eq("user_id", user.id);
+
 
 
       // Save calculated macros to nutrition profile
@@ -363,12 +368,13 @@ const Questionnaire = () => {
                   placeholder="you@email.com"
                 />
               </Field>
-              <Field label="Phone" optional>
+              <Field label="Phone">
                 <Input
                   type="tel"
                   value={form.phone}
                   onChange={(e) => updateField("phone", e.target.value)}
                   placeholder="+1 (555) 123-4567"
+                  required
                 />
               </Field>
               <div className="grid grid-cols-2 gap-4">
