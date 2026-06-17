@@ -57,6 +57,8 @@ const DashboardMyWorkouts = lazy(() => import("./pages/DashboardMyWorkouts"));
 const DashboardPersonalize = lazy(() => import("./pages/DashboardPersonalize"));
 const Subscribe = lazy(() => import("./pages/Subscribe"));
 const PaywallPreview = lazy(() => import("./pages/PaywallPreview"));
+const DashboardBlueprints = lazy(() => import("./pages/DashboardBlueprints"));
+const DashboardBlueprintViewer = lazy(() => import("./pages/DashboardBlueprintViewer"));
 
 const RouteFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
@@ -214,6 +216,14 @@ const App = () => {
               <Route
                 path="/dashboard/calendar"
                 element={<ProtectedRoute>{eb(<DashboardCalendar />)}</ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/blueprints"
+                element={<ProtectedRoute requirePremium={false}>{eb(<DashboardBlueprints />)}</ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/blueprints/:id"
+                element={<ProtectedRoute requirePremium={false}>{eb(<DashboardBlueprintViewer />)}</ProtectedRoute>}
               />
               {/* AI Workout Builder route removed — feature paused; no entry points exist.
                   Any old deep link falls through to NotFound, which is the correct UX. */}
