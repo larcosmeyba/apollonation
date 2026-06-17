@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { format, startOfWeek } from "date-fns";
 import { toast } from "sonner";
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
+import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import marcosAction6 from "@/assets/marcos-action-6.webp";
 import marcosAction7 from "@/assets/marcos-action-7.webp";
 import marcos2 from "@/assets/marcos-2.jpg";
