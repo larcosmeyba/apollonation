@@ -212,6 +212,8 @@ serve(async (req) => {
 
     const update: Record<string, unknown> = { is_subscribed: isSubscribed };
     update.entitlement = isSubscribed ? (isElite ? "apollo_elite" : "apollo_premium") : null;
+    // Trial flag — true only while subscription is active AND on trial pricing.
+    update.is_trial = isSubscribed && (event.period_type ?? "").toUpperCase() === "TRIAL";
     if (plan) update.subscription_plan = plan;
     if (store) update.subscription_store = store;
     if (expiresAt) update.subscription_expires_at = expiresAt;
