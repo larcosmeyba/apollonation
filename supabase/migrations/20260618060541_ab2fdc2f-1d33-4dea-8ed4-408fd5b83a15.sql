@@ -1,0 +1,2 @@
+ALTER TABLE public.blueprint_analytics DROP CONSTRAINT IF EXISTS blueprint_analytics_event_type_check;
+ALTER TABLE public.blueprint_analytics ADD CONSTRAINT blueprint_analytics_event_type_check CHECK (event_type = ANY (ARRAY['view'::text, 'download'::text, 'completed'::text]));
