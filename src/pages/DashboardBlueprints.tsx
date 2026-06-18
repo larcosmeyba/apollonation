@@ -5,9 +5,10 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, BookOpen, Download, Eye, Search, Clock } from "lucide-react";
+import { Loader2, Download, Eye, Search, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SEOHead from "@/components/SEOHead";
+import PdfThumbnail from "@/components/blueprints/PdfThumbnail";
 
 type Blueprint = {
   id: string;
@@ -20,27 +21,10 @@ type Blueprint = {
   goal_tags: string[];
 };
 
-const BlueprintCover = ({ path, title }: { path: string | null; title: string }) => {
-  const [url, setUrl] = useState<string | null>(null);
-  useEffect(() => {
-    if (!path) return;
-    supabase.storage.from("blueprint-covers").createSignedUrl(path, 3600).then(({ data }) => {
-      if (data?.signedUrl) setUrl(data.signedUrl);
-    });
-  }, [path]);
-  if (!url) {
-    return (
-      <div className="aspect-[3/2] bg-gradient-to-br from-primary/30 via-primary/10 to-background flex items-center justify-center">
-        <BookOpen className="w-10 h-10 text-foreground/40" />
-      </div>
-    );
-  }
-  return <img src={url} alt={title} className="aspect-[3/2] w-full object-cover" loading="lazy" />;
-};
-
 const DashboardBlueprints = () => {
   const { user } = useAuth();
   const [items, setItems] = useState<Blueprint[]>([]);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("All");
@@ -55,9 +39,17 @@ const DashboardBlueprints = () => {
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       setItems((data as any) || []);
+      if (user) {
+        const { data: done } = await supabase
+          .from("blueprint_analytics" as any)
+          .select("blueprint_id")
+          .eq("user_id", user.id)
+          .eq("event_type", "completed");
+        setCompletedIds(new Set(((done as any[]) || []).map((r) => r.blueprint_id)));
+      }
       setLoading(false);
     })();
-  }, []);
+  }, [user]);
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(items.map((i) => i.category)))],
@@ -134,7 +126,9 @@ const DashboardBlueprints = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((item) => (
               <Card key={item.id} className="overflow-hidden bg-card border-border/40 hover:border-border transition group">
-                <BlueprintCover path={item.cover_image_url} title={item.title} />
+                <div className="aspect-[3/2] w-full">
+                  <PdfThumbnail pdfPath={item.pdf_path} title={item.title} completed={completedIds.has(item.id)} />
+                </div>
                 <div className="p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary">

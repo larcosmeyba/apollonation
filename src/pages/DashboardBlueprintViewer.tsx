@@ -3,8 +3,10 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, Download, ExternalLink } from "lucide-react";
+import { Loader2, ArrowLeft, Download, ExternalLink, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import PdfViewer from "@/components/blueprints/PdfViewer";
+import { toast } from "sonner";
 
 type Blueprint = {
   id: string;
@@ -22,6 +24,7 @@ const DashboardBlueprintViewer = () => {
   const [item, setItem] = useState<Blueprint | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -45,10 +48,32 @@ const DashboardBlueprintViewer = () => {
         await supabase.from("blueprint_analytics" as any).insert({
           blueprint_id: bp.id, user_id: user.id, event_type: "view",
         });
+        const { data: done } = await supabase
+          .from("blueprint_analytics" as any)
+          .select("id")
+          .eq("blueprint_id", bp.id)
+          .eq("user_id", user.id)
+          .eq("event_type", "completed")
+          .limit(1);
+        if ((done as any[])?.length) setCompleted(true);
       }
       setLoading(false);
     })();
   }, [id, user]);
+
+  const markCompleted = async () => {
+    if (!item || !user || completed) return;
+    setCompleted(true);
+    const { error } = await supabase.from("blueprint_analytics" as any).insert({
+      blueprint_id: item.id, user_id: user.id, event_type: "completed",
+    });
+    if (error) {
+      setCompleted(false);
+      toast.error("Could not save");
+      return;
+    }
+    toast.success("Marked as read");
+  };
 
   const handleDownload = async () => {
     if (!item) return;
@@ -93,15 +118,27 @@ const DashboardBlueprintViewer = () => {
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary">
-              {item.category}
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary">
+                {item.category}
+              </span>
+              {completed && (
+                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500">
+                  <CheckCircle2 className="w-3 h-3" /> Read
+                </span>
+              )}
+            </div>
             <h1 className="text-2xl font-heading font-bold mt-2">{item.title}</h1>
             {item.description && (
               <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            {!completed && (
+              <Button variant="default" onClick={markCompleted}>
+                <CheckCircle2 className="w-4 h-4 mr-2" /> Mark as Read
+              </Button>
+            )}
             <Button variant="outline" onClick={handleDownload}>
               <Download className="w-4 h-4 mr-2" /> Download
             </Button>
@@ -116,12 +153,8 @@ const DashboardBlueprintViewer = () => {
         </div>
 
         {pdfUrl ? (
-          <div className="w-full h-[80vh] rounded-lg overflow-hidden border border-border/40 bg-muted">
-            <iframe
-              src={pdfUrl}
-              title={item.title}
-              className="w-full h-full"
-            />
+          <div className="w-full h-[80vh] rounded-lg overflow-hidden border border-border/40">
+            <PdfViewer url={pdfUrl} onReachedEnd={markCompleted} />
           </div>
         ) : (
           <div className="p-8 text-center text-muted-foreground">PDF could not be loaded.</div>
