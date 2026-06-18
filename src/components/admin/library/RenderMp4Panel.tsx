@@ -131,7 +131,7 @@ const RenderMp4Panel = ({ classId, hasBlocks }: RenderMp4PanelProps) => {
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");
                   a.href = url;
-                  a.download = `${(latest.title || "apollo-class").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.mp4`;
+                  a.download = `apollo-class-${latest.id.slice(0, 8)}.mp4`;
                   document.body.appendChild(a);
                   a.click();
                   document.body.removeChild(a);
