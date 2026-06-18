@@ -17,6 +17,7 @@ import {
 } from "./library/exerciseTypes";
 import OnDemandClassPlayer, { PlayerBlock } from "./library/OnDemandClassPlayer";
 import RenderMp4Panel from "./library/RenderMp4Panel";
+import MissingMuxReport from "./library/MissingMuxReport";
 import {
   Plus, Play, Save, Trash2, GripVertical, Sparkles, Loader2, ChevronUp, ChevronDown, FolderOpen,
   Bookmark, Download,
@@ -432,6 +433,8 @@ const AdminClassBuilder = () => {
           )}
         </Card>
       )}
+
+      <MissingMuxReport />
 
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-4">
         {/* LEFT: Library */}
