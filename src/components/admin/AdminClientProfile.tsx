@@ -18,6 +18,7 @@ import ClientNotesPanel from "./ClientNotesPanel";
 import ClientNutritionPlans from "./ClientNutritionPlans";
 import ClientActivityLogs from "./ClientActivityLogs";
 import ClientBodyMetrics from "./ClientBodyMetrics";
+import MemberBadge from "@/components/MemberBadge";
 import ClientQuickActions from "./ClientQuickActions";
 import AdminClientInsights from "./AdminClientInsights";
 import ClientHealthData from "./ClientHealthData";
