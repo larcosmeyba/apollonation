@@ -43,6 +43,7 @@ interface RcEvent {
   event_timestamp_ms?: number;
   cancel_reason?: string;
   new_product_id?: string;
+  period_type?: string; // "TRIAL" | "INTRO" | "NORMAL" | "PROMOTIONAL"
 }
 
 const ACTIVATING: RcEventType[] = [
