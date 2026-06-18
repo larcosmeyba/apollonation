@@ -436,7 +436,16 @@ const AdminClassBuilder = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-4">
         {/* LEFT: Library */}
         <Card className="p-3 lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto">
-          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Library (horizontal)</div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">Library by class</div>
+            <button
+              onClick={() => setCategoryFilter(meta.class_type as ExerciseCategory)}
+              className="text-[10px] px-2 py-0.5 rounded-full border border-primary/40 text-primary hover:bg-primary/10"
+              title={`Show only ${meta.class_type} videos`}
+            >
+              Match: {meta.class_type}
+            </button>
+          </div>
           <Input
             placeholder="Search exercises by name…"
             value={search}
@@ -452,24 +461,27 @@ const AdminClassBuilder = () => {
                   : "border-border text-muted-foreground hover:border-primary/40"
               }`}
             >
-              All
+              All ({horizontalLib.length})
             </button>
-            {EXERCISE_CATEGORIES.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCategoryFilter(c)}
-                className={`text-[10px] px-2 py-1 rounded-full border transition capitalize ${
-                  categoryFilter === c
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border text-muted-foreground hover:border-primary/40"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
+            {EXERCISE_CATEGORIES.map((c) => {
+              const count = horizontalLib.filter((e) => e.category === c).length;
+              return (
+                <button
+                  key={c}
+                  onClick={() => setCategoryFilter(c)}
+                  className={`text-[10px] px-2 py-1 rounded-full border transition capitalize ${
+                    categoryFilter === c
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-muted-foreground hover:border-primary/40"
+                  }`}
+                >
+                  {c} ({count})
+                </button>
+              );
+            })}
           </div>
-          <div className="space-y-1.5">
-            {filteredLib.map((ex) => (
+          {(() => {
+            const renderRow = (ex: AdminExercise) => (
               <button
                 key={ex.id}
                 onClick={() => addExercise(ex.id)}
@@ -481,18 +493,72 @@ const AdminClassBuilder = () => {
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-medium truncate">{ex.name}</div>
                   <div className="text-[10px] text-muted-foreground truncate">
-                    {ex.category ? <span className="capitalize">{ex.category}</span> : ex.muscle_group} · {ex.difficulty}
+                    {ex.muscle_group || "—"} · {ex.difficulty}
                   </div>
                 </div>
                 <Plus className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               </button>
-            ))}
-            {filteredLib.length === 0 && (
-              <p className="text-xs text-muted-foreground text-center py-6">
-                No horizontal exercises yet. Add some in Exercise Library.
-              </p>
-            )}
-          </div>
+            );
+
+            if (categoryFilter !== "all") {
+              return (
+                <div className="space-y-1.5">
+                  {filteredLib.map(renderRow)}
+                  {filteredLib.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center py-6">
+                      No horizontal exercises tagged for this class yet.
+                    </p>
+                  )}
+                </div>
+              );
+            }
+
+            const searchLower = search.toLowerCase();
+            const matchesSearch = (e: AdminExercise) =>
+              !search || e.name.toLowerCase().includes(searchLower);
+            const uncategorized = horizontalLib.filter((e) => !e.category && matchesSearch(e));
+
+            return (
+              <div className="space-y-4">
+                {EXERCISE_CATEGORIES.map((cat) => {
+                  const items = horizontalLib.filter((e) => e.category === cat && matchesSearch(e));
+                  if (items.length === 0) return null;
+                  const isClassType = cat === meta.class_type;
+                  return (
+                    <div key={cat}>
+                      <div className={`flex items-center justify-between mb-1.5 px-1.5 py-1 rounded sticky top-0 bg-card/95 backdrop-blur-sm ${isClassType ? "ring-1 ring-primary/40" : ""}`}>
+                        <span className="text-[10px] uppercase tracking-widest font-semibold capitalize">
+                          {cat}
+                          {isClassType && <span className="ml-1.5 text-primary">● current</span>}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">{items.length}</span>
+                      </div>
+                      <div className="space-y-1">{items.map(renderRow)}</div>
+                    </div>
+                  );
+                })}
+                {uncategorized.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5 px-1.5 py-1">
+                      <span className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
+                        Uncategorized
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">{uncategorized.length}</span>
+                    </div>
+                    <div className="space-y-1">{uncategorized.map(renderRow)}</div>
+                    <p className="text-[10px] text-muted-foreground mt-1 px-1">
+                      Tip: set a class category in Exercise Library so these appear under the right class.
+                    </p>
+                  </div>
+                )}
+                {horizontalLib.length === 0 && (
+                  <p className="text-xs text-muted-foreground text-center py-6">
+                    No horizontal exercises yet. Add some in Exercise Library.
+                  </p>
+                )}
+              </div>
+            );
+          })()}
         </Card>
 
         {/* CENTER: Timeline */}
