@@ -1,53 +1,43 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen } from "lucide-react";
+import PdfThumbnail from "@/components/blueprints/PdfThumbnail";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Blueprint = {
   id: string;
   title: string;
   category: string;
-  cover_image_url: string | null;
-};
-
-const Cover = ({ path, title }: { path: string | null; title: string }) => {
-  const [url, setUrl] = useState<string | null>(null);
-  useEffect(() => {
-    if (!path) return;
-    supabase.storage
-      .from("blueprint-covers")
-      .createSignedUrl(path, 3600)
-      .then(({ data }) => {
-        if (data?.signedUrl) setUrl(data.signedUrl);
-      });
-  }, [path]);
-  if (!url) {
-    return (
-      <div className="w-full h-full bg-gradient-to-br from-primary/30 via-primary/10 to-background flex items-center justify-center">
-        <BookOpen className="w-8 h-8 text-foreground/40" />
-      </div>
-    );
-  }
-  return <img src={url} alt={title} className="w-full h-full object-cover" loading="lazy" />;
+  pdf_path: string;
 };
 
 const BlueprintsCarousel = () => {
+  const { user } = useAuth();
   const [items, setItems] = useState<Blueprint[]>([]);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("blueprints" as any)
-        .select("id,title,category,cover_image_url")
+        .select("id,title,category,pdf_path")
         .eq("is_published", true)
         .eq("is_archived", false)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       setItems(((data as any) || []) as Blueprint[]);
+      if (user) {
+        const { data: done } = await supabase
+          .from("blueprint_analytics" as any)
+          .select("blueprint_id")
+          .eq("user_id", user.id)
+          .eq("event_type", "completed");
+        setCompletedIds(new Set(((done as any[]) || []).map((r) => r.blueprint_id)));
+      }
       setLoading(false);
     })();
-  }, []);
+  }, [user]);
 
   if (loading || items.length === 0) return null;
 
@@ -69,7 +59,7 @@ const BlueprintsCarousel = () => {
             className="flex-shrink-0 w-40 group"
           >
             <div className="img-overlay-premium relative w-40 h-56 rounded-xl overflow-hidden shadow-[var(--shadow-md)]">
-              <Cover path={bp.cover_image_url} title={bp.title} />
+              <PdfThumbnail pdfPath={bp.pdf_path} title={bp.title} completed={completedIds.has(bp.id)} />
             </div>
             <p className="mt-2 text-sm font-semibold text-foreground leading-snug line-clamp-2">
               {bp.title}

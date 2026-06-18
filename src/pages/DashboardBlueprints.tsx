@@ -5,9 +5,10 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, BookOpen, Download, Eye, Search, Clock } from "lucide-react";
+import { Loader2, Download, Eye, Search, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SEOHead from "@/components/SEOHead";
+import PdfThumbnail from "@/components/blueprints/PdfThumbnail";
 
 type Blueprint = {
   id: string;
@@ -18,24 +19,6 @@ type Blueprint = {
   pdf_path: string;
   read_time_minutes: number | null;
   goal_tags: string[];
-};
-
-const BlueprintCover = ({ path, title }: { path: string | null; title: string }) => {
-  const [url, setUrl] = useState<string | null>(null);
-  useEffect(() => {
-    if (!path) return;
-    supabase.storage.from("blueprint-covers").createSignedUrl(path, 3600).then(({ data }) => {
-      if (data?.signedUrl) setUrl(data.signedUrl);
-    });
-  }, [path]);
-  if (!url) {
-    return (
-      <div className="aspect-[3/2] bg-gradient-to-br from-primary/30 via-primary/10 to-background flex items-center justify-center">
-        <BookOpen className="w-10 h-10 text-foreground/40" />
-      </div>
-    );
-  }
-  return <img src={url} alt={title} className="aspect-[3/2] w-full object-cover" loading="lazy" />;
 };
 
 const DashboardBlueprints = () => {
