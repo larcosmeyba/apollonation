@@ -24,6 +24,7 @@ type Blueprint = {
 const DashboardBlueprints = () => {
   const { user } = useAuth();
   const [items, setItems] = useState<Blueprint[]>([]);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("All");
@@ -38,9 +39,17 @@ const DashboardBlueprints = () => {
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       setItems((data as any) || []);
+      if (user) {
+        const { data: done } = await supabase
+          .from("blueprint_analytics" as any)
+          .select("blueprint_id")
+          .eq("user_id", user.id)
+          .eq("event_type", "completed");
+        setCompletedIds(new Set(((done as any[]) || []).map((r) => r.blueprint_id)));
+      }
       setLoading(false);
     })();
-  }, []);
+  }, [user]);
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(items.map((i) => i.category)))],
@@ -117,7 +126,9 @@ const DashboardBlueprints = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((item) => (
               <Card key={item.id} className="overflow-hidden bg-card border-border/40 hover:border-border transition group">
-                <BlueprintCover path={item.cover_image_url} title={item.title} />
+                <div className="aspect-[3/2] w-full">
+                  <PdfThumbnail pdfPath={item.pdf_path} title={item.title} completed={completedIds.has(item.id)} />
+                </div>
                 <div className="p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary">
