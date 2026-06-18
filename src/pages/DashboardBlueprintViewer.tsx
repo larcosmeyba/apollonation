@@ -139,12 +139,9 @@ const DashboardBlueprintViewer = () => {
                 <CheckCircle2 className="w-4 h-4 mr-2" /> Mark as Read
               </Button>
             )}
-            <Button variant="outline" onClick={handleDownload}>
-              <Download className="w-4 h-4 mr-2" /> Download
-            </Button>
             {pdfUrl && (
               <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="ghost">
+                <Button variant="outline">
                   <ExternalLink className="w-4 h-4 mr-2" /> Open
                 </Button>
               </a>

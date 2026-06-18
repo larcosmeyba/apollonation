@@ -1301,49 +1301,6 @@ const DashboardNutrition = () => {
                 </div>
               )}
 
-              {/* Budget card */}
-              <div className="bg-card rounded-2xl p-4 border border-border">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-heading text-sm tracking-wide text-foreground flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" /> Budget
-                  </h3>
-                  {weeklyBudget !== null && (
-                    <span className="text-[11px] font-semibold text-green-500">
-                      {optimizingBudget
-                        ? "Optimizing…"
-                        : `$${(remainingBudget ?? 0).toFixed(2)} remaining`}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-end gap-2 mb-2">
-                  <div className="flex-1">
-                    <Label className="text-[10px] font-semibold text-foreground/60 uppercase">Weekly Budget ($)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="100"
-                      value={budgetInput}
-                      onChange={(e) => setBudgetInput(e.target.value)}
-                      className="bg-foreground/5 border-border text-foreground h-9 text-sm mt-1"
-                    />
-                  </div>
-                  <Button variant="apollo" size="sm" onClick={saveBudget} disabled={budgetSaving} className="h-9">
-                    {budgetSaving ? "Saving…" : "Save"}
-                  </Button>
-                </div>
-                <div className="flex justify-between text-[11px] text-foreground/70 mt-2 pt-2 border-t border-border">
-                  <span>Estimated grocery total (Week {groceryWeek})</span>
-                  <span className="font-semibold text-foreground">${effectiveTotal.toFixed(2)}</span>
-                </div>
-                {weeklyBudget !== null && weeklyBudget > 0 && (
-                  <div className="h-1.5 rounded-full bg-muted overflow-hidden mt-2">
-                    <div
-                      className="h-full transition-all bg-primary"
-                      style={{ width: `${Math.min((effectiveTotal / weeklyBudget) * 100, 100)}%` }}
-                    />
-                  </div>
-                )}
-              </div>
 
               {/* Weekly refresh banner */}
               <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
@@ -1489,41 +1446,6 @@ const DashboardNutrition = () => {
 
                 <TabsContent value="grocery">
                   <div className="space-y-4">
-                    {/* Budget header — reconciles total at top of grocery tab so user
-                        never has to scroll back to the budget card to see status. */}
-                    {effectiveBudget !== null && effectiveBudget > 0 ? (
-                      <div className={`p-3 rounded-lg border ${nearBudget ? "border-yellow-500/40 bg-yellow-500/5" : "border-green-500/30 bg-green-500/5"}`}>
-                        <div className="flex items-baseline justify-between gap-2">
-                          <button
-                            type="button"
-                            onClick={() => { setBudgetInput(String(effectiveBudget)); setBudgetModalOpen(true); }}
-                            className="text-left"
-                          >
-                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Weekly budget · tap to edit</p>
-                            <p className="font-heading text-lg text-foreground underline-offset-2 hover:underline">${effectiveBudget.toFixed(2)}</p>
-                          </button>
-                          <div className="text-right">
-                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Current total</p>
-                            <p className="font-heading text-lg text-foreground">${effectiveTotal.toFixed(2)}</p>
-                          </div>
-                        </div>
-                        <div className={`text-[11px] mt-2 flex items-center gap-1.5 ${nearBudget ? "text-yellow-500" : "text-green-500"}`}>
-                          {nearBudget ? (
-                            <>⚠ ${remainingBudget!.toFixed(2)} left</>
-                          ) : (
-                            <>✓ ${remainingBudget!.toFixed(2)} under budget{swappedItemCount > 0 ? ` · ${swappedItemCount} item${swappedItemCount === 1 ? "" : "s"} reduced` : ""}</>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => { setBudgetInput(""); setBudgetModalOpen(true); }}
-                        className="w-full p-3 rounded-lg border border-dashed border-foreground/30 text-foreground/70 hover:border-foreground/60 hover:text-foreground transition-colors text-sm"
-                      >
-                        Set a weekly budget — we'll keep your grocery list under it
-                      </button>
-                    )}
 
 
                     {/* Week selector + running total */}

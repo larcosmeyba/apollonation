@@ -781,9 +781,6 @@ const DashboardNutritionSetup = () => {
 
           {step === 4 && (
             <>
-              <Field label="Weekly grocery budget" optional>
-                <Suffix value={form.grocery_budget_weekly} onChange={(v) => set("grocery_budget_weekly", v)} placeholder="120" suffix="USD" />
-              </Field>
               <Field label="Meal prep preference">
                 <PillRow options={PREP_PREF} value={form.meal_prep_preference} onChange={(v) => set("meal_prep_preference", v)} cols={2} />
               </Field>
