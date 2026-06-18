@@ -434,6 +434,8 @@ const AdminClassBuilder = () => {
         </Card>
       )}
 
+      <MissingMuxReport />
+
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-4">
         {/* LEFT: Library */}
         <Card className="p-3 lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto">
