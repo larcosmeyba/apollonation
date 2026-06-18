@@ -19,6 +19,7 @@ interface Profile {
   account_status: string;
   manual_subscription: boolean;
   is_subscribed: boolean;
+  is_trial: boolean;
   subscription_plan: "monthly" | "annual" | null;
   subscription_store: "app_store" | "play_store" | "manual" | null;
   subscription_expires_at: string | null;

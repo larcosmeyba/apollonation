@@ -18,6 +18,7 @@ import ClientNotesPanel from "./ClientNotesPanel";
 import ClientNutritionPlans from "./ClientNutritionPlans";
 import ClientActivityLogs from "./ClientActivityLogs";
 import ClientBodyMetrics from "./ClientBodyMetrics";
+import MemberBadge from "@/components/MemberBadge";
 import ClientQuickActions from "./ClientQuickActions";
 import AdminClientInsights from "./AdminClientInsights";
 import ClientHealthData from "./ClientHealthData";
@@ -208,7 +209,10 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <h2 className="font-heading text-xl">{profile?.display_name || "Unnamed"}</h2>
+            <h2 className="font-heading text-xl flex items-center gap-2">
+              {profile?.display_name || "Unnamed"}
+              <MemberBadge active={profile?.is_subscribed} trial={(profile as any)?.is_trial} size="md" />
+            </h2>
             <div className="flex flex-wrap items-center gap-2 mt-1">
               <span className={`px-2.5 py-1 rounded text-xs uppercase font-medium ${profile?.is_subscribed ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
                 {profile?.is_subscribed ? "Subscribed" : "Free"}

@@ -232,24 +232,28 @@ const ChatView = ({ partnerId, onBack, showHeader = true, partnerNameOverride, p
       { recipientId: partnerId, content },
       {
         onError: (err: any) => {
-          const isElite = err?.code === "elite_required" || err?.message === "elite_required";
+          const needsMembership =
+            err?.code === "membership_required" ||
+            err?.message === "membership_required" ||
+            err?.code === "elite_required" ||
+            err?.message === "elite_required";
           setPending((prev) =>
             prev.map((p) =>
               p.tempId === id
                 ? {
                     ...p,
                     status: "failed" as const,
-                    error: isElite
-                      ? "Apollo Elite required to send messages."
+                    error: needsMembership
+                      ? "Apollo Reborn membership required to send messages."
                       : err?.message ?? "Tap to retry.",
                   }
                 : p
             )
           );
           toast({
-            title: isElite ? "Apollo Elite required" : "Couldn't send message",
-            description: isElite
-              ? "Upgrade to Elite to message Coach Marcos."
+            title: needsMembership ? "Membership required" : "Couldn't send message",
+            description: needsMembership
+              ? "Messaging is available for active Apollo Reborn members. Start your membership to message your coach."
               : err?.message ?? "Tap the failed bubble to retry.",
             variant: "destructive",
           });

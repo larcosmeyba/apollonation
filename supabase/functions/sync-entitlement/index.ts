@@ -157,6 +157,10 @@ serve(async (req) => {
 
     const update: Record<string, unknown> = { is_subscribed: isSubscribed };
     update.entitlement = entitlementValue;
+    // Trial flag — true only while subscription is active AND on trial pricing.
+    const tierSub = tierEnt?.product_identifier ? subscriptions[tierEnt.product_identifier] : null;
+    update.is_trial =
+      isSubscribed && (tierSub?.period_type ?? "").toString().toLowerCase() === "trial";
     if (plan) update.subscription_plan = plan;
     if (store) update.subscription_store = store;
     if (expiresAt) update.subscription_expires_at = expiresAt;

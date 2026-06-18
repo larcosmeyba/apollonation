@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { UserPlus, Search, Archive, XCircle, ChevronRight, FlaskConical } from "lucide-react";
+import MemberBadge from "@/components/MemberBadge";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { Switch } from "@/components/ui/switch";
@@ -20,6 +21,7 @@ interface Profile {
   user_id: string;
   display_name: string | null;
   is_subscribed: boolean;
+  is_trial?: boolean;
   account_status: string;
   created_at: string;
   is_test_account?: boolean;
@@ -200,6 +202,7 @@ const AdminClientList = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-medium truncate">{profile.display_name || "Unnamed"}</p>
+                    <MemberBadge active={profile.is_subscribed} trial={profile.is_trial} />
                     {profile.is_test_account && <Badge variant="outline" className="text-[9px] uppercase">Test</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground">

@@ -218,9 +218,14 @@ export const useMessages = (
         console.error("[sendMessage] insert failed", error);
         // RLS rejects non-Elite client inserts. Surface a clear Elite-required signal.
         const msg = (error.message || "").toLowerCase();
-        if (msg.includes("row-level security") || msg.includes("policy") || error.code === "42501") {
-          const e: any = new Error("elite_required");
-          e.code = "elite_required";
+        if (
+          msg.includes("row-level security") ||
+          msg.includes("policy") ||
+          msg.includes("membership_required") ||
+          error.code === "42501"
+        ) {
+          const e: any = new Error("membership_required");
+          e.code = "membership_required";
           throw e;
         }
         throw error;

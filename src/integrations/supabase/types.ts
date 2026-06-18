@@ -2778,6 +2778,7 @@ export type Database = {
           instagram_handle: string | null
           is_subscribed: boolean
           is_test_account: boolean
+          is_trial: boolean
           long_bio: string | null
           manual_subscription: boolean
           revenuecat_app_user_id: string | null
@@ -2809,6 +2810,7 @@ export type Database = {
           instagram_handle?: string | null
           is_subscribed?: boolean
           is_test_account?: boolean
+          is_trial?: boolean
           long_bio?: string | null
           manual_subscription?: boolean
           revenuecat_app_user_id?: string | null
@@ -2840,6 +2842,7 @@ export type Database = {
           instagram_handle?: string | null
           is_subscribed?: boolean
           is_test_account?: boolean
+          is_trial?: boolean
           long_bio?: string | null
           manual_subscription?: boolean
           revenuecat_app_user_id?: string | null
