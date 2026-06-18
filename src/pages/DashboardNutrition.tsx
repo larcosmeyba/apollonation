@@ -1301,49 +1301,6 @@ const DashboardNutrition = () => {
                 </div>
               )}
 
-              {/* Budget card */}
-              <div className="bg-card rounded-2xl p-4 border border-border">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-heading text-sm tracking-wide text-foreground flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" /> Budget
-                  </h3>
-                  {weeklyBudget !== null && (
-                    <span className="text-[11px] font-semibold text-green-500">
-                      {optimizingBudget
-                        ? "Optimizing…"
-                        : `$${(remainingBudget ?? 0).toFixed(2)} remaining`}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-end gap-2 mb-2">
-                  <div className="flex-1">
-                    <Label className="text-[10px] font-semibold text-foreground/60 uppercase">Weekly Budget ($)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="100"
-                      value={budgetInput}
-                      onChange={(e) => setBudgetInput(e.target.value)}
-                      className="bg-foreground/5 border-border text-foreground h-9 text-sm mt-1"
-                    />
-                  </div>
-                  <Button variant="apollo" size="sm" onClick={saveBudget} disabled={budgetSaving} className="h-9">
-                    {budgetSaving ? "Saving…" : "Save"}
-                  </Button>
-                </div>
-                <div className="flex justify-between text-[11px] text-foreground/70 mt-2 pt-2 border-t border-border">
-                  <span>Estimated grocery total (Week {groceryWeek})</span>
-                  <span className="font-semibold text-foreground">${effectiveTotal.toFixed(2)}</span>
-                </div>
-                {weeklyBudget !== null && weeklyBudget > 0 && (
-                  <div className="h-1.5 rounded-full bg-muted overflow-hidden mt-2">
-                    <div
-                      className="h-full transition-all bg-primary"
-                      style={{ width: `${Math.min((effectiveTotal / weeklyBudget) * 100, 100)}%` }}
-                    />
-                  </div>
-                )}
-              </div>
 
               {/* Weekly refresh banner */}
               <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
