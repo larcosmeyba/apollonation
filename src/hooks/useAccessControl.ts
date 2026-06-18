@@ -203,7 +203,10 @@ export function useAccessControl(): AccessControl {
     canAccessGroceryList: hasPremiumAccess,
     canAccessMacroTracker: hasPremiumAccess,
     canAccessAIGenerator: hasPremiumAccess,
-    canAccessCoachMessaging: hasEliteAccess,
+    // Coach messaging is open to any active member (paid OR free trial).
+    // RevenueCat marks trials as active subscriptions, so `hasPremiumAccess`
+    // (derived from is_subscribed / entitlement) is the right gate.
+    canAccessCoachMessaging: hasPremiumAccess,
     recordWorkoutUsage,
     recordRecipeUsage,
     recordProgramUsage,

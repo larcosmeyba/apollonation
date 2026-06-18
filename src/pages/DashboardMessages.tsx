@@ -123,20 +123,20 @@ const DashboardMessages = () => {
                 <MessageSquare className="w-6 h-6 text-amber-500" />
               </div>
               <span className="inline-block text-[10px] uppercase tracking-[0.15em] font-bold bg-amber-500 text-background rounded-full px-2.5 py-1">
-                Apollo Elite
+                Members Only
               </span>
               <h3 className="text-xl font-bold leading-tight">Direct access to Coach Marcos</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Async coaching and personalized program adjustments — typically within 24 hours.
+                Messaging is available for active Apollo Reborn members. Start your membership to message your coach.
               </p>
-              <Button variant="apollo" className="w-full" onClick={() => navigate("/subscribe?reason=elite")}>
-                Upgrade to Elite
+              <Button variant="apollo" className="w-full" onClick={() => navigate("/subscribe?reason=messaging")}>
+                Start Membership
               </Button>
               <button
                 onClick={() => navigate("/dashboard/profile")}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors underline"
               >
-                Already have Elite? Restore purchases
+                Already a member? Restore purchases
               </button>
             </div>
           </div>
