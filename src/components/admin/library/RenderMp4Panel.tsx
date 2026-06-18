@@ -121,17 +121,33 @@ const RenderMp4Panel = ({ classId, hasBlocks }: RenderMp4PanelProps) => {
           </div>
 
           {latest.status === "ready" && latest.mp4_url && (
-            <a
-              href={latest.mp4_url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={async () => {
+                try {
+                  toast.loading("Preparing download…", { id: "mp4-dl" });
+                  const res = await fetch(latest.mp4_url);
+                  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                  const blob = await res.blob();
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `${(latest.title || "apollo-class").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.mp4`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  toast.success("Download started", { id: "mp4-dl" });
+                } catch (e: any) {
+                  toast.error(`Download failed: ${e.message}`, { id: "mp4-dl" });
+                }
+              }}
               className="flex items-center gap-1.5 text-xs text-primary hover:underline"
             >
               <Download className="w-3.5 h-3.5" /> Download MP4
               {latest.duration_seconds
                 ? ` · ${Math.round(latest.duration_seconds / 60)}m`
                 : ""}
-            </a>
+            </button>
           )}
 
           {latest.status === "failed" && latest.error && (
