@@ -1446,41 +1446,6 @@ const DashboardNutrition = () => {
 
                 <TabsContent value="grocery">
                   <div className="space-y-4">
-                    {/* Budget header — reconciles total at top of grocery tab so user
-                        never has to scroll back to the budget card to see status. */}
-                    {effectiveBudget !== null && effectiveBudget > 0 ? (
-                      <div className={`p-3 rounded-lg border ${nearBudget ? "border-yellow-500/40 bg-yellow-500/5" : "border-green-500/30 bg-green-500/5"}`}>
-                        <div className="flex items-baseline justify-between gap-2">
-                          <button
-                            type="button"
-                            onClick={() => { setBudgetInput(String(effectiveBudget)); setBudgetModalOpen(true); }}
-                            className="text-left"
-                          >
-                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Weekly budget · tap to edit</p>
-                            <p className="font-heading text-lg text-foreground underline-offset-2 hover:underline">${effectiveBudget.toFixed(2)}</p>
-                          </button>
-                          <div className="text-right">
-                            <p className="text-[10px] uppercase tracking-wider text-foreground/60">Current total</p>
-                            <p className="font-heading text-lg text-foreground">${effectiveTotal.toFixed(2)}</p>
-                          </div>
-                        </div>
-                        <div className={`text-[11px] mt-2 flex items-center gap-1.5 ${nearBudget ? "text-yellow-500" : "text-green-500"}`}>
-                          {nearBudget ? (
-                            <>⚠ ${remainingBudget!.toFixed(2)} left</>
-                          ) : (
-                            <>✓ ${remainingBudget!.toFixed(2)} under budget{swappedItemCount > 0 ? ` · ${swappedItemCount} item${swappedItemCount === 1 ? "" : "s"} reduced` : ""}</>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => { setBudgetInput(""); setBudgetModalOpen(true); }}
-                        className="w-full p-3 rounded-lg border border-dashed border-foreground/30 text-foreground/70 hover:border-foreground/60 hover:text-foreground transition-colors text-sm"
-                      >
-                        Set a weekly budget — we'll keep your grocery list under it
-                      </button>
-                    )}
 
 
                     {/* Week selector + running total */}
