@@ -9,12 +9,12 @@ import AdminContactRequests from "@/components/admin/AdminContactRequests";
 import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientList from "@/components/admin/AdminClientList";
 import AdminBugReports from "@/components/admin/AdminBugReports";
-
 import AdminClassBuilder from "@/components/admin/AdminClassBuilder";
 import AdminMessages from "@/components/admin/AdminMessages";
 import AdminCategories from "@/components/admin/AdminCategories";
 import AdminBlog from "@/components/admin/AdminBlog";
 import AdminBlueprints from "@/components/admin/AdminBlueprints";
+import AdminExerciseLibrary from "@/components/admin/AdminExerciseLibrary";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { isNative } from "@/lib/platform";
 
@@ -39,6 +39,8 @@ const AdminDashboard = () => {
         return <AdminDashboardHome onNavigate={setActiveTab} />;
       case "clients":
         return <AdminClientList />;
+      case "exercise-library":
+        return <AdminExerciseLibrary />;
       case "class-builder":
         return <AdminClassBuilder />;
       case "workouts":
