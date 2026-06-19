@@ -9,7 +9,6 @@ import AdminContactRequests from "@/components/admin/AdminContactRequests";
 import AdminCoachProfile from "@/components/admin/AdminCoachProfile";
 import AdminClientList from "@/components/admin/AdminClientList";
 import AdminBugReports from "@/components/admin/AdminBugReports";
-
 import AdminClassBuilder from "@/components/admin/AdminClassBuilder";
 import AdminMessages from "@/components/admin/AdminMessages";
 import AdminCategories from "@/components/admin/AdminCategories";

@@ -43,8 +43,8 @@ interface AdminLayoutProps {
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "text-[hsl(210,100%,52%)]" },
   { id: "clients", label: "Clients", icon: Users, color: "text-[hsl(142,71%,45%)]" },
-  { id: "exercise-library", label: "Exercise Library", icon: Library, color: "text-[hsl(280,70%,60%)]" },
   { id: "class-builder", label: "Class Builder", icon: Film, color: "text-[hsl(45,90%,55%)]" },
+  { id: "exercise-library", label: "Exercise Library", icon: Library, color: "text-[hsl(165,70%,45%)]" },
   { id: "workouts", label: "On-Demand Classes", icon: Dumbbell, color: "text-[hsl(0,72%,51%)]" },
   { id: "categories", label: "Categories", icon: ImageIcon, color: "text-[hsl(320,70%,60%)]" },
   { id: "recipes", label: "Recipes", icon: Utensils, color: "text-[hsl(30,80%,55%)]" },
