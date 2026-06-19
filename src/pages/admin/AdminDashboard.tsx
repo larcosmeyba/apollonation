@@ -15,6 +15,7 @@ import AdminMessages from "@/components/admin/AdminMessages";
 import AdminCategories from "@/components/admin/AdminCategories";
 import AdminBlog from "@/components/admin/AdminBlog";
 import AdminBlueprints from "@/components/admin/AdminBlueprints";
+import AdminExerciseLibrary from "@/components/admin/AdminExerciseLibrary";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { isNative } from "@/lib/platform";
 
