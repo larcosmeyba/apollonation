@@ -45,7 +45,7 @@ const AdminExerciseLibrary = () => {
     queryKey: ["admin-exercises"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("exercises")
+        .from("admin_exercises")
         .select("*")
         .order("name");
       if (error) throw error;
@@ -77,7 +77,7 @@ const AdminExerciseLibrary = () => {
     if (!deleteTarget) return;
     setDeleting(true);
     const { error } = await supabase
-      .from("exercises")
+      .from("admin_exercises")
       .delete()
       .eq("id", deleteTarget.id);
     setDeleting(false);
