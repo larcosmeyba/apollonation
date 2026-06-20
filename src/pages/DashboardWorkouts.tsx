@@ -489,7 +489,15 @@ const DashboardWorkouts = () => {
         }}
       />
 
-      <Dialog open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
+      {selectedWorkout && (selectedWorkout as any).admin_class_id ? (
+        <AdminClassPlayerLauncher
+          classId={(selectedWorkout as any).admin_class_id}
+          title={selectedWorkout.title}
+          onClose={() => setSelectedWorkout(null)}
+        />
+      ) : null}
+
+      <Dialog open={!!selectedWorkout && !(selectedWorkout as any).admin_class_id} onOpenChange={() => setSelectedWorkout(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
           {selectedWorkout && (
             <>
