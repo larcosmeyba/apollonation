@@ -57,13 +57,12 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
     return () => clearTimeout(t);
   }, [phase]);
 
-  // Initialize remaining when entering a phase
+  // Initialize remaining when entering a WORK phase.
+  // Rest duration is set by advance() at the moment of transition (since the
+  // rest belongs to the OUTGOING block, not the incoming one after idx++).
   useEffect(() => {
     if (phase === "block" && block) setRemaining(block.work_seconds);
-    else if (phase === "rest" && block) {
-      setRemaining(restType === "between-sets" ? block.set_rest_seconds : block.rest_seconds);
-    }
-  }, [phase, idx, setNum, block, restType]);
+  }, [phase, idx, setNum, block]);
 
   // Pause/resume the actual video when user taps pause
   useEffect(() => {
