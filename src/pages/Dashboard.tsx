@@ -17,6 +17,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, subDays } from "date-fns";
 import { Flame } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
+import AdminClassPlayerLauncher from "@/components/dashboard/AdminClassPlayerLauncher";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -77,6 +79,9 @@ const Dashboard = () => {
   const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
+  const [pendingWorkout, setPendingWorkout] = useState<any | null>(null);
+  const [playingClass, setPlayingClass] = useState<{ classId: string; title: string } | null>(null);
+
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
@@ -518,6 +523,25 @@ const Dashboard = () => {
                     <p className="text-sm text-muted-foreground">{selectedWorkout.description}</p>
                   )}
 
+                  {selectedWorkout.admin_class_id && (
+                    <Button
+                      variant="apollo"
+                      size="lg"
+                      className="w-full gap-2"
+                      onClick={() => {
+                        const w = selectedWorkout;
+                        if (!w) return;
+                        setPendingWorkout(w);
+                        setSelectedWorkout(null);
+                      }}
+                    >
+                      <Play className="h-4 w-4 fill-current" />
+                      Start Workout
+                    </Button>
+                  )}
+
+
+
                   {workoutExercises.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-heading text-sm tracking-wide text-foreground">Exercises</h3>
@@ -540,7 +564,29 @@ const Dashboard = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <PreWorkoutMusicPrompt
+        open={!!pendingWorkout}
+        onCancel={() => setPendingWorkout(null)}
+        onReady={() => {
+          const w = pendingWorkout;
+          setPendingWorkout(null);
+          if (!w) return;
+          if (w.admin_class_id) {
+            setPlayingClass({ classId: w.admin_class_id, title: w.title });
+          }
+        }}
+      />
+
+      {playingClass && (
+        <AdminClassPlayerLauncher
+          classId={playingClass.classId}
+          title={playingClass.title}
+          onClose={() => setPlayingClass(null)}
+        />
+      )}
     </DashboardLayout>
+
   );
 };
 
