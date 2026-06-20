@@ -277,8 +277,23 @@ const ExerciseRow = ({
     : null;
   const hasAnyVideo = hasMux || !!resolvedVideoUrl;
 
+  // Per-set coaching
+  const targetMin = (exercise.target_reps_min as number | null) ?? null;
+  const targetMax = (exercise.target_reps_max as number | null) ?? null;
+  const progressionCue = (exercise.progression_cue as string | null) ?? null;
   const repsTargetLabel = formatRepsTarget(exercise.reps);
   const isToFailure = repsTargetLabel.toLowerCase().includes("failure");
+
+  const getSetCue = (setNum: number, totalSets: number): string => {
+    if (progressionCue) return progressionCue;
+    if (targetMin && targetMax) {
+      if (setNum === 1) return `Warm-up set — ${targetMin}–${targetMax} reps`;
+      if (setNum === totalSets) return `Max effort — ${targetMin}–${targetMax} reps, push hard`;
+      return `Working set — ${targetMin}–${targetMax} reps`;
+    }
+    if (isToFailure) return "To failure — as many reps as possible";
+    return `Set ${setNum}/${totalSets}`;
+  };
 
   const isSetLogged = (setNum: number) => {
     const log = setLogs.find((l) => l.set_number === setNum);
