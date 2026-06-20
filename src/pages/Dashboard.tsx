@@ -77,6 +77,9 @@ const Dashboard = () => {
   const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
+  const [pendingWorkout, setPendingWorkout] = useState<any | null>(null);
+  const [playingClass, setPlayingClass] = useState<{ classId: string; title: string } | null>(null);
+
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
