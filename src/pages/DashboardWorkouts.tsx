@@ -265,10 +265,11 @@ const DashboardWorkouts = () => {
             navigate("/subscribe?reason=workouts");
             return;
           }
-          setPendingWorkout(workout);
+          setSelectedWorkout(workout);
         }}
         className="group relative overflow-hidden rounded-2xl text-left transition-all w-full"
       >
+
         <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
           <img
             src={thumb}
