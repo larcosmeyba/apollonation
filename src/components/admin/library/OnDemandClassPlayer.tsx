@@ -20,6 +20,9 @@ export interface PlayerBlock {
   tempo_prompt?: string | null;
   drop_set?: boolean;
   section?: "warmup" | "workout_a" | "workout_b" | "workout_c" | "cooldown";
+  target_reps_min?: number | null;
+  target_reps_max?: number | null;
+  progression_cue?: string | null;
 }
 
 interface Props {
