@@ -61,6 +61,7 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     controls = true,
     poster,
     className,
+    style,
     streamType = "on-demand",
     onTimeUpdate,
     onLoadedMetadata,
