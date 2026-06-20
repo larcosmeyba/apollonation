@@ -503,6 +503,7 @@ const AdminClassBuilder = () => {
                 </button>
               );
             })}
+          </div>
           {(() => {
             const renderRow = (ex: AdminExercise) => (
               <button
