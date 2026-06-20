@@ -303,15 +303,15 @@ const ExerciseRow = ({
             aria-label={hasAnyVideo ? "Play demo video" : "No video"}
           >
             {hasMux ? (
-              <video
-                src={`https://stream.mux.com/${resolvedPlaybackId}/low.mp4`}
-                poster={muxPoster || undefined}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
+              <img
+                src={`https://image.mux.com/${resolvedPlaybackId}/animated.gif?width=240&fps=12`}
+                alt=""
+                loading="lazy"
                 className={`w-full h-full object-cover ${isCompleted ? "opacity-40" : ""}`}
+                onError={(e) => {
+                  // Fallback to static thumbnail if animated GIF fails
+                  if (muxPoster) (e.currentTarget as HTMLImageElement).src = muxPoster;
+                }}
               />
             ) : thumbnail ? (
               <img src={thumbnail} alt="" className={`w-full h-full object-cover ${isCompleted ? "opacity-40" : ""}`} loading="lazy" />
