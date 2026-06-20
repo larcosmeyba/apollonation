@@ -8,10 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff, Play } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import AdminClassPlayerLauncher from "@/components/dashboard/AdminClassPlayerLauncher";
+import MuxVideo from "@/components/video/MuxVideo";
+
 
 
 interface Workout {
@@ -25,8 +28,11 @@ interface Workout {
   thumbnail_url: string | null;
   is_featured: boolean | null;
   is_published?: boolean;
+  admin_class_id?: string | null;
+  mux_playback_id?: string | null;
   created_at?: string;
 }
+
 
 const CATEGORIES = [
   { value: "strength", label: "Strength" },
@@ -41,6 +47,9 @@ const AdminWorkouts = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
+  const [previewWorkout, setPreviewWorkout] = useState<Workout | null>(null);
+  const [playingClass, setPlayingClass] = useState<{ classId: string; title: string } | null>(null);
+
   
   const [isUploadingThumb, setIsUploadingThumb] = useState(false);
   const thumbInputRef = useRef<HTMLInputElement>(null);
@@ -489,9 +498,13 @@ const AdminWorkouts = () => {
                   <p className="font-medium text-sm truncate">{workout.title}</p>
                   <p className="text-xs text-muted-foreground capitalize">{workout.category}</p>
                   <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button size="icon" variant="ghost" className="h-7 w-7" title="Preview / Play" onClick={() => setPreviewWorkout(workout)}>
+                      <Play className="w-3.5 h-3.5" />
+                    </Button>
                     <Button size="icon" variant="ghost" className="h-7 w-7" title="Edit" onClick={() => handleEdit(workout)}>
                       <Pencil className="w-3.5 h-3.5" />
                     </Button>
+
                     <Button
                       size="icon"
                       variant="ghost"
@@ -528,8 +541,72 @@ const AdminWorkouts = () => {
           </div>
         );
       })()}
+
+      {/* Preview / Play */}
+      <Dialog open={!!previewWorkout} onOpenChange={() => setPreviewWorkout(null)}>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden">
+          {previewWorkout && (
+            <div className="space-y-0">
+              {previewWorkout.mux_playback_id ? (
+                <div className="relative aspect-video w-full bg-black">
+                  <MuxVideo
+                    playbackId={previewWorkout.mux_playback_id}
+                    title={previewWorkout.title}
+                    videoId={previewWorkout.id}
+                    category={previewWorkout.category}
+                    autoPlay
+                    controls
+                  />
+                </div>
+              ) : previewWorkout.thumbnail_url ? (
+                <div className="relative aspect-video w-full bg-muted">
+                  <img src={previewWorkout.thumbnail_url} alt={previewWorkout.title} className="w-full h-full object-cover" />
+                </div>
+              ) : null}
+              <div className="p-5 space-y-3">
+                <DialogHeader>
+                  <DialogTitle>{previewWorkout.title}</DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground capitalize">
+                  {previewWorkout.category} · {previewWorkout.duration_minutes} min
+                </p>
+                {previewWorkout.description && (
+                  <p className="text-sm text-muted-foreground">{previewWorkout.description}</p>
+                )}
+                {previewWorkout.admin_class_id ? (
+                  <Button
+                    variant="apollo"
+                    size="lg"
+                    className="w-full gap-2"
+                    onClick={() => {
+                      setPlayingClass({ classId: previewWorkout.admin_class_id!, title: previewWorkout.title });
+                      setPreviewWorkout(null);
+                    }}
+                  >
+                    <Play className="h-4 w-4 fill-current" />
+                    Start Workout
+                  </Button>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    This class isn't linked to a Class Builder session, so the guided player isn't available.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {playingClass && (
+        <AdminClassPlayerLauncher
+          classId={playingClass.classId}
+          title={playingClass.title}
+          onClose={() => setPlayingClass(null)}
+        />
+      )}
     </div>
   );
 };
+
 
 export default AdminWorkouts;
