@@ -307,12 +307,14 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
     }
 
     // Validate that all exercises exist in the library (allow warm-up/cool-down exceptions)
-    const libraryTitles = new Set((exerciseLibrary || []).map((e: any) => e.title.toLowerCase()));
+    const libraryTitles = new Set((exerciseLibrary || []).map((e: any) => (e.name || "").toLowerCase()));
+    const libIndex = new Map<string, any>();
+    for (const e of exerciseLibrary || []) libIndex.set((e.name || "").toLowerCase(), e);
     const allowedExceptions = ["dynamic warm-up", "treadmill walk", "cool-down stretches", "warmup", "cooldown"];
     for (const day of planData.days) {
       day.exercises = day.exercises.filter((ex: any) => {
         const name = ex.exercise_name.toLowerCase();
-        const isException = allowedExceptions.some(ae => name.includes(ae)) || 
+        const isException = allowedExceptions.some(ae => name.includes(ae)) ||
                             ex.muscle_group === "warmup" || ex.muscle_group === "cooldown";
         const exists = libraryTitles.has(name);
         if (!exists && !isException) {
@@ -360,16 +362,39 @@ Make exercises safe, evidence-based, and appropriate for the client's age and ex
           continue;
         }
 
-        const exercises = day.exercises.map((ex: any, i: number) => ({
-          day_id: dayRow.id,
-          exercise_name: ex.exercise_name,
-          muscle_group: ex.muscle_group || null,
-          sets: ex.sets || 3,
-          reps: ex.reps || "10",
-          rest_seconds: ex.rest_seconds || 60,
-          notes: ex.notes || null,
-          sort_order: i,
-        }));
+        const exercises = day.exercises.map((ex: any, i: number) => {
+          const lib = libIndex.get((ex.exercise_name || "").toLowerCase());
+          const repsStr = String(ex.reps || "10");
+          let targetMin: number | null = null;
+          let targetMax: number | null = null;
+          const rangeMatch = repsStr.match(/(\d+)\s*[-\u2013\u2014]\s*(\d+)/);
+          if (rangeMatch) {
+            targetMin = parseInt(rangeMatch[1], 10);
+            targetMax = parseInt(rangeMatch[2], 10);
+          } else {
+            const singleMatch = repsStr.match(/(\d+)/);
+            if (singleMatch) {
+              const n = parseInt(singleMatch[1], 10);
+              targetMin = Math.max(1, n - 2);
+              targetMax = n + 2;
+            }
+          }
+          return {
+            day_id: dayRow.id,
+            exercise_name: ex.exercise_name,
+            muscle_group: ex.muscle_group || null,
+            sets: ex.sets || 3,
+            reps: repsStr,
+            rest_seconds: ex.rest_seconds || 60,
+            notes: ex.notes || null,
+            sort_order: i,
+            exercise_id: lib?.id ?? null,
+            mux_playback_id: lib?.mux_playback_id ?? null,
+            target_reps_min: targetMin,
+            target_reps_max: targetMax,
+            progression_cue: null,
+          };
+        });
 
         await supabaseAdmin.from("training_plan_exercises").insert(exercises);
       }
