@@ -192,6 +192,18 @@ const parseRest = (s: string | null): number => {
   return /min/i.test(s) ? n * 60 : n;
 };
 
+const parseRepRange = (s: string | null): { min: number | null; max: number | null } => {
+  if (!s) return { min: null, max: null };
+  const rangeMatch = s.match(/(\d+)\s*[-\u2013\u2014]\s*(\d+)/);
+  if (rangeMatch) return { min: parseInt(rangeMatch[1], 10), max: parseInt(rangeMatch[2], 10) };
+  const singleMatch = s.match(/(\d+)/);
+  if (singleMatch) {
+    const n = parseInt(singleMatch[1], 10);
+    return { min: Math.max(1, n - 2), max: n + 2 };
+  }
+  return { min: null, max: null };
+};
+
 // ---------- Program assignment ----------
 export function assignProgramSlug(profile: WorkoutProfile): string {
   if (profile.location === "Recovery") return profile.goal.toLowerCase().includes("mobility") ? "mobility" : "recovery";
