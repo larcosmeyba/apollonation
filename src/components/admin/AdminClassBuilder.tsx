@@ -102,6 +102,7 @@ const AdminClassBuilder = () => {
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | "all">("all");
   const [difficultyFilter, setDifficultyFilter] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
   const [previewing, setPreviewing] = useState(false);
+  const [musicPrompting, setMusicPrompting] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showOpenList, setShowOpenList] = useState(false);
