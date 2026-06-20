@@ -293,6 +293,9 @@ const AdminClassBuilder = () => {
         weight_prompt: b.weight_prompt || null,
         tempo_prompt: b.tempo_prompt || null,
         drop_set: b.drop_set,
+        target_reps_min: b.target_reps_min,
+        target_reps_max: b.target_reps_max,
+        progression_cue: b.progression_cue || null,
       }));
       const { error } = await supabase.from("admin_class_blocks").insert(rows as any);
       if (error) { setSaving(false); return toast.error(error.message); }
