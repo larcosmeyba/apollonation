@@ -429,7 +429,7 @@ const AdminClassBuilder = () => {
           <Button variant="outline" onClick={newClass}>
             <Plus className="w-4 h-4" /> New
           </Button>
-          <Button variant="outline" onClick={() => setPreviewing(true)} disabled={blocks.length === 0}>
+          <Button variant="outline" onClick={() => setMusicPrompting(true)} disabled={blocks.length === 0}>
             <Play className="w-4 h-4" /> Preview
           </Button>
           <Button variant="outline" onClick={saveTemplate} disabled={blocks.length === 0}>
