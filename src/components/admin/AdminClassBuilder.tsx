@@ -100,6 +100,7 @@ const AdminClassBuilder = () => {
   const filteredLib = horizontalLib.filter((e) => {
     if (search && !e.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (categoryFilter !== "all" && e.category !== categoryFilter) return false;
+    if (difficultyFilter !== "all" && e.difficulty !== difficultyFilter) return false;
     return true;
   });
 
