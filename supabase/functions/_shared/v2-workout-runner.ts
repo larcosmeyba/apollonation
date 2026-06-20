@@ -114,5 +114,8 @@ export function sessionToRows(s: Session) {
     suggested_load: slot.suggested_load ?? null,
     mux_playback_id: slot.mux_playback_id,
     video_url: slot.video_url,
+    target_reps_min: slot.target_reps_min,
+    target_reps_max: slot.target_reps_max,
+    progression_cue: slot.progression_cue,
   }));
 }
