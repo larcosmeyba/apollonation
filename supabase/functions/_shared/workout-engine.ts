@@ -21,6 +21,8 @@ export type Exercise = {
   mux_playback_id: string | null;
   suggested_reps: string | null;
   suggested_time: string | null;
+  thumbnail_url: string | null;
+  coaching_notes: string | null;
 };
 
 export type Slot = {
