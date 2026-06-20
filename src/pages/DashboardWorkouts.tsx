@@ -490,20 +490,25 @@ const DashboardWorkouts = () => {
         onReady={() => {
           const w = pendingWorkout;
           setPendingWorkout(null);
-          if (w) setSelectedWorkout(w);
+          if (!w) return;
+          if ((w as any).admin_class_id) {
+            setPlayingClass({ classId: (w as any).admin_class_id, title: w.title });
+            setSelectedWorkout(null);
+          }
         }}
       />
 
-      {selectedWorkout && (selectedWorkout as any).admin_class_id ? (
+      {playingClass && (
         <AdminClassPlayerLauncher
-          classId={(selectedWorkout as any).admin_class_id}
-          title={selectedWorkout.title}
-          onClose={() => setSelectedWorkout(null)}
+          classId={playingClass.classId}
+          title={playingClass.title}
+          onClose={() => setPlayingClass(null)}
         />
-      ) : null}
+      )}
 
-      <Dialog open={!!selectedWorkout && !(selectedWorkout as any).admin_class_id} onOpenChange={() => setSelectedWorkout(null)}>
+      <Dialog open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
+
           {selectedWorkout && (
             <>
               {(selectedWorkout as any).mux_playback_id ? (
