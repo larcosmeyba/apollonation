@@ -5,13 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Search, Bookmark, BookmarkCheck, Loader2, Lock } from "lucide-react";
+import { Search, Bookmark, BookmarkCheck, Loader2, Lock, Play } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { format, startOfWeek } from "date-fns";
 import { toast } from "sonner";
+
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import marcosAction6 from "@/assets/marcos-action-6.webp";
