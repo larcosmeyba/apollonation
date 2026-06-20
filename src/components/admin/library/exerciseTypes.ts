@@ -31,6 +31,7 @@ export interface AdminExercise {
   category: ExerciseCategory | null;
   duration_seconds: number | null;
   body_part: string | null;
+  video_object_position?: string | null;
 }
 
 export const EXERCISE_CATEGORIES: ExerciseCategory[] = [
