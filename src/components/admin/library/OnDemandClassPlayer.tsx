@@ -321,7 +321,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                           restPreviewRef.current.currentTime = block.exercise.loop_in_seconds;
                       }}
                       className="w-full h-full object-cover"
-                      style={{ objectPosition: focal(block.exercise) }}
+                      style={videoStyle(block.exercise)}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/30">
@@ -389,7 +389,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                         videoRef.current.currentTime = block.exercise.loop_in_seconds;
                     }}
                     className="w-full h-full object-cover"
-                    style={{ objectPosition: focal(block.exercise) }}
+                    style={videoStyle(block.exercise)}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/40">No video</div>
@@ -414,7 +414,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                         altVideoRef.current.currentTime = block.alt.loop_in_seconds;
                     }}
                     className="w-full h-full object-cover"
-                    style={{ objectPosition: focal(block.alt) }}
+                    style={videoStyle(block.alt)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
                   <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur text-xs uppercase tracking-widest">
