@@ -442,45 +442,57 @@ const ExerciseRow = ({
               const log = setLogs.find(l => l.set_number === setNum);
               const prevLog = previousSetLogs.find(l => l.set_number === setNum);
               const logged = isSetLogged(setNum);
+              const setCue = getSetCue(setNum, totalSets);
+              const repPlaceholder = isToFailure
+                ? "AMRAP"
+                : (targetMin && targetMax)
+                  ? `${targetMin}–${targetMax}`
+                  : (prevLog?.reps_completed ? String(prevLog.reps_completed) : "reps");
               return (
-                <div key={setNum} className="relative grid grid-cols-[20px_1fr_1fr_40px_22px] gap-1.5 items-center">
-                  <span className="text-xs font-heading text-foreground/40 text-center tabular-nums">{setNum}</span>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder={prevLog?.weight ? String(prevLog.weight) : "lbs"}
-                    className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
-                    value={log?.weight ?? ""}
-                    onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
-                  />
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    placeholder={isToFailure ? "AMRAP" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : "reps")}
-                    className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
-                    value={log?.reps_completed ?? ""}
-                    onChange={(e) => {
-                      onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
-                      if (e.target.value) setShowTimer(true);
-                    }}
-                  />
-                  <span className="text-[10px] text-foreground/40 text-center font-mono tabular-nums">
-                    {exercise.rest_seconds ? `${exercise.rest_seconds}s` : "—"}
-                  </span>
-                  <div className="flex items-center justify-center">
-                    {logged ? (
-                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center transition-all animate-in zoom-in duration-200 shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
-                        <Check className="w-3 h-3 text-background" strokeWidth={3} />
-                      </div>
-                    ) : (
-                      <div className="w-5 h-5 rounded-full border border-white/10" />
+                <div key={setNum} className="relative">
+                  {/* Per-set coaching cue */}
+                  <div className="text-[9px] text-primary/70 uppercase tracking-wider mb-0.5 font-semibold">
+                    Set {setNum}/{totalSets} · {setCue}
+                  </div>
+                  <div className="grid grid-cols-[20px_1fr_1fr_40px_22px] gap-1.5 items-center">
+                    <span className="text-xs font-heading text-foreground/40 text-center tabular-nums">{setNum}</span>
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      placeholder={prevLog?.weight ? String(prevLog.weight) : "lbs"}
+                      className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
+                      value={log?.weight ?? ""}
+                      onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
+                    />
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      placeholder={repPlaceholder}
+                      className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
+                      value={log?.reps_completed ?? ""}
+                      onChange={(e) => {
+                        onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
+                        if (e.target.value) setShowTimer(true);
+                      }}
+                    />
+                    <span className="text-[10px] text-foreground/40 text-center font-mono tabular-nums">
+                      {exercise.rest_seconds ? `${exercise.rest_seconds}s` : "—"}
+                    </span>
+                    <div className="flex items-center justify-center">
+                      {logged ? (
+                        <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center transition-all animate-in zoom-in duration-200 shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
+                          <Check className="w-3 h-3 text-background" strokeWidth={3} />
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border border-white/10" />
+                      )}
+                    </div>
+                    {isPR(log?.weight ?? null) && (
+                      <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-primary text-background shadow-[0_0_8px_hsl(var(--primary)/0.6)]">
+                        PR
+                      </span>
                     )}
                   </div>
-                  {isPR(log?.weight ?? null) && (
-                    <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-primary text-background shadow-[0_0_8px_hsl(var(--primary)/0.6)]">
-                      PR
-                    </span>
-                  )}
                 </div>
               );
             })}
