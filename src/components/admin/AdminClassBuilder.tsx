@@ -38,6 +38,9 @@ interface Block {
   weight_prompt: string;
   tempo_prompt: string;
   drop_set: boolean;
+  target_reps_min: number | null;
+  target_reps_max: number | null;
+  progression_cue: string;
 }
 
 const SECTIONS: { id: SectionId; label: string; targetSeconds: number }[] = [
@@ -67,6 +70,9 @@ const newBlock = (section: SectionId, exercise_id: string | null, alt_id: string
   weight_prompt: "",
   tempo_prompt: "",
   drop_set: false,
+  target_reps_min: section === "warmup" || section === "cooldown" ? null : 8,
+  target_reps_max: section === "warmup" || section === "cooldown" ? null : 12,
+  progression_cue: "",
   ...sectionDefaults(section),
 });
 
@@ -194,6 +200,9 @@ const AdminClassBuilder = () => {
     tempo_prompt: b.tempo_prompt,
     drop_set: b.drop_set,
     section: b.section,
+    target_reps_min: b.target_reps_min,
+    target_reps_max: b.target_reps_max,
+    progression_cue: b.progression_cue,
   }));
 
   const loadClass = async (id: string) => {
@@ -229,6 +238,9 @@ const AdminClassBuilder = () => {
         weight_prompt: b.weight_prompt || "",
         tempo_prompt: b.tempo_prompt || "",
         drop_set: b.drop_set,
+        target_reps_min: b.target_reps_min ?? null,
+        target_reps_max: b.target_reps_max ?? null,
+        progression_cue: b.progression_cue || "",
       }))
     );
     setShowOpenList(false);
@@ -281,6 +293,9 @@ const AdminClassBuilder = () => {
         weight_prompt: b.weight_prompt || null,
         tempo_prompt: b.tempo_prompt || null,
         drop_set: b.drop_set,
+        target_reps_min: b.target_reps_min,
+        target_reps_max: b.target_reps_max,
+        progression_cue: b.progression_cue || null,
       }));
       const { error } = await supabase.from("admin_class_blocks").insert(rows as any);
       if (error) { setSaving(false); return toast.error(error.message); }
@@ -402,6 +417,9 @@ const AdminClassBuilder = () => {
           cue_overrides: b.cue || "",
           weight_prompt: b.weight_prompt || "",
           tempo_prompt: b.tempo_prompt || "",
+          target_reps_min: b.target_reps_min ?? (section === "warmup" || section === "cooldown" ? null : 8),
+          target_reps_max: b.target_reps_max ?? (section === "warmup" || section === "cooldown" ? null : 12),
+          progression_cue: b.progression_cue || "",
         };
       });
     if (generated.length === 0) return toast.error("AI returned no usable blocks");
@@ -749,6 +767,20 @@ const AdminClassBuilder = () => {
                               onChange={(e) => updateBlock(b.id, { weight_prompt: e.target.value })} className="h-8" />
                             <Input placeholder="Tempo (e.g. Slow 3-1-1)" value={b.tempo_prompt}
                               onChange={(e) => updateBlock(b.id, { tempo_prompt: e.target.value })} className="h-8" />
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
+                            <label className="space-y-1">
+                              <span className="text-muted-foreground">Reps min</span>
+                              <Input type="number" value={b.target_reps_min ?? ""}
+                                onChange={(e) => updateBlock(b.id, { target_reps_min: e.target.value === "" ? null : +e.target.value })} className="h-8" />
+                            </label>
+                            <label className="space-y-1">
+                              <span className="text-muted-foreground">Reps max</span>
+                              <Input type="number" value={b.target_reps_max ?? ""}
+                                onChange={(e) => updateBlock(b.id, { target_reps_max: e.target.value === "" ? null : +e.target.value })} className="h-8" />
+                            </label>
+                            <Input placeholder="Progression (e.g. +5 lbs each set)" value={b.progression_cue}
+                              onChange={(e) => updateBlock(b.id, { progression_cue: e.target.value })} className="h-8 col-span-1" />
                           </div>
                           <Input placeholder="Cue override" value={b.cue_overrides}
                             onChange={(e) => updateBlock(b.id, { cue_overrides: e.target.value })}

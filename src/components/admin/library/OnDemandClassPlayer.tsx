@@ -20,6 +20,9 @@ export interface PlayerBlock {
   tempo_prompt?: string | null;
   drop_set?: boolean;
   section?: "warmup" | "workout_a" | "workout_b" | "workout_c" | "cooldown";
+  target_reps_min?: number | null;
+  target_reps_max?: number | null;
+  progression_cue?: string | null;
 }
 
 interface Props {
@@ -468,7 +471,17 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
               </div>
 
               <div className="mt-auto flex items-end justify-between gap-6 flex-wrap">
-                <div className="space-y-1.5 max-w-md">
+                <div className="space-y-2 max-w-md">
+                  {(block.target_reps_min || block.target_reps_max) && block.section !== "warmup" && block.section !== "cooldown" && (
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/20 border border-primary/40">
+                      <span className="text-[10px] uppercase tracking-[0.25em] text-primary/80">Target</span>
+                      <span className="text-base font-bold text-primary tabular-nums">
+                        {block.target_reps_min && block.target_reps_max && block.target_reps_min !== block.target_reps_max
+                          ? `${block.target_reps_min}–${block.target_reps_max} reps`
+                          : `${block.target_reps_max || block.target_reps_min} reps`}
+                      </span>
+                    </div>
+                  )}
                   {block.weight_prompt && (
                     <div className="text-sm uppercase tracking-wider text-amber-300">
                       💪 {block.weight_prompt}
@@ -477,6 +490,11 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                   {block.tempo_prompt && (
                     <div className="text-sm uppercase tracking-wider text-cyan-300">
                       ⏱ {block.tempo_prompt}
+                    </div>
+                  )}
+                  {block.progression_cue && block.sets > 1 && (
+                    <div className="text-sm uppercase tracking-wider text-emerald-300">
+                      📈 Set {setNum}/{block.sets} · {block.progression_cue}
                     </div>
                   )}
                   {(block.cue_overrides || block.exercise?.coaching_notes) && (
