@@ -159,13 +159,20 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
 
           {form.mux_playback_id && (
             <div className="space-y-2">
-              <video
-                ref={videoRef}
-                src={muxMp4(form.mux_playback_id)}
-                controls
-                onLoadedMetadata={(e) => setDuration((e.target as HTMLVideoElement).duration)}
-                className="w-full rounded-lg bg-black aspect-video"
-              />
+              <div className="aspect-video w-full bg-black rounded-lg overflow-hidden">
+                <MuxVideo
+                  playbackId={form.mux_playback_id}
+                  title={form.name || "Preview"}
+                  category="admin-preview"
+                  controls
+                  muted
+                  playsInline
+                  videoRef={videoRef}
+                  onLoadedMetadata={(e) =>
+                    setDuration((e.target as HTMLVideoElement).duration)
+                  }
+                />
+              </div>
               <div className="flex flex-wrap gap-2 items-center">
                 <Button type="button" variant="outline" size="sm" onClick={() => setLoopFromVideo("in")}>
                   Set Loop In
