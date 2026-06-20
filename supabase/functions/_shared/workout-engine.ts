@@ -70,6 +70,9 @@ export type FilledSlot = {
   rest_seconds: number;
   suggested_load: string | null;
   coaching_note: string | null;
+  target_reps_min: number | null;
+  target_reps_max: number | null;
+  progression_cue: string | null;
   needs_review: boolean;
   gap_reason: string | null;
 };
