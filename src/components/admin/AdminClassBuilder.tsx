@@ -68,6 +68,7 @@ const AdminClassBuilder = () => {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | "all">("all");
+  const [difficultyFilter, setDifficultyFilter] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
   const [previewing, setPreviewing] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -99,6 +100,7 @@ const AdminClassBuilder = () => {
   const filteredLib = horizontalLib.filter((e) => {
     if (search && !e.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (categoryFilter !== "all" && e.category !== categoryFilter) return false;
+    if (difficultyFilter !== "all" && e.difficulty !== difficultyFilter) return false;
     return true;
   });
 
@@ -483,6 +485,25 @@ const AdminClassBuilder = () => {
               );
             })}
           </div>
+          <div className="flex flex-wrap gap-1 mb-3">
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground self-center mr-1">Level:</span>
+            {(["all", "beginner", "intermediate", "advanced"] as const).map((d) => {
+              const count = d === "all" ? horizontalLib.length : horizontalLib.filter((e) => e.difficulty === d).length;
+              return (
+                <button
+                  key={d}
+                  onClick={() => setDifficultyFilter(d)}
+                  className={`text-[10px] px-2 py-1 rounded-full border transition capitalize ${
+                    difficultyFilter === d
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-muted-foreground hover:border-primary/40"
+                  }`}
+                >
+                  {d} ({count})
+                </button>
+              );
+            })}
+          </div>
           {(() => {
             const renderRow = (ex: AdminExercise) => (
               <button
@@ -519,12 +540,14 @@ const AdminClassBuilder = () => {
             const searchLower = search.toLowerCase();
             const matchesSearch = (e: AdminExercise) =>
               !search || e.name.toLowerCase().includes(searchLower);
-            const uncategorized = horizontalLib.filter((e) => !e.category && matchesSearch(e));
+            const matchesDifficulty = (e: AdminExercise) =>
+              difficultyFilter === "all" || e.difficulty === difficultyFilter;
+            const uncategorized = horizontalLib.filter((e) => !e.category && matchesSearch(e) && matchesDifficulty(e));
 
             return (
               <div className="space-y-4">
                 {EXERCISE_CATEGORIES.map((cat) => {
-                  const items = horizontalLib.filter((e) => e.category === cat && matchesSearch(e));
+                  const items = horizontalLib.filter((e) => e.category === cat && matchesSearch(e) && matchesDifficulty(e));
                   if (items.length === 0) return null;
                   const isClassType = cat === meta.class_type;
                   return (
