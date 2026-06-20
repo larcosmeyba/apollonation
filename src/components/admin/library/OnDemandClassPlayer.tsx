@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, SkipForward, Pause, Play, Repeat } from "lucide-react";
+import { X, SkipForward, Pause, Play, Repeat, Crop, Check } from "lucide-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import { AdminExercise, muxThumb } from "./exerciseTypes";
 import MuxVideo from "@/components/video/MuxVideo";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
 
 export interface PlayerBlock {
   exercise: AdminExercise | null;
@@ -24,17 +27,43 @@ interface Props {
   blocks: PlayerBlock[];
   onClose: () => void;
   introEnabled?: boolean;
+  /** Admin preview mode — show per-exercise reframe/sizing overlay & persist to DB. */
+  adminEditable?: boolean;
 }
 
 type RestType = "between-sets" | "between-exercises";
 
+type FrameOverrides = {
+  position: string; // CSS object-position
+  fit: "cover" | "contain";
+  scale: number; // 1.0 – 1.8
+};
+
+const FRAME_LS_KEY = "apollo:exercise-frame-overrides";
+
+const loadFrameOverrides = (): Record<string, FrameOverrides> => {
+  try {
+    return JSON.parse(localStorage.getItem(FRAME_LS_KEY) || "{}");
+  } catch {
+    return {};
+  }
+};
+const saveFrameOverridesLS = (map: Record<string, FrameOverrides>) => {
+  try {
+    localStorage.setItem(FRAME_LS_KEY, JSON.stringify(map));
+  } catch {
+    /* noop */
+  }
+};
+
 /**
  * Cinematic on-demand class player.
  */
-const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Props) => {
+const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, adminEditable = false }: Props) => {
   const [phase, setPhase] = useState<"intro" | "block" | "rest" | "done">(
     introEnabled ? "intro" : "block",
   );
+
   const [idx, setIdx] = useState(0);
   const [setNum, setSetNum] = useState(1);
   const [remaining, setRemaining] = useState(0);
@@ -156,9 +185,56 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
   // (During between-sets rest we stay on the same exercise.)
   const showBigPreview = phase === "rest" && restType === "between-exercises" && !!block?.exercise;
 
-  // Object-position from admin reframing
-  const focal = (ex: AdminExercise | null) =>
-    (ex as any)?.video_object_position || "center center";
+  // Object-position / sizing — per-exercise overrides for admin preview
+  const [overrides, setOverrides] = useState<Record<string, FrameOverrides>>(() => loadFrameOverrides());
+  const [savingFrame, setSavingFrame] = useState(false);
+  const [showFramePanel, setShowFramePanel] = useState(false);
+
+  const getFrame = (ex: AdminExercise | null): FrameOverrides => {
+    if (!ex) return { position: "center center", fit: "cover", scale: 1 };
+    const ov = overrides[ex.id];
+    return {
+      position: ov?.position ?? ((ex as any).video_object_position || "center center"),
+      fit: ov?.fit ?? "cover",
+      scale: ov?.scale ?? 1,
+    };
+  };
+
+  const focal = (ex: AdminExercise | null) => getFrame(ex).position;
+
+  const updateFrame = (ex: AdminExercise | null, patch: Partial<FrameOverrides>) => {
+    if (!ex) return;
+    setOverrides((prev) => {
+      const next = { ...prev, [ex.id]: { ...getFrame(ex), ...patch } };
+      saveFrameOverridesLS(next);
+      return next;
+    });
+  };
+
+  const persistFrame = async (ex: AdminExercise | null) => {
+    if (!ex) return;
+    const frame = getFrame(ex);
+    setSavingFrame(true);
+    const { error } = await supabase
+      .from("admin_exercises")
+      .update({ video_object_position: frame.position } as any)
+      .eq("id", ex.id);
+    setSavingFrame(false);
+    if (error) return toast.error(error.message);
+    toast.success("Focal point saved. Zoom & fit are preview-only.");
+  };
+
+  const videoStyle = (ex: AdminExercise | null): React.CSSProperties => {
+    const f = getFrame(ex);
+    return {
+      objectPosition: f.position,
+      objectFit: f.fit,
+      transform: f.scale !== 1 ? `scale(${f.scale})` : undefined,
+      transformOrigin: f.position,
+    };
+  };
+
+
 
   return (
     <div className="fixed inset-0 z-[100] bg-black text-white flex flex-col">
@@ -245,7 +321,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                           restPreviewRef.current.currentTime = block.exercise.loop_in_seconds;
                       }}
                       className="w-full h-full object-cover"
-                      style={{ objectPosition: focal(block.exercise) }}
+                      style={videoStyle(block.exercise)}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/30">
@@ -313,7 +389,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                         videoRef.current.currentTime = block.exercise.loop_in_seconds;
                     }}
                     className="w-full h-full object-cover"
-                    style={{ objectPosition: focal(block.exercise) }}
+                    style={videoStyle(block.exercise)}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/40">No video</div>
@@ -338,7 +414,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                         altVideoRef.current.currentTime = block.alt.loop_in_seconds;
                     }}
                     className="w-full h-full object-cover"
-                    style={{ objectPosition: focal(block.alt) }}
+                    style={videoStyle(block.alt)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
                   <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur text-xs uppercase tracking-widest">
@@ -454,9 +530,113 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                     <Repeat className="w-4 h-4" /> {showAlt ? "Hide" : "Show"} Alternate
                   </button>
                 )}
+                {adminEditable && block.exercise && (
+                  <button
+                    onClick={() => setShowFramePanel((s) => !s)}
+                    className={`px-4 h-12 rounded-full backdrop-blur flex items-center gap-2 text-sm ${
+                      showFramePanel ? "bg-primary text-primary-foreground" : "bg-white/10 hover:bg-white/20"
+                    }`}
+                    title="Adjust video framing & sizing"
+                  >
+                    <Crop className="w-4 h-4" /> Reframe
+                  </button>
+                )}
               </div>
+
+              {adminEditable && showFramePanel && block.exercise && (() => {
+                const ex = block.exercise;
+                const frame = getFrame(ex);
+                return (
+                  <div className="absolute right-6 bottom-24 z-20 w-[280px] rounded-2xl border border-white/15 bg-black/80 backdrop-blur-xl p-4 space-y-3 shadow-2xl">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[10px] uppercase tracking-[0.3em] text-white/60">Reframe</div>
+                      <button onClick={() => setShowFramePanel(false)} className="text-white/60 hover:text-white">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="text-xs text-white/80 truncate">{ex.name}</div>
+
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-white/50 mb-1.5">Focal point</div>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {[
+                          ["left top", "↖"], ["center top", "↑"], ["right top", "↗"],
+                          ["left center", "←"], ["center center", "•"], ["right center", "→"],
+                          ["left bottom", "↙"], ["center bottom", "↓"], ["right bottom", "↘"],
+                        ].map(([pos, glyph]) => {
+                          const active = frame.position === pos;
+                          return (
+                            <button
+                              key={pos}
+                              onClick={() => updateFrame(ex, { position: pos })}
+                              className={`h-8 rounded-md border text-sm transition ${
+                                active ? "bg-primary text-primary-foreground border-primary" : "bg-white/5 hover:bg-white/10 border-white/15"
+                              }`}
+                            >
+                              {glyph}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-white/50 mb-1.5">Fit</div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {(["cover", "contain"] as const).map((f) => (
+                          <button
+                            key={f}
+                            onClick={() => updateFrame(ex, { fit: f })}
+                            className={`h-8 rounded-md border text-xs uppercase tracking-wider transition ${
+                              frame.fit === f ? "bg-primary text-primary-foreground border-primary" : "bg-white/5 hover:bg-white/10 border-white/15"
+                            }`}
+                          >
+                            {f}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-white/50 mb-1.5">
+                        <span>Zoom</span>
+                        <span className="tabular-nums text-white/80">{frame.scale.toFixed(2)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={1}
+                        max={1.8}
+                        step={0.05}
+                        value={frame.scale}
+                        onChange={(e) => updateFrame(ex, { scale: Number(e.target.value) })}
+                        className="w-full accent-primary"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={() => updateFrame(ex, { position: "center center", fit: "cover", scale: 1 })}
+                        className="flex-1 h-9 rounded-md bg-white/5 hover:bg-white/10 border border-white/15 text-xs"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        onClick={() => persistFrame(ex)}
+                        disabled={savingFrame}
+                        className="flex-1 h-9 rounded-md bg-primary text-primary-foreground text-xs flex items-center justify-center gap-1.5 disabled:opacity-50"
+                      >
+                        <Check className="w-3.5 h-3.5" /> Save focal
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-white/40 leading-snug">
+                      Focal point is saved to the exercise. Fit &amp; zoom apply to this preview only.
+                    </p>
+                  </div>
+                );
+              })()}
             </div>
           </motion.div>
+
         )}
 
         {phase === "done" && (

@@ -879,8 +879,10 @@ const AdminClassBuilder = () => {
           title={meta.title || "Apollo Class"}
           blocks={playerBlocks}
           introEnabled={meta.intro_enabled}
+          adminEditable
           onClose={() => setPreviewing(false)}
         />
+
       )}
     </div>
   );
