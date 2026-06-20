@@ -235,6 +235,9 @@ const AdminClassBuilder = () => {
         weight_prompt: b.weight_prompt || "",
         tempo_prompt: b.tempo_prompt || "",
         drop_set: b.drop_set,
+        target_reps_min: b.target_reps_min ?? null,
+        target_reps_max: b.target_reps_max ?? null,
+        progression_cue: b.progression_cue || "",
       }))
     );
     setShowOpenList(false);
