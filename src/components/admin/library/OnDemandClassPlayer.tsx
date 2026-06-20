@@ -16,6 +16,7 @@ export interface PlayerBlock {
   weight_prompt?: string | null;
   tempo_prompt?: string | null;
   drop_set?: boolean;
+  section?: "warmup" | "workout_a" | "workout_b" | "workout_c" | "cooldown";
 }
 
 interface Props {
