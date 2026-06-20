@@ -141,6 +141,12 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
       ref={ref}
       playbackId={playbackId}
       streamType={streamType}
+      // Force the highest available rendition so small containers don't
+      // pin playback to 360p/480p (which looks grainy when scaled up or
+      // pushed to fullscreen on retina displays).
+      maxResolution="2160p"
+      minResolution="1080p"
+      renditionOrder="desc"
       autoPlay={autoPlay}
       muted={muted}
       loop={loop}
