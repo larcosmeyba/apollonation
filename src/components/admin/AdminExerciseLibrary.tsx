@@ -36,6 +36,7 @@ const AdminExerciseLibrary = () => {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [muscleFilter, setMuscleFilter] = useState<string>("all");
+  const [orientationFilter, setOrientationFilter] = useState<string>("all");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingExercise, setEditingExercise] = useState<AdminExercise | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminExercise | null>(null);
@@ -61,8 +62,17 @@ const AdminExerciseLibrary = () => {
       (categoryFilter === "__uncategorized" ? !ex.category : ex.category === categoryFilter);
     const matchMuscle =
       muscleFilter === "all" || ex.muscle_group === muscleFilter;
-    return matchSearch && matchCategory && matchMuscle;
+    const matchOrientation =
+      orientationFilter === "all" ||
+      (orientationFilter === "__missing"
+        ? !ex.mux_playback_id
+        : ex.orientation === orientationFilter);
+    return matchSearch && matchCategory && matchMuscle && matchOrientation;
   });
+
+  const verticalCount = exercises.filter((e) => e.orientation === "vertical" && e.mux_playback_id).length;
+  const horizontalCount = exercises.filter((e) => e.orientation === "horizontal" && e.mux_playback_id).length;
+  const missingVideoCount = exercises.filter((e) => !e.mux_playback_id).length;
 
   const uncategorizedCount = exercises.filter((e) => !e.category).length;
 
@@ -144,6 +154,17 @@ const AdminExerciseLibrary = () => {
             ))}
           </SelectContent>
         </Select>
+        <Select value={orientationFilter} onValueChange={setOrientationFilter}>
+          <SelectTrigger className="w-full sm:w-48">
+            <SelectValue placeholder="Video orientation" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All videos</SelectItem>
+            <SelectItem value="vertical">Vertical only ({verticalCount})</SelectItem>
+            <SelectItem value="horizontal">Horizontal only ({horizontalCount})</SelectItem>
+            <SelectItem value="__missing">Missing video ({missingVideoCount})</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Grid */}
@@ -205,6 +226,19 @@ const AdminExerciseLibrary = () => {
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
+                  </div>
+                  {/* Orientation badge */}
+                  <div className="absolute top-2 left-2">
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] capitalize px-1.5 py-0.5 h-auto backdrop-blur-sm bg-black/50 ${
+                        ex.orientation === "vertical"
+                          ? "border-blue-500/60 text-blue-300"
+                          : "border-foreground/30 text-foreground/80"
+                      }`}
+                    >
+                      {ex.mux_playback_id ? ex.orientation : "no video"}
+                    </Badge>
                   </div>
                 </div>
 

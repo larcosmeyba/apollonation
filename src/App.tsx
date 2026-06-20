@@ -49,8 +49,6 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const PlanReady = lazy(() => import("./pages/PlanReady"));
 const DashboardTransformation = lazy(() => import("./pages/DashboardTransformation"));
 const DashboardRecovery = lazy(() => import("./pages/DashboardRecovery"));
-const RecoveryProgram = lazy(() => import("./pages/RecoveryProgram"));
-const RecoveryDay = lazy(() => import("./pages/RecoveryDay"));
 const DashboardChallenges = lazy(() => import("./pages/DashboardChallenges"));
 const DashboardMessages = lazy(() => import("./pages/DashboardMessages"));
 const DashboardMyWorkouts = lazy(() => import("./pages/DashboardMyWorkouts"));
@@ -163,14 +161,6 @@ const App = () => {
               <Route
                 path="/dashboard/recovery"
                 element={<ProtectedRoute>{eb(<DashboardRecovery />)}</ProtectedRoute>}
-              />
-              <Route
-                path="/dashboard/recovery-program"
-                element={<ProtectedRoute>{eb(<RecoveryProgram />)}</ProtectedRoute>}
-              />
-              <Route
-                path="/dashboard/recovery-program/:day"
-                element={<ProtectedRoute>{eb(<RecoveryDay />)}</ProtectedRoute>}
               />
               <Route
                 path="/dashboard/challenges"

@@ -485,40 +485,6 @@ const DashboardTraining = () => {
           </div>
         )}
 
-        {/* 5) 7-DAY RECOVERY RESET */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-primary font-bold">
-              Recovery & Mobility
-            </p>
-            <Link to="/dashboard/recovery-program" className="text-[11px] text-foreground/60 hover:text-primary uppercase tracking-wider font-semibold">
-              Open Program
-            </Link>
-          </div>
-          <Link to="/dashboard/recovery-program" className="block rounded-2xl border border-border/25 overflow-hidden hover:border-primary/40 transition-colors">
-            <div className="relative h-32 overflow-hidden">
-              <img src={stockBack} alt="Recovery" className="w-full h-full object-cover opacity-60" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-              <div className="absolute bottom-3 left-4 right-4">
-                <h3 className="font-heading text-xl text-foreground leading-tight">7-Day Recovery Reset</h3>
-                <p className="text-[11px] text-foreground/60 mt-0.5">
-                  Off-day flow — foam roll, mobilize, stretch, breathe. Built from in-house video.
-                </p>
-              </div>
-            </div>
-            <div className="p-3 grid grid-cols-7 gap-1.5">
-              {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-                <div
-                  key={n}
-                  className="aspect-square rounded-lg border border-border/20 flex flex-col items-center justify-center"
-                >
-                  <p className="text-[8px] uppercase tracking-wider text-foreground/40">Day</p>
-                  <p className="font-heading text-sm text-foreground">{n}</p>
-                </div>
-              ))}
-            </div>
-          </Link>
-        </div>
 
         {/* Upcoming Workouts list removed — users see the week schedule on the calendar above. */}
 
