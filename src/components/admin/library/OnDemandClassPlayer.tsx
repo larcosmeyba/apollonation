@@ -26,25 +26,29 @@ interface Props {
   introEnabled?: boolean;
 }
 
+type RestType = "between-sets" | "between-exercises";
+
 /**
  * Cinematic on-demand class player.
- * - Reusable Apollo intro card (cinematic dark fade)
- * - Per-exercise screen: looped MUX video, timer, set counter, next-up, cues
- * - Split-screen alt view via "Show Alternate" toggle
- * - Trim-to-loop using loop_in/loop_out (crossfade-free seek for simplicity)
  */
 const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Props) => {
-  const [phase, setPhase] = useState<"intro" | "block" | "rest" | "done">(introEnabled ? "intro" : "block");
+  const [phase, setPhase] = useState<"intro" | "block" | "rest" | "done">(
+    introEnabled ? "intro" : "block",
+  );
   const [idx, setIdx] = useState(0);
   const [setNum, setSetNum] = useState(1);
   const [remaining, setRemaining] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [restType, setRestType] = useState<RestType>("between-sets");
   const [showAlt, setShowAlt] = useState(false);
   const videoRef = useRef<MuxPlayerElement>(null);
   const altVideoRef = useRef<MuxPlayerElement>(null);
+  const restPreviewRef = useRef<MuxPlayerElement>(null);
 
   const block = blocks[idx];
   const next = blocks[idx + 1];
+  const isLastSet = !!block && setNum >= block.sets;
+  const isLastBlock = idx >= blocks.length - 1;
 
   // Intro 4s
   useEffect(() => {
@@ -56,42 +60,85 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
   // Initialize remaining when entering a phase
   useEffect(() => {
     if (phase === "block" && block) setRemaining(block.work_seconds);
-    else if (phase === "rest" && block) setRemaining(block.rest_seconds);
-  }, [phase, idx, setNum, block]);
+    else if (phase === "rest" && block) {
+      setRemaining(restType === "between-sets" ? block.set_rest_seconds : block.rest_seconds);
+    }
+  }, [phase, idx, setNum, block, restType]);
+
+  // Pause/resume the actual video when user taps pause
+  useEffect(() => {
+    const els: Array<MuxPlayerElement | null> = [
+      videoRef.current,
+      altVideoRef.current,
+      restPreviewRef.current,
+    ];
+    els.forEach((el) => {
+      if (!el) return;
+      try {
+        if (paused) el.pause();
+        else el.play()?.catch?.(() => {});
+      } catch {
+        /* noop */
+      }
+    });
+  }, [paused, phase, idx]);
+
+  // Advance helper — handles skipping zero-length rest automatically
+  const advance = (current: typeof phase) => {
+    if (current === "block") {
+      if (block && setNum < block.sets) {
+        // between sets
+        const restLen = block.set_rest_seconds;
+        setSetNum((s) => s + 1);
+        if (restLen > 0) {
+          setRestType("between-sets");
+          setPhase("rest");
+          return restLen;
+        }
+        // no rest between sets → straight back to work
+        return block.work_seconds;
+      }
+      if (idx < blocks.length - 1) {
+        // between exercises
+        const restLen = block?.rest_seconds ?? 0;
+        const nextWork = blocks[idx + 1]?.work_seconds ?? 30;
+        setSetNum(1);
+        setIdx((i) => i + 1);
+        if (restLen > 0) {
+          setRestType("between-exercises");
+          setPhase("rest");
+          return restLen;
+        }
+        // no rest → straight into next exercise
+        setPhase("block");
+        return nextWork;
+      }
+      setPhase("done");
+      return 0;
+    }
+    if (current === "rest") {
+      setPhase("block");
+      return blocks[idx]?.work_seconds || 30;
+    }
+    return 0;
+  };
 
   // Tick
   useEffect(() => {
     if (paused || phase === "intro" || phase === "done") return;
     const i = setInterval(() => {
-      setRemaining((r) => {
-        if (r > 1) return r - 1;
-        // advance
-        if (phase === "block") {
-          if (block && setNum < block.sets) {
-            setSetNum((s) => s + 1);
-            setPhase("rest");
-            return block.set_rest_seconds;
-          }
-          if (idx < blocks.length - 1) {
-            setSetNum(1);
-            setIdx((i) => i + 1);
-            setPhase("rest");
-            return block?.rest_seconds || 10;
-          }
-          setPhase("done");
-          return 0;
-        }
-        if (phase === "rest") {
-          setPhase("block");
-          return blocks[idx]?.work_seconds || 30;
-        }
-        return 0;
-      });
+      setRemaining((r) => (r > 1 ? r - 1 : advance(phase)));
     }, 1000);
     return () => clearInterval(i);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paused, phase, idx, setNum, block, blocks]);
 
-  // Loop trim — works against mux-player which proxies the media element API.
+  const skip = () => {
+    const newRemaining = advance(phase);
+    setRemaining(newRemaining);
+  };
+
+  // Loop trim
   const handleTimeUpdate = (
     ref: React.RefObject<MuxPlayerElement>,
     ex: AdminExercise | null,
@@ -105,20 +152,14 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
     }
   };
 
-  const skip = () => {
-    if (phase === "block") {
-      if (block && setNum < block.sets) {
-        setSetNum((s) => s + 1);
-        setPhase("rest");
-      } else if (idx < blocks.length - 1) {
-        setSetNum(1);
-        setIdx((i) => i + 1);
-        setPhase("rest");
-      } else setPhase("done");
-    } else if (phase === "rest") {
-      setPhase("block");
-    }
-  };
+  // Should the rest screen show the BIG next-exercise preview with video?
+  // Only when the current block has finished its final set AND a new exercise is coming up.
+  // (During between-sets rest we stay on the same exercise.)
+  const showBigPreview = phase === "rest" && restType === "between-exercises" && !!block?.exercise;
+
+  // Object-position from admin reframing
+  const focal = (ex: AdminExercise | null) =>
+    (ex as any)?.video_object_position || "center center";
 
   return (
     <div className="fixed inset-0 z-[100] bg-black text-white flex flex-col">
@@ -170,35 +211,66 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
 
         {phase === "rest" && block && (
           <motion.div
-            key={`rest-${idx}`}
+            key={`rest-${idx}-${setNum}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="flex-1 flex flex-col items-center justify-center bg-black"
+            className="flex-1 flex flex-col items-center justify-center bg-black px-6"
           >
-            <div className="text-[11px] uppercase tracking-[0.5em] text-white/50 mb-6">Rest</div>
-            <div className="font-heading text-[18vw] md:text-[14vw] leading-none tabular-nums text-white">
+            <div className="text-[11px] uppercase tracking-[0.5em] text-white/50 mb-4">Rest</div>
+            <div className="font-heading text-[18vw] md:text-[12vw] leading-none tabular-nums text-white">
               {remaining}
             </div>
-            <div className="mt-10 text-xs uppercase tracking-[0.3em] text-white/40">Up next</div>
-            <div className="mt-3 flex items-center gap-3 bg-white/5 backdrop-blur rounded-xl p-3 border border-white/10">
-              {blocks[idx]?.exercise?.mux_playback_id && (
-                <img
-                  src={muxThumb(blocks[idx].exercise!.mux_playback_id)}
-                  alt=""
-                  className="w-20 h-12 object-cover rounded"
-                />
-              )}
-              <div>
-                <div className="text-base font-medium">{blocks[idx]?.exercise?.name || "—"}</div>
-                {blocks[idx]?.exercise?.body_part && (
-                  <div className="text-[11px] uppercase tracking-widest text-white/50">
-                    {blocks[idx]?.exercise?.body_part}
+
+            {showBigPreview ? (
+              <div className="mt-10 w-full max-w-3xl">
+                <div className="text-xs uppercase tracking-[0.3em] text-white/50 mb-3 text-center">
+                  Up next
+                </div>
+                <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/15 bg-zinc-950 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]">
+                  {block.exercise?.mux_playback_id ? (
+                    <MuxVideo
+                      ref={restPreviewRef}
+                      playbackId={block.exercise.mux_playback_id}
+                      title={`Preview: ${block.exercise.name}`}
+                      videoId={block.exercise.id}
+                      category={block.exercise.category}
+                      classTitle={title}
+                      autoPlay
+                      muted
+                      controls={false}
+                      onTimeUpdate={handleTimeUpdate(restPreviewRef, block.exercise) as never}
+                      onLoadedMetadata={() => {
+                        if (restPreviewRef.current && block.exercise?.loop_in_seconds)
+                          restPreviewRef.current.currentTime = block.exercise.loop_in_seconds;
+                      }}
+                      className="w-full h-full object-cover"
+                      style={{ objectPosition: focal(block.exercise) }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white/30">
+                      No video
+                    </div>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/85 to-transparent">
+                    <div className="font-heading text-2xl md:text-3xl tracking-wider">
+                      {block.exercise?.name || "—"}
+                    </div>
+                    {block.exercise?.body_part && (
+                      <div className="text-[11px] uppercase tracking-widest text-white/60 mt-1">
+                        {block.exercise.body_part}
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="mt-8 text-xs uppercase tracking-[0.3em] text-white/40">
+                Set {setNum} of {block.sets} · {block.exercise?.name || ""}
+              </div>
+            )}
+
             <div className="mt-8 flex items-center gap-3">
               <button onClick={() => setPaused((p) => !p)} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
                 {paused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
@@ -239,6 +311,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                         videoRef.current.currentTime = block.exercise.loop_in_seconds;
                     }}
                     className="w-full h-full object-cover"
+                    style={{ objectPosition: focal(block.exercise) }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/40">No video</div>
@@ -263,6 +336,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                         altVideoRef.current.currentTime = block.alt.loop_in_seconds;
                     }}
                     className="w-full h-full object-cover"
+                    style={{ objectPosition: focal(block.alt) }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
                   <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur text-xs uppercase tracking-widest">
@@ -334,7 +408,8 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                   )}
                 </div>
 
-                {next?.exercise && (
+                {/* "Coming Next" preview — only on the LAST set of the current exercise */}
+                {isLastSet && next?.exercise && (
                   <div className="flex items-center gap-3 bg-white/5 backdrop-blur rounded-xl p-2.5 border border-white/10">
                     {next.exercise.mux_playback_id && (
                       <img
