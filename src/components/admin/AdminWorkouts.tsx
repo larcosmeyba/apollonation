@@ -8,10 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff, Play } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import AdminClassPlayerLauncher from "@/components/dashboard/AdminClassPlayerLauncher";
+import MuxVideo from "@/components/video/MuxVideo";
+
 
 
 interface Workout {
