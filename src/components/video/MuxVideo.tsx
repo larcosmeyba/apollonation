@@ -32,6 +32,8 @@ export interface MuxVideoProps {
   controls?: boolean;
   poster?: string;
   className?: string;
+  /** Optional inline style overrides (e.g. objectPosition for reframing). */
+  style?: React.CSSProperties;
   /** Player streamType — "on-demand" is default. */
   streamType?: "on-demand" | "live";
   onTimeUpdate?: React.ReactEventHandler<HTMLVideoElement>;
