@@ -540,12 +540,14 @@ const AdminClassBuilder = () => {
             const searchLower = search.toLowerCase();
             const matchesSearch = (e: AdminExercise) =>
               !search || e.name.toLowerCase().includes(searchLower);
-            const uncategorized = horizontalLib.filter((e) => !e.category && matchesSearch(e));
+            const matchesDifficulty = (e: AdminExercise) =>
+              difficultyFilter === "all" || e.difficulty === difficultyFilter;
+            const uncategorized = horizontalLib.filter((e) => !e.category && matchesSearch(e) && matchesDifficulty(e));
 
             return (
               <div className="space-y-4">
                 {EXERCISE_CATEGORIES.map((cat) => {
-                  const items = horizontalLib.filter((e) => e.category === cat && matchesSearch(e));
+                  const items = horizontalLib.filter((e) => e.category === cat && matchesSearch(e) && matchesDifficulty(e));
                   if (items.length === 0) return null;
                   const isClassType = cat === meta.class_type;
                   return (
