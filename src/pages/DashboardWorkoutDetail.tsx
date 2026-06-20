@@ -421,10 +421,15 @@ const ExerciseRow = ({
         </div>
 
         {/* Coaching Cues */}
-        {exercise.notes && (
+        {(exercise.notes || progressionCue) && (
           <div className="px-4 pb-1">
             <p className="text-[10px] text-primary/80 uppercase tracking-wider mb-0.5 font-bold">Coaching Cues</p>
-            <p className="text-[11px] text-foreground/60 italic leading-relaxed">{exercise.notes}</p>
+            {progressionCue && (
+              <p className="text-[11px] text-primary/70 italic leading-relaxed mb-1">{progressionCue}</p>
+            )}
+            {exercise.notes && (
+              <p className="text-[11px] text-foreground/60 italic leading-relaxed">{exercise.notes}</p>
+            )}
           </div>
         )}
 
