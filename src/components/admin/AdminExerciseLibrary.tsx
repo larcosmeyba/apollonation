@@ -57,11 +57,14 @@ const AdminExerciseLibrary = () => {
     const matchSearch =
       !search || ex.name.toLowerCase().includes(search.toLowerCase());
     const matchCategory =
-      categoryFilter === "all" || ex.category === categoryFilter;
+      categoryFilter === "all" ||
+      (categoryFilter === "__uncategorized" ? !ex.category : ex.category === categoryFilter);
     const matchMuscle =
       muscleFilter === "all" || ex.muscle_group === muscleFilter;
     return matchSearch && matchCategory && matchMuscle;
   });
+
+  const uncategorizedCount = exercises.filter((e) => !e.category).length;
 
   const openNew = () => {
     setEditingExercise(null);
