@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, SkipForward, Pause, Play, Repeat } from "lucide-react";
+import { X, SkipForward, Pause, Play, Repeat, Crop, Check } from "lucide-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import { AdminExercise, muxThumb } from "./exerciseTypes";
 import MuxVideo from "@/components/video/MuxVideo";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
 
 export interface PlayerBlock {
   exercise: AdminExercise | null;
