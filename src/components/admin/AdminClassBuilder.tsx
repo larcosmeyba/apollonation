@@ -768,6 +768,20 @@ const AdminClassBuilder = () => {
                             <Input placeholder="Tempo (e.g. Slow 3-1-1)" value={b.tempo_prompt}
                               onChange={(e) => updateBlock(b.id, { tempo_prompt: e.target.value })} className="h-8" />
                           </div>
+                          <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
+                            <label className="space-y-1">
+                              <span className="text-muted-foreground">Reps min</span>
+                              <Input type="number" value={b.target_reps_min ?? ""}
+                                onChange={(e) => updateBlock(b.id, { target_reps_min: e.target.value === "" ? null : +e.target.value })} className="h-8" />
+                            </label>
+                            <label className="space-y-1">
+                              <span className="text-muted-foreground">Reps max</span>
+                              <Input type="number" value={b.target_reps_max ?? ""}
+                                onChange={(e) => updateBlock(b.id, { target_reps_max: e.target.value === "" ? null : +e.target.value })} className="h-8" />
+                            </label>
+                            <Input placeholder="Progression (e.g. +5 lbs each set)" value={b.progression_cue}
+                              onChange={(e) => updateBlock(b.id, { progression_cue: e.target.value })} className="h-8 col-span-1" />
+                          </div>
                           <Input placeholder="Cue override" value={b.cue_overrides}
                             onChange={(e) => updateBlock(b.id, { cue_overrides: e.target.value })}
                             className="h-8 mt-2 text-xs" />
