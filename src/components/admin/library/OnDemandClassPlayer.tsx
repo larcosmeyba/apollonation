@@ -634,8 +634,9 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                   </div>
                 );
               })()}
-
+            </div>
           </motion.div>
+
         )}
 
         {phase === "done" && (
