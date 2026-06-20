@@ -227,17 +227,20 @@ const AdminExerciseLibrary = () => {
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </div>
+                  {/* Orientation badge */}
+                  <div className="absolute top-2 left-2">
                     <Badge
                       variant="outline"
-                      className={`text-[10px] capitalize px-1.5 py-0.5 h-auto ${
+                      className={`text-[10px] capitalize px-1.5 py-0.5 h-auto backdrop-blur-sm bg-black/50 ${
                         ex.orientation === "vertical"
-                          ? "border-blue-500/40 text-blue-300"
-                          : "border-foreground/20 text-foreground/60"
+                          ? "border-blue-500/60 text-blue-300"
+                          : "border-foreground/30 text-foreground/80"
                       }`}
                     >
                       {ex.mux_playback_id ? ex.orientation : "no video"}
                     </Badge>
                   </div>
+                </div>
 
                 {/* Info */}
                 <div className="p-3 space-y-1.5">
