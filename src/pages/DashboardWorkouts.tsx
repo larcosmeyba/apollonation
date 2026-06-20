@@ -5,13 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAccessControl } from "@/hooks/useAccessControl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Search, Bookmark, BookmarkCheck, Loader2, Lock } from "lucide-react";
+import { Search, Bookmark, BookmarkCheck, Loader2, Lock, Play } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { format, startOfWeek } from "date-fns";
 import { toast } from "sonner";
+
 import marcosAction1 from "@/assets/marcos-action-1.jpg";
 import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import marcosAction6 from "@/assets/marcos-action-6.webp";
@@ -141,7 +143,9 @@ const DashboardWorkouts = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [pendingWorkout, setPendingWorkout] = useState<Workout | null>(null);
+  const [playingClass, setPlayingClass] = useState<{ classId: string; title: string } | null>(null);
   const [showSearch, setShowSearch] = useState(searchParams.get("search") === "true");
+
   const { data: workoutCategories } = useWorkoutCategories();
   const TYPE_IMAGES = { ...TYPE_FALLBACK_IMAGES, ...categoryImageMap(workoutCategories) };
 
@@ -261,10 +265,11 @@ const DashboardWorkouts = () => {
             navigate("/subscribe?reason=workouts");
             return;
           }
-          setPendingWorkout(workout);
+          setSelectedWorkout(workout);
         }}
         className="group relative overflow-hidden rounded-2xl text-left transition-all w-full"
       >
+
         <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
           <img
             src={thumb}
@@ -485,20 +490,25 @@ const DashboardWorkouts = () => {
         onReady={() => {
           const w = pendingWorkout;
           setPendingWorkout(null);
-          if (w) setSelectedWorkout(w);
+          if (!w) return;
+          if ((w as any).admin_class_id) {
+            setPlayingClass({ classId: (w as any).admin_class_id, title: w.title });
+            setSelectedWorkout(null);
+          }
         }}
       />
 
-      {selectedWorkout && (selectedWorkout as any).admin_class_id ? (
+      {playingClass && (
         <AdminClassPlayerLauncher
-          classId={(selectedWorkout as any).admin_class_id}
-          title={selectedWorkout.title}
-          onClose={() => setSelectedWorkout(null)}
+          classId={playingClass.classId}
+          title={playingClass.title}
+          onClose={() => setPlayingClass(null)}
         />
-      ) : null}
+      )}
 
-      <Dialog open={!!selectedWorkout && !(selectedWorkout as any).admin_class_id} onOpenChange={() => setSelectedWorkout(null)}>
+      <Dialog open={!!selectedWorkout} onOpenChange={() => setSelectedWorkout(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
+
           {selectedWorkout && (
             <>
               {(selectedWorkout as any).mux_playback_id ? (
@@ -555,6 +565,25 @@ const DashboardWorkouts = () => {
                       </div>
                     )}
                   </div>
+
+                  {(selectedWorkout as any).admin_class_id && (
+                    <Button
+                      variant="apollo"
+                      size="lg"
+                      className="w-full gap-2"
+                      onClick={() => {
+                        const w = selectedWorkout;
+                        if (!w) return;
+                        setPendingWorkout(w);
+                        setSelectedWorkout(null);
+                      }}
+                    >
+                      <Play className="h-4 w-4 fill-current" />
+                      Start Workout
+                    </Button>
+                  )}
+
+
 
                   {workoutExercises.length > 0 && (
                     <div>
