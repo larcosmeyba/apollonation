@@ -158,7 +158,7 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
       metadata={metadata}
       envKey={envKey || undefined}
       className={className}
-      style={{ aspectRatio: "16 / 9", width: "100%", height: "100%" }}
+      style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", ...style }}
       // Hide controls when caller asks for an autoplay/loop background
       // (mux-player exposes the `nohotkeys` + `--controls=none` knobs)
       {...(controls ? {} : { nohotkeys: true, "--controls": "none" })}
