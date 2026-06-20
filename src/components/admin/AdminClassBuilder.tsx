@@ -213,6 +213,7 @@ const AdminClassBuilder = () => {
       equipment: c.equipment || [],
       difficulty: c.difficulty as any,
       intro_enabled: c.intro_enabled,
+      thumbnail_url: (c as any).thumbnail_url || "",
     });
     setBlocks(
       (bs || []).map((b: any) => ({
