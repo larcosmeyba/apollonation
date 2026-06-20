@@ -541,8 +541,72 @@ const AdminWorkouts = () => {
           </div>
         );
       })()}
+
+      {/* Preview / Play */}
+      <Dialog open={!!previewWorkout} onOpenChange={() => setPreviewWorkout(null)}>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden">
+          {previewWorkout && (
+            <div className="space-y-0">
+              {previewWorkout.mux_playback_id ? (
+                <div className="relative aspect-video w-full bg-black">
+                  <MuxVideo
+                    playbackId={previewWorkout.mux_playback_id}
+                    title={previewWorkout.title}
+                    videoId={previewWorkout.id}
+                    category={previewWorkout.category}
+                    autoPlay
+                    controls
+                  />
+                </div>
+              ) : previewWorkout.thumbnail_url ? (
+                <div className="relative aspect-video w-full bg-muted">
+                  <img src={previewWorkout.thumbnail_url} alt={previewWorkout.title} className="w-full h-full object-cover" />
+                </div>
+              ) : null}
+              <div className="p-5 space-y-3">
+                <DialogHeader>
+                  <DialogTitle>{previewWorkout.title}</DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground capitalize">
+                  {previewWorkout.category} · {previewWorkout.duration_minutes} min
+                </p>
+                {previewWorkout.description && (
+                  <p className="text-sm text-muted-foreground">{previewWorkout.description}</p>
+                )}
+                {previewWorkout.admin_class_id ? (
+                  <Button
+                    variant="apollo"
+                    size="lg"
+                    className="w-full gap-2"
+                    onClick={() => {
+                      setPlayingClass({ classId: previewWorkout.admin_class_id!, title: previewWorkout.title });
+                      setPreviewWorkout(null);
+                    }}
+                  >
+                    <Play className="h-4 w-4 fill-current" />
+                    Start Workout
+                  </Button>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    This class isn't linked to a Class Builder session, so the guided player isn't available.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {playingClass && (
+        <AdminClassPlayerLauncher
+          classId={playingClass.classId}
+          title={playingClass.title}
+          onClose={() => setPlayingClass(null)}
+        />
+      )}
     </div>
   );
 };
+
 
 export default AdminWorkouts;
