@@ -261,6 +261,9 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                         {block.exercise.body_part}
                       </div>
                     )}
+                    <div className="text-[11px] uppercase tracking-widest text-primary mt-1">
+                      {block.sets} {block.sets === 1 ? "set" : "sets"}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -420,6 +423,9 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                     <div>
                       <div className="text-[10px] uppercase tracking-widest text-white/50">Next</div>
                       <div className="text-sm font-medium">{next.exercise.name}</div>
+                      <div className="text-[10px] uppercase tracking-widest text-primary mt-0.5">
+                        {next.sets} {next.sets === 1 ? "set" : "sets"}
+                      </div>
                     </div>
                   </div>
                 )}
