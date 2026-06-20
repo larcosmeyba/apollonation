@@ -16,6 +16,7 @@ export interface PlayerBlock {
   weight_prompt?: string | null;
   tempo_prompt?: string | null;
   drop_set?: boolean;
+  section?: "warmup" | "workout_a" | "workout_b" | "workout_c" | "cooldown";
 }
 
 interface Props {
@@ -167,9 +168,51 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
           </motion.div>
         )}
 
-        {phase !== "intro" && phase !== "done" && block && (
+        {phase === "rest" && block && (
           <motion.div
-            key={`block-${idx}-${phase}`}
+            key={`rest-${idx}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 flex flex-col items-center justify-center bg-black"
+          >
+            <div className="text-[11px] uppercase tracking-[0.5em] text-white/50 mb-6">Rest</div>
+            <div className="font-heading text-[18vw] md:text-[14vw] leading-none tabular-nums text-white">
+              {remaining}
+            </div>
+            <div className="mt-10 text-xs uppercase tracking-[0.3em] text-white/40">Up next</div>
+            <div className="mt-3 flex items-center gap-3 bg-white/5 backdrop-blur rounded-xl p-3 border border-white/10">
+              {blocks[idx]?.exercise?.mux_playback_id && (
+                <img
+                  src={muxThumb(blocks[idx].exercise!.mux_playback_id)}
+                  alt=""
+                  className="w-20 h-12 object-cover rounded"
+                />
+              )}
+              <div>
+                <div className="text-base font-medium">{blocks[idx]?.exercise?.name || "—"}</div>
+                {blocks[idx]?.exercise?.body_part && (
+                  <div className="text-[11px] uppercase tracking-widest text-white/50">
+                    {blocks[idx]?.exercise?.body_part}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="mt-8 flex items-center gap-3">
+              <button onClick={() => setPaused((p) => !p)} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                {paused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
+              </button>
+              <button onClick={skip} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                <SkipForward className="w-5 h-5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {phase === "block" && block && (
+          <motion.div
+            key={`block-${idx}-${setNum}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -231,15 +274,33 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
 
             {/* HUD */}
             <div className="relative z-10 h-full flex flex-col p-6 md:p-10">
-              {/* Top: name + set */}
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-[11px] uppercase tracking-[0.3em] text-white/60">
-                    {phase === "rest" ? "Rest" : `Set ${setNum} of ${block.sets}`}
+                    {block.section === "warmup" ? "Warm Up"
+                      : block.section === "cooldown" ? "Cool Down"
+                      : block.section === "workout_a" ? "Workout Block A"
+                      : block.section === "workout_b" ? "Workout Block B"
+                      : block.section === "workout_c" ? "Workout Block C"
+                      : `Set ${setNum} of ${block.sets}`}
                   </div>
                   <h2 className="font-heading text-3xl md:text-5xl mt-1 tracking-wider">
                     {block.exercise?.name || "—"}
                   </h2>
+                  {(block.section === "workout_a" || block.section === "workout_b" || block.section === "workout_c") && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {block.exercise?.body_part && (
+                        <div className="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur text-xs uppercase tracking-wider text-white/80">
+                          Target: {block.exercise.body_part}
+                        </div>
+                      )}
+                      {block.exercise?.muscle_group && block.exercise.muscle_group !== block.exercise.body_part && (
+                        <div className="px-2.5 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary text-xs uppercase tracking-wider">
+                          Feel it: {block.exercise.muscle_group}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {block.drop_set && (
                     <div className="mt-2 inline-block px-2.5 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-xs uppercase tracking-wider">
                       Drop Set
@@ -249,13 +310,12 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                 <div className="text-right">
                   <div className="font-heading text-6xl md:text-8xl tabular-nums">{remaining}</div>
                   <div className="text-[10px] uppercase tracking-[0.3em] text-white/60 mt-1">
-                    {phase === "rest" ? "Rest" : "Work"}
+                    {block.section === "cooldown" ? "Hold" : "Work"}
                   </div>
                 </div>
               </div>
 
               <div className="mt-auto flex items-end justify-between gap-6 flex-wrap">
-                {/* Cues */}
                 <div className="space-y-1.5 max-w-md">
                   {block.weight_prompt && (
                     <div className="text-sm uppercase tracking-wider text-amber-300">
@@ -274,7 +334,6 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                   )}
                 </div>
 
-                {/* Next up */}
                 {next?.exercise && (
                   <div className="flex items-center gap-3 bg-white/5 backdrop-blur rounded-xl p-2.5 border border-white/10">
                     {next.exercise.mux_playback_id && (
@@ -292,7 +351,6 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                 )}
               </div>
 
-              {/* Controls */}
               <div className="mt-6 flex items-center justify-center gap-3">
                 <button
                   onClick={() => setPaused((p) => !p)}

@@ -15,6 +15,7 @@ import {
   muxThumb,
 } from "./library/exerciseTypes";
 import OnDemandClassPlayer, { PlayerBlock } from "./library/OnDemandClassPlayer";
+import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import RenderMp4Panel from "./library/RenderMp4Panel";
 import MissingMuxReport from "./library/MissingMuxReport";
 import {
@@ -101,6 +102,7 @@ const AdminClassBuilder = () => {
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | "all">("all");
   const [difficultyFilter, setDifficultyFilter] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
   const [previewing, setPreviewing] = useState(false);
+  const [musicPrompting, setMusicPrompting] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showOpenList, setShowOpenList] = useState(false);
@@ -189,6 +191,7 @@ const AdminClassBuilder = () => {
     weight_prompt: b.weight_prompt,
     tempo_prompt: b.tempo_prompt,
     drop_set: b.drop_set,
+    section: b.section,
   }));
 
   const loadClass = async (id: string) => {
@@ -427,7 +430,7 @@ const AdminClassBuilder = () => {
           <Button variant="outline" onClick={newClass}>
             <Plus className="w-4 h-4" /> New
           </Button>
-          <Button variant="outline" onClick={() => setPreviewing(true)} disabled={blocks.length === 0}>
+          <Button variant="outline" onClick={() => setMusicPrompting(true)} disabled={blocks.length === 0}>
             <Play className="w-4 h-4" /> Preview
           </Button>
           <Button variant="outline" onClick={saveTemplate} disabled={blocks.length === 0}>
@@ -617,14 +620,31 @@ const AdminClassBuilder = () => {
           {/* Summary header */}
           <div className="mb-4 p-3 rounded-lg border border-border bg-card/60">
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Timeline</div>
+            <div className="text-xs text-muted-foreground mb-3 leading-relaxed">
+              {SECTIONS.map((s, i) => (
+                <span key={s.id}>
+                  {i > 0 && <span className="mx-1.5 text-muted-foreground/40">·</span>}
+                  <span className="text-foreground/90">{s.label}</span>
+                </span>
+              ))}
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
               {SECTIONS.map((s) => {
                 const secs = sectionSeconds(s.id);
+                const delta = secs - s.targetSeconds;
+                const status = secs === 0 ? "empty" : Math.abs(delta) <= 10 ? "ok" : delta > 0 ? "over" : "under";
+                const color =
+                  status === "ok" ? "text-emerald-400"
+                  : status === "over" ? "text-amber-400"
+                  : status === "under" ? "text-rose-400"
+                  : "text-muted-foreground";
                 return (
                   <div key={s.id} className="flex flex-col">
                     <span className="text-muted-foreground">{s.label}</span>
-                    <span className="font-mono font-medium">
+                    <span className={`font-mono font-medium ${color}`}>
                       {fmtMMSS(secs)} <span className="text-muted-foreground text-[10px]">/ {fmtMMSS(s.targetSeconds)}</span>
+                      {status === "over" && <span className="ml-1 text-[10px]">▲</span>}
+                      {status === "under" && <span className="ml-1 text-[10px]">▼</span>}
                     </span>
                   </div>
                 );
@@ -632,7 +652,9 @@ const AdminClassBuilder = () => {
             </div>
             <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
               <span className="text-xs uppercase tracking-widest text-muted-foreground">Total Class Time</span>
-              <span className="font-mono font-semibold text-base">{fmtMMSS(totalSeconds)}</span>
+              <span className="font-mono font-semibold text-base">
+                {fmtMMSS(totalSeconds)} <span className="text-muted-foreground text-xs font-normal">/ {meta.duration_minutes}:00</span>
+              </span>
             </div>
           </div>
 
@@ -845,6 +867,12 @@ const AdminClassBuilder = () => {
           <RenderMp4Panel classId={classId} hasBlocks={blocks.length > 0} />
         </Card>
       </div>
+
+      <PreWorkoutMusicPrompt
+        open={musicPrompting}
+        onCancel={() => setMusicPrompting(false)}
+        onReady={() => { setMusicPrompting(false); setPreviewing(true); }}
+      />
 
       {previewing && (
         <OnDemandClassPlayer
