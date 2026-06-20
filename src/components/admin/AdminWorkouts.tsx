@@ -47,6 +47,9 @@ const AdminWorkouts = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
+  const [previewWorkout, setPreviewWorkout] = useState<Workout | null>(null);
+  const [playingClass, setPlayingClass] = useState<{ classId: string; title: string } | null>(null);
+
   
   const [isUploadingThumb, setIsUploadingThumb] = useState(false);
   const thumbInputRef = useRef<HTMLInputElement>(null);
