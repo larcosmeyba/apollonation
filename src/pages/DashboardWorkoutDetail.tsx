@@ -221,6 +221,7 @@ const ExerciseRow = ({
           };
         }
       }
+      // Exact name match first
       const { data: adminByName } = await supabase
         .from("admin_exercises")
         .select("name, coaching_notes, thumbnail_url, mux_playback_id")
@@ -233,6 +234,25 @@ const ExerciseRow = ({
           description: adminByName.coaching_notes,
           thumbnail_url: adminByName.thumbnail_url,
           mux_playback_id: adminByName.mux_playback_id,
+        };
+      }
+      // Fuzzy fallback — strip equipment prefixes and match partial names
+      const norm = (s: string) => s.toLowerCase()
+        .replace(/^(barbell|dumbbell|cable|machine|smith)\s+/i, "")
+        .replace(/\s+(press|fly|curl|raise|extension|row|pull|squat|lunge|deadlift)$/i, "");
+      const fuzzyName = norm(exercise.exercise_name);
+      const { data: fuzzyMatch } = await supabase
+        .from("admin_exercises")
+        .select("name, coaching_notes, thumbnail_url, mux_playback_id")
+        .ilike("name", `%${fuzzyName}%`)
+        .maybeSingle();
+      if (fuzzyMatch) {
+        return {
+          title: fuzzyMatch.name,
+          video_url: null as string | null,
+          description: fuzzyMatch.coaching_notes,
+          thumbnail_url: fuzzyMatch.thumbnail_url,
+          mux_playback_id: fuzzyMatch.mux_playback_id,
         };
       }
       return null;
@@ -257,8 +277,23 @@ const ExerciseRow = ({
     : null;
   const hasAnyVideo = hasMux || !!resolvedVideoUrl;
 
+  // Per-set coaching
+  const targetMin = (exercise.target_reps_min as number | null) ?? null;
+  const targetMax = (exercise.target_reps_max as number | null) ?? null;
+  const progressionCue = (exercise.progression_cue as string | null) ?? null;
   const repsTargetLabel = formatRepsTarget(exercise.reps);
   const isToFailure = repsTargetLabel.toLowerCase().includes("failure");
+
+  const getSetCue = (setNum: number, totalSets: number): string => {
+    if (progressionCue) return progressionCue;
+    if (targetMin && targetMax) {
+      if (setNum === 1) return `Warm-up set — ${targetMin}–${targetMax} reps`;
+      if (setNum === totalSets) return `Max effort — ${targetMin}–${targetMax} reps, push hard`;
+      return `Working set — ${targetMin}–${targetMax} reps`;
+    }
+    if (isToFailure) return "To failure — as many reps as possible";
+    return `Set ${setNum}/${totalSets}`;
+  };
 
   const isSetLogged = (setNum: number) => {
     const log = setLogs.find((l) => l.set_number === setNum);
@@ -386,10 +421,15 @@ const ExerciseRow = ({
         </div>
 
         {/* Coaching Cues */}
-        {exercise.notes && (
+        {(exercise.notes || progressionCue) && (
           <div className="px-4 pb-1">
             <p className="text-[10px] text-primary/80 uppercase tracking-wider mb-0.5 font-bold">Coaching Cues</p>
-            <p className="text-[11px] text-foreground/60 italic leading-relaxed">{exercise.notes}</p>
+            {progressionCue && (
+              <p className="text-[11px] text-primary/70 italic leading-relaxed mb-1">{progressionCue}</p>
+            )}
+            {exercise.notes && (
+              <p className="text-[11px] text-foreground/60 italic leading-relaxed">{exercise.notes}</p>
+            )}
           </div>
         )}
 
@@ -407,45 +447,57 @@ const ExerciseRow = ({
               const log = setLogs.find(l => l.set_number === setNum);
               const prevLog = previousSetLogs.find(l => l.set_number === setNum);
               const logged = isSetLogged(setNum);
+              const setCue = getSetCue(setNum, totalSets);
+              const repPlaceholder = isToFailure
+                ? "AMRAP"
+                : (targetMin && targetMax)
+                  ? `${targetMin}–${targetMax}`
+                  : (prevLog?.reps_completed ? String(prevLog.reps_completed) : "reps");
               return (
-                <div key={setNum} className="relative grid grid-cols-[20px_1fr_1fr_40px_22px] gap-1.5 items-center">
-                  <span className="text-xs font-heading text-foreground/40 text-center tabular-nums">{setNum}</span>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder={prevLog?.weight ? String(prevLog.weight) : "lbs"}
-                    className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
-                    value={log?.weight ?? ""}
-                    onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
-                  />
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    placeholder={isToFailure ? "AMRAP" : (prevLog?.reps_completed ? String(prevLog.reps_completed) : "reps")}
-                    className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
-                    value={log?.reps_completed ?? ""}
-                    onChange={(e) => {
-                      onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
-                      if (e.target.value) setShowTimer(true);
-                    }}
-                  />
-                  <span className="text-[10px] text-foreground/40 text-center font-mono tabular-nums">
-                    {exercise.rest_seconds ? `${exercise.rest_seconds}s` : "—"}
-                  </span>
-                  <div className="flex items-center justify-center">
-                    {logged ? (
-                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center transition-all animate-in zoom-in duration-200 shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
-                        <Check className="w-3 h-3 text-background" strokeWidth={3} />
-                      </div>
-                    ) : (
-                      <div className="w-5 h-5 rounded-full border border-white/10" />
+                <div key={setNum} className="relative">
+                  {/* Per-set coaching cue */}
+                  <div className="text-[9px] text-primary/70 uppercase tracking-wider mb-0.5 font-semibold">
+                    Set {setNum}/{totalSets} · {setCue}
+                  </div>
+                  <div className="grid grid-cols-[20px_1fr_1fr_40px_22px] gap-1.5 items-center">
+                    <span className="text-xs font-heading text-foreground/40 text-center tabular-nums">{setNum}</span>
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      placeholder={prevLog?.weight ? String(prevLog.weight) : "lbs"}
+                      className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
+                      value={log?.weight ?? ""}
+                      onChange={(e) => onSetLogChange(exercise.id, setNum, "weight", e.target.value ? Number(e.target.value) : null)}
+                    />
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      placeholder={repPlaceholder}
+                      className="h-9 text-xs text-center px-1 bg-white/[0.04] border-white/[0.08] rounded-lg focus-visible:ring-primary/40 focus-visible:border-primary/40"
+                      value={log?.reps_completed ?? ""}
+                      onChange={(e) => {
+                        onSetLogChange(exercise.id, setNum, "reps_completed", e.target.value ? Number(e.target.value) : null);
+                        if (e.target.value) setShowTimer(true);
+                      }}
+                    />
+                    <span className="text-[10px] text-foreground/40 text-center font-mono tabular-nums">
+                      {exercise.rest_seconds ? `${exercise.rest_seconds}s` : "—"}
+                    </span>
+                    <div className="flex items-center justify-center">
+                      {logged ? (
+                        <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center transition-all animate-in zoom-in duration-200 shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
+                          <Check className="w-3 h-3 text-background" strokeWidth={3} />
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border border-white/10" />
+                      )}
+                    </div>
+                    {isPR(log?.weight ?? null) && (
+                      <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-primary text-background shadow-[0_0_8px_hsl(var(--primary)/0.6)]">
+                        PR
+                      </span>
                     )}
                   </div>
-                  {isPR(log?.weight ?? null) && (
-                    <span className="absolute -right-1 -top-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wider bg-primary text-background shadow-[0_0_8px_hsl(var(--primary)/0.6)]">
-                      PR
-                    </span>
-                  )}
                 </div>
               );
             })}
@@ -492,7 +544,7 @@ const ExerciseRow = ({
           <div className="aspect-video w-full bg-black">
             {hasMux && videoOpen ? (
               <MuxVideo
-                playbackId={exerciseData!.mux_playback_id!}
+                playbackId={resolvedPlaybackId!}
                 title={exerciseData?.title || exercise.exercise_name}
                 videoId={exercise.id}
                 autoPlay
@@ -501,7 +553,7 @@ const ExerciseRow = ({
                 controls
               />
             ) : isStorage && videoOpen ? (
-              <StorageVideoPlayer storagePath={exerciseData!.video_url!.replace("storage:", "")} />
+              <StorageVideoPlayer storagePath={resolvedVideoUrl!.replace("storage:", "")} />
             ) : embedUrl && videoOpen ? (
               <iframe src={embedUrl} className="w-full h-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen title={exercise.exercise_name} style={{ border: 0 }} />
             ) : null}

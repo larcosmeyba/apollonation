@@ -34,12 +34,14 @@ const toEx = (r: any): Exercise => ({
   mux_playback_id: r.mux_playback_id ?? null,
   suggested_reps: r.suggested_reps ?? null,
   suggested_time: r.suggested_time ?? null,
+  thumbnail_url: r.thumbnail_url ?? null,
+  coaching_notes: r.coaching_notes ?? null,
 });
 
 export async function fetchExerciseLibrary(supabaseAdmin: any): Promise<Exercise[]> {
   const { data, error } = await supabaseAdmin
     .from("admin_exercises")
-    .select("id,name,body_part,movement_pattern,location_type,difficulty,equipment,is_warmup,is_cooldown,is_recovery,mux_playback_id,suggested_reps,suggested_time")
+    .select("id,name,body_part,movement_pattern,location_type,difficulty,equipment,is_warmup,is_cooldown,is_recovery,mux_playback_id,suggested_reps,suggested_time,thumbnail_url,coaching_notes")
     .not("mux_playback_id", "is", null); // MUX-ONLY HARD GATE: never select exercises without an in-house video.
   if (error) throw new Error(`admin_exercises fetch failed: ${error.message}`);
   return (data ?? []).map(toEx).filter((e) => !!e.mux_playback_id);
@@ -112,5 +114,8 @@ export function sessionToRows(s: Session) {
     suggested_load: slot.suggested_load ?? null,
     mux_playback_id: slot.mux_playback_id,
     video_url: slot.video_url,
+    target_reps_min: slot.target_reps_min,
+    target_reps_max: slot.target_reps_max,
+    progression_cue: slot.progression_cue,
   }));
 }

@@ -293,17 +293,35 @@ Respond with ONLY valid JSON:
 
         const exercises = day.exercises.map((ex: any, i: number) => {
           const lib = libIndex.get((ex.exercise_name || "").toLowerCase());
+          const repsStr = String(ex.reps || "10");
+          let targetMin: number | null = null;
+          let targetMax: number | null = null;
+          const rangeMatch = repsStr.match(/(\d+)\s*[-\u2013\u2014]\s*(\d+)/);
+          if (rangeMatch) {
+            targetMin = parseInt(rangeMatch[1], 10);
+            targetMax = parseInt(rangeMatch[2], 10);
+          } else {
+            const singleMatch = repsStr.match(/(\d+)/);
+            if (singleMatch) {
+              const n = parseInt(singleMatch[1], 10);
+              targetMin = Math.max(1, n - 2);
+              targetMax = n + 2;
+            }
+          }
           return {
             day_id: dayRow.id,
             exercise_name: ex.exercise_name,
             muscle_group: ex.muscle_group || null,
             sets: ex.sets || 3,
-            reps: ex.reps || "10",
+            reps: repsStr,
             rest_seconds: ex.rest_seconds || 60,
             notes: ex.notes || null,
             sort_order: i,
             exercise_id: lib?.id ?? null,
             mux_playback_id: lib?.mux_playback_id ?? null,
+            target_reps_min: targetMin,
+            target_reps_max: targetMax,
+            progression_cue: null,
           };
         });
 

@@ -21,6 +21,8 @@ export type Exercise = {
   mux_playback_id: string | null;
   suggested_reps: string | null;
   suggested_time: string | null;
+  thumbnail_url: string | null;
+  coaching_notes: string | null;
 };
 
 export type Slot = {
@@ -68,6 +70,9 @@ export type FilledSlot = {
   rest_seconds: number;
   suggested_load: string | null;
   coaching_note: string | null;
+  target_reps_min: number | null;
+  target_reps_max: number | null;
+  progression_cue: string | null;
   needs_review: boolean;
   gap_reason: string | null;
 };
@@ -185,6 +190,18 @@ const parseRest = (s: string | null): number => {
   if (!m) return 60;
   const n = parseInt(m[1], 10);
   return /min/i.test(s) ? n * 60 : n;
+};
+
+const parseRepRange = (s: string | null): { min: number | null; max: number | null } => {
+  if (!s) return { min: null, max: null };
+  const rangeMatch = s.match(/(\d+)\s*[-\u2013\u2014]\s*(\d+)/);
+  if (rangeMatch) return { min: parseInt(rangeMatch[1], 10), max: parseInt(rangeMatch[2], 10) };
+  const singleMatch = s.match(/(\d+)/);
+  if (singleMatch) {
+    const n = parseInt(singleMatch[1], 10);
+    return { min: Math.max(1, n - 2), max: n + 2 };
+  }
+  return { min: null, max: null };
 };
 
 // ---------- Program assignment ----------
@@ -360,6 +377,9 @@ function fillSession(
         rest_seconds: parseRest(slot.rest),
         suggested_load: null,
         coaching_note: "No matching exercise in library — coach review required.",
+        target_reps_min: null,
+        target_reps_max: null,
+        progression_cue: null,
         needs_review: true,
         gap_reason: "no matching exercise for slot",
       });
@@ -386,6 +406,9 @@ function fillSession(
       rest_seconds: parseRest(slot.rest),
       suggested_load: null,
       coaching_note: gap ? `Substituted via ${gap}.` : null,
+      target_reps_min: parseRepRange(slot.reps_or_time ?? ex.suggested_reps ?? ex.suggested_time ?? "10").min,
+      target_reps_max: parseRepRange(slot.reps_or_time ?? ex.suggested_reps ?? ex.suggested_time ?? "10").max,
+      progression_cue: ex.coaching_notes ?? null,
       needs_review: !!gap,
       gap_reason: gap,
     };

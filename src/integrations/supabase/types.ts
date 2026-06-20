@@ -3666,11 +3666,14 @@ export type Database = {
           muscle_group: string | null
           mux_playback_id: string | null
           notes: string | null
+          progression_cue: string | null
           reps: string | null
           rest_seconds: number | null
           sets: number | null
           sort_order: number
           suggested_load: string | null
+          target_reps_max: number | null
+          target_reps_min: number | null
           video_url: string | null
         }
         Insert: {
@@ -3683,11 +3686,14 @@ export type Database = {
           muscle_group?: string | null
           mux_playback_id?: string | null
           notes?: string | null
+          progression_cue?: string | null
           reps?: string | null
           rest_seconds?: number | null
           sets?: number | null
           sort_order?: number
           suggested_load?: string | null
+          target_reps_max?: number | null
+          target_reps_min?: number | null
           video_url?: string | null
         }
         Update: {
@@ -3700,11 +3706,14 @@ export type Database = {
           muscle_group?: string | null
           mux_playback_id?: string | null
           notes?: string | null
+          progression_cue?: string | null
           reps?: string | null
           rest_seconds?: number | null
           sets?: number | null
           sort_order?: number
           suggested_load?: string | null
+          target_reps_max?: number | null
+          target_reps_min?: number | null
           video_url?: string | null
         }
         Relationships: [
