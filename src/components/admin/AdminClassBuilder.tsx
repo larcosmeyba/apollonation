@@ -92,7 +92,9 @@ const AdminClassBuilder = () => {
     equipment: [] as string[],
     difficulty: "beginner" as "beginner" | "intermediate" | "advanced",
     intro_enabled: true,
+    thumbnail_url: "" as string,
   });
+  const [thumbUploading, setThumbUploading] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [targetSection, setTargetSection] = useState<SectionId>("workout_a");
   const [collapsed, setCollapsed] = useState<Record<SectionId, boolean>>({
