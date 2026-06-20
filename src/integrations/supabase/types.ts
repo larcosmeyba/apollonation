@@ -264,6 +264,7 @@ export type Database = {
           tempo_recommendation: string | null
           thumbnail_url: string | null
           updated_at: string
+          video_object_position: string
           weight_recommendation: string | null
         }
         Insert: {
@@ -304,6 +305,7 @@ export type Database = {
           tempo_recommendation?: string | null
           thumbnail_url?: string | null
           updated_at?: string
+          video_object_position?: string
           weight_recommendation?: string | null
         }
         Update: {
@@ -344,6 +346,7 @@ export type Database = {
           tempo_recommendation?: string | null
           thumbnail_url?: string | null
           updated_at?: string
+          video_object_position?: string
           weight_recommendation?: string | null
         }
         Relationships: [
@@ -4551,6 +4554,7 @@ export type Database = {
       }
       workouts: {
         Row: {
+          admin_class_id: string | null
           calories_estimate: number | null
           category: string
           created_at: string
@@ -4565,6 +4569,7 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          admin_class_id?: string | null
           calories_estimate?: number | null
           category: string
           created_at?: string
@@ -4579,6 +4584,7 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          admin_class_id?: string | null
           calories_estimate?: number | null
           category?: string
           created_at?: string
@@ -4592,7 +4598,15 @@ export type Database = {
           title?: string
           video_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workouts_admin_class_id_fkey"
+            columns: ["admin_class_id"]
+            isOneToOne: false
+            referencedRelation: "admin_classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

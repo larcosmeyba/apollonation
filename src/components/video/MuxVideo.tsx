@@ -32,6 +32,8 @@ export interface MuxVideoProps {
   controls?: boolean;
   poster?: string;
   className?: string;
+  /** Optional inline style overrides (e.g. objectPosition for reframing). */
+  style?: React.CSSProperties;
   /** Player streamType — "on-demand" is default. */
   streamType?: "on-demand" | "live";
   onTimeUpdate?: React.ReactEventHandler<HTMLVideoElement>;
@@ -59,6 +61,7 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     controls = true,
     poster,
     className,
+    style,
     streamType = "on-demand",
     onTimeUpdate,
     onLoadedMetadata,
@@ -113,7 +116,7 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
         controls={controls}
         preload="metadata"
         className={className}
-        style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", backgroundColor: "#000" }}
+        style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", backgroundColor: "#000", ...style }}
         onTimeUpdate={onTimeUpdate}
         onLoadedMetadata={onLoadedMetadata}
         onError={(e) => {
@@ -155,7 +158,7 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
       metadata={metadata}
       envKey={envKey || undefined}
       className={className}
-      style={{ aspectRatio: "16 / 9", width: "100%", height: "100%" }}
+      style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", ...style }}
       // Hide controls when caller asks for an autoplay/loop background
       // (mux-player exposes the `nohotkeys` + `--controls=none` knobs)
       {...(controls ? {} : { nohotkeys: true, "--controls": "none" })}

@@ -185,8 +185,47 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
                   {duration > 0 && ` · Duration: ${duration.toFixed(1)}s`}
                 </span>
               </div>
+
+              {/* Reframe / focal point — applied via CSS object-position in the player */}
+              <div className="rounded-lg border border-border p-3 space-y-2 bg-card/40">
+                <Label className="text-xs uppercase tracking-widest">Reframe Video</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Pick the focal point so the most important part of the frame stays visible when the player crops the video.
+                </p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    ["left top", "↖"], ["center top", "↑"], ["right top", "↗"],
+                    ["left center", "←"], ["center center", "•"], ["right center", "→"],
+                    ["left bottom", "↙"], ["center bottom", "↓"], ["right bottom", "↘"],
+                  ].map(([pos, glyph]) => {
+                    const active = (form.video_object_position || "center center") === pos;
+                    return (
+                      <button
+                        key={pos}
+                        type="button"
+                        onClick={() => set("video_object_position" as any, pos)}
+                        className={`h-9 rounded-md border text-sm transition ${
+                          active
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background hover:bg-muted border-input"
+                        }`}
+                        title={pos}
+                      >
+                        {glyph}
+                      </button>
+                    );
+                  })}
+                </div>
+                <Input
+                  value={form.video_object_position || "center center"}
+                  onChange={(e) => set("video_object_position" as any, e.target.value)}
+                  placeholder="e.g. center top, 50% 30%"
+                  className="h-8 text-xs"
+                />
+              </div>
             </div>
           )}
+
 
           <div className="grid grid-cols-2 gap-3">
             <div>
