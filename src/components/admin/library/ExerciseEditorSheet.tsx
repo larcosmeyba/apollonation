@@ -13,10 +13,10 @@ import {
   EXERCISE_CATEGORIES,
   MOVEMENT_TYPES,
   MUSCLE_GROUPS,
-  muxMp4,
   muxThumb,
 } from "./exerciseTypes";
 import { Loader2, X, Sparkles } from "lucide-react";
+import MuxVideo from "@/components/video/MuxVideo";
 
 interface Props {
   open: boolean;
@@ -50,7 +50,7 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
   const [form, setForm] = useState<Partial<AdminExercise>>(blank);
   const [saving, setSaving] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<any>(null);
   const [duration, setDuration] = useState(0);
 
   const handleAiFill = async () => {
@@ -159,13 +159,20 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
 
           {form.mux_playback_id && (
             <div className="space-y-2">
-              <video
-                ref={videoRef}
-                src={muxMp4(form.mux_playback_id)}
-                controls
-                onLoadedMetadata={(e) => setDuration((e.target as HTMLVideoElement).duration)}
-                className="w-full rounded-lg bg-black aspect-video"
-              />
+              <div className="aspect-video w-full bg-black rounded-lg overflow-hidden">
+                <MuxVideo
+                  ref={videoRef}
+                  playbackId={form.mux_playback_id}
+                  title={form.name || "Preview"}
+                  category="admin-preview"
+                  controls
+                  muted
+                  playsInline
+                  onLoadedMetadata={(e) =>
+                    setDuration((e.target as HTMLVideoElement).duration)
+                  }
+                />
+              </div>
               <div className="flex flex-wrap gap-2 items-center">
                 <Button type="button" variant="outline" size="sm" onClick={() => setLoopFromVideo("in")}>
                   Set Loop In
