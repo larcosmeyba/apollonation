@@ -485,6 +485,24 @@ const AdminClassBuilder = () => {
               );
             })}
           </div>
+          <div className="flex flex-wrap gap-1 mb-3">
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground self-center mr-1">Level:</span>
+            {(["all", "beginner", "intermediate", "advanced"] as const).map((d) => {
+              const count = d === "all" ? horizontalLib.length : horizontalLib.filter((e) => e.difficulty === d).length;
+              return (
+                <button
+                  key={d}
+                  onClick={() => setDifficultyFilter(d)}
+                  className={`text-[10px] px-2 py-1 rounded-full border transition capitalize ${
+                    difficultyFilter === d
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-muted-foreground hover:border-primary/40"
+                  }`}
+                >
+                  {d} ({count})
+                </button>
+              );
+            })}
           {(() => {
             const renderRow = (ex: AdminExercise) => (
               <button
