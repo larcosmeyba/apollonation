@@ -17,6 +17,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, subDays } from "date-fns";
 import { Flame } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
+import AdminClassPlayerLauncher from "@/components/dashboard/AdminClassPlayerLauncher";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
