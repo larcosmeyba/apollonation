@@ -200,6 +200,9 @@ const AdminClassBuilder = () => {
     tempo_prompt: b.tempo_prompt,
     drop_set: b.drop_set,
     section: b.section,
+    target_reps_min: b.target_reps_min,
+    target_reps_max: b.target_reps_max,
+    progression_cue: b.progression_cue,
   }));
 
   const loadClass = async (id: string) => {
