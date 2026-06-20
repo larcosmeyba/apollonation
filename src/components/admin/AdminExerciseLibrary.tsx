@@ -36,6 +36,7 @@ const AdminExerciseLibrary = () => {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [muscleFilter, setMuscleFilter] = useState<string>("all");
+  const [orientationFilter, setOrientationFilter] = useState<string>("all");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingExercise, setEditingExercise] = useState<AdminExercise | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminExercise | null>(null);
