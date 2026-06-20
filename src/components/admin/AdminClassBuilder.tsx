@@ -191,6 +191,7 @@ const AdminClassBuilder = () => {
     weight_prompt: b.weight_prompt,
     tempo_prompt: b.tempo_prompt,
     drop_set: b.drop_set,
+    section: b.section,
   }));
 
   const loadClass = async (id: string) => {
