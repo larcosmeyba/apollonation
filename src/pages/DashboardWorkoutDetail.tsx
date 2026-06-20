@@ -320,8 +320,8 @@ const ExerciseRow = ({
                 <Dumbbell className="w-5 h-5 text-foreground/20" />
               </div>
             )}
-            {hasAnyVideo && !isCompleted && !hasMux && (
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+            {hasAnyVideo && !isCompleted && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
                 <Play className="w-4 h-4 text-foreground ml-0.5" fill="currentColor" />
               </div>
             )}
