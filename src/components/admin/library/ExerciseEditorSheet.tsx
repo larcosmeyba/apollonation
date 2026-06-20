@@ -161,13 +161,13 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
             <div className="space-y-2">
               <div className="aspect-video w-full bg-black rounded-lg overflow-hidden">
                 <MuxVideo
+                  ref={videoRef}
                   playbackId={form.mux_playback_id}
                   title={form.name || "Preview"}
                   category="admin-preview"
                   controls
                   muted
                   playsInline
-                  videoRef={videoRef}
                   onLoadedMetadata={(e) =>
                     setDuration((e.target as HTMLVideoElement).duration)
                   }
