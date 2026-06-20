@@ -564,7 +564,29 @@ const Dashboard = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <PreWorkoutMusicPrompt
+        open={!!pendingWorkout}
+        onCancel={() => setPendingWorkout(null)}
+        onReady={() => {
+          const w = pendingWorkout;
+          setPendingWorkout(null);
+          if (!w) return;
+          if (w.admin_class_id) {
+            setPlayingClass({ classId: w.admin_class_id, title: w.title });
+          }
+        }}
+      />
+
+      {playingClass && (
+        <AdminClassPlayerLauncher
+          classId={playingClass.classId}
+          title={playingClass.title}
+          onClose={() => setPlayingClass(null)}
+        />
+      )}
     </DashboardLayout>
+
   );
 };
 
