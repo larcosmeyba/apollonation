@@ -27,17 +27,43 @@ interface Props {
   blocks: PlayerBlock[];
   onClose: () => void;
   introEnabled?: boolean;
+  /** Admin preview mode — show per-exercise reframe/sizing overlay & persist to DB. */
+  adminEditable?: boolean;
 }
 
 type RestType = "between-sets" | "between-exercises";
 
+type FrameOverrides = {
+  position: string; // CSS object-position
+  fit: "cover" | "contain";
+  scale: number; // 1.0 – 1.8
+};
+
+const FRAME_LS_KEY = "apollo:exercise-frame-overrides";
+
+const loadFrameOverrides = (): Record<string, FrameOverrides> => {
+  try {
+    return JSON.parse(localStorage.getItem(FRAME_LS_KEY) || "{}");
+  } catch {
+    return {};
+  }
+};
+const saveFrameOverridesLS = (map: Record<string, FrameOverrides>) => {
+  try {
+    localStorage.setItem(FRAME_LS_KEY, JSON.stringify(map));
+  } catch {
+    /* noop */
+  }
+};
+
 /**
  * Cinematic on-demand class player.
  */
-const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Props) => {
+const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, adminEditable = false }: Props) => {
   const [phase, setPhase] = useState<"intro" | "block" | "rest" | "done">(
     introEnabled ? "intro" : "block",
   );
+
   const [idx, setIdx] = useState(0);
   const [setNum, setSetNum] = useState(1);
   const [remaining, setRemaining] = useState(0);
