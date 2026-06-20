@@ -244,6 +244,7 @@ const AdminClassBuilder = () => {
       equipment: [],
       difficulty: "beginner",
       intro_enabled: true,
+      thumbnail_url: "",
     });
     setBlocks([]);
   };
