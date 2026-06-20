@@ -62,8 +62,17 @@ const AdminExerciseLibrary = () => {
       (categoryFilter === "__uncategorized" ? !ex.category : ex.category === categoryFilter);
     const matchMuscle =
       muscleFilter === "all" || ex.muscle_group === muscleFilter;
-    return matchSearch && matchCategory && matchMuscle;
+    const matchOrientation =
+      orientationFilter === "all" ||
+      (orientationFilter === "__missing"
+        ? !ex.mux_playback_id
+        : ex.orientation === orientationFilter);
+    return matchSearch && matchCategory && matchMuscle && matchOrientation;
   });
+
+  const verticalCount = exercises.filter((e) => e.orientation === "vertical" && e.mux_playback_id).length;
+  const horizontalCount = exercises.filter((e) => e.orientation === "horizontal" && e.mux_playback_id).length;
+  const missingVideoCount = exercises.filter((e) => !e.mux_playback_id).length;
 
   const uncategorizedCount = exercises.filter((e) => !e.category).length;
 
