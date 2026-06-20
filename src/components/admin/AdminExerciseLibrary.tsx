@@ -154,6 +154,17 @@ const AdminExerciseLibrary = () => {
             ))}
           </SelectContent>
         </Select>
+        <Select value={orientationFilter} onValueChange={setOrientationFilter}>
+          <SelectTrigger className="w-full sm:w-48">
+            <SelectValue placeholder="Video orientation" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All videos</SelectItem>
+            <SelectItem value="vertical">Vertical only ({verticalCount})</SelectItem>
+            <SelectItem value="horizontal">Horizontal only ({horizontalCount})</SelectItem>
+            <SelectItem value="__missing">Missing video ({missingVideoCount})</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Grid */}
