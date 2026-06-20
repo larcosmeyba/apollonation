@@ -417,6 +417,9 @@ const AdminClassBuilder = () => {
           cue_overrides: b.cue || "",
           weight_prompt: b.weight_prompt || "",
           tempo_prompt: b.tempo_prompt || "",
+          target_reps_min: b.target_reps_min ?? (section === "warmup" || section === "cooldown" ? null : 8),
+          target_reps_max: b.target_reps_max ?? (section === "warmup" || section === "cooldown" ? null : 12),
+          progression_cue: b.progression_cue || "",
         };
       });
     if (generated.length === 0) return toast.error("AI returned no usable blocks");
