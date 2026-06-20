@@ -51,11 +51,14 @@ export type Database = {
           exercise_id: string | null
           id: string
           kind: string
+          progression_cue: string | null
           rest_seconds: number
           section: string
           set_rest_seconds: number
           sets: number
           sort_order: number
+          target_reps_max: number | null
+          target_reps_min: number | null
           tempo_prompt: string | null
           weight_prompt: string | null
           work_seconds: number
@@ -69,11 +72,14 @@ export type Database = {
           exercise_id?: string | null
           id?: string
           kind?: string
+          progression_cue?: string | null
           rest_seconds?: number
           section?: string
           set_rest_seconds?: number
           sets?: number
           sort_order?: number
+          target_reps_max?: number | null
+          target_reps_min?: number | null
           tempo_prompt?: string | null
           weight_prompt?: string | null
           work_seconds?: number
@@ -87,11 +93,14 @@ export type Database = {
           exercise_id?: string | null
           id?: string
           kind?: string
+          progression_cue?: string | null
           rest_seconds?: number
           section?: string
           set_rest_seconds?: number
           sets?: number
           sort_order?: number
+          target_reps_max?: number | null
+          target_reps_min?: number | null
           tempo_prompt?: string | null
           weight_prompt?: string | null
           work_seconds?: number
