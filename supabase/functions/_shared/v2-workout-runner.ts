@@ -34,6 +34,8 @@ const toEx = (r: any): Exercise => ({
   mux_playback_id: r.mux_playback_id ?? null,
   suggested_reps: r.suggested_reps ?? null,
   suggested_time: r.suggested_time ?? null,
+  thumbnail_url: r.thumbnail_url ?? null,
+  coaching_notes: r.coaching_notes ?? null,
 });
 
 export async function fetchExerciseLibrary(supabaseAdmin: any): Promise<Exercise[]> {
