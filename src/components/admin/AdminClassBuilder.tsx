@@ -38,6 +38,9 @@ interface Block {
   weight_prompt: string;
   tempo_prompt: string;
   drop_set: boolean;
+  target_reps_min: number | null;
+  target_reps_max: number | null;
+  progression_cue: string;
 }
 
 const SECTIONS: { id: SectionId; label: string; targetSeconds: number }[] = [
@@ -67,6 +70,9 @@ const newBlock = (section: SectionId, exercise_id: string | null, alt_id: string
   weight_prompt: "",
   tempo_prompt: "",
   drop_set: false,
+  target_reps_min: section === "warmup" || section === "cooldown" ? null : 8,
+  target_reps_max: section === "warmup" || section === "cooldown" ? null : 12,
+  progression_cue: "",
   ...sectionDefaults(section),
 });
 
