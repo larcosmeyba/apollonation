@@ -143,7 +143,9 @@ const DashboardWorkouts = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [pendingWorkout, setPendingWorkout] = useState<Workout | null>(null);
+  const [playingClass, setPlayingClass] = useState<{ classId: string; title: string } | null>(null);
   const [showSearch, setShowSearch] = useState(searchParams.get("search") === "true");
+
   const { data: workoutCategories } = useWorkoutCategories();
   const TYPE_IMAGES = { ...TYPE_FALLBACK_IMAGES, ...categoryImageMap(workoutCategories) };
 
