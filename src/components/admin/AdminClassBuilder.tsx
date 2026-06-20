@@ -867,6 +867,12 @@ const AdminClassBuilder = () => {
         </Card>
       </div>
 
+      <PreWorkoutMusicPrompt
+        open={musicPrompting}
+        onCancel={() => setMusicPrompting(false)}
+        onReady={() => { setMusicPrompting(false); setPreviewing(true); }}
+      />
+
       {previewing && (
         <OnDemandClassPlayer
           title={meta.title || "Apollo Class"}
