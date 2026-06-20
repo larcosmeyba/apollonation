@@ -92,7 +92,9 @@ const AdminClassBuilder = () => {
     equipment: [] as string[],
     difficulty: "beginner" as "beginner" | "intermediate" | "advanced",
     intro_enabled: true,
+    thumbnail_url: "" as string,
   });
+  const [thumbUploading, setThumbUploading] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [targetSection, setTargetSection] = useState<SectionId>("workout_a");
   const [collapsed, setCollapsed] = useState<Record<SectionId, boolean>>({
@@ -211,6 +213,7 @@ const AdminClassBuilder = () => {
       equipment: c.equipment || [],
       difficulty: c.difficulty as any,
       intro_enabled: c.intro_enabled,
+      thumbnail_url: (c as any).thumbnail_url || "",
     });
     setBlocks(
       (bs || []).map((b: any) => ({
@@ -241,6 +244,7 @@ const AdminClassBuilder = () => {
       equipment: [],
       difficulty: "beginner",
       intro_enabled: true,
+      thumbnail_url: "",
     });
     setBlocks([]);
   };
@@ -797,6 +801,43 @@ const AdminClassBuilder = () => {
             <Label>Description</Label>
             <Textarea rows={2} value={meta.description}
               onChange={(e) => setMeta({ ...meta, description: e.target.value })} />
+          </div>
+          <div>
+            <Label>Thumbnail</Label>
+            {meta.thumbnail_url ? (
+              <div className="relative mt-1">
+                <img src={meta.thumbnail_url} alt="Class thumbnail" className="w-full h-32 object-cover rounded-md border border-border" />
+                <button
+                  type="button"
+                  onClick={() => setMeta((p) => ({ ...p, thumbnail_url: "" }))}
+                  className="absolute top-1 right-1 bg-black/70 text-white text-[10px] px-2 py-1 rounded"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <label className="mt-1 flex items-center justify-center w-full h-24 rounded-md border border-dashed border-border cursor-pointer hover:bg-muted text-xs text-muted-foreground">
+                {thumbUploading ? "Uploading…" : "Upload thumbnail (JPG/PNG, ≤5MB)"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) return toast.error("Max 5MB");
+                    setThumbUploading(true);
+                    const ext = file.name.split(".").pop() || "jpg";
+                    const fileName = `class-${Date.now()}.${ext}`;
+                    const { error } = await supabase.storage.from("thumbnails").upload(fileName, file, { contentType: file.type });
+                    if (error) { setThumbUploading(false); return toast.error(error.message); }
+                    const { data: urlData } = supabase.storage.from("thumbnails").getPublicUrl(fileName);
+                    setMeta((p) => ({ ...p, thumbnail_url: urlData.publicUrl }));
+                    setThumbUploading(false);
+                  }}
+                />
+              </label>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
