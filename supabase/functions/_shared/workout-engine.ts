@@ -406,6 +406,9 @@ function fillSession(
       rest_seconds: parseRest(slot.rest),
       suggested_load: null,
       coaching_note: gap ? `Substituted via ${gap}.` : null,
+      target_reps_min: parseRepRange(slot.reps_or_time ?? ex.suggested_reps ?? ex.suggested_time ?? "10").min,
+      target_reps_max: parseRepRange(slot.reps_or_time ?? ex.suggested_reps ?? ex.suggested_time ?? "10").max,
+      progression_cue: ex.coaching_notes ?? null,
       needs_review: !!gap,
       gap_reason: gap,
     };
