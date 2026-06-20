@@ -15,6 +15,7 @@ import {
   muxThumb,
 } from "./library/exerciseTypes";
 import OnDemandClassPlayer, { PlayerBlock } from "./library/OnDemandClassPlayer";
+import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import RenderMp4Panel from "./library/RenderMp4Panel";
 import MissingMuxReport from "./library/MissingMuxReport";
 import {
