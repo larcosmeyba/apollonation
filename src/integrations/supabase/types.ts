@@ -52,6 +52,7 @@ export type Database = {
           id: string
           kind: string
           rest_seconds: number
+          section: string
           set_rest_seconds: number
           sets: number
           sort_order: number
@@ -69,6 +70,7 @@ export type Database = {
           id?: string
           kind?: string
           rest_seconds?: number
+          section?: string
           set_rest_seconds?: number
           sets?: number
           sort_order?: number
@@ -86,6 +88,7 @@ export type Database = {
           id?: string
           kind?: string
           rest_seconds?: number
+          section?: string
           set_rest_seconds?: number
           sets?: number
           sort_order?: number

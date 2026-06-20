@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -20,11 +19,14 @@ import RenderMp4Panel from "./library/RenderMp4Panel";
 import MissingMuxReport from "./library/MissingMuxReport";
 import {
   Plus, Play, Save, Trash2, GripVertical, Sparkles, Loader2, ChevronUp, ChevronDown, FolderOpen,
-  Bookmark, Download,
+  Bookmark, Download, ChevronRight,
 } from "lucide-react";
+
+type SectionId = "warmup" | "workout_a" | "workout_b" | "workout_c" | "cooldown";
 
 interface Block {
   id: string;
+  section: SectionId;
   exercise_id: string | null;
   alt_exercise_id: string | null;
   work_seconds: number;
@@ -37,8 +39,23 @@ interface Block {
   drop_set: boolean;
 }
 
-const newBlock = (exercise_id: string | null, alt_id: string | null = null): Block => ({
+const SECTIONS: { id: SectionId; label: string; targetSeconds: number }[] = [
+  { id: "warmup", label: "Warm Up", targetSeconds: 120 },
+  { id: "workout_a", label: "Workout Block A", targetSeconds: 300 },
+  { id: "workout_b", label: "Workout Block B", targetSeconds: 300 },
+  { id: "workout_c", label: "Workout Block C", targetSeconds: 300 },
+  { id: "cooldown", label: "Cool Down", targetSeconds: 180 },
+];
+
+const sectionDefaults = (section: SectionId): Partial<Block> => {
+  if (section === "warmup") return { work_seconds: 30, rest_seconds: 0, sets: 1, set_rest_seconds: 0 };
+  if (section === "cooldown") return { work_seconds: 45, rest_seconds: 0, sets: 1, set_rest_seconds: 0 };
+  return { work_seconds: 45, rest_seconds: 15, sets: 1, set_rest_seconds: 0 };
+};
+
+const newBlock = (section: SectionId, exercise_id: string | null, alt_id: string | null = null): Block => ({
   id: crypto.randomUUID(),
+  section,
   exercise_id,
   alt_exercise_id: alt_id,
   work_seconds: 40,
@@ -49,7 +66,17 @@ const newBlock = (exercise_id: string | null, alt_id: string | null = null): Blo
   weight_prompt: "",
   tempo_prompt: "",
   drop_set: false,
+  ...sectionDefaults(section),
 });
+
+const blockSeconds = (b: Block) =>
+  b.sets * b.work_seconds + Math.max(0, b.sets - 1) * b.set_rest_seconds + b.rest_seconds;
+
+const fmtMMSS = (s: number) => {
+  const m = Math.floor(s / 60);
+  const sec = Math.round(s % 60);
+  return `${m}:${String(sec).padStart(2, "0")}`;
+};
 
 const CLASS_TYPES = ["strength", "sculpt", "stretch", "cardio"] as const;
 
@@ -66,6 +93,10 @@ const AdminClassBuilder = () => {
     intro_enabled: true,
   });
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [targetSection, setTargetSection] = useState<SectionId>("workout_a");
+  const [collapsed, setCollapsed] = useState<Record<SectionId, boolean>>({
+    warmup: false, workout_a: false, workout_b: false, workout_c: false, cooldown: false,
+  });
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | "all">("all");
   const [difficultyFilter, setDifficultyFilter] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
@@ -110,31 +141,44 @@ const AdminClassBuilder = () => {
     return m;
   }, [exercises]);
 
-  const addExercise = (id: string) => {
+  const addExercise = (id: string, section: SectionId = targetSection) => {
     const ex = exById.get(id);
-    setBlocks((b) => [...b, newBlock(id, ex?.alternative_exercise_id || null)]);
+    setBlocks((b) => [...b, newBlock(section, id, ex?.alternative_exercise_id || null)]);
+    setCollapsed((c) => ({ ...c, [section]: false }));
   };
 
   const updateBlock = (id: string, patch: Partial<Block>) =>
     setBlocks((bs) => bs.map((b) => (b.id === id ? { ...b, ...patch } : b)));
   const removeBlock = (id: string) => setBlocks((bs) => bs.filter((b) => b.id !== id));
-  const moveBlock = (id: string, dir: -1 | 1) =>
+
+  const moveBlockInSection = (id: string, dir: -1 | 1) => {
     setBlocks((bs) => {
-      const idx = bs.findIndex((b) => b.id === id);
-      if (idx < 0) return bs;
-      const j = idx + dir;
-      if (j < 0 || j >= bs.length) return bs;
+      const target = bs.find((b) => b.id === id);
+      if (!target) return bs;
+      const sameSection = bs.filter((b) => b.section === target.section);
+      const idxInSection = sameSection.findIndex((b) => b.id === id);
+      const j = idxInSection + dir;
+      if (j < 0 || j >= sameSection.length) return bs;
+      const swap = sameSection[j];
+      // Rebuild: swap positions of target and swap in bs
+      const aIdx = bs.indexOf(target);
+      const bIdx = bs.indexOf(swap);
       const copy = [...bs];
-      [copy[idx], copy[j]] = [copy[j], copy[idx]];
+      [copy[aIdx], copy[bIdx]] = [copy[bIdx], copy[aIdx]];
       return copy;
     });
+  };
 
-  const totalSeconds = blocks.reduce(
-    (sum, b) => sum + b.sets * b.work_seconds + (b.sets - 1) * b.set_rest_seconds + b.rest_seconds,
-    0
+  const sectionBlocks = (s: SectionId) => blocks.filter((b) => b.section === s);
+  const sectionSeconds = (s: SectionId) => sectionBlocks(s).reduce((sum, b) => sum + blockSeconds(b), 0);
+  const totalSeconds = blocks.reduce((sum, b) => sum + blockSeconds(b), 0);
+
+  const orderedBlocks = useMemo(
+    () => SECTIONS.flatMap((s) => sectionBlocks(s.id)),
+    [blocks]
   );
 
-  const playerBlocks: PlayerBlock[] = blocks.map((b) => ({
+  const playerBlocks: PlayerBlock[] = orderedBlocks.map((b) => ({
     exercise: b.exercise_id ? exById.get(b.exercise_id) || null : null,
     alt: b.alt_exercise_id ? exById.get(b.alt_exercise_id) || null : null,
     work_seconds: b.work_seconds,
@@ -168,6 +212,7 @@ const AdminClassBuilder = () => {
     setBlocks(
       (bs || []).map((b: any) => ({
         id: b.id,
+        section: (b.section as SectionId) || "workout_a",
         exercise_id: b.exercise_id,
         alt_exercise_id: b.alt_exercise_id,
         work_seconds: b.work_seconds,
@@ -213,11 +258,12 @@ const AdminClassBuilder = () => {
       id = data.id;
       setClassId(id);
     }
-    if (blocks.length > 0) {
-      const rows = blocks.map((b, i) => ({
+    if (orderedBlocks.length > 0) {
+      const rows = orderedBlocks.map((b, i) => ({
         class_id: id!,
         sort_order: i,
         kind: "exercise",
+        section: b.section,
         exercise_id: b.exercise_id,
         alt_exercise_id: b.alt_exercise_id,
         work_seconds: b.work_seconds,
@@ -229,7 +275,7 @@ const AdminClassBuilder = () => {
         tempo_prompt: b.tempo_prompt || null,
         drop_set: b.drop_set,
       }));
-      const { error } = await supabase.from("admin_class_blocks").insert(rows);
+      const { error } = await supabase.from("admin_class_blocks").insert(rows as any);
       if (error) { setSaving(false); return toast.error(error.message); }
     }
     setSaving(false);
@@ -267,7 +313,12 @@ const AdminClassBuilder = () => {
   const loadTemplate = (t: any) => {
     const p = t.payload || {};
     if (p.meta) setMeta((m) => ({ ...m, ...p.meta }));
-    if (Array.isArray(p.blocks)) setBlocks(p.blocks.map((b: any) => ({ ...newBlock(b.exercise_id, b.alt_exercise_id), ...b, id: crypto.randomUUID() })));
+    if (Array.isArray(p.blocks)) setBlocks(p.blocks.map((b: any) => ({
+      ...newBlock(b.section || "workout_a", b.exercise_id, b.alt_exercise_id),
+      ...b,
+      section: (b.section as SectionId) || "workout_a",
+      id: crypto.randomUUID(),
+    })));
     setClassId(null);
     setShowTemplates(false);
     toast.success(`Loaded "${t.title}"`);
@@ -282,10 +333,10 @@ const AdminClassBuilder = () => {
 
   const exportClass = () => {
     const payload = {
-      version: 1,
+      version: 2,
       exported_at: new Date().toISOString(),
       meta,
-      blocks: blocks.map((b) => {
+      blocks: orderedBlocks.map((b) => {
         const ex = b.exercise_id ? exById.get(b.exercise_id) : null;
         return {
           ...b,
@@ -305,7 +356,6 @@ const AdminClassBuilder = () => {
     toast.success("Class exported");
   };
 
-
   const aiGenerate = async () => {
     if (horizontalLib.length === 0) return toast.error("Add horizontal exercises to your library first");
     setAiLoading(true);
@@ -315,9 +365,11 @@ const AdminClassBuilder = () => {
         class_type: meta.class_type,
         difficulty: meta.difficulty,
         equipment: meta.equipment,
+        use_sections: true,
         exercises: horizontalLib.map((e) => ({
           id: e.id,
           name: e.name,
+          category: e.category,
           muscle_group: e.muscle_group,
           equipment: e.equipment,
           difficulty: e.difficulty,
@@ -328,16 +380,18 @@ const AdminClassBuilder = () => {
     setAiLoading(false);
     if (error) return toast.error(error.message);
     if (!data?.blocks || !Array.isArray(data.blocks)) return toast.error("AI returned no blocks");
+    const VALID: SectionId[] = ["warmup", "workout_a", "workout_b", "workout_c", "cooldown"];
     const generated: Block[] = data.blocks
       .filter((b: any) => exById.has(b.exercise_id))
       .map((b: any) => {
         const ex = exById.get(b.exercise_id);
+        const section: SectionId = VALID.includes(b.section) ? b.section : "workout_a";
         return {
-          ...newBlock(b.exercise_id, ex?.alternative_exercise_id || null),
+          ...newBlock(section, b.exercise_id, ex?.alternative_exercise_id || null),
           work_seconds: Math.max(10, Math.min(120, Number(b.work_seconds) || 40)),
-          rest_seconds: Math.max(0, Math.min(120, Number(b.rest_seconds) || 20)),
+          rest_seconds: Math.max(0, Math.min(120, Number(b.rest_seconds) || 15)),
           sets: Math.max(1, Math.min(8, Number(b.sets) || 1)),
-          set_rest_seconds: Math.max(0, Math.min(120, Number(b.set_rest_seconds) || 30)),
+          set_rest_seconds: Math.max(0, Math.min(120, Number(b.set_rest_seconds) || 0)),
           cue_overrides: b.cue || "",
           weight_prompt: b.weight_prompt || "",
           tempo_prompt: b.tempo_prompt || "",
@@ -346,8 +400,13 @@ const AdminClassBuilder = () => {
     if (generated.length === 0) return toast.error("AI returned no usable blocks");
     setBlocks(generated);
     if (!meta.title) setMeta((m) => ({ ...m, title: data.title || `${m.class_type} ${m.duration_minutes}m` }));
-    toast.success(`AI generated ${generated.length} blocks`);
+    toast.success(`AI generated ${generated.length} blocks across 5 sections`);
   };
+
+  const sectionTone = (id: SectionId) =>
+    id === "warmup" ? "border-amber-500/40 bg-amber-500/5"
+    : id === "cooldown" ? "border-sky-500/40 bg-sky-500/5"
+    : "border-primary/30 bg-primary/5";
 
   return (
     <div className="max-w-[1600px] mx-auto">
@@ -355,7 +414,7 @@ const AdminClassBuilder = () => {
         <div>
           <h1 className="font-heading text-2xl tracking-wider">CLASS BUILDER</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Compose premium on-demand classes from your exercise library.
+            Compose premium on-demand classes — Warm Up · 3 Workout Blocks · Cool Down.
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -442,7 +501,7 @@ const AdminClassBuilder = () => {
         {/* LEFT: Library */}
         <Card className="p-3 lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">Library by class</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">Library</div>
             <button
               onClick={() => setCategoryFilter(meta.class_type as ExerciseCategory)}
               className="text-[10px] px-2 py-0.5 rounded-full border border-primary/40 text-primary hover:bg-primary/10"
@@ -451,6 +510,21 @@ const AdminClassBuilder = () => {
               Match: {meta.class_type}
             </button>
           </div>
+
+          {/* Target section selector */}
+          <div className="mb-2 p-2 rounded-lg border border-primary/30 bg-primary/5">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Add to section</div>
+            <select
+              value={targetSection}
+              onChange={(e) => setTargetSection(e.target.value as SectionId)}
+              className="w-full bg-background border border-input rounded h-8 px-2 text-xs"
+            >
+              {SECTIONS.map((s) => (
+                <option key={s.id} value={s.id}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+
           <Input
             placeholder="Search exercises by name…"
             value={search}
@@ -504,6 +578,7 @@ const AdminClassBuilder = () => {
               );
             })}
           </div>
+
           {(() => {
             const renderRow = (ex: AdminExercise) => (
               <button
@@ -524,62 +599,12 @@ const AdminClassBuilder = () => {
               </button>
             );
 
-            if (categoryFilter !== "all") {
-              return (
-                <div className="space-y-1.5">
-                  {filteredLib.map(renderRow)}
-                  {filteredLib.length === 0 && (
-                    <p className="text-xs text-muted-foreground text-center py-6">
-                      No horizontal exercises tagged for this class yet.
-                    </p>
-                  )}
-                </div>
-              );
-            }
-
-            const searchLower = search.toLowerCase();
-            const matchesSearch = (e: AdminExercise) =>
-              !search || e.name.toLowerCase().includes(searchLower);
-            const matchesDifficulty = (e: AdminExercise) =>
-              difficultyFilter === "all" || e.difficulty === difficultyFilter;
-            const uncategorized = horizontalLib.filter((e) => !e.category && matchesSearch(e) && matchesDifficulty(e));
-
             return (
-              <div className="space-y-4">
-                {EXERCISE_CATEGORIES.map((cat) => {
-                  const items = horizontalLib.filter((e) => e.category === cat && matchesSearch(e) && matchesDifficulty(e));
-                  if (items.length === 0) return null;
-                  const isClassType = cat === meta.class_type;
-                  return (
-                    <div key={cat}>
-                      <div className={`flex items-center justify-between mb-1.5 px-1.5 py-1 rounded sticky top-0 bg-card/95 backdrop-blur-sm ${isClassType ? "ring-1 ring-primary/40" : ""}`}>
-                        <span className="text-[10px] uppercase tracking-widest font-semibold capitalize">
-                          {cat}
-                          {isClassType && <span className="ml-1.5 text-primary">● current</span>}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">{items.length}</span>
-                      </div>
-                      <div className="space-y-1">{items.map(renderRow)}</div>
-                    </div>
-                  );
-                })}
-                {uncategorized.length > 0 && (
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5 px-1.5 py-1">
-                      <span className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                        Uncategorized
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">{uncategorized.length}</span>
-                    </div>
-                    <div className="space-y-1">{uncategorized.map(renderRow)}</div>
-                    <p className="text-[10px] text-muted-foreground mt-1 px-1">
-                      Tip: set a class category in Exercise Library so these appear under the right class.
-                    </p>
-                  </div>
-                )}
-                {horizontalLib.length === 0 && (
+              <div className="space-y-1.5">
+                {filteredLib.map(renderRow)}
+                {filteredLib.length === 0 && (
                   <p className="text-xs text-muted-foreground text-center py-6">
-                    No horizontal exercises yet. Add some in Exercise Library.
+                    No exercises match your filters.
                   </p>
                 )}
               </div>
@@ -587,132 +612,156 @@ const AdminClassBuilder = () => {
           })()}
         </Card>
 
-        {/* CENTER: Timeline */}
+        {/* CENTER: Timeline by section */}
         <Card className="p-4 lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto">
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">
-              Timeline · {blocks.length} blocks
-            </div>
-            <div className="text-xs text-muted-foreground">
-              ~{Math.round(totalSeconds / 60)} min
-            </div>
-          </div>
-          {blocks.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">
-              Click an exercise on the left or use AI Generate.
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {blocks.map((b, i) => {
-                const ex = b.exercise_id ? exById.get(b.exercise_id) : null;
+          {/* Summary header */}
+          <div className="mb-4 p-3 rounded-lg border border-border bg-card/60">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Timeline</div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+              {SECTIONS.map((s) => {
+                const secs = sectionSeconds(s.id);
                 return (
-                  <div key={b.id} className="border border-border rounded-lg p-3 bg-card/50">
-                    <div className="flex items-center gap-2 mb-2">
-                      <GripVertical className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                        #{i + 1}
-                      </span>
-                      {ex?.mux_playback_id && (
-                        <img src={muxThumb(ex.mux_playback_id)} alt="" className="w-12 h-7 object-cover rounded" />
-                      )}
-                      <span className="font-medium text-sm flex-1 truncate">{ex?.name || "Missing"}</span>
-                      <button onClick={() => moveBlock(b.id, -1)} className="p-1 hover:bg-muted rounded">
-                        <ChevronUp className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => moveBlock(b.id, 1)} className="p-1 hover:bg-muted rounded">
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => removeBlock(b.id)} className="p-1 hover:bg-muted rounded">
-                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                      <label className="space-y-1">
-                        <span className="text-muted-foreground">Work (s)</span>
-                        <Input
-                          type="number"
-                          value={b.work_seconds}
-                          onChange={(e) => updateBlock(b.id, { work_seconds: +e.target.value })}
-                          className="h-8"
-                        />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-muted-foreground">Rest (s)</span>
-                        <Input
-                          type="number"
-                          value={b.rest_seconds}
-                          onChange={(e) => updateBlock(b.id, { rest_seconds: +e.target.value })}
-                          className="h-8"
-                        />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-muted-foreground">Sets</span>
-                        <Input
-                          type="number"
-                          value={b.sets}
-                          onChange={(e) => updateBlock(b.id, { sets: +e.target.value })}
-                          className="h-8"
-                        />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-muted-foreground">Set Rest (s)</span>
-                        <Input
-                          type="number"
-                          value={b.set_rest_seconds}
-                          onChange={(e) => updateBlock(b.id, { set_rest_seconds: +e.target.value })}
-                          className="h-8"
-                        />
-                      </label>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 text-xs">
-                      <Input
-                        placeholder="Weight prompt (e.g. Increase weight)"
-                        value={b.weight_prompt}
-                        onChange={(e) => updateBlock(b.id, { weight_prompt: e.target.value })}
-                        className="h-8"
-                      />
-                      <Input
-                        placeholder="Tempo (e.g. Slow 3-1-1)"
-                        value={b.tempo_prompt}
-                        onChange={(e) => updateBlock(b.id, { tempo_prompt: e.target.value })}
-                        className="h-8"
-                      />
-                    </div>
-                    <Input
-                      placeholder="Cue override (defaults to exercise's coaching notes)"
-                      value={b.cue_overrides}
-                      onChange={(e) => updateBlock(b.id, { cue_overrides: e.target.value })}
-                      className="h-8 mt-2 text-xs"
-                    />
-                    <div className="flex items-center gap-3 mt-2 text-xs">
-                      <label className="flex items-center gap-1.5">
-                        <input
-                          type="checkbox"
-                          checked={b.drop_set}
-                          onChange={(e) => updateBlock(b.id, { drop_set: e.target.checked })}
-                        />
-                        Drop set
-                      </label>
-                      <select
-                        value={b.alt_exercise_id || ""}
-                        onChange={(e) => updateBlock(b.id, { alt_exercise_id: e.target.value || null })}
-                        className="bg-background border border-input rounded h-7 px-2 text-xs flex-1"
-                      >
-                        <option value="">Alternate: none</option>
-                        {horizontalLib
-                          .filter((x) => x.id !== b.exercise_id)
-                          .map((x) => (
-                            <option key={x.id} value={x.id}>
-                              Alt: {x.name}
-                            </option>
-                          ))}
-                      </select>
-                    </div>
+                  <div key={s.id} className="flex flex-col">
+                    <span className="text-muted-foreground">{s.label}</span>
+                    <span className="font-mono font-medium">
+                      {fmtMMSS(secs)} <span className="text-muted-foreground text-[10px]">/ {fmtMMSS(s.targetSeconds)}</span>
+                    </span>
                   </div>
                 );
               })}
             </div>
-          )}
+            <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Total Class Time</span>
+              <span className="font-mono font-semibold text-base">{fmtMMSS(totalSeconds)}</span>
+            </div>
+          </div>
+
+          {SECTIONS.map((sec) => {
+            const items = sectionBlocks(sec.id);
+            const isCollapsed = collapsed[sec.id];
+            return (
+              <div key={sec.id} className={`mb-3 rounded-lg border ${sectionTone(sec.id)}`}>
+                <div className="flex items-center gap-2 p-2.5">
+                  <button
+                    onClick={() => setCollapsed((c) => ({ ...c, [sec.id]: !c[sec.id] }))}
+                    className="p-0.5 hover:bg-muted rounded"
+                  >
+                    {isCollapsed
+                      ? <ChevronRight className="w-4 h-4" />
+                      : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                  <span className="text-sm font-semibold uppercase tracking-wide">{sec.label}</span>
+                  <span className="text-[11px] text-muted-foreground">({items.length} ex · {fmtMMSS(sectionSeconds(sec.id))})</span>
+                  <div className="flex-1" />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7"
+                    onClick={() => {
+                      setTargetSection(sec.id);
+                      toast.info(`Adding to ${sec.label} — pick from the library`);
+                    }}
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add
+                  </Button>
+                </div>
+
+                {!isCollapsed && (
+                  <div className="px-2.5 pb-2.5 space-y-2">
+                    {items.length === 0 ? (
+                      <div className="text-center py-4 text-muted-foreground text-xs">
+                        Empty. Set "Add to section" to {sec.label} and click an exercise on the left.
+                      </div>
+                    ) : items.map((b, i) => {
+                      const ex = b.exercise_id ? exById.get(b.exercise_id) : null;
+                      return (
+                        <div key={b.id} className="border border-border rounded-lg p-3 bg-card/70">
+                          <div className="flex items-center gap-2 mb-2">
+                            <GripVertical className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                              #{i + 1}
+                            </span>
+                            {ex?.mux_playback_id && (
+                              <img src={muxThumb(ex.mux_playback_id)} alt="" className="w-12 h-7 object-cover rounded" />
+                            )}
+                            <span className="font-medium text-sm flex-1 truncate">{ex?.name || "Missing"}</span>
+                            <span className="text-[10px] font-mono text-muted-foreground">{fmtMMSS(blockSeconds(b))}</span>
+                            <button onClick={() => moveBlockInSection(b.id, -1)} className="p-1 hover:bg-muted rounded">
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button onClick={() => moveBlockInSection(b.id, 1)} className="p-1 hover:bg-muted rounded">
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                            <button onClick={() => removeBlock(b.id)} className="p-1 hover:bg-muted rounded">
+                              <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                            <label className="space-y-1">
+                              <span className="text-muted-foreground">Work (s)</span>
+                              <Input type="number" value={b.work_seconds}
+                                onChange={(e) => updateBlock(b.id, { work_seconds: +e.target.value })} className="h-8" />
+                            </label>
+                            <label className="space-y-1">
+                              <span className="text-muted-foreground">Rest (s)</span>
+                              <Input type="number" value={b.rest_seconds}
+                                onChange={(e) => updateBlock(b.id, { rest_seconds: +e.target.value })} className="h-8" />
+                            </label>
+                            <label className="space-y-1">
+                              <span className="text-muted-foreground">Sets</span>
+                              <Input type="number" value={b.sets}
+                                onChange={(e) => updateBlock(b.id, { sets: +e.target.value })} className="h-8" />
+                            </label>
+                            <label className="space-y-1">
+                              <span className="text-muted-foreground">Set Rest (s)</span>
+                              <Input type="number" value={b.set_rest_seconds}
+                                onChange={(e) => updateBlock(b.id, { set_rest_seconds: +e.target.value })} className="h-8" />
+                            </label>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 text-xs">
+                            <Input placeholder="Weight prompt" value={b.weight_prompt}
+                              onChange={(e) => updateBlock(b.id, { weight_prompt: e.target.value })} className="h-8" />
+                            <Input placeholder="Tempo (e.g. Slow 3-1-1)" value={b.tempo_prompt}
+                              onChange={(e) => updateBlock(b.id, { tempo_prompt: e.target.value })} className="h-8" />
+                          </div>
+                          <Input placeholder="Cue override" value={b.cue_overrides}
+                            onChange={(e) => updateBlock(b.id, { cue_overrides: e.target.value })}
+                            className="h-8 mt-2 text-xs" />
+                          <div className="flex items-center gap-3 mt-2 text-xs">
+                            <label className="flex items-center gap-1.5">
+                              <input type="checkbox" checked={b.drop_set}
+                                onChange={(e) => updateBlock(b.id, { drop_set: e.target.checked })} />
+                              Drop set
+                            </label>
+                            <select
+                              value={b.alt_exercise_id || ""}
+                              onChange={(e) => updateBlock(b.id, { alt_exercise_id: e.target.value || null })}
+                              className="bg-background border border-input rounded h-7 px-2 text-xs flex-1"
+                            >
+                              <option value="">Alternate: none</option>
+                              {horizontalLib.filter((x) => x.id !== b.exercise_id).map((x) => (
+                                <option key={x.id} value={x.id}>Alt: {x.name}</option>
+                              ))}
+                            </select>
+                            <select
+                              value={b.section}
+                              onChange={(e) => updateBlock(b.id, { section: e.target.value as SectionId })}
+                              className="bg-background border border-input rounded h-7 px-2 text-xs"
+                              title="Move to section"
+                            >
+                              {SECTIONS.map((s) => (
+                                <option key={s.id} value={s.id}>{s.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </Card>
 
         {/* RIGHT: Settings */}
@@ -724,54 +773,38 @@ const AdminClassBuilder = () => {
           </div>
           <div>
             <Label>Description</Label>
-            <Textarea
-              rows={2}
-              value={meta.description}
-              onChange={(e) => setMeta({ ...meta, description: e.target.value })}
-            />
+            <Textarea rows={2} value={meta.description}
+              onChange={(e) => setMeta({ ...meta, description: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label>Duration</Label>
-              <select
-                value={meta.duration_minutes}
+              <select value={meta.duration_minutes}
                 onChange={(e) => setMeta({ ...meta, duration_minutes: +e.target.value })}
-                className="w-full bg-background border border-input rounded-md h-10 px-2 text-sm"
-              >
-                {[15, 20, 30, 45].map((d) => (
-                  <option key={d} value={d}>{d} min</option>
-                ))}
+                className="w-full bg-background border border-input rounded-md h-10 px-2 text-sm">
+                {[15, 20, 30, 45].map((d) => (<option key={d} value={d}>{d} min</option>))}
               </select>
             </div>
             <div>
               <Label>Type</Label>
-              <select
-                value={meta.class_type}
+              <select value={meta.class_type}
                 onChange={(e) => setMeta({ ...meta, class_type: e.target.value as any })}
-                className="w-full bg-background border border-input rounded-md h-10 px-2 text-sm"
-              >
-                {CLASS_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
+                className="w-full bg-background border border-input rounded-md h-10 px-2 text-sm">
+                {CLASS_TYPES.map((t) => (<option key={t} value={t}>{t}</option>))}
               </select>
             </div>
             <div>
               <Label>Difficulty</Label>
-              <select
-                value={meta.difficulty}
+              <select value={meta.difficulty}
                 onChange={(e) => setMeta({ ...meta, difficulty: e.target.value as any })}
-                className="w-full bg-background border border-input rounded-md h-10 px-2 text-sm"
-              >
+                className="w-full bg-background border border-input rounded-md h-10 px-2 text-sm">
                 <option>beginner</option><option>intermediate</option><option>advanced</option>
               </select>
             </div>
             <div className="flex items-end">
               <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={meta.intro_enabled}
-                  onChange={(e) => setMeta({ ...meta, intro_enabled: e.target.checked })}
-                />
+                <input type="checkbox" checked={meta.intro_enabled}
+                  onChange={(e) => setMeta({ ...meta, intro_enabled: e.target.checked })} />
                 Apollo intro
               </label>
             </div>
@@ -782,9 +815,7 @@ const AdminClassBuilder = () => {
               {EQUIPMENT_OPTIONS.map((eq) => {
                 const on = meta.equipment.includes(eq);
                 return (
-                  <button
-                    key={eq}
-                    type="button"
+                  <button key={eq} type="button"
                     onClick={() =>
                       setMeta((m) => ({
                         ...m,
@@ -793,8 +824,7 @@ const AdminClassBuilder = () => {
                     }
                     className={`text-[10px] px-2 py-0.5 rounded-full border ${
                       on ? "bg-primary text-primary-foreground border-primary" : "border-border"
-                    }`}
-                  >
+                    }`}>
                     {eq}
                   </button>
                 );
@@ -808,7 +838,7 @@ const AdminClassBuilder = () => {
               AI Generate Class
             </Button>
             <p className="text-[10px] text-muted-foreground mt-2">
-              AI sequences exercises, sets, rest, cues, and tempo. You can edit anything after.
+              Builds Warm Up, Workout A/B/C, and Cool Down using your library — filtered by category, muscle group, difficulty, and equipment.
             </p>
           </div>
 
