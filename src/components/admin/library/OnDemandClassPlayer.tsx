@@ -261,6 +261,9 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true }: Pr
                         {block.exercise.body_part}
                       </div>
                     )}
+                    <div className="text-[11px] uppercase tracking-widest text-primary mt-1">
+                      {block.sets} {block.sets === 1 ? "set" : "sets"}
+                    </div>
                   </div>
                 </div>
               </div>
