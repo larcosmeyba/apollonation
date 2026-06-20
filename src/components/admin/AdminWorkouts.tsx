@@ -28,8 +28,11 @@ interface Workout {
   thumbnail_url: string | null;
   is_featured: boolean | null;
   is_published?: boolean;
+  admin_class_id?: string | null;
+  mux_playback_id?: string | null;
   created_at?: string;
 }
+
 
 const CATEGORIES = [
   { value: "strength", label: "Strength" },
