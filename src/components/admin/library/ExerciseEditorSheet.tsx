@@ -13,10 +13,10 @@ import {
   EXERCISE_CATEGORIES,
   MOVEMENT_TYPES,
   MUSCLE_GROUPS,
-  muxMp4,
   muxThumb,
 } from "./exerciseTypes";
 import { Loader2, X, Sparkles } from "lucide-react";
+import MuxVideo from "@/components/video/MuxVideo";
 
 interface Props {
   open: boolean;
