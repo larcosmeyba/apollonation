@@ -523,6 +523,25 @@ const Dashboard = () => {
                     <p className="text-sm text-muted-foreground">{selectedWorkout.description}</p>
                   )}
 
+                  {selectedWorkout.admin_class_id && (
+                    <Button
+                      variant="apollo"
+                      size="lg"
+                      className="w-full gap-2"
+                      onClick={() => {
+                        const w = selectedWorkout;
+                        if (!w) return;
+                        setPendingWorkout(w);
+                        setSelectedWorkout(null);
+                      }}
+                    >
+                      <Play className="h-4 w-4 fill-current" />
+                      Start Workout
+                    </Button>
+                  )}
+
+
+
                   {workoutExercises.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-heading text-sm tracking-wide text-foreground">Exercises</h3>
