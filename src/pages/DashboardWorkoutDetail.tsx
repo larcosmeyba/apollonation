@@ -221,6 +221,7 @@ const ExerciseRow = ({
           };
         }
       }
+      // Exact name match first
       const { data: adminByName } = await supabase
         .from("admin_exercises")
         .select("name, coaching_notes, thumbnail_url, mux_playback_id")
@@ -233,6 +234,25 @@ const ExerciseRow = ({
           description: adminByName.coaching_notes,
           thumbnail_url: adminByName.thumbnail_url,
           mux_playback_id: adminByName.mux_playback_id,
+        };
+      }
+      // Fuzzy fallback — strip equipment prefixes and match partial names
+      const norm = (s: string) => s.toLowerCase()
+        .replace(/^(barbell|dumbbell|cable|machine|smith)\s+/i, "")
+        .replace(/\s+(press|fly|curl|raise|extension|row|pull|squat|lunge|deadlift)$/i, "");
+      const fuzzyName = norm(exercise.exercise_name);
+      const { data: fuzzyMatch } = await supabase
+        .from("admin_exercises")
+        .select("name, coaching_notes, thumbnail_url, mux_playback_id")
+        .ilike("name", `%${fuzzyName}%`)
+        .maybeSingle();
+      if (fuzzyMatch) {
+        return {
+          title: fuzzyMatch.name,
+          video_url: null as string | null,
+          description: fuzzyMatch.coaching_notes,
+          thumbnail_url: fuzzyMatch.thumbnail_url,
+          mux_playback_id: fuzzyMatch.mux_playback_id,
         };
       }
       return null;
