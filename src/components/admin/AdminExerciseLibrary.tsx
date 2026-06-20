@@ -125,6 +125,9 @@ const AdminExerciseLibrary = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All categories</SelectItem>
+            <SelectItem value="__uncategorized">
+              Uncategorized ({uncategorizedCount})
+            </SelectItem>
             {EXERCISE_CATEGORIES.map((c) => (
               <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>
             ))}
