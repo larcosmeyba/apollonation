@@ -116,7 +116,7 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
         controls={controls}
         preload="metadata"
         className={className}
-        style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", backgroundColor: "#000" }}
+        style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", backgroundColor: "#000", ...style }}
         onTimeUpdate={onTimeUpdate}
         onLoadedMetadata={onLoadedMetadata}
         onError={(e) => {
