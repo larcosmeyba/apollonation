@@ -365,6 +365,9 @@ function fillSession(
         rest_seconds: parseRest(slot.rest),
         suggested_load: null,
         coaching_note: "No matching exercise in library — coach review required.",
+        target_reps_min: null,
+        target_reps_max: null,
+        progression_cue: null,
         needs_review: true,
         gap_reason: "no matching exercise for slot",
       });
