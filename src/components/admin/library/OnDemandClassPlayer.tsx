@@ -530,8 +530,111 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     <Repeat className="w-4 h-4" /> {showAlt ? "Hide" : "Show"} Alternate
                   </button>
                 )}
+                {adminEditable && block.exercise && (
+                  <button
+                    onClick={() => setShowFramePanel((s) => !s)}
+                    className={`px-4 h-12 rounded-full backdrop-blur flex items-center gap-2 text-sm ${
+                      showFramePanel ? "bg-primary text-primary-foreground" : "bg-white/10 hover:bg-white/20"
+                    }`}
+                    title="Adjust video framing & sizing"
+                  >
+                    <Crop className="w-4 h-4" /> Reframe
+                  </button>
+                )}
               </div>
-            </div>
+
+              {adminEditable && showFramePanel && block.exercise && (() => {
+                const ex = block.exercise;
+                const frame = getFrame(ex);
+                return (
+                  <div className="absolute right-6 bottom-24 z-20 w-[280px] rounded-2xl border border-white/15 bg-black/80 backdrop-blur-xl p-4 space-y-3 shadow-2xl">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[10px] uppercase tracking-[0.3em] text-white/60">Reframe</div>
+                      <button onClick={() => setShowFramePanel(false)} className="text-white/60 hover:text-white">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="text-xs text-white/80 truncate">{ex.name}</div>
+
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-white/50 mb-1.5">Focal point</div>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {[
+                          ["left top", "↖"], ["center top", "↑"], ["right top", "↗"],
+                          ["left center", "←"], ["center center", "•"], ["right center", "→"],
+                          ["left bottom", "↙"], ["center bottom", "↓"], ["right bottom", "↘"],
+                        ].map(([pos, glyph]) => {
+                          const active = frame.position === pos;
+                          return (
+                            <button
+                              key={pos}
+                              onClick={() => updateFrame(ex, { position: pos })}
+                              className={`h-8 rounded-md border text-sm transition ${
+                                active ? "bg-primary text-primary-foreground border-primary" : "bg-white/5 hover:bg-white/10 border-white/15"
+                              }`}
+                            >
+                              {glyph}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest text-white/50 mb-1.5">Fit</div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {(["cover", "contain"] as const).map((f) => (
+                          <button
+                            key={f}
+                            onClick={() => updateFrame(ex, { fit: f })}
+                            className={`h-8 rounded-md border text-xs uppercase tracking-wider transition ${
+                              frame.fit === f ? "bg-primary text-primary-foreground border-primary" : "bg-white/5 hover:bg-white/10 border-white/15"
+                            }`}
+                          >
+                            {f}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-white/50 mb-1.5">
+                        <span>Zoom</span>
+                        <span className="tabular-nums text-white/80">{frame.scale.toFixed(2)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={1}
+                        max={1.8}
+                        step={0.05}
+                        value={frame.scale}
+                        onChange={(e) => updateFrame(ex, { scale: Number(e.target.value) })}
+                        className="w-full accent-primary"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={() => updateFrame(ex, { position: "center center", fit: "cover", scale: 1 })}
+                        className="flex-1 h-9 rounded-md bg-white/5 hover:bg-white/10 border border-white/15 text-xs"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        onClick={() => persistFrame(ex)}
+                        disabled={savingFrame}
+                        className="flex-1 h-9 rounded-md bg-primary text-primary-foreground text-xs flex items-center justify-center gap-1.5 disabled:opacity-50"
+                      >
+                        <Check className="w-3.5 h-3.5" /> Save focal
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-white/40 leading-snug">
+                      Focal point is saved to the exercise. Fit &amp; zoom apply to this preview only.
+                    </p>
+                  </div>
+                );
+              })()}
+
           </motion.div>
         )}
 
