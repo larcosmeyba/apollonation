@@ -50,7 +50,7 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
   const [form, setForm] = useState<Partial<AdminExercise>>(blank);
   const [saving, setSaving] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<any>(null);
   const [duration, setDuration] = useState(0);
 
   const handleAiFill = async () => {
