@@ -498,9 +498,13 @@ const AdminWorkouts = () => {
                   <p className="font-medium text-sm truncate">{workout.title}</p>
                   <p className="text-xs text-muted-foreground capitalize">{workout.category}</p>
                   <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button size="icon" variant="ghost" className="h-7 w-7" title="Preview / Play" onClick={() => setPreviewWorkout(workout)}>
+                      <Play className="w-3.5 h-3.5" />
+                    </Button>
                     <Button size="icon" variant="ghost" className="h-7 w-7" title="Edit" onClick={() => handleEdit(workout)}>
                       <Pencil className="w-3.5 h-3.5" />
                     </Button>
+
                     <Button
                       size="icon"
                       variant="ghost"
