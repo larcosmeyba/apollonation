@@ -185,9 +185,56 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
   // (During between-sets rest we stay on the same exercise.)
   const showBigPreview = phase === "rest" && restType === "between-exercises" && !!block?.exercise;
 
-  // Object-position from admin reframing
-  const focal = (ex: AdminExercise | null) =>
-    (ex as any)?.video_object_position || "center center";
+  // Object-position / sizing — per-exercise overrides for admin preview
+  const [overrides, setOverrides] = useState<Record<string, FrameOverrides>>(() => loadFrameOverrides());
+  const [savingFrame, setSavingFrame] = useState(false);
+  const [showFramePanel, setShowFramePanel] = useState(false);
+
+  const getFrame = (ex: AdminExercise | null): FrameOverrides => {
+    if (!ex) return { position: "center center", fit: "cover", scale: 1 };
+    const ov = overrides[ex.id];
+    return {
+      position: ov?.position ?? ((ex as any).video_object_position || "center center"),
+      fit: ov?.fit ?? "cover",
+      scale: ov?.scale ?? 1,
+    };
+  };
+
+  const focal = (ex: AdminExercise | null) => getFrame(ex).position;
+
+  const updateFrame = (ex: AdminExercise | null, patch: Partial<FrameOverrides>) => {
+    if (!ex) return;
+    setOverrides((prev) => {
+      const next = { ...prev, [ex.id]: { ...getFrame(ex), ...patch } };
+      saveFrameOverridesLS(next);
+      return next;
+    });
+  };
+
+  const persistFrame = async (ex: AdminExercise | null) => {
+    if (!ex) return;
+    const frame = getFrame(ex);
+    setSavingFrame(true);
+    const { error } = await supabase
+      .from("admin_exercises")
+      .update({ video_object_position: frame.position } as any)
+      .eq("id", ex.id);
+    setSavingFrame(false);
+    if (error) return toast.error(error.message);
+    toast.success("Focal point saved. Zoom & fit are preview-only.");
+  };
+
+  const videoStyle = (ex: AdminExercise | null): React.CSSProperties => {
+    const f = getFrame(ex);
+    return {
+      objectPosition: f.position,
+      objectFit: f.fit,
+      transform: f.scale !== 1 ? `scale(${f.scale})` : undefined,
+      transformOrigin: f.position,
+    };
+  };
+
+
 
   return (
     <div className="fixed inset-0 z-[100] bg-black text-white flex flex-col">
