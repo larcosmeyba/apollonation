@@ -617,14 +617,31 @@ const AdminClassBuilder = () => {
           {/* Summary header */}
           <div className="mb-4 p-3 rounded-lg border border-border bg-card/60">
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Timeline</div>
+            <div className="text-xs text-muted-foreground mb-3 leading-relaxed">
+              {SECTIONS.map((s, i) => (
+                <span key={s.id}>
+                  {i > 0 && <span className="mx-1.5 text-muted-foreground/40">·</span>}
+                  <span className="text-foreground/90">{s.label}</span>
+                </span>
+              ))}
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
               {SECTIONS.map((s) => {
                 const secs = sectionSeconds(s.id);
+                const delta = secs - s.targetSeconds;
+                const status = secs === 0 ? "empty" : Math.abs(delta) <= 10 ? "ok" : delta > 0 ? "over" : "under";
+                const color =
+                  status === "ok" ? "text-emerald-400"
+                  : status === "over" ? "text-amber-400"
+                  : status === "under" ? "text-rose-400"
+                  : "text-muted-foreground";
                 return (
                   <div key={s.id} className="flex flex-col">
                     <span className="text-muted-foreground">{s.label}</span>
-                    <span className="font-mono font-medium">
+                    <span className={`font-mono font-medium ${color}`}>
                       {fmtMMSS(secs)} <span className="text-muted-foreground text-[10px]">/ {fmtMMSS(s.targetSeconds)}</span>
+                      {status === "over" && <span className="ml-1 text-[10px]">▲</span>}
+                      {status === "under" && <span className="ml-1 text-[10px]">▼</span>}
                     </span>
                   </div>
                 );
@@ -632,7 +649,9 @@ const AdminClassBuilder = () => {
             </div>
             <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
               <span className="text-xs uppercase tracking-widest text-muted-foreground">Total Class Time</span>
-              <span className="font-mono font-semibold text-base">{fmtMMSS(totalSeconds)}</span>
+              <span className="font-mono font-semibold text-base">
+                {fmtMMSS(totalSeconds)} <span className="text-muted-foreground text-xs font-normal">/ {meta.duration_minutes}:00</span>
+              </span>
             </div>
           </div>
 
