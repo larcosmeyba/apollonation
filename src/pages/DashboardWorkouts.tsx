@@ -566,6 +566,31 @@ const DashboardWorkouts = () => {
                     )}
                   </div>
 
+                  <Button
+                    variant="apollo"
+                    size="lg"
+                    className="w-full gap-2"
+                    onClick={() => {
+                      const w = selectedWorkout;
+                      if (!w) return;
+                      if ((w as any).admin_class_id || (w as any).mux_playback_id || w.video_url) {
+                        // Block-based class → music prompt then launcher
+                        if ((w as any).admin_class_id) {
+                          setPendingWorkout(w);
+                          setSelectedWorkout(null);
+                          return;
+                        }
+                        // Video-based class already playing inline — no-op
+                        return;
+                      }
+                      toast.error("This workout has no playable content yet.");
+                    }}
+                  >
+                    <Play className="h-4 w-4 fill-current" />
+                    Start Workout
+                  </Button>
+
+
                   {workoutExercises.length > 0 && (
                     <div>
                       <h3 className="text-sm font-bold text-foreground mb-3">Exercises</h3>
