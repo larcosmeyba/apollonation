@@ -87,7 +87,38 @@ const fmtMMSS = (s: number) => {
 
 const CLASS_TYPES = ["strength", "sculpt", "stretch", "cardio"] as const;
 
-const AdminClassBuilder = () => {
+const WORK_PRESETS = [15, 20, 30, 40, 45, 60, 75, 90];
+const REST_PRESETS = [0, 10, 15, 20, 30, 45, 60, 90];
+const SETS_PRESETS = [1, 2, 3, 4, 5, 6, 8];
+const SET_REST_PRESETS = [0, 15, 30, 45, 60, 75, 90, 120];
+
+const PresetSelect = ({
+  value,
+  presets,
+  onChange,
+  suffix = "",
+}: {
+  value: number;
+  presets: number[];
+  onChange: (v: number) => void;
+  suffix?: string;
+}) => {
+  const options = presets.includes(value) ? presets : [...presets, value].sort((a, b) => a - b);
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(+e.target.value)}
+      className="w-full bg-background border border-input rounded h-8 px-2 text-xs"
+    >
+      {options.map((n) => (
+        <option key={n} value={n}>
+          {n}
+          {suffix}
+        </option>
+      ))}
+    </select>
+  );
+};
   const qc = useQueryClient();
   const [classId, setClassId] = useState<string | null>(null);
   const [meta, setMeta] = useState({
