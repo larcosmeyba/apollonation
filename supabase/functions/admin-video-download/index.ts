@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       status: 200,
       headers: {
         ...corsHeaders,
-        "Content-Type": upstream.headers.get("Content-Type") || "video/mp4",
+        "Content-Type": "application/octet-stream",
         "Content-Disposition": `attachment; filename="${safeFileName(exercise.name)}.mp4"`,
         "Cache-Control": "no-store",
       },
