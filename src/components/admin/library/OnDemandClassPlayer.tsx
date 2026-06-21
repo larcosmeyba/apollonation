@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, SkipForward, Pause, Play, Repeat, Crop, Check } from "lucide-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import { AdminExercise, muxThumb } from "./exerciseTypes";
+import introVideoAsset from "@/assets/intro-video.mov.asset.json";
 import MuxVideo from "@/components/video/MuxVideo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -307,35 +308,24 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex-1 flex items-center justify-center bg-gradient-to-b from-black via-zinc-900 to-black"
+            transition={{ duration: 0.4 }}
+            className="flex-1 relative bg-black flex items-center justify-center overflow-hidden"
           >
-            <div className="text-center">
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 1.2 }}
-                className="font-heading text-5xl md:text-7xl tracking-[0.2em] mb-4"
-              >
-                APOLLO
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.8 }}
-                className="text-xs uppercase tracking-[0.4em] text-white/60 mb-12"
-              >
-                Reborn
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.2, duration: 0.8 }}
-                className="text-2xl md:text-3xl font-light"
-              >
-                {title}
-              </motion.div>
-            </div>
+            <video
+              src={introVideoAsset.url}
+              autoPlay
+              playsInline
+              muted={false}
+              onEnded={() => setPhase("starting")}
+              onError={() => setPhase("starting")}
+              className="w-full h-full object-contain bg-black"
+            />
+            <button
+              onClick={() => setPhase("starting")}
+              className="absolute bottom-6 right-6 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur text-xs uppercase tracking-[0.3em]"
+            >
+              Skip intro
+            </button>
           </motion.div>
         )}
 
