@@ -17,6 +17,7 @@ import {
 import OnDemandClassPlayer, { PlayerBlock } from "./library/OnDemandClassPlayer";
 import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import RenderMp4Panel from "./library/RenderMp4Panel";
+import JSZip from "jszip";
 
 import {
   Plus, Play, Save, Trash2, GripVertical, Sparkles, Loader2, ChevronUp, ChevronDown, FolderOpen,
@@ -409,6 +410,76 @@ const AdminClassBuilder = () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast.success("Class exported");
+  };
+
+  const [downloadingClips, setDownloadingClips] = useState(false);
+  const [clipProgress, setClipProgress] = useState(0);
+
+  const downloadAllClips = async () => {
+    const clips = orderedBlocks
+      .map((b, i) => {
+        const ex = b.exercise_id ? exById.get(b.exercise_id) : null;
+        if (!ex?.mux_playback_id) return null;
+        return { index: i + 1, name: ex.name, playbackId: ex.mux_playback_id };
+      })
+      .filter((c): c is { index: number; name: string; playbackId: string } => !!c);
+
+    if (clips.length === 0) return toast.error("No exercise clips in this class");
+
+    setDownloadingClips(true);
+    setClipProgress(0);
+    const zip = new JSZip();
+    try {
+      for (let i = 0; i < clips.length; i++) {
+        const c = clips[i];
+        const res = await fetch(`https://stream.mux.com/${c.playbackId}/high.mp4`);
+        if (!res.ok) {
+          // Fallback to medium rendition
+          const res2 = await fetch(`https://stream.mux.com/${c.playbackId}/medium.mp4`);
+          if (!res2.ok) throw new Error(`Could not fetch clip ${c.index} (${c.name}) — Mux returned ${res.status}`);
+          const blob = await res2.blob();
+          const safe = c.name.replace(/[^a-z0-9-_]+/gi, "_");
+          zip.file(`${String(c.index).padStart(2, "0")}_${safe}.mp4`, blob);
+        } else {
+          const blob = await res.blob();
+          const safe = c.name.replace(/[^a-z0-9-_]+/gi, "_");
+          zip.file(`${String(c.index).padStart(2, "0")}_${safe}.mp4`, blob);
+        }
+        setClipProgress(Math.round(((i + 1) / clips.length) * 90));
+      }
+
+      // Include a playlist/manifest for stitching in iMovie/Premiere
+      const manifest = orderedBlocks.map((b, i) => {
+        const ex = b.exercise_id ? exById.get(b.exercise_id) : null;
+        return {
+          order: i + 1,
+          section: b.section,
+          exercise: ex?.name || null,
+          work_seconds: b.work_seconds,
+          rest_seconds: b.rest_seconds,
+          sets: b.sets,
+        };
+      });
+      zip.file("class-manifest.json", JSON.stringify({ title: meta.title, blocks: manifest }, null, 2));
+
+      const out = await zip.generateAsync({ type: "blob" }, (m) => {
+        setClipProgress(90 + Math.round(m.percent / 10));
+      });
+      const url = URL.createObjectURL(out);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${(meta.title || "class").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-clips.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success(`Downloaded ${clips.length} clip${clips.length === 1 ? "" : "s"}`);
+    } catch (e) {
+      toast.error((e as Error).message || "Could not download clips");
+    } finally {
+      setDownloadingClips(false);
+      setClipProgress(0);
+    }
   };
 
   const aiGenerate = async () => {
@@ -967,6 +1038,30 @@ const AdminClassBuilder = () => {
             </Button>
             <p className="text-[10px] text-muted-foreground mt-2">
               Builds Warm Up, Workout A/B/C, and Cool Down using your library — filtered by category, muscle group, difficulty, and equipment.
+            </p>
+          </div>
+
+          <div className="border-t border-border pt-3 space-y-2">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              Download Class for Manual Mux Upload
+            </div>
+            <Button
+              type="button"
+              onClick={downloadAllClips}
+              disabled={downloadingClips || blocks.length === 0}
+              className="w-full"
+              variant="outline"
+            >
+              {downloadingClips ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {downloadingClips ? `Packaging clips ${clipProgress}%` : "Download On-Demand Class (ZIP of clips)"}
+            </Button>
+            {downloadingClips && (
+              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                <div className="h-full bg-primary transition-all" style={{ width: `${clipProgress}%` }} />
+              </div>
+            )}
+            <p className="text-[10px] text-muted-foreground">
+              Downloads every exercise clip in playback order plus a manifest. Stitch in iMovie/Premiere/CapCut, then upload the final MP4 to Mux manually and paste the playback URL above.
             </p>
           </div>
 
