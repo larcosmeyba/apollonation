@@ -27,6 +27,11 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } },
     );
 
+    const service = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
     if (userErr || !user) return json({ error: "Unauthorized" }, 401);
 
@@ -74,6 +79,16 @@ Deno.serve(async (req) => {
     if (!muxRes.ok) {
       return json({ error: muxData?.error?.messages?.join(" ") || muxData?.error?.message || "Mux upload failed" }, 502);
     }
+
+    await service
+      .from("admin_classes")
+      .update({
+        mux_status: "processing",
+        mux_asset_id: null,
+        mux_playback_id: null,
+        video_url: null,
+      })
+      .eq("id", classId);
 
     return json({
       upload_id: muxData.data?.id,
