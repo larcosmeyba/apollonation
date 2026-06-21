@@ -12,8 +12,10 @@ interface RenderMp4PanelProps {
   hasBlocks: boolean;
 }
 
+const publicUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}`;
 const mp4Url = (playbackId: string) => `https://stream.mux.com/${playbackId}/high.mp4`;
-const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}.m3u8`;
+const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}.m3u8`;`
+
 
 const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
   const qc = useQueryClient();
