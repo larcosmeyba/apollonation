@@ -38,7 +38,10 @@ const RenderMp4Panel = ({ classId, onMuxReady }: RenderMp4PanelProps) => {
       if (error) throw error;
       return data;
     },
-    refetchInterval: uploading || currentClass?.mux_status === "processing" ? 5000 : false,
+    refetchInterval: (query) =>
+      uploading || (query.state.data as { mux_status?: string } | null | undefined)?.mux_status === "processing"
+        ? 5000
+        : false,
   });
 
   useEffect(() => {
