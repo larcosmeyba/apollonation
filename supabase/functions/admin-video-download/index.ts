@@ -15,6 +15,12 @@ const json = (body: unknown, status = 200) =>
 const safeFileName = (name: string, fallback = "apollo-clip") =>
   (name || fallback).replace(/[^a-z0-9-_]+/gi, "_").replace(/^_+|_+$/g, "") || fallback;
 
+const normalizeStoragePath = (path: string | null): string | null => {
+  if (!path) return null;
+  const cleaned = path.replace(/^\/+/, "");
+  return cleaned.startsWith("exercise-videos/") ? cleaned.slice("exercise-videos/".length) : cleaned;
+};
+
 const extractExerciseStoragePath = (rawUrl: string | null): string | null => {
   if (!rawUrl) return null;
   try {
@@ -74,7 +80,7 @@ Deno.serve(async (req) => {
     if (exerciseErr) return json({ error: exerciseErr.message }, 500);
     if (!exercise) return json({ error: "Exercise not found" }, 404);
 
-    const storagePath = exercise.source_storage_path || extractExerciseStoragePath(exercise.source_video_url);
+    const storagePath = normalizeStoragePath(exercise.source_storage_path || extractExerciseStoragePath(exercise.source_video_url));
     const candidateUrls: string[] = [];
 
     if (storagePath) {
