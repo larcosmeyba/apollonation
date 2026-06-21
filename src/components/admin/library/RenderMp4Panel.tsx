@@ -53,7 +53,7 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
     queryFn: async () => {
       if (!targetId) return null;
       const { data, error } = await supabase
-        .from(targetTable as "admin_classes")
+        .from(targetTable as "admin_classes" | "workouts")
         .select("id,title,mux_playback_id,mux_asset_id,mux_status,video_url,thumbnail_url,updated_at")
         .eq("id", targetId)
         .maybeSingle();
@@ -216,7 +216,7 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
     };
     if (classId) updatePayload.source_type = "uploaded";
     const { error } = await supabase
-      .from(targetTable as "admin_classes")
+      .from(targetTable as "admin_classes" | "workouts")
       .update(updatePayload as any)
       .eq("id", targetId);
     setSavingManualUrl(false);
