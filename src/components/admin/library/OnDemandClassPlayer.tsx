@@ -166,6 +166,46 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paused, phase, idx, setNum, block, blocks]);
 
+  // Countdown beeps — short tick under 10s, longer "go" beep at transitions
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const lastBeepRef = useRef<number>(-1);
+  const playBeep = (freq: number, duration: number, volume = 0.25) => {
+    try {
+      if (!audioCtxRef.current) {
+        const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
+        if (!Ctx) return;
+        audioCtxRef.current = new Ctx();
+      }
+      const ctx = audioCtxRef.current!;
+      if (ctx.state === "suspended") ctx.resume().catch(() => {});
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration + 0.02);
+    } catch {
+      /* noop */
+    }
+  };
+
+  useEffect(() => {
+    if (paused || phase === "intro" || phase === "done") return;
+    if (remaining === lastBeepRef.current) return;
+    lastBeepRef.current = remaining;
+    if (remaining > 0 && remaining <= 10) {
+      // Higher tone on the final "go" cue, lower ticks for 10→1
+      playBeep(remaining === 1 ? 880 : 660, remaining === 1 ? 0.18 : 0.09, 0.22);
+    } else if (remaining === 0) {
+      // Long transition beep (start work / start rest)
+      playBeep(1040, 0.32, 0.28);
+    }
+  }, [remaining, phase, paused]);
+
   const skip = () => {
     const newRemaining = advance(phase);
     setRemaining(newRemaining);
