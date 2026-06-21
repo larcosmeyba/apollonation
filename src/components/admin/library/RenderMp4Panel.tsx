@@ -103,15 +103,22 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
   const streamLink = playbackId ? playbackUrl(playbackId) : "";
 
 
+  const processing = uploading && progress >= 96 && !playbackId;
+  const hasVideo = !!playbackId;
+
   return (
     <div className="border-t border-border pt-3 space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div className="text-xs uppercase tracking-widest text-muted-foreground">
           Mux On-Demand Video
         </div>
-        {playbackId ? (
+        {hasVideo ? (
           <span className="inline-flex items-center gap-1 text-[10px] text-primary">
-            <CheckCircle2 className="h-3 w-3" /> In Mux
+            <CheckCircle2 className="h-3 w-3" /> Ready in Mux
+          </span>
+        ) : processing ? (
+          <span className="inline-flex items-center gap-1 text-[10px] text-amber-500">
+            <Loader2 className="h-3 w-3 animate-spin" /> Processing on Mux
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
@@ -137,10 +144,12 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
         onClick={() => fileRef.current?.click()}
         disabled={!classId || uploading}
         className="w-full"
-        variant="outline"
+        variant={hasVideo ? "secondary" : "outline"}
       >
         {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
-        {uploading ? `Uploading ${progress}%` : "Upload Final Class Video to Mux"}
+        {uploading
+          ? processing ? "Waiting for Mux…" : `Uploading ${progress}%`
+          : hasVideo ? "Replace Video" : "Upload Final Class Video to Mux"}
       </Button>
 
       {!classId && (
@@ -153,8 +162,32 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
         </div>
       )}
 
-      {playbackId ? (
+      {processing && (
+        <p className="text-[10px] text-muted-foreground">
+          Mux is transcoding your upload. The playback URL and thumbnail will appear here automatically when ready (usually under a minute).
+        </p>
+      )}
+
+      {hasVideo ? (
         <div className="rounded-lg border border-border p-3 bg-card/50 space-y-3">
+          {currentClass?.thumbnail_url && (
+            <img
+              src={currentClass.thumbnail_url}
+              alt="Mux thumbnail"
+              className="w-full aspect-video object-cover rounded-md border border-border"
+            />
+          )}
+
+          <video
+            key={playbackId}
+            controls
+            playsInline
+            preload="metadata"
+            poster={currentClass?.thumbnail_url || undefined}
+            src={mp4Url(playbackId)}
+            className="w-full aspect-video rounded-md bg-black"
+          />
+
           <div className="space-y-1">
             <Label className="text-[10px] uppercase tracking-widest text-primary">Public URL</Label>
             <div className="flex gap-2">
