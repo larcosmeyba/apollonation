@@ -32,6 +32,8 @@ interface Props {
   introEnabled?: boolean;
   /** Admin preview mode — show per-exercise reframe/sizing overlay & persist to DB. */
   adminEditable?: boolean;
+  /** Allow user to skip ahead. Disabled on the client on-demand experience. */
+  allowSkip?: boolean;
 }
 
 type RestType = "between-sets" | "between-exercises";
