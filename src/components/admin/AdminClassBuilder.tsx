@@ -119,6 +119,8 @@ const PresetSelect = ({
     </select>
   );
 };
+
+const AdminClassBuilder = () => {
   const qc = useQueryClient();
   const [classId, setClassId] = useState<string | null>(null);
   const [meta, setMeta] = useState({
