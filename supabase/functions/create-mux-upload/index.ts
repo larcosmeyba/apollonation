@@ -27,6 +27,11 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } },
     );
 
+    const service = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
     if (userErr || !user) return json({ error: "Unauthorized" }, 401);
 
@@ -37,16 +42,73 @@ Deno.serve(async (req) => {
     if (!isAdmin) return json({ error: "Admin access required" }, 403);
 
     const body = await req.json().catch(() => ({}));
+    const action = typeof body.action === "string" ? body.action : "create";
     const classId = typeof body.class_id === "string" ? body.class_id : "";
-    if (!classId) return json({ error: "class_id required" }, 400);
+    const workoutId = typeof body.workout_id === "string" ? body.workout_id : "";
+    if (!classId && !workoutId) return json({ error: "class_id or workout_id required" }, 400);
 
-    const { data: cls, error: clsErr } = await supabase
-      .from("admin_classes")
-      .select("id,title,class_type")
-      .eq("id", classId)
-      .maybeSingle();
+    if (action === "status") {
+      const uploadId = typeof body.upload_id === "string" ? body.upload_id : "";
+      if (!uploadId) return json({ error: "upload_id required" }, 400);
+      const targetTable = classId ? "admin_classes" : "workouts";
+      const targetId = classId || workoutId;
+      const uploadRes = await fetch(`https://api.mux.com/video/v1/uploads/${uploadId}`, {
+        headers: { Authorization: MUX_AUTH },
+      });
+      const uploadData = await uploadRes.json().catch(async () => ({ raw: await uploadRes.text() }));
+      if (!uploadRes.ok) {
+        return json({ error: uploadData?.error?.messages?.join(" ") || uploadData?.error?.message || "Mux status check failed" }, 502);
+      }
+      const assetId = uploadData.data?.asset_id || null;
+      if (!assetId) {
+        await service.from(targetTable).update({ mux_status: "processing" }).eq("id", targetId);
+        return json({ status: uploadData.data?.status || "processing", asset_id: null });
+      }
+      const assetRes = await fetch(`https://api.mux.com/video/v1/assets/${assetId}`, {
+        headers: { Authorization: MUX_AUTH },
+      });
+      const assetData = await assetRes.json().catch(async () => ({ raw: await assetRes.text() }));
+      if (!assetRes.ok) {
+        return json({ error: assetData?.error?.messages?.join(" ") || assetData?.error?.message || "Mux asset lookup failed" }, 502);
+      }
+      const playbackId = assetData.data?.playback_ids?.[0]?.id || null;
+      const ready = assetData.data?.status === "ready" && playbackId;
+      const update: Record<string, unknown> = {
+        mux_asset_id: assetId,
+        mux_status: assetData.data?.status === "errored" ? "errored" : ready ? "ready" : "processing",
+      };
+      if (ready) {
+        update.mux_playback_id = playbackId;
+        update.video_url = `https://stream.mux.com/${playbackId}.m3u8`;
+        update.thumbnail_url = `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`;
+      }
+      await service.from(targetTable).update(update).eq("id", targetId);
+      return json({
+        status: update.mux_status,
+        asset_id: assetId,
+        playback_id: playbackId,
+        video_url: ready ? update.video_url : null,
+        thumbnail_url: ready ? update.thumbnail_url : null,
+      });
+    }
 
-    if (clsErr || !cls) return json({ error: "Class not found or forbidden" }, 403);
+    const { data: content, error: contentErr } = classId
+      ? await supabase
+        .from("admin_classes")
+        .select("id,title,class_type")
+        .eq("id", classId)
+        .maybeSingle()
+      : await supabase
+        .from("workouts")
+        .select("id,title,category")
+        .eq("id", workoutId)
+        .maybeSingle();
+
+    if (contentErr || !content) return json({ error: "Workout not found or forbidden" }, 403);
+
+    const passthrough = classId ? `admin_class:${classId}` : `admin_workout:${workoutId}`;
+    const title = content.title || "Apollo On-Demand Class";
+    const category = ("class_type" in content ? content.class_type : content.category) || "strength";
 
     const origin = req.headers.get("origin") || "*";
     const muxRes = await fetch("https://api.mux.com/video/v1/uploads", {
@@ -61,10 +123,10 @@ Deno.serve(async (req) => {
           playback_policy: ["public"],
           mp4_support: "capped-1080p",
           max_resolution_tier: "1080p",
-          passthrough: `admin_class:${classId}`,
+          passthrough,
           meta: {
-            title: cls.title || "Apollo On-Demand Class",
-            category: cls.class_type || "strength",
+            title,
+            category,
           },
         },
       }),
@@ -74,6 +136,16 @@ Deno.serve(async (req) => {
     if (!muxRes.ok) {
       return json({ error: muxData?.error?.messages?.join(" ") || muxData?.error?.message || "Mux upload failed" }, 502);
     }
+
+    await service
+      .from(classId ? "admin_classes" : "workouts")
+      .update({
+        mux_status: "processing",
+        mux_asset_id: null,
+        mux_playback_id: null,
+        video_url: null,
+      })
+      .eq("id", classId || workoutId);
 
     return json({
       upload_id: muxData.data?.id,

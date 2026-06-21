@@ -225,12 +225,15 @@ async function linkAssetToAdminClass(
   const duration = asset?.duration ? Number(asset.duration) : null;
   const update: Record<string, unknown> = {
     mux_asset_id: assetId,
+    mux_status: "processing",
     source_type: "uploaded",
   };
 
   if (playbackId) {
     update.mux_playback_id = playbackId;
+    update.video_url = `https://stream.mux.com/${playbackId}.m3u8`;
     update.thumbnail_url = `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`;
+    update.mux_status = "ready";
   }
   if (duration) {
     update.duration_seconds = duration;
@@ -243,6 +246,27 @@ async function linkAssetToAdminClass(
     .eq("id", classId);
   if (error) console.error("[mux-webhook] admin class upload link failed", error);
   else console.log("[mux-webhook] linked uploaded class asset:", classId);
+}
+
+async function linkAssetToWorkout(
+  supabase: ReturnType<typeof createClient>,
+  workoutId: string,
+  asset: any,
+) {
+  const playbackId = asset?.playback_ids?.[0]?.id || null;
+  const assetId = asset?.id || null;
+  const update: Record<string, unknown> = {
+    mux_asset_id: assetId,
+    mux_status: playbackId ? "ready" : "processing",
+  };
+  if (playbackId) {
+    update.mux_playback_id = playbackId;
+    update.video_url = `https://stream.mux.com/${playbackId}.m3u8`;
+    update.thumbnail_url = `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`;
+  }
+  const { error } = await supabase.from("workouts").update(update).eq("id", workoutId);
+  if (error) console.error("[mux-webhook] workout upload link failed", error);
+  else console.log("[mux-webhook] linked uploaded workout asset:", workoutId);
 }
 
 Deno.serve(async (req) => {
@@ -275,8 +299,39 @@ Deno.serve(async (req) => {
   if (adminClassUpload) {
     if (type === "video.asset.ready") {
       await linkAssetToAdminClass(supabase, adminClassUpload[1], data);
+    } else if (type === "video.asset.created") {
+      await supabase
+        .from("admin_classes")
+        .update({ mux_status: "processing", mux_asset_id: assetId ?? null })
+        .eq("id", adminClassUpload[1]);
     } else if (type === "video.asset.errored" || type === "video.upload.errored") {
+      await supabase
+        .from("admin_classes")
+        .update({ mux_status: "errored", mux_asset_id: assetId ?? null })
+        .eq("id", adminClassUpload[1]);
       console.error("[mux-webhook] uploaded class asset errored", adminClassUpload[1], data.errors || data);
+    }
+
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const adminWorkoutUpload = passthrough?.match(/^admin_workout:([0-9a-f-]{36})$/i);
+  if (adminWorkoutUpload) {
+    if (type === "video.asset.ready") {
+      await linkAssetToWorkout(supabase, adminWorkoutUpload[1], data);
+    } else if (type === "video.asset.created") {
+      await supabase
+        .from("workouts")
+        .update({ mux_status: "processing", mux_asset_id: assetId ?? null })
+        .eq("id", adminWorkoutUpload[1]);
+    } else if (type === "video.asset.errored" || type === "video.upload.errored") {
+      await supabase
+        .from("workouts")
+        .update({ mux_status: "errored", mux_asset_id: assetId ?? null })
+        .eq("id", adminWorkoutUpload[1]);
+      console.error("[mux-webhook] uploaded workout asset errored", adminWorkoutUpload[1], data.errors || data);
     }
 
     return new Response(JSON.stringify({ ok: true }), {
