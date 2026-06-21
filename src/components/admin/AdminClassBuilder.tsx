@@ -1041,6 +1041,30 @@ const AdminClassBuilder = () => {
             </p>
           </div>
 
+          <div className="border-t border-border pt-3 space-y-2">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              Download Class for Manual Mux Upload
+            </div>
+            <Button
+              type="button"
+              onClick={downloadAllClips}
+              disabled={downloadingClips || blocks.length === 0}
+              className="w-full"
+              variant="outline"
+            >
+              {downloadingClips ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {downloadingClips ? `Packaging clips ${clipProgress}%` : "Download On-Demand Class (ZIP of clips)"}
+            </Button>
+            {downloadingClips && (
+              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                <div className="h-full bg-primary transition-all" style={{ width: `${clipProgress}%` }} />
+              </div>
+            )}
+            <p className="text-[10px] text-muted-foreground">
+              Downloads every exercise clip in playback order plus a manifest. Stitch in iMovie/Premiere/CapCut, then upload the final MP4 to Mux manually and paste the playback URL above.
+            </p>
+          </div>
+
           <RenderMp4Panel classId={classId} hasBlocks={blocks.length > 0} />
         </Card>
       </div>
