@@ -19,6 +19,16 @@ const mp4Url = (playbackId: string) => `https://stream.mux.com/${playbackId}/cap
 const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}.m3u8`;
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
+type MuxVideoRecord = {
+  id: string;
+  title: string | null;
+  mux_playback_id: string | null;
+  mux_asset_id: string | null;
+  mux_status: string | null;
+  video_url: string | null;
+  thumbnail_url: string | null;
+};
+
 
 
 const extractMuxPlaybackId = (value: string) => {
@@ -54,11 +64,11 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
       if (!targetId) return null;
       const { data, error } = await supabase
         .from(targetTable as "admin_classes" | "workouts")
-        .select("id,title,mux_playback_id,mux_asset_id,mux_status,video_url,thumbnail_url,updated_at")
+        .select("id,title,mux_playback_id,mux_asset_id,mux_status,video_url,thumbnail_url")
         .eq("id", targetId)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as MuxVideoRecord | null;
     },
     refetchInterval: (query) =>
       uploading || (query.state.data as { mux_status?: string } | null | undefined)?.mux_status === "processing"
