@@ -23,6 +23,7 @@ const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId
 const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps) => {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const notifiedPlaybackRef = useRef("");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const targetId = classId || workoutId || null;
@@ -53,14 +54,15 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
       setProgress(100);
       toast.success("Mux finished processing this class");
     }
-    if (currentClass?.mux_playback_id) {
+    if (currentClass?.mux_playback_id && notifiedPlaybackRef.current !== currentClass.mux_playback_id) {
+      notifiedPlaybackRef.current = currentClass.mux_playback_id;
       onMuxReady?.({
         playbackId: currentClass.mux_playback_id,
         videoUrl: currentClass.video_url || playbackUrl(currentClass.mux_playback_id),
         thumbnailUrl: currentClass.thumbnail_url || null,
       });
     }
-  }, [currentClass?.mux_playback_id, currentClass?.thumbnail_url, currentClass?.video_url, onMuxReady, uploading]);
+  }, [currentClass?.mux_playback_id, currentClass?.thumbnail_url, currentClass?.video_url, uploading]);
 
   const uploadToMux = async (file: File) => {
     if (!targetId) return toast.error("Save the class first");
