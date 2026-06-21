@@ -311,9 +311,10 @@ const AdminWorkouts = () => {
                   max={2000}
                 />
               </div>
-              {editingWorkout?.admin_class_id && (
+              {editingWorkout && (
                 <RenderMp4Panel
-                  classId={editingWorkout.admin_class_id}
+                  classId={editingWorkout.admin_class_id || null}
+                  workoutId={editingWorkout.id}
                   hasBlocks={false}
                   onMuxReady={({ videoUrl, thumbnailUrl }) => {
                     setFormData((p) => ({
