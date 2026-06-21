@@ -74,7 +74,7 @@ const AdminClassPlayerLauncher = ({
     progression_cue: b.progression_cue,
   }));
 
-  return <OnDemandClassPlayer title={title} blocks={playerBlocks} onClose={onClose} />;
+  return <OnDemandClassPlayer title={title} blocks={playerBlocks} onClose={onClose} allowSkip={false} />;
 };
 
 export default AdminClassPlayerLauncher;
