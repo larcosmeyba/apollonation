@@ -115,6 +115,11 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
       if (statusData?.playback_id) {
         setProgress(100);
         setUploading(false);
+        onMuxReady?.({
+          playbackId: statusData.playback_id,
+          videoUrl: statusData.video_url || playbackUrl(statusData.playback_id),
+          thumbnailUrl: statusData.thumbnail_url || null,
+        });
         await refetch();
         qc.invalidateQueries({ queryKey: ["admin-classes"] });
         qc.invalidateQueries({ queryKey: ["admin-workouts"] });
