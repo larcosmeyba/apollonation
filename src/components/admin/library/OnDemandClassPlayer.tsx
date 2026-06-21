@@ -65,8 +65,8 @@ const saveFrameOverridesLS = (map: Record<string, FrameOverrides>) => {
  * Cinematic on-demand class player.
  */
 const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, adminEditable = false, allowSkip = true }: Props) => {
-  const [phase, setPhase] = useState<"intro" | "block" | "rest" | "done">(
-    introEnabled ? "intro" : "block",
+  const [phase, setPhase] = useState<"intro" | "starting" | "block" | "rest" | "done">(
+    introEnabled ? "intro" : "starting",
   );
 
   const [idx, setIdx] = useState(0);
@@ -78,17 +78,23 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
   const videoRef = useRef<MuxPlayerElement>(null);
   const altVideoRef = useRef<MuxPlayerElement>(null);
   const restPreviewRef = useRef<MuxPlayerElement>(null);
+  const startPreviewRef = useRef<MuxPlayerElement>(null);
 
   const block = blocks[idx];
   const next = blocks[idx + 1];
   const isLastSet = !!block && setNum >= block.sets;
   const isLastBlock = idx >= blocks.length - 1;
 
-  // Intro 4s
+  // Intro 4s → starting countdown
   useEffect(() => {
     if (phase !== "intro") return;
-    const t = setTimeout(() => setPhase("block"), 4000);
+    const t = setTimeout(() => setPhase("starting"), 4000);
     return () => clearTimeout(t);
+  }, [phase]);
+
+  // Starting countdown — 10s preview before first exercise begins
+  useEffect(() => {
+    if (phase === "starting") setRemaining(10);
   }, [phase]);
 
   // Initialize remaining when entering a WORK phase.
