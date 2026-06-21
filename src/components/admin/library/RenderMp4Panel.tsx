@@ -35,7 +35,7 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
       if (!targetId) return null;
       const { data, error } = await supabase
         .from(targetTable as "admin_classes")
-        .select("id,title,mux_playback_id,mux_asset_id,mux_status,video_url,thumbnail_url,duration_seconds,updated_at")
+        .select("id,title,mux_playback_id,mux_asset_id,mux_status,video_url,thumbnail_url,updated_at")
         .eq("id", targetId)
         .maybeSingle();
       if (error) throw error;
@@ -162,7 +162,7 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
       <Button
         type="button"
         onClick={() => fileRef.current?.click()}
-        disabled={!classId || uploading}
+        disabled={!targetId || uploading}
         className="w-full"
         variant={hasVideo ? "secondary" : "outline"}
       >
@@ -172,7 +172,7 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
           : hasVideo ? "Replace Video" : "Upload Final Class Video to Mux"}
       </Button>
 
-      {!classId && (
+      {!targetId && (
         <p className="text-[10px] text-muted-foreground">Save the class first, then upload the final MP4/MOV.</p>
       )}
 
@@ -249,11 +249,6 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
             </Button>
           </div>
 
-          {currentClass?.duration_seconds ? (
-            <p className="text-[10px] text-muted-foreground">
-              Duration: {Math.round(Number(currentClass.duration_seconds) / 60)} min
-            </p>
-          ) : null}
         </div>
       ) : (
         <p className="text-[10px] text-muted-foreground">
