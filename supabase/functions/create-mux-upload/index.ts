@@ -43,15 +43,26 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const classId = typeof body.class_id === "string" ? body.class_id : "";
-    if (!classId) return json({ error: "class_id required" }, 400);
+    const workoutId = typeof body.workout_id === "string" ? body.workout_id : "";
+    if (!classId && !workoutId) return json({ error: "class_id or workout_id required" }, 400);
 
-    const { data: cls, error: clsErr } = await supabase
-      .from("admin_classes")
-      .select("id,title,class_type")
-      .eq("id", classId)
-      .maybeSingle();
+    const { data: content, error: contentErr } = classId
+      ? await supabase
+        .from("admin_classes")
+        .select("id,title,class_type")
+        .eq("id", classId)
+        .maybeSingle()
+      : await supabase
+        .from("workouts")
+        .select("id,title,category")
+        .eq("id", workoutId)
+        .maybeSingle();
 
-    if (clsErr || !cls) return json({ error: "Class not found or forbidden" }, 403);
+    if (contentErr || !content) return json({ error: "Workout not found or forbidden" }, 403);
+
+    const passthrough = classId ? `admin_class:${classId}` : `admin_workout:${workoutId}`;
+    const title = content.title || "Apollo On-Demand Class";
+    const category = ("class_type" in content ? content.class_type : content.category) || "strength";
 
     const origin = req.headers.get("origin") || "*";
     const muxRes = await fetch("https://api.mux.com/video/v1/uploads", {
@@ -66,10 +77,10 @@ Deno.serve(async (req) => {
           playback_policy: ["public"],
           mp4_support: "capped-1080p",
           max_resolution_tier: "1080p",
-          passthrough: `admin_class:${classId}`,
+          passthrough,
           meta: {
-            title: cls.title || "Apollo On-Demand Class",
-            category: cls.class_type || "strength",
+            title,
+            category,
           },
         },
       }),
@@ -81,14 +92,14 @@ Deno.serve(async (req) => {
     }
 
     await service
-      .from("admin_classes")
+      .from(classId ? "admin_classes" : "workouts")
       .update({
         mux_status: "processing",
         mux_asset_id: null,
         mux_playback_id: null,
         video_url: null,
       })
-      .eq("id", classId);
+      .eq("id", classId || workoutId);
 
     return json({
       upload_id: muxData.data?.id,
