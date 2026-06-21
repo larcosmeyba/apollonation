@@ -80,6 +80,7 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
     const uploaded = await new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("PUT", data.upload_url);
+      xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           setProgress(Math.max(1, Math.round((event.loaded / event.total) * 95)));
@@ -240,7 +241,7 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
 
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button type="button" asChild variant="outline" size="sm" className="flex-1">
-              <a href={downloadLink} target="_blank" rel="noopener noreferrer">
+              <a href={downloadLink} target="_blank" rel="noopener noreferrer" download>
                 <Download className="h-3.5 w-3.5" /> Download MP4
               </a>
             </Button>
