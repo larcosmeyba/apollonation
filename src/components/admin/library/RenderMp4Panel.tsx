@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 interface RenderMp4PanelProps {
   classId: string | null;
+  workoutId?: string | null;
   hasBlocks: boolean;
   onMuxReady?: (data: { videoUrl: string; thumbnailUrl: string | null; playbackId: string }) => void;
 }
@@ -19,21 +20,23 @@ const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId
 
 
 
-const RenderMp4Panel = ({ classId, onMuxReady }: RenderMp4PanelProps) => {
+const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps) => {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const targetId = classId || workoutId || null;
+  const targetTable = classId ? "admin_classes" : "workouts";
 
   const { data: currentClass, refetch } = useQuery({
-    queryKey: ["admin-class-mux", classId],
-    enabled: !!classId,
+    queryKey: ["admin-mux-video", targetTable, targetId],
+    enabled: !!targetId,
     queryFn: async () => {
-      if (!classId) return null;
+      if (!targetId) return null;
       const { data, error } = await supabase
-        .from("admin_classes")
+        .from(targetTable as "admin_classes")
         .select("id,title,mux_playback_id,mux_asset_id,mux_status,video_url,thumbnail_url,duration_seconds,updated_at")
-        .eq("id", classId)
+        .eq("id", targetId)
         .maybeSingle();
       if (error) throw error;
       return data;
@@ -60,12 +63,12 @@ const RenderMp4Panel = ({ classId, onMuxReady }: RenderMp4PanelProps) => {
   }, [currentClass?.mux_playback_id, currentClass?.thumbnail_url, currentClass?.video_url, onMuxReady, uploading]);
 
   const uploadToMux = async (file: File) => {
-    if (!classId) return toast.error("Save the class first");
+    if (!targetId) return toast.error("Save the class first");
     setUploading(true);
     setProgress(1);
 
     const { data, error } = await supabase.functions.invoke("create-mux-upload", {
-      body: { class_id: classId },
+      body: classId ? { class_id: classId } : { workout_id: workoutId },
     });
 
     if (error || data?.error || !data?.upload_url) {
