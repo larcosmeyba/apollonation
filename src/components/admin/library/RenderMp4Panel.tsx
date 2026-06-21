@@ -17,6 +17,7 @@ interface RenderMp4PanelProps {
 const publicUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}`;
 const mp4Url = (playbackId: string) => `https://stream.mux.com/${playbackId}/high.mp4`;
 const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}.m3u8`;
+const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
 
 
@@ -105,6 +106,28 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
 
     setProgress(96);
     toast.success("Video uploaded — Mux is processing it now");
+    for (let i = 0; i < 24; i += 1) {
+      const { data: statusData } = await supabase.functions.invoke("create-mux-upload", {
+        body: classId
+          ? { action: "status", class_id: classId, upload_id: data.upload_id }
+          : { action: "status", workout_id: workoutId, upload_id: data.upload_id },
+      });
+      if (statusData?.playback_id) {
+        setProgress(100);
+        setUploading(false);
+        await refetch();
+        qc.invalidateQueries({ queryKey: ["admin-classes"] });
+        qc.invalidateQueries({ queryKey: ["admin-workouts"] });
+        return;
+      }
+      if (statusData?.status === "errored") {
+        setUploading(false);
+        toast.error("Mux could not process this video");
+        await refetch();
+        return;
+      }
+      await wait(5000);
+    }
     await refetch();
     qc.invalidateQueries({ queryKey: ["admin-classes"] });
     qc.invalidateQueries({ queryKey: ["admin-workouts"] });
