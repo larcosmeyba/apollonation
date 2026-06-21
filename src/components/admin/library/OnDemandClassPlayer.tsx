@@ -89,7 +89,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
   // Intro plays an MP4/MOV; fallback safety timeout in case onEnded never fires
   useEffect(() => {
     if (phase !== "intro") return;
-    const t = setTimeout(() => setPhase("starting"), 15000);
+    const t = setTimeout(() => setPhase("starting"), 60000);
     return () => clearTimeout(t);
   }, [phase]);
 
