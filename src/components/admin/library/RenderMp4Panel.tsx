@@ -60,7 +60,7 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
       return toast.error(data?.error || error?.message || "Could not create Mux upload");
     }
 
-    await new Promise<void>((resolve, reject) => {
+    const uploaded = await new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("PUT", data.upload_url);
       xhr.upload.onprogress = (event) => {
@@ -74,12 +74,14 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
       };
       xhr.onerror = () => reject(new Error("Upload failed"));
       xhr.send(file);
-    }).catch((e: Error) => {
+    }).then(() => true).catch((e: Error) => {
       setUploading(false);
       setProgress(0);
       toast.error(e.message);
-      throw e;
+      return false;
     });
+
+    if (!uploaded) return;
 
     setProgress(96);
     toast.success("Video uploaded — Mux is processing it now");
