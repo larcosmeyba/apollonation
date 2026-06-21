@@ -143,6 +143,30 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
     toast.success(`${label} copied`);
   };
 
+  const [downloading, setDownloading] = useState(false);
+  const downloadMp4 = async (url: string, title: string) => {
+    try {
+      setDownloading(true);
+      toast.info("Preparing download…");
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Mux returned ${res.status}. The asset may still be processing the MP4 rendition.`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = `${(title || "apollo-class").replace(/[^a-z0-9-_]+/gi, "_")}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+      toast.success("Download started");
+    } catch (e) {
+      toast.error((e as Error).message || "Could not download MP4");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const playbackId = currentClass?.mux_playback_id || "";
   const publicShareLink = playbackId ? publicUrl(playbackId) : "";
   const downloadLink = playbackId ? mp4Url(playbackId) : "";
