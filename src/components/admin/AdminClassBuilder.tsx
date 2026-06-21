@@ -776,23 +776,23 @@ const AdminClassBuilder = () => {
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                             <label className="space-y-1">
                               <span className="text-muted-foreground">Work (s)</span>
-                              <Input type="number" value={b.work_seconds}
-                                onChange={(e) => updateBlock(b.id, { work_seconds: +e.target.value })} className="h-8" />
+                              <PresetSelect value={b.work_seconds} presets={WORK_PRESETS} suffix="s"
+                                onChange={(v) => updateBlock(b.id, { work_seconds: v })} />
                             </label>
                             <label className="space-y-1">
                               <span className="text-muted-foreground">Rest (s)</span>
-                              <Input type="number" value={b.rest_seconds}
-                                onChange={(e) => updateBlock(b.id, { rest_seconds: +e.target.value })} className="h-8" />
+                              <PresetSelect value={b.rest_seconds} presets={REST_PRESETS} suffix="s"
+                                onChange={(v) => updateBlock(b.id, { rest_seconds: v })} />
                             </label>
                             <label className="space-y-1">
                               <span className="text-muted-foreground">Sets</span>
-                              <Input type="number" value={b.sets}
-                                onChange={(e) => updateBlock(b.id, { sets: +e.target.value })} className="h-8" />
+                              <PresetSelect value={b.sets} presets={SETS_PRESETS}
+                                onChange={(v) => updateBlock(b.id, { sets: v })} />
                             </label>
                             <label className="space-y-1">
                               <span className="text-muted-foreground">Set Rest (s)</span>
-                              <Input type="number" value={b.set_rest_seconds}
-                                onChange={(e) => updateBlock(b.id, { set_rest_seconds: +e.target.value })} className="h-8" />
+                              <PresetSelect value={b.set_rest_seconds} presets={SET_REST_PRESETS} suffix="s"
+                                onChange={(v) => updateBlock(b.id, { set_rest_seconds: v })} />
                             </label>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 text-xs">
