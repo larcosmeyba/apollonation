@@ -215,6 +215,36 @@ async function syncAssetToLibrary(
 // HTTP handler
 // ─────────────────────────────────────────────────────────────────────────────
 
+async function linkAssetToAdminClass(
+  supabase: ReturnType<typeof createClient>,
+  classId: string,
+  asset: any,
+) {
+  const playbackId = asset?.playback_ids?.[0]?.id || null;
+  const assetId = asset?.id || null;
+  const duration = asset?.duration ? Number(asset.duration) : null;
+  const update: Record<string, unknown> = {
+    mux_asset_id: assetId,
+    source_type: "uploaded",
+  };
+
+  if (playbackId) {
+    update.mux_playback_id = playbackId;
+    update.thumbnail_url = `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`;
+  }
+  if (duration) {
+    update.duration_seconds = duration;
+    update.duration_minutes = Math.max(1, Math.round(duration / 60));
+  }
+
+  const { error } = await supabase
+    .from("admin_classes")
+    .update(update)
+    .eq("id", classId);
+  if (error) console.error("[mux-webhook] admin class upload link failed", error);
+  else console.log("[mux-webhook] linked uploaded class asset:", classId);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
@@ -240,6 +270,19 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
+
+  const adminClassUpload = passthrough?.match(/^admin_class:([0-9a-f-]{36})$/i);
+  if (adminClassUpload) {
+    if (type === "video.asset.ready") {
+      await linkAssetToAdminClass(supabase, adminClassUpload[1], data);
+    } else if (type === "video.asset.errored" || type === "video.upload.errored") {
+      console.error("[mux-webhook] uploaded class asset errored", adminClassUpload[1], data.errors || data);
+    }
+
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   // ── 1. Existing render_jobs sync (stitched class builder) ───────────────
   const matchById = passthrough
