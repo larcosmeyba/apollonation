@@ -143,6 +143,30 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
     toast.success(`${label} copied`);
   };
 
+  const [downloading, setDownloading] = useState(false);
+  const downloadMp4 = async (url: string, title: string) => {
+    try {
+      setDownloading(true);
+      toast.info("Preparing download…");
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Mux returned ${res.status}. The asset may still be processing the MP4 rendition.`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = `${(title || "apollo-class").replace(/[^a-z0-9-_]+/gi, "_")}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+      toast.success("Download started");
+    } catch (e) {
+      toast.error((e as Error).message || "Could not download MP4");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const playbackId = currentClass?.mux_playback_id || "";
   const publicShareLink = playbackId ? publicUrl(playbackId) : "";
   const downloadLink = playbackId ? mp4Url(playbackId) : "";
@@ -270,15 +294,25 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
 
 
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button type="button" asChild variant="outline" size="sm" className="flex-1">
-              <a href={downloadLink} target="_blank" rel="noopener noreferrer" download>
-                <Download className="h-3.5 w-3.5" /> Download MP4
-              </a>
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              className="flex-1"
+              disabled={downloading}
+              onClick={() => downloadMp4(downloadLink, currentClass?.title || "apollo-class")}
+            >
+              {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+              {downloading ? "Downloading…" : "Download MP4"}
             </Button>
             <Button type="button" variant="outline" size="sm" className="flex-1" onClick={() => copyLink(downloadLink, "MP4 link")}>
               <Clipboard className="h-3.5 w-3.5" /> Copy MP4 Link
             </Button>
           </div>
+
+          <p className="text-[10px] text-muted-foreground">
+            If the download fails with a 404, Mux is still rendering the MP4 file (usually under a minute after the class becomes Ready). Try again shortly.
+          </p>
 
         </div>
       ) : (
