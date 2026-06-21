@@ -398,9 +398,11 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
               <button onClick={() => setPaused((p) => !p)} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
                 {paused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
               </button>
-              <button onClick={skip} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
-                <SkipForward className="w-5 h-5" />
-              </button>
+              {allowSkip && (
+                <button onClick={skip} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                  <SkipForward className="w-5 h-5" />
+                </button>
+              )}
             </div>
           </motion.div>
         )}
