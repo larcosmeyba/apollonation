@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff, Play } from "lucide-react";
+import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff, Play, CheckCircle2, AlertCircle, Link as LinkIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -493,6 +493,15 @@ const AdminWorkouts = () => {
                   {workout.is_published === false && (
                     <span className="absolute top-2 right-2 text-[10px] font-medium bg-muted/90 text-muted-foreground px-1.5 py-0.5 rounded">Draft</span>
                   )}
+                  {workout.mux_playback_id ? (
+                    <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 text-[10px] font-medium bg-emerald-500/90 text-white px-1.5 py-0.5 rounded">
+                      <CheckCircle2 className="w-3 h-3" /> Mux Ready
+                    </span>
+                  ) : (
+                    <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 text-[10px] font-medium bg-amber-500/90 text-white px-1.5 py-0.5 rounded">
+                      <AlertCircle className="w-3 h-3" /> No Mux
+                    </span>
+                  )}
                   <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{workout.duration_minutes} min</span>
                 </div>
                 <div className="p-3">
@@ -505,6 +514,22 @@ const AdminWorkouts = () => {
                     <Button size="icon" variant="ghost" className="h-7 w-7" title="Edit" onClick={() => handleEdit(workout)}>
                       <Pencil className="w-3.5 h-3.5" />
                     </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      title={workout.mux_playback_id ? "Copy Mux public URL" : "No Mux video uploaded yet"}
+                      disabled={!workout.mux_playback_id}
+                      onClick={async () => {
+                        if (!workout.mux_playback_id) return;
+                        const url = `https://stream.mux.com/${workout.mux_playback_id}`;
+                        await navigator.clipboard.writeText(url);
+                        toast({ title: "Mux URL copied", description: url });
+                      }}
+                    >
+                      <LinkIcon className="w-3.5 h-3.5" />
+                    </Button>
+
 
                     <Button
                       size="icon"
