@@ -64,7 +64,7 @@ const saveFrameOverridesLS = (map: Record<string, FrameOverrides>) => {
 /**
  * Cinematic on-demand class player.
  */
-const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, adminEditable = false }: Props) => {
+const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, adminEditable = false, allowSkip = true }: Props) => {
   const [phase, setPhase] = useState<"intro" | "block" | "rest" | "done">(
     introEnabled ? "intro" : "block",
   );
