@@ -12,8 +12,11 @@ interface RenderMp4PanelProps {
   hasBlocks: boolean;
 }
 
+const publicUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}`;
 const mp4Url = (playbackId: string) => `https://stream.mux.com/${playbackId}/high.mp4`;
 const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}.m3u8`;
+
+
 
 const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
   const qc = useQueryClient();
@@ -95,8 +98,10 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
   };
 
   const playbackId = currentClass?.mux_playback_id || "";
+  const publicShareLink = playbackId ? publicUrl(playbackId) : "";
   const downloadLink = playbackId ? mp4Url(playbackId) : "";
   const streamLink = playbackId ? playbackUrl(playbackId) : "";
+
 
   return (
     <div className="border-t border-border pt-3 space-y-3">
@@ -151,7 +156,20 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
       {playbackId ? (
         <div className="rounded-lg border border-border p-3 bg-card/50 space-y-3">
           <div className="space-y-1">
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Share / stream link</Label>
+            <Label className="text-[10px] uppercase tracking-widest text-primary">Public URL</Label>
+            <div className="flex gap-2">
+              <Input readOnly value={publicShareLink} className="h-8 text-xs" />
+              <Button type="button" size="icon" variant="outline" onClick={() => copyLink(publicShareLink, "Public URL")}>
+                <Clipboard className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Share this link anywhere. It opens the Mux-hosted class video.
+            </p>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">HLS stream link</Label>
             <div className="flex gap-2">
               <Input readOnly value={streamLink} className="h-8 text-xs" />
               <Button type="button" size="icon" variant="outline" onClick={() => copyLink(streamLink, "Stream link")}>
@@ -159,6 +177,7 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
               </Button>
             </div>
           </div>
+
 
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button type="button" asChild variant="outline" size="sm" className="flex-1">
