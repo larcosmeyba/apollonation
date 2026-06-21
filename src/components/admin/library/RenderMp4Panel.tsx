@@ -98,8 +98,10 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
   };
 
   const playbackId = currentClass?.mux_playback_id || "";
+  const publicShareLink = playbackId ? publicUrl(playbackId) : "";
   const downloadLink = playbackId ? mp4Url(playbackId) : "";
   const streamLink = playbackId ? playbackUrl(playbackId) : "";
+
 
   return (
     <div className="border-t border-border pt-3 space-y-3">
