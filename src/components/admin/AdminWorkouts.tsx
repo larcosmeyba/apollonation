@@ -38,6 +38,7 @@ const CATEGORIES = [
   { value: "strength", label: "Strength" },
   { value: "cardio", label: "Cardio" },
   { value: "hiit", label: "HIIT" },
+  { value: "sculpt", label: "Sculpt" },
   { value: "flexibility", label: "Flexibility" },
   { value: "recovery", label: "Recovery" },
 ];
