@@ -1071,7 +1071,7 @@ const AdminClassBuilder = () => {
 
           <div className="border-t border-border pt-3 space-y-2">
             <div className="text-xs uppercase tracking-widest text-muted-foreground">
-              Download Class for Manual Mux Upload
+              Manual Clip Download Fallback
             </div>
             <Button
               type="button"
@@ -1089,7 +1089,7 @@ const AdminClassBuilder = () => {
               </div>
             )}
             <p className="text-[10px] text-muted-foreground">
-              Downloads every exercise clip in playback order plus a manifest. Stitch in iMovie/Premiere/CapCut, then upload the final MP4 to Mux manually and paste the playback URL above.
+              Use this only when the source exercises have downloadable MP4 renditions. Otherwise use “Create Mux Asset from Class Clips” below to send this class to Mux without a local download.
             </p>
           </div>
 
