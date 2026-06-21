@@ -42,9 +42,55 @@ Deno.serve(async (req) => {
     if (!isAdmin) return json({ error: "Admin access required" }, 403);
 
     const body = await req.json().catch(() => ({}));
+    const action = typeof body.action === "string" ? body.action : "create";
     const classId = typeof body.class_id === "string" ? body.class_id : "";
     const workoutId = typeof body.workout_id === "string" ? body.workout_id : "";
     if (!classId && !workoutId) return json({ error: "class_id or workout_id required" }, 400);
+
+    if (action === "status") {
+      const uploadId = typeof body.upload_id === "string" ? body.upload_id : "";
+      if (!uploadId) return json({ error: "upload_id required" }, 400);
+      const targetTable = classId ? "admin_classes" : "workouts";
+      const targetId = classId || workoutId;
+      const uploadRes = await fetch(`https://api.mux.com/video/v1/uploads/${uploadId}`, {
+        headers: { Authorization: MUX_AUTH },
+      });
+      const uploadData = await uploadRes.json().catch(async () => ({ raw: await uploadRes.text() }));
+      if (!uploadRes.ok) {
+        return json({ error: uploadData?.error?.messages?.join(" ") || uploadData?.error?.message || "Mux status check failed" }, 502);
+      }
+      const assetId = uploadData.data?.asset_id || null;
+      if (!assetId) {
+        await service.from(targetTable).update({ mux_status: "processing" }).eq("id", targetId);
+        return json({ status: uploadData.data?.status || "processing", asset_id: null });
+      }
+      const assetRes = await fetch(`https://api.mux.com/video/v1/assets/${assetId}`, {
+        headers: { Authorization: MUX_AUTH },
+      });
+      const assetData = await assetRes.json().catch(async () => ({ raw: await assetRes.text() }));
+      if (!assetRes.ok) {
+        return json({ error: assetData?.error?.messages?.join(" ") || assetData?.error?.message || "Mux asset lookup failed" }, 502);
+      }
+      const playbackId = assetData.data?.playback_ids?.[0]?.id || null;
+      const ready = assetData.data?.status === "ready" && playbackId;
+      const update: Record<string, unknown> = {
+        mux_asset_id: assetId,
+        mux_status: assetData.data?.status === "errored" ? "errored" : ready ? "ready" : "processing",
+      };
+      if (ready) {
+        update.mux_playback_id = playbackId;
+        update.video_url = `https://stream.mux.com/${playbackId}.m3u8`;
+        update.thumbnail_url = `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`;
+      }
+      await service.from(targetTable).update(update).eq("id", targetId);
+      return json({
+        status: update.mux_status,
+        asset_id: assetId,
+        playback_id: playbackId,
+        video_url: ready ? update.video_url : null,
+        thumbnail_url: ready ? update.thumbnail_url : null,
+      });
+    }
 
     const { data: content, error: contentErr } = classId
       ? await supabase
