@@ -87,6 +87,39 @@ const fmtMMSS = (s: number) => {
 
 const CLASS_TYPES = ["strength", "sculpt", "stretch", "cardio"] as const;
 
+const WORK_PRESETS = [15, 20, 30, 40, 45, 60, 75, 90];
+const REST_PRESETS = [0, 10, 15, 20, 30, 45, 60, 90];
+const SETS_PRESETS = [1, 2, 3, 4, 5, 6, 8];
+const SET_REST_PRESETS = [0, 15, 30, 45, 60, 75, 90, 120];
+
+const PresetSelect = ({
+  value,
+  presets,
+  onChange,
+  suffix = "",
+}: {
+  value: number;
+  presets: number[];
+  onChange: (v: number) => void;
+  suffix?: string;
+}) => {
+  const options = presets.includes(value) ? presets : [...presets, value].sort((a, b) => a - b);
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(+e.target.value)}
+      className="w-full bg-background border border-input rounded h-8 px-2 text-xs"
+    >
+      {options.map((n) => (
+        <option key={n} value={n}>
+          {n}
+          {suffix}
+        </option>
+      ))}
+    </select>
+  );
+};
+
 const AdminClassBuilder = () => {
   const qc = useQueryClient();
   const [classId, setClassId] = useState<string | null>(null);
@@ -743,23 +776,23 @@ const AdminClassBuilder = () => {
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                             <label className="space-y-1">
                               <span className="text-muted-foreground">Work (s)</span>
-                              <Input type="number" value={b.work_seconds}
-                                onChange={(e) => updateBlock(b.id, { work_seconds: +e.target.value })} className="h-8" />
+                              <PresetSelect value={b.work_seconds} presets={WORK_PRESETS} suffix="s"
+                                onChange={(v) => updateBlock(b.id, { work_seconds: v })} />
                             </label>
                             <label className="space-y-1">
                               <span className="text-muted-foreground">Rest (s)</span>
-                              <Input type="number" value={b.rest_seconds}
-                                onChange={(e) => updateBlock(b.id, { rest_seconds: +e.target.value })} className="h-8" />
+                              <PresetSelect value={b.rest_seconds} presets={REST_PRESETS} suffix="s"
+                                onChange={(v) => updateBlock(b.id, { rest_seconds: v })} />
                             </label>
                             <label className="space-y-1">
                               <span className="text-muted-foreground">Sets</span>
-                              <Input type="number" value={b.sets}
-                                onChange={(e) => updateBlock(b.id, { sets: +e.target.value })} className="h-8" />
+                              <PresetSelect value={b.sets} presets={SETS_PRESETS}
+                                onChange={(v) => updateBlock(b.id, { sets: v })} />
                             </label>
                             <label className="space-y-1">
                               <span className="text-muted-foreground">Set Rest (s)</span>
-                              <Input type="number" value={b.set_rest_seconds}
-                                onChange={(e) => updateBlock(b.id, { set_rest_seconds: +e.target.value })} className="h-8" />
+                              <PresetSelect value={b.set_rest_seconds} presets={SET_REST_PRESETS} suffix="s"
+                                onChange={(v) => updateBlock(b.id, { set_rest_seconds: v })} />
                             </label>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 text-xs">
