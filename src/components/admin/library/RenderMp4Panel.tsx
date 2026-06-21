@@ -294,15 +294,25 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
 
 
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button type="button" asChild variant="outline" size="sm" className="flex-1">
-              <a href={downloadLink} target="_blank" rel="noopener noreferrer" download>
-                <Download className="h-3.5 w-3.5" /> Download MP4
-              </a>
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              className="flex-1"
+              disabled={downloading}
+              onClick={() => downloadMp4(downloadLink, currentClass?.title || "apollo-class")}
+            >
+              {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+              {downloading ? "Downloading…" : "Download MP4"}
             </Button>
             <Button type="button" variant="outline" size="sm" className="flex-1" onClick={() => copyLink(downloadLink, "MP4 link")}>
               <Clipboard className="h-3.5 w-3.5" /> Copy MP4 Link
             </Button>
           </div>
+
+          <p className="text-[10px] text-muted-foreground">
+            If the download fails with a 404, Mux is still rendering the MP4 file (usually under a minute after the class becomes Ready). Try again shortly.
+          </p>
 
         </div>
       ) : (
