@@ -225,12 +225,15 @@ async function linkAssetToAdminClass(
   const duration = asset?.duration ? Number(asset.duration) : null;
   const update: Record<string, unknown> = {
     mux_asset_id: assetId,
+    mux_status: "processing",
     source_type: "uploaded",
   };
 
   if (playbackId) {
     update.mux_playback_id = playbackId;
+    update.video_url = `https://stream.mux.com/${playbackId}.m3u8`;
     update.thumbnail_url = `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`;
+    update.mux_status = "ready";
   }
   if (duration) {
     update.duration_seconds = duration;
@@ -275,7 +278,16 @@ Deno.serve(async (req) => {
   if (adminClassUpload) {
     if (type === "video.asset.ready") {
       await linkAssetToAdminClass(supabase, adminClassUpload[1], data);
+    } else if (type === "video.asset.created") {
+      await supabase
+        .from("admin_classes")
+        .update({ mux_status: "processing", mux_asset_id: assetId ?? null })
+        .eq("id", adminClassUpload[1]);
     } else if (type === "video.asset.errored" || type === "video.upload.errored") {
+      await supabase
+        .from("admin_classes")
+        .update({ mux_status: "errored", mux_asset_id: assetId ?? null })
+        .eq("id", adminClassUpload[1]);
       console.error("[mux-webhook] uploaded class asset errored", adminClassUpload[1], data.errors || data);
     }
 
