@@ -170,6 +170,24 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
 
       {hasVideo ? (
         <div className="rounded-lg border border-border p-3 bg-card/50 space-y-3">
+          {currentClass?.thumbnail_url && (
+            <img
+              src={currentClass.thumbnail_url}
+              alt="Mux thumbnail"
+              className="w-full aspect-video object-cover rounded-md border border-border"
+            />
+          )}
+
+          <video
+            key={playbackId}
+            controls
+            playsInline
+            preload="metadata"
+            poster={currentClass?.thumbnail_url || undefined}
+            src={mp4Url(playbackId)}
+            className="w-full aspect-video rounded-md bg-black"
+          />
+
           <div className="space-y-1">
             <Label className="text-[10px] uppercase tracking-widest text-primary">Public URL</Label>
             <div className="flex gap-2">
