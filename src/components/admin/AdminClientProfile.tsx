@@ -618,9 +618,9 @@ const AdminClientProfile = ({ userId, onBack }: Props) => {
   );
 };
 
-// Training sub-component for drill-down
+// Training sub-component for drill-down + admin editing
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Plus, Trash2 } from "lucide-react";
 
 const TrainingSection = ({ userId, plans }: { userId: string; plans: any[] }) => {
   const { toast } = useToast();
@@ -651,9 +651,61 @@ const TrainingSection = ({ userId, plans }: { userId: string; plans: any[] }) =>
         .eq("day_id", selectedDayId!)
         .order("sort_order");
       if (error) throw error;
-      return data;
+      return data as any[];
     },
     enabled: !!selectedDayId,
+  });
+
+  const updateDay = useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: any }) => {
+      const { error } = await supabase.from("training_plan_days").update(patch).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-plan-days", selectedPlanId] });
+      toast({ title: "Day updated" });
+    },
+    onError: (e: any) => toast({ title: "Update failed", description: e.message, variant: "destructive" }),
+  });
+
+  const updateExercise = useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: any }) => {
+      const { error } = await supabase.from("training_plan_exercises").update(patch).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-day-exercises", selectedDayId] }),
+    onError: (e: any) => toast({ title: "Update failed", description: e.message, variant: "destructive" }),
+  });
+
+  const deleteExercise = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("training_plan_exercises").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-day-exercises", selectedDayId] });
+      toast({ title: "Exercise removed" });
+    },
+  });
+
+  const addExercise = useMutation({
+    mutationFn: async () => {
+      const nextOrder = (exercises?.length || 0) + 1;
+      const { error } = await supabase.from("training_plan_exercises").insert({
+        day_id: selectedDayId!,
+        exercise_name: "New Exercise",
+        sets: 3,
+        reps: "10",
+        rest_seconds: 60,
+        sort_order: nextOrder,
+      } as any);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-day-exercises", selectedDayId] });
+      toast({ title: "Exercise added" });
+    },
+    onError: (e: any) => toast({ title: "Add failed", description: e.message, variant: "destructive" }),
   });
 
   if (selectedDayId && exercises) {
@@ -663,31 +715,111 @@ const TrainingSection = ({ userId, plans }: { userId: string; plans: any[] }) =>
         <Button variant="ghost" size="sm" onClick={() => setSelectedDayId(null)} className="gap-1 h-7">
           <ChevronLeft className="w-3 h-3" /> Back to Days
         </Button>
-        <h3 className="font-heading text-lg">{day?.day_label || `Day ${day?.day_number}`} — {day?.focus || "Exercises"}</h3>
-        <div className="card-apollo overflow-hidden">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h3 className="font-heading text-lg">{day?.day_label || `Day ${day?.day_number}`} — {day?.focus || "Exercises"}</h3>
+          <Button size="sm" variant="apollo" className="h-8 gap-1" onClick={() => addExercise.mutate()} disabled={addExercise.isPending}>
+            <Plus className="w-3.5 h-3.5" /> Add Exercise
+          </Button>
+        </div>
+        <div className="card-apollo overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>#</TableHead>
-                <TableHead>Exercise</TableHead>
-                <TableHead>Sets × Reps</TableHead>
-                <TableHead>Rest</TableHead>
-                <TableHead>Muscle</TableHead>
+                <TableHead className="w-10">#</TableHead>
+                <TableHead className="min-w-[180px]">Exercise</TableHead>
+                <TableHead className="w-20">Sets</TableHead>
+                <TableHead className="w-24">Reps</TableHead>
+                <TableHead className="w-20">Rest (s)</TableHead>
+                <TableHead className="min-w-[160px]">Notes</TableHead>
+                <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {exercises.map((e, i) => (
+              {exercises.map((e) => (
                 <TableRow key={e.id}>
-                  <TableCell>{i + 1}</TableCell>
-                  <TableCell className="font-medium">{e.exercise_name}</TableCell>
-                  <TableCell>{e.sets} × {e.reps}</TableCell>
-                  <TableCell>{e.rest_seconds}s</TableCell>
-                  <TableCell className="text-muted-foreground capitalize">{e.muscle_group || "—"}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      defaultValue={e.sort_order}
+                      onBlur={(ev) => {
+                        const v = parseInt(ev.target.value, 10);
+                        if (!isNaN(v) && v !== e.sort_order) updateExercise.mutate({ id: e.id, patch: { sort_order: v } });
+                      }}
+                      className="h-8 w-14 text-xs"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      defaultValue={e.exercise_name}
+                      onBlur={(ev) => {
+                        if (ev.target.value !== e.exercise_name) updateExercise.mutate({ id: e.id, patch: { exercise_name: ev.target.value } });
+                      }}
+                      className="h-8 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      defaultValue={e.sets ?? ""}
+                      onBlur={(ev) => {
+                        const v = parseInt(ev.target.value, 10);
+                        updateExercise.mutate({ id: e.id, patch: { sets: isNaN(v) ? null : v } });
+                      }}
+                      className="h-8 w-16 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      defaultValue={e.reps ?? ""}
+                      placeholder="8-10"
+                      onBlur={(ev) => {
+                        if (ev.target.value !== (e.reps ?? "")) updateExercise.mutate({ id: e.id, patch: { reps: ev.target.value || null } });
+                      }}
+                      className="h-8 w-20 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      defaultValue={e.rest_seconds ?? ""}
+                      onBlur={(ev) => {
+                        const v = parseInt(ev.target.value, 10);
+                        updateExercise.mutate({ id: e.id, patch: { rest_seconds: isNaN(v) ? null : v } });
+                      }}
+                      className="h-8 w-16 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      defaultValue={e.notes ?? ""}
+                      placeholder="Coaching cue…"
+                      onBlur={(ev) => {
+                        if (ev.target.value !== (e.notes ?? "")) updateExercise.mutate({ id: e.id, patch: { notes: ev.target.value || null } });
+                      }}
+                      className="h-8 text-xs"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0 text-destructive"
+                      onClick={() => {
+                        if (confirm(`Remove "${e.exercise_name}"?`)) deleteExercise.mutate(e.id);
+                      }}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
+              {exercises.length === 0 && (
+                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6 text-sm">No exercises yet. Click "Add Exercise" to start.</TableCell></TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
+        <p className="text-xs text-muted-foreground">Changes save automatically when you click out of a field.</p>
       </div>
     );
   }
@@ -699,22 +831,63 @@ const TrainingSection = ({ userId, plans }: { userId: string; plans: any[] }) =>
         <Button variant="ghost" size="sm" onClick={() => setSelectedPlanId(null)} className="gap-1 h-7">
           <ChevronLeft className="w-3 h-3" /> Back to Plans
         </Button>
-        <h3 className="font-heading text-lg">{plan?.title} — Days</h3>
-        <div className="grid gap-2">
-          {days.map(d => (
-            <button
-              key={d.id}
-              onClick={() => setSelectedDayId(d.id)}
-              className="card-apollo flex items-center justify-between p-4 text-left hover:border-primary/30 transition-all"
-            >
-              <div>
-                <p className="font-medium">{d.day_label || `Day ${d.day_number}`}</p>
-                <p className="text-xs text-muted-foreground">{d.focus || "No focus set"}</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
-          ))}
+        <h3 className="font-heading text-lg">{plan?.title} — Schedule</h3>
+        <div className="card-apollo overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-16">Day</TableHead>
+                <TableHead>Label</TableHead>
+                <TableHead>Focus</TableHead>
+                <TableHead className="w-40">Scheduled Date</TableHead>
+                <TableHead className="w-32"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {days.map((d: any) => (
+                <TableRow key={d.id}>
+                  <TableCell className="font-medium">{d.day_number}</TableCell>
+                  <TableCell>
+                    <Input
+                      defaultValue={d.day_label ?? ""}
+                      placeholder={`Day ${d.day_number}`}
+                      onBlur={(ev) => {
+                        if (ev.target.value !== (d.day_label ?? "")) updateDay.mutate({ id: d.id, patch: { day_label: ev.target.value || null } });
+                      }}
+                      className="h-8 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      defaultValue={d.focus ?? ""}
+                      placeholder="e.g. Upper Push"
+                      onBlur={(ev) => {
+                        if (ev.target.value !== (d.focus ?? "")) updateDay.mutate({ id: d.id, patch: { focus: ev.target.value || null } });
+                      }}
+                      className="h-8 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="date"
+                      defaultValue={d.scheduled_date ?? ""}
+                      onBlur={(ev) => {
+                        if (ev.target.value !== (d.scheduled_date ?? "")) updateDay.mutate({ id: d.id, patch: { scheduled_date: ev.target.value || null } });
+                      }}
+                      className="h-8 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setSelectedDayId(d.id)}>
+                      Edit Exercises
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
+        <p className="text-xs text-muted-foreground">Edit the label, focus, or scheduled date for each day. Changes save when you click out.</p>
       </div>
     );
   }
