@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import AdminClassPlayerLauncher from "@/components/dashboard/AdminClassPlayerLauncher";
 import MuxVideo from "@/components/video/MuxVideo";
+import RenderMp4Panel from "./library/RenderMp4Panel";
 
 
 
@@ -29,7 +30,9 @@ interface Workout {
   is_featured: boolean | null;
   is_published?: boolean;
   admin_class_id?: string | null;
+  mux_asset_id?: string | null;
   mux_playback_id?: string | null;
+  mux_status?: string | null;
   created_at?: string;
 }
 
@@ -308,13 +311,25 @@ const AdminWorkouts = () => {
                   max={2000}
                 />
               </div>
+              {editingWorkout?.admin_class_id && (
+                <RenderMp4Panel
+                  classId={editingWorkout.admin_class_id}
+                  hasBlocks={false}
+                  onMuxReady={({ videoUrl, thumbnailUrl }) => {
+                    setFormData((p) => ({
+                      ...p,
+                      video_url: videoUrl,
+                      thumbnail_url: thumbnailUrl || p.thumbnail_url,
+                    }));
+                    queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
+                  }}
+                />
+              )}
+
               <div>
                 <Label htmlFor="video_url">Video URL</Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Apollo Reborn serves all videos through Mux. Upload your file in the
-                  Exercise Library or Class Builder, then paste the Mux playback URL
-                  (e.g. <code>https://stream.mux.com/&lt;playback_id&gt;.m3u8</code>) here.
-                  Direct uploads to Supabase Storage are deprecated.
+                  Apollo streams on-demand classes from Mux. Use Upload Video to MUX above when this workout is linked to a Class Builder class, or paste a Mux HLS URL here as a backup.
                 </p>
                 <Input
                   id="video_url"
