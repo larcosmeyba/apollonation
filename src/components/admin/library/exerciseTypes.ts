@@ -31,6 +31,8 @@ export interface AdminExercise {
   category: ExerciseCategory | null;
   duration_seconds: number | null;
   body_part: string | null;
+  source_storage_path?: string | null;
+  source_video_url?: string | null;
   video_object_position?: string | null;
 }
 
