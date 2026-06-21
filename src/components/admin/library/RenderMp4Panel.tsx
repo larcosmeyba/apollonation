@@ -10,6 +10,7 @@ import { toast } from "sonner";
 interface RenderMp4PanelProps {
   classId: string | null;
   hasBlocks: boolean;
+  onMuxReady?: (data: { videoUrl: string; thumbnailUrl: string | null; playbackId: string }) => void;
 }
 
 const publicUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}`;
@@ -18,7 +19,7 @@ const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId
 
 
 
-const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
+const RenderMp4Panel = ({ classId, onMuxReady }: RenderMp4PanelProps) => {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -31,13 +32,13 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
       if (!classId) return null;
       const { data, error } = await supabase
         .from("admin_classes")
-        .select("id,title,mux_playback_id,mux_asset_id,thumbnail_url,duration_seconds,updated_at")
+        .select("id,title,mux_playback_id,mux_asset_id,mux_status,video_url,thumbnail_url,duration_seconds,updated_at")
         .eq("id", classId)
         .maybeSingle();
       if (error) throw error;
       return data;
     },
-    refetchInterval: uploading ? 5000 : false,
+    refetchInterval: uploading || currentClass?.mux_status === "processing" ? 5000 : false,
   });
 
   useEffect(() => {
@@ -46,7 +47,14 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
       setProgress(100);
       toast.success("Mux finished processing this class");
     }
-  }, [currentClass?.mux_playback_id, uploading]);
+    if (currentClass?.mux_playback_id) {
+      onMuxReady?.({
+        playbackId: currentClass.mux_playback_id,
+        videoUrl: currentClass.video_url || playbackUrl(currentClass.mux_playback_id),
+        thumbnailUrl: currentClass.thumbnail_url || null,
+      });
+    }
+  }, [currentClass?.mux_playback_id, currentClass?.thumbnail_url, currentClass?.video_url, onMuxReady, uploading]);
 
   const uploadToMux = async (file: File) => {
     if (!classId) return toast.error("Save the class first");
@@ -90,6 +98,7 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
     toast.success("Video uploaded — Mux is processing it now");
     await refetch();
     qc.invalidateQueries({ queryKey: ["admin-classes"] });
+    qc.invalidateQueries({ queryKey: ["admin-workouts"] });
   };
 
   const copyLink = async (url: string, label: string) => {
@@ -103,7 +112,8 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
   const streamLink = playbackId ? playbackUrl(playbackId) : "";
 
 
-  const processing = uploading && progress >= 96 && !playbackId;
+  const processing = (!playbackId && currentClass?.mux_status === "processing") || (uploading && progress >= 96 && !playbackId);
+  const errored = currentClass?.mux_status === "errored";
   const hasVideo = !!playbackId;
 
   return (
@@ -119,6 +129,10 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
         ) : processing ? (
           <span className="inline-flex items-center gap-1 text-[10px] text-amber-500">
             <Loader2 className="h-3 w-3 animate-spin" /> Processing on Mux
+          </span>
+        ) : errored ? (
+          <span className="inline-flex items-center gap-1 text-[10px] text-destructive">
+            <AlertCircle className="h-3 w-3" /> Mux error
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
@@ -165,6 +179,12 @@ const RenderMp4Panel = ({ classId }: RenderMp4PanelProps) => {
       {processing && (
         <p className="text-[10px] text-muted-foreground">
           Mux is transcoding your upload. The playback URL and thumbnail will appear here automatically when ready (usually under a minute).
+        </p>
+      )}
+
+      {errored && (
+        <p className="text-[10px] text-destructive">
+          Mux could not process the last upload. Try a new MP4/MOV export for this class.
         </p>
       )}
 
