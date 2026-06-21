@@ -412,6 +412,8 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
             </div>
           </motion.div>
         )}
+
+        {phase === "rest" && block && (
           <motion.div
             key={`rest-${idx}-${setNum}`}
             initial={{ opacity: 0 }}
