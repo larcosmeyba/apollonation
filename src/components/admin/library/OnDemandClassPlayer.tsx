@@ -159,6 +159,10 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
       setPhase("block");
       return blocks[idx]?.work_seconds || 30;
     }
+    if (current === "starting") {
+      setPhase("block");
+      return blocks[0]?.work_seconds || 30;
+    }
     return 0;
   };
 
