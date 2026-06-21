@@ -419,25 +419,12 @@ const AdminClassBuilder = () => {
   const [clipProgress, setClipProgress] = useState(0);
 
   const fetchAdminClip = async (exerciseId: string) => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-    if (!token) throw new Error("Sign in again before downloading class clips");
-
-    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-video-download`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ exercise_id: exerciseId }),
+    const { data, error } = await supabase.functions.invoke<Blob>("admin-video-download", {
+      body: { exercise_id: exerciseId },
     });
-
-    if (!res.ok) {
-      const err = await res.json().catch(async () => ({ error: await res.text() }));
-      throw new Error(err?.error || `Download failed (${res.status})`);
-    }
-
-    return res.blob();
+    if (error) throw new Error(error.message || "Download failed");
+    if (!(data instanceof Blob)) throw new Error("Download returned no video file");
+    return data;
   };
 
   const downloadAllClips = async () => {
