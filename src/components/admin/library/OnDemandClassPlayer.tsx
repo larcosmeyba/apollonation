@@ -85,10 +85,10 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
   const isLastSet = !!block && setNum >= block.sets;
   const isLastBlock = idx >= blocks.length - 1;
 
-  // Intro 4s → starting countdown
+  // Intro plays an MP4/MOV; fallback safety timeout in case onEnded never fires
   useEffect(() => {
     if (phase !== "intro") return;
-    const t = setTimeout(() => setPhase("starting"), 4000);
+    const t = setTimeout(() => setPhase("starting"), 15000);
     return () => clearTimeout(t);
   }, [phase]);
 
