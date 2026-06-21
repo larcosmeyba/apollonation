@@ -15,17 +15,44 @@ interface RenderMp4PanelProps {
 }
 
 const publicUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}`;
-const mp4Url = (playbackId: string) => `https://stream.mux.com/${playbackId}/high.mp4`;
+const mp4Url = (playbackId: string) => `https://stream.mux.com/${playbackId}/capped-1080p.mp4`;
 const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}.m3u8`;
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
+type MuxVideoRecord = {
+  id: string;
+  title: string | null;
+  mux_playback_id: string | null;
+  mux_asset_id: string | null;
+  mux_status: string | null;
+  video_url: string | null;
+  thumbnail_url: string | null;
+};
 
 
-const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps) => {
+
+const extractMuxPlaybackId = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (/^[a-zA-Z0-9_-]{12,}$/.test(trimmed) && !trimmed.includes(".")) return trimmed;
+  try {
+    const url = new URL(trimmed);
+    if (!url.hostname.includes("mux.com")) return "";
+    const first = url.pathname.split("/").filter(Boolean)[0] || "";
+    return first.replace(/\.m3u8$/i, "");
+  } catch {
+    return "";
+  }
+};
+
+const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4PanelProps) => {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const notifiedPlaybackRef = useRef("");
   const [uploading, setUploading] = useState(false);
+  const [creatingFromClips, setCreatingFromClips] = useState(false);
+  const [manualUrl, setManualUrl] = useState("");
+  const [savingManualUrl, setSavingManualUrl] = useState(false);
   const [progress, setProgress] = useState(0);
   const targetId = classId || workoutId || null;
   const targetTable = classId ? "admin_classes" : "workouts";
@@ -36,12 +63,12 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
     queryFn: async () => {
       if (!targetId) return null;
       const { data, error } = await supabase
-        .from(targetTable as "admin_classes")
-        .select("id,title,mux_playback_id,mux_asset_id,mux_status,video_url,thumbnail_url,updated_at")
+        .from(targetTable as "admin_classes" | "workouts")
+        .select("id,title,mux_playback_id,mux_asset_id,mux_status,video_url,thumbnail_url")
         .eq("id", targetId)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as MuxVideoRecord | null;
     },
     refetchInterval: (query) =>
       uploading || (query.state.data as { mux_status?: string } | null | undefined)?.mux_status === "processing"
@@ -138,6 +165,80 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
     qc.invalidateQueries({ queryKey: ["admin-workouts"] });
   };
 
+  const createMuxAssetFromClassClips = async () => {
+    if (!classId) return toast.error("Save the class first");
+    if (!hasBlocks) return toast.error("Add exercise clips before sending this class to Mux");
+    setCreatingFromClips(true);
+    setProgress(3);
+    const { data, error } = await supabase.functions.invoke("create-mux-upload", {
+      body: { action: "stitch_existing_mux", class_id: classId },
+    });
+    if (error || data?.error || !data?.asset_id) {
+      setCreatingFromClips(false);
+      setProgress(0);
+      return toast.error(data?.error || error?.message || "Mux could not create this class from clips");
+    }
+    toast.success(`Mux asset created from ${data.input_count || "class"} clip${data.input_count === 1 ? "" : "s"}`);
+    setProgress(96);
+    for (let i = 0; i < 36; i += 1) {
+      const { data: statusData } = await supabase.functions.invoke("create-mux-upload", {
+        body: { action: "status", class_id: classId, asset_id: data.asset_id },
+      });
+      if (statusData?.playback_id) {
+        setProgress(100);
+        setCreatingFromClips(false);
+        onMuxReady?.({
+          playbackId: statusData.playback_id,
+          videoUrl: statusData.video_url || playbackUrl(statusData.playback_id),
+          thumbnailUrl: statusData.thumbnail_url || null,
+        });
+        await refetch();
+        qc.invalidateQueries({ queryKey: ["admin-classes"] });
+        qc.invalidateQueries({ queryKey: ["admin-workouts"] });
+        return;
+      }
+      if (statusData?.status === "errored") {
+        setCreatingFromClips(false);
+        setProgress(0);
+        toast.error("Mux could not process this class asset");
+        await refetch();
+        return;
+      }
+      await wait(5000);
+    }
+    setCreatingFromClips(false);
+    await refetch();
+    qc.invalidateQueries({ queryKey: ["admin-classes"] });
+  };
+
+  const saveManualMuxUrl = async () => {
+    if (!targetId) return toast.error("Save the class first");
+    const playbackId = extractMuxPlaybackId(manualUrl);
+    if (!playbackId) return toast.error("Paste a Mux playback ID or stream.mux.com URL");
+    setSavingManualUrl(true);
+    const videoUrl = playbackUrl(playbackId);
+    const thumbnailUrlValue = `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`;
+    const updatePayload: Record<string, unknown> = {
+      mux_playback_id: playbackId,
+      mux_status: "ready",
+      video_url: videoUrl,
+      thumbnail_url: thumbnailUrlValue,
+    };
+    if (classId) updatePayload.source_type = "uploaded";
+    const { error } = await supabase
+      .from(targetTable as "admin_classes" | "workouts")
+      .update(updatePayload as any)
+      .eq("id", targetId);
+    setSavingManualUrl(false);
+    if (error) return toast.error(error.message);
+    setManualUrl("");
+    onMuxReady?.({ playbackId, videoUrl, thumbnailUrl: thumbnailUrlValue });
+    await refetch();
+    qc.invalidateQueries({ queryKey: ["admin-classes"] });
+    qc.invalidateQueries({ queryKey: ["admin-workouts"] });
+    toast.success("Mux playback URL saved to this class");
+  };
+
   const copyLink = async (url: string, label: string) => {
     await navigator.clipboard.writeText(url);
     toast.success(`${label} copied`);
@@ -148,8 +249,15 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
     try {
       setDownloading(true);
       toast.info("Preparing download…");
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Mux returned ${res.status}. The asset may still be processing the MP4 rendition.`);
+      const fallbacks = playbackId
+        ? [url, `https://stream.mux.com/${playbackId}/high.mp4`, `https://stream.mux.com/${playbackId}/medium.mp4`]
+        : [url];
+      let res: Response | null = null;
+      for (const candidate of fallbacks) {
+        const attempt = await fetch(candidate);
+        if (attempt.ok) { res = attempt; break; }
+      }
+      if (!res?.ok) throw new Error("Mux has not finished creating a downloadable MP4 rendition yet.");
       const blob = await res.blob();
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -173,7 +281,8 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
   const streamLink = playbackId ? playbackUrl(playbackId) : "";
 
 
-  const processing = (!playbackId && currentClass?.mux_status === "processing") || (uploading && progress >= 96 && !playbackId);
+  const busyWithMux = uploading || creatingFromClips;
+  const processing = (!playbackId && currentClass?.mux_status === "processing") || (busyWithMux && progress >= 96 && !playbackId);
   const errored = currentClass?.mux_status === "errored";
   const hasVideo = !!playbackId;
 
@@ -217,7 +326,7 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
       <Button
         type="button"
         onClick={() => fileRef.current?.click()}
-        disabled={!targetId || uploading}
+        disabled={!targetId || busyWithMux}
         className="w-full"
         variant={hasVideo ? "secondary" : "outline"}
       >
@@ -227,11 +336,39 @@ const RenderMp4Panel = ({ classId, workoutId, onMuxReady }: RenderMp4PanelProps)
           : hasVideo ? "Replace Video" : "Upload Final Class Video to Mux"}
       </Button>
 
+      {classId && (
+        <Button
+          type="button"
+          onClick={createMuxAssetFromClassClips}
+          disabled={!hasBlocks || busyWithMux}
+          className="w-full"
+          variant="outline"
+        >
+          {creatingFromClips ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
+          {creatingFromClips ? "Creating in Mux…" : "Create Mux Asset from Class Clips"}
+        </Button>
+      )}
+
+      <div className="space-y-1 rounded-lg border border-border p-3 bg-card/40">
+        <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Manual Mux playback URL</Label>
+        <div className="flex gap-2">
+          <Input
+            value={manualUrl}
+            onChange={(e) => setManualUrl(e.target.value)}
+            placeholder="https://stream.mux.com/playback-id.m3u8"
+            className="h-9 text-xs"
+          />
+          <Button type="button" size="sm" onClick={saveManualMuxUrl} disabled={!targetId || savingManualUrl}>
+            {savingManualUrl ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save"}
+          </Button>
+        </div>
+      </div>
+
       {!targetId && (
         <p className="text-[10px] text-muted-foreground">Save the class first, then upload the final MP4/MOV.</p>
       )}
 
-      {uploading && (
+      {busyWithMux && (
         <div className="h-1.5 overflow-hidden rounded-full bg-muted">
           <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
         </div>

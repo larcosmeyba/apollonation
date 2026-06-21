@@ -15,6 +15,10 @@ const json = (body: unknown, status = 200) =>
 const safeFileName = (name: string, fallback = "apollo-clip") =>
   (name || fallback).replace(/[^a-z0-9-_]+/gi, "_").replace(/^_+|_+$/g, "") || fallback;
 
+const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID") || "";
+const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET") || "";
+const MUX_AUTH = "Basic " + btoa(`${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}`);
+
 const normalizeStoragePath = (path: string | null): string | null => {
   if (!path) return null;
   const cleaned = path.replace(/^\/+/, "");
@@ -73,7 +77,7 @@ Deno.serve(async (req) => {
 
     const { data: exercise, error: exerciseErr } = await service
       .from("admin_exercises")
-      .select("id,name,source_storage_path,source_video_url,mux_playback_id")
+      .select("id,name,source_storage_path,source_video_url,mux_playback_id,mux_asset_id")
       .eq("id", exerciseId)
       .maybeSingle();
 
@@ -94,8 +98,23 @@ Deno.serve(async (req) => {
     }
 
     if (exercise.mux_playback_id) {
+      candidateUrls.push(`https://stream.mux.com/${exercise.mux_playback_id}/capped-1080p.mp4`);
       candidateUrls.push(`https://stream.mux.com/${exercise.mux_playback_id}/high.mp4`);
       candidateUrls.push(`https://stream.mux.com/${exercise.mux_playback_id}/medium.mp4`);
+    }
+
+    if (exercise.mux_asset_id && MUX_TOKEN_ID && MUX_TOKEN_SECRET) {
+      await fetch(`https://api.mux.com/video/v1/assets/${exercise.mux_asset_id}/master-access`, {
+        method: "PUT",
+        headers: { Authorization: MUX_AUTH, "Content-Type": "application/json" },
+        body: JSON.stringify({ master_access: "temporary" }),
+      }).catch(() => null);
+      const assetRes = await fetch(`https://api.mux.com/video/v1/assets/${exercise.mux_asset_id}`, {
+        headers: { Authorization: MUX_AUTH },
+      });
+      const assetData = await assetRes.json().catch(() => null);
+      const masterUrl = assetData?.data?.master?.url;
+      if (masterUrl) candidateUrls.push(masterUrl);
     }
 
     if (candidateUrls.length === 0) return json({ error: "This exercise has no downloadable video source" }, 404);
