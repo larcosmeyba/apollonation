@@ -86,6 +86,9 @@ const fmtMMSS = (s: number) => {
   return `${m}:${String(sec).padStart(2, "0")}`;
 };
 
+const safeFileName = (name: string, fallback = "apollo-clip") =>
+  (name || fallback).replace(/[^a-z0-9-_]+/gi, "_").replace(/^_+|_+$/g, "") || fallback;
+
 const CLASS_TYPES = ["strength", "sculpt", "stretch", "cardio"] as const;
 
 const WORK_PRESETS = [15, 20, 30, 40, 45, 60, 75, 90];
@@ -415,37 +418,57 @@ const AdminClassBuilder = () => {
   const [downloadingClips, setDownloadingClips] = useState(false);
   const [clipProgress, setClipProgress] = useState(0);
 
+  const fetchAdminClip = async (exerciseId: string) => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    if (!token) throw new Error("Sign in again before downloading class clips");
+
+    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-video-download`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ exercise_id: exerciseId }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(async () => ({ error: await res.text() }));
+      throw new Error(err?.error || `Download failed (${res.status})`);
+    }
+
+    return res.blob();
+  };
+
   const downloadAllClips = async () => {
     const clips = orderedBlocks
       .map((b, i) => {
         const ex = b.exercise_id ? exById.get(b.exercise_id) : null;
-        if (!ex?.mux_playback_id) return null;
-        return { index: i + 1, name: ex.name, playbackId: ex.mux_playback_id };
+        if (!ex?.id) return null;
+        return { index: i + 1, id: ex.id, name: ex.name };
       })
-      .filter((c): c is { index: number; name: string; playbackId: string } => !!c);
+      .filter((c): c is { index: number; id: string; name: string } => !!c);
 
     if (clips.length === 0) return toast.error("No exercise clips in this class");
 
     setDownloadingClips(true);
     setClipProgress(0);
     const zip = new JSZip();
+    const failures: string[] = [];
     try {
       for (let i = 0; i < clips.length; i++) {
         const c = clips[i];
-        const res = await fetch(`https://stream.mux.com/${c.playbackId}/high.mp4`);
-        if (!res.ok) {
-          // Fallback to medium rendition
-          const res2 = await fetch(`https://stream.mux.com/${c.playbackId}/medium.mp4`);
-          if (!res2.ok) throw new Error(`Could not fetch clip ${c.index} (${c.name}) — Mux returned ${res.status}`);
-          const blob = await res2.blob();
-          const safe = c.name.replace(/[^a-z0-9-_]+/gi, "_");
-          zip.file(`${String(c.index).padStart(2, "0")}_${safe}.mp4`, blob);
-        } else {
-          const blob = await res.blob();
-          const safe = c.name.replace(/[^a-z0-9-_]+/gi, "_");
-          zip.file(`${String(c.index).padStart(2, "0")}_${safe}.mp4`, blob);
+        try {
+          const blob = await fetchAdminClip(c.id);
+          zip.file(`${String(c.index).padStart(2, "0")}_${safeFileName(c.name)}.mp4`, blob);
+        } catch (e) {
+          failures.push(`${String(c.index).padStart(2, "0")} ${c.name}: ${(e as Error).message}`);
         }
         setClipProgress(Math.round(((i + 1) / clips.length) * 90));
+      }
+
+      if (zip.filter((path) => path.endsWith(".mp4")).length === 0) {
+        throw new Error(failures[0] || "No class videos could be downloaded");
       }
 
       // Include a playlist/manifest for stitching in iMovie/Premiere
@@ -461,6 +484,7 @@ const AdminClassBuilder = () => {
         };
       });
       zip.file("class-manifest.json", JSON.stringify({ title: meta.title, blocks: manifest }, null, 2));
+      if (failures.length > 0) zip.file("download-errors.txt", failures.join("\n"));
 
       const out = await zip.generateAsync({ type: "blob" }, (m) => {
         setClipProgress(90 + Math.round(m.percent / 10));
@@ -473,7 +497,11 @@ const AdminClassBuilder = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast.success(`Downloaded ${clips.length} clip${clips.length === 1 ? "" : "s"}`);
+      if (failures.length > 0) {
+        toast.warning(`Downloaded with ${failures.length} missing clip${failures.length === 1 ? "" : "s"}`);
+      } else {
+        toast.success(`Downloaded ${clips.length} clip${clips.length === 1 ? "" : "s"}`);
+      }
     } catch (e) {
       toast.error((e as Error).message || "Could not download clips");
     } finally {
