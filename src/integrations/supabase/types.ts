@@ -178,6 +178,7 @@ export type Database = {
           intro_enabled: boolean
           mux_asset_id: string | null
           mux_playback_id: string | null
+          mux_status: string | null
           orientation: string
           source_type: string
           status: string
@@ -185,6 +186,7 @@ export type Database = {
           thumbnail_url: string | null
           title: string
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           body_part?: string | null
@@ -201,6 +203,7 @@ export type Database = {
           intro_enabled?: boolean
           mux_asset_id?: string | null
           mux_playback_id?: string | null
+          mux_status?: string | null
           orientation?: string
           source_type?: string
           status?: string
@@ -208,6 +211,7 @@ export type Database = {
           thumbnail_url?: string | null
           title: string
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           body_part?: string | null
@@ -224,6 +228,7 @@ export type Database = {
           intro_enabled?: boolean
           mux_asset_id?: string | null
           mux_playback_id?: string | null
+          mux_status?: string | null
           orientation?: string
           source_type?: string
           status?: string
@@ -231,6 +236,7 @@ export type Database = {
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -4581,7 +4587,9 @@ export type Database = {
           id: string
           is_featured: boolean | null
           is_published: boolean
+          mux_asset_id: string | null
           mux_playback_id: string | null
+          mux_status: string | null
           thumbnail_url: string | null
           title: string
           video_url: string | null
@@ -4596,7 +4604,9 @@ export type Database = {
           id?: string
           is_featured?: boolean | null
           is_published?: boolean
+          mux_asset_id?: string | null
           mux_playback_id?: string | null
+          mux_status?: string | null
           thumbnail_url?: string | null
           title: string
           video_url?: string | null
@@ -4611,7 +4621,9 @@ export type Database = {
           id?: string
           is_featured?: boolean | null
           is_published?: boolean
+          mux_asset_id?: string | null
           mux_playback_id?: string | null
+          mux_status?: string | null
           thumbnail_url?: string | null
           title?: string
           video_url?: string | null
