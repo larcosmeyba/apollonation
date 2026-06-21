@@ -65,8 +65,8 @@ const saveFrameOverridesLS = (map: Record<string, FrameOverrides>) => {
  * Cinematic on-demand class player.
  */
 const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, adminEditable = false, allowSkip = true }: Props) => {
-  const [phase, setPhase] = useState<"intro" | "block" | "rest" | "done">(
-    introEnabled ? "intro" : "block",
+  const [phase, setPhase] = useState<"intro" | "starting" | "block" | "rest" | "done">(
+    introEnabled ? "intro" : "starting",
   );
 
   const [idx, setIdx] = useState(0);
@@ -78,17 +78,23 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
   const videoRef = useRef<MuxPlayerElement>(null);
   const altVideoRef = useRef<MuxPlayerElement>(null);
   const restPreviewRef = useRef<MuxPlayerElement>(null);
+  const startPreviewRef = useRef<MuxPlayerElement>(null);
 
   const block = blocks[idx];
   const next = blocks[idx + 1];
   const isLastSet = !!block && setNum >= block.sets;
   const isLastBlock = idx >= blocks.length - 1;
 
-  // Intro 4s
+  // Intro 4s → starting countdown
   useEffect(() => {
     if (phase !== "intro") return;
-    const t = setTimeout(() => setPhase("block"), 4000);
+    const t = setTimeout(() => setPhase("starting"), 4000);
     return () => clearTimeout(t);
+  }, [phase]);
+
+  // Starting countdown — 10s preview before first exercise begins
+  useEffect(() => {
+    if (phase === "starting") setRemaining(10);
   }, [phase]);
 
   // Initialize remaining when entering a WORK phase.
@@ -152,6 +158,10 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
     if (current === "rest") {
       setPhase("block");
       return blocks[idx]?.work_seconds || 30;
+    }
+    if (current === "starting") {
+      setPhase("block");
+      return blocks[0]?.work_seconds || 30;
     }
     return 0;
   };
@@ -325,6 +335,80 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
               >
                 {title}
               </motion.div>
+            </div>
+          </motion.div>
+        )}
+
+        {phase === "starting" && blocks[0] && (
+          <motion.div
+            key="starting"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 flex flex-col items-center justify-center bg-black px-6"
+          >
+            <div className="text-[11px] uppercase tracking-[0.5em] text-white/50 mb-3">
+              Starting Workout in
+            </div>
+            <div className="font-heading text-[18vw] md:text-[12vw] leading-none tabular-nums text-white">
+              {remaining}
+            </div>
+
+            <div className="mt-8 w-full max-w-3xl">
+              <div className="text-xs uppercase tracking-[0.3em] text-white/50 mb-3 text-center">
+                First move
+              </div>
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/15 bg-zinc-950 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]">
+                {blocks[0].exercise?.mux_playback_id ? (
+                  <MuxVideo
+                    ref={startPreviewRef}
+                    playbackId={blocks[0].exercise.mux_playback_id}
+                    title={`Preview: ${blocks[0].exercise.name}`}
+                    videoId={blocks[0].exercise.id}
+                    category={blocks[0].exercise.category}
+                    classTitle={title}
+                    autoPlay
+                    muted
+                    controls={false}
+                    onTimeUpdate={handleTimeUpdate(startPreviewRef, blocks[0].exercise) as never}
+                    onLoadedMetadata={() => {
+                      if (startPreviewRef.current && blocks[0].exercise?.loop_in_seconds)
+                        startPreviewRef.current.currentTime = blocks[0].exercise.loop_in_seconds;
+                    }}
+                    className="w-full h-full object-cover"
+                    style={videoStyle(blocks[0].exercise)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white/30">
+                    No video
+                  </div>
+                )}
+                <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/85 to-transparent">
+                  <div className="font-heading text-2xl md:text-3xl tracking-wider">
+                    {blocks[0].exercise?.name || "—"}
+                  </div>
+                  {blocks[0].exercise?.body_part && (
+                    <div className="text-[11px] uppercase tracking-widest text-white/60 mt-1">
+                      {blocks[0].exercise.body_part}
+                    </div>
+                  )}
+                  <div className="text-[11px] uppercase tracking-widest text-primary mt-1">
+                    {blocks[0].sets} {blocks[0].sets === 1 ? "set" : "sets"} · {blocks[0].work_seconds}s work
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex items-center gap-3">
+              <button onClick={() => setPaused((p) => !p)} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                {paused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
+              </button>
+              {allowSkip && (
+                <button onClick={skip} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                  <SkipForward className="w-5 h-5" />
+                </button>
+              )}
             </div>
           </motion.div>
         )}
