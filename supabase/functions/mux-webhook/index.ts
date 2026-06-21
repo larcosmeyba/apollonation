@@ -267,6 +267,35 @@ Deno.serve(async (req) => {
           error: null,
         })
         .match(matchById);
+
+      // Auto-link the stitched asset back to its admin_classes row so
+      // publishing flows the playback id into client-facing workouts.
+      try {
+        const { data: jobRow } = await supabase
+          .from("render_jobs")
+          .select("class_id")
+          .match(matchById)
+          .maybeSingle();
+        const classId = (jobRow as any)?.class_id;
+        if (classId && playbackId) {
+          const thumb = `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`;
+          await supabase
+            .from("admin_classes")
+            .update({
+              mux_playback_id: playbackId,
+              mux_asset_id: assetId,
+              thumbnail_url: thumb,
+              duration_seconds: duration,
+              duration_minutes: duration
+                ? Math.max(1, Math.round(Number(duration) / 60))
+                : undefined,
+            })
+            .eq("id", classId);
+        }
+      } catch (e) {
+        console.error("[mux-webhook] admin_classes link failed", e);
+      }
+
     } else if (
       type === "video.asset.errored" ||
       type === "video.upload.errored"
