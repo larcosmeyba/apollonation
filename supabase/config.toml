@@ -115,3 +115,11 @@ verify_jwt = false
 
 [functions.mux-webhook]
 verify_jwt = false
+
+# Admin triggers a render; user JWT required (code also checks admin via RLS).
+[functions.enqueue-class-render]
+verify_jwt = true
+
+# Called by the external render worker, authenticated with x-worker-secret.
+[functions.render-callback]
+verify_jwt = false
