@@ -149,7 +149,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           inputs,
           playback_policies: ["public"],
-          mp4_support: "capped-1080p",
+          static_renditions: [{ resolution: "highest", passthrough: `admin_class:${classId}` }],
           max_resolution_tier: "1080p",
           passthrough: `admin_class:${classId}`,
           meta: { title, category, external_id: classId },
@@ -195,7 +195,7 @@ Deno.serve(async (req) => {
         cors_origin: origin,
         new_asset_settings: {
           playback_policies: ["public"],
-          mp4_support: "capped-1080p",
+          static_renditions: [{ resolution: "highest", passthrough }],
           max_resolution_tier: "1080p",
           passthrough,
           meta: {

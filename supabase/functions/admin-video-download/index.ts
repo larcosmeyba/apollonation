@@ -15,6 +15,9 @@ const json = (body: unknown, status = 200) =>
 const safeFileName = (name: string, fallback = "apollo-clip") =>
   (name || fallback).replace(/[^a-z0-9-_]+/gi, "_").replace(/^_+|_+$/g, "") || fallback;
 
+const muxPlaybackUrl = (playbackId: string, fileName: string, downloadName: string) =>
+  `https://stream.mux.com/${playbackId}/${fileName}?download=${encodeURIComponent(downloadName)}`;
+
 const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID") || "";
 const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET") || "";
 const MUX_AUTH = "Basic " + btoa(`${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}`);
@@ -40,6 +43,44 @@ const extractExerciseStoragePath = (rawUrl: string | null): string | null => {
     }
   } catch (_) {
     return null;
+  }
+  return null;
+};
+
+const fetchMuxAsset = async (assetId: string) => {
+  const assetRes = await fetch(`https://api.mux.com/video/v1/assets/${assetId}`, {
+    headers: { Authorization: MUX_AUTH },
+  });
+  const assetData = await assetRes.json().catch(() => null);
+  return { assetRes, assetData };
+};
+
+const pickReadyStaticMp4 = (assetData: any) => {
+  const files = assetData?.data?.static_renditions?.files;
+  if (!Array.isArray(files)) return null;
+  return files.find((file: any) => file?.status === "ready" && typeof file?.name === "string" && file.name.endsWith(".mp4")) || null;
+};
+
+const createStaticMp4IfMissing = async (assetId: string) => {
+  const res = await fetch(`https://api.mux.com/video/v1/assets/${assetId}/static-renditions`, {
+    method: "POST",
+    headers: { Authorization: MUX_AUTH, "Content-Type": "application/json" },
+    body: JSON.stringify({ resolution: "highest", passthrough: "apollo-admin-download" }),
+  });
+  await res.text().catch(() => "");
+  return res.status;
+};
+
+const firstReachableMuxMp4 = async (playbackId: string, downloadName: string) => {
+  const legacyFiles = ["capped-1080p.mp4", "high.mp4", "medium.mp4"];
+  for (const fileName of legacyFiles) {
+    const url = muxPlaybackUrl(playbackId, fileName, downloadName);
+    const response = await fetch(url, { headers: { Range: "bytes=0-1" } }).catch(() => null);
+    if (response?.ok || response?.status === 206) {
+      await response.body?.cancel().catch(() => null);
+      return url;
+    }
+    await response?.body?.cancel().catch(() => null);
   }
   return null;
 };
@@ -72,7 +113,64 @@ Deno.serve(async (req) => {
     if (!isAdmin) return json({ error: "Admin access required" }, 403);
 
     const body = await req.json().catch(() => ({}));
+    const action = typeof body.action === "string" ? body.action : "exercise_clip";
+    const classId = typeof body.class_id === "string" ? body.class_id : "";
     const exerciseId = typeof body.exercise_id === "string" ? body.exercise_id : "";
+
+    if (action === "finished_class") {
+      if (!classId) return json({ error: "Open and save a class first, then try Download Finished Class MP4 again." }, 400);
+      if (!MUX_TOKEN_ID || !MUX_TOKEN_SECRET) return json({ error: "MUX credentials are not configured, so Apollo cannot verify the finished class asset." }, 500);
+
+      const { data: klass, error: classErr } = await service
+        .from("admin_classes")
+        .select("id,title,mux_asset_id,mux_playback_id,mux_status")
+        .eq("id", classId)
+        .maybeSingle();
+
+      if (classErr) return json({ error: classErr.message }, 500);
+      if (!klass) return json({ error: "Class not found. Open the class in On-Demand Classes and save it first." }, 404);
+      if (!klass.mux_asset_id && !klass.mux_playback_id) {
+        return json({ error: "This class has not been rendered to MUX yet. Click Create Mux Asset from Class Clips first." }, 409);
+      }
+      if (klass.mux_status && klass.mux_status !== "ready") {
+        return json({ error: `MUX is still ${klass.mux_status}. Wait until the class says Ready to Download MP4, then try again.` }, 409);
+      }
+
+      const filenameBase = safeFileName(klass.title, "apollo-finished-class");
+      const downloadName = `${filenameBase}.mp4`;
+
+      if (klass.mux_asset_id) {
+        const { assetRes, assetData } = await fetchMuxAsset(klass.mux_asset_id);
+        if (!assetRes.ok) return json({ error: "MUX asset lookup failed. Check that this class still exists in MUX." }, 502);
+        if (assetData?.data?.status !== "ready") {
+          return json({ error: `MUX asset is ${assetData?.data?.status || "not ready"}. Wait for MUX processing to finish first.` }, 409);
+        }
+
+        const playbackId = klass.mux_playback_id || assetData?.data?.playback_ids?.[0]?.id || "";
+        const staticMp4 = pickReadyStaticMp4(assetData);
+        if (playbackId && staticMp4?.name) {
+          return json({ url: muxPlaybackUrl(playbackId, staticMp4.name, downloadName), filename: downloadName });
+        }
+
+        if (playbackId) {
+          const legacyUrl = await firstReachableMuxMp4(playbackId, downloadName);
+          if (legacyUrl) return json({ url: legacyUrl, filename: downloadName });
+        }
+
+        const createStatus = await createStaticMp4IfMissing(klass.mux_asset_id);
+        if ([200, 201, 202, 409].includes(createStatus)) {
+          return json({ error: "MUX has the finished class, but the downloadable MP4 rendition is still being generated. Wait a few minutes, then click Download Finished Class MP4 again." }, 409);
+        }
+      }
+
+      if (klass.mux_playback_id) {
+        const legacyUrl = await firstReachableMuxMp4(klass.mux_playback_id, downloadName);
+        if (legacyUrl) return json({ url: legacyUrl, filename: downloadName });
+      }
+
+      return json({ error: "This class has a MUX playback ID but no downloadable MP4 rendition yet. Re-create the Mux asset from class clips, then try again after it is ready." }, 409);
+    }
+
     if (!exerciseId) return json({ error: "exercise_id required" }, 400);
 
     const { data: exercise, error: exerciseErr } = await service
