@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type" };
-const RENDER_WORKER_URL = Deno.env.get("RENDER_WORKER_URL");
-const RENDER_WORKER_SECRET = Deno.env.get("RENDER_WORKER_SECRET");
+const RENDER_WORKER_URL = Deno.env.get("RENDER_WORKER_URL")?.trim().replace(/\/+$/, "");
+const RENDER_WORKER_SECRET = Deno.env.get("RENDER_WORKER_SECRET")?.trim();
 interface Block { exercise_id: string | null; work_seconds: number; rest_seconds: number; sets: number; set_rest_seconds: number; sort_order: number; }
 interface Exercise { id: string; mux_playback_id: string | null; source_video_url: string | null; loop_in_seconds: number | null; loop_out_seconds: number | null; }
 const muxMp4 = (id: string) => `https://stream.mux.com/${id}/medium.mp4`;
@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     const callbackUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/render-callback`;
     let workerResp: Response;
     try {
-      workerResp = await fetch(`${RENDER_WORKER_URL}/render`, { method: "POST", headers: { "Content-Type": "application/json", "x-worker-secret": RENDER_WORKER_SECRET, "Authorization": `Bearer ${RENDER_WORKER_SECRET}` }, body: JSON.stringify({ jobId: job.id, title: cls.title, segments, callbackUrl }) });
+      workerResp = await fetch(`${RENDER_WORKER_URL}/render`, { method: "POST", headers: { "Content-Type": "application/json", "x-worker-secret": RENDER_WORKER_SECRET }, body: JSON.stringify({ jobId: job.id, title: cls.title, segments, callbackUrl }) });
     } catch (e) {
       await supabase.from("render_jobs").update({ status: "failed", error: `Worker unreachable: ${(e as Error).message}` }).eq("id", job.id);
       return json({ error: "Render worker unreachable" }, 502);
