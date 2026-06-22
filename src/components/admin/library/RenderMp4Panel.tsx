@@ -512,7 +512,7 @@ const FfmpegRenderSection = ({ classId, hasBlocks }: { classId: string; hasBlock
         .from("render_jobs")
         .select("id,status,mp4_url,error,expires_at,created_at")
         .eq("class_id", classId)
-        .eq("render_engine", "ffmpeg")
+        .in("render_engine", ["ffmpeg", "mux"])
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -579,7 +579,7 @@ const FfmpegRenderSection = ({ classId, hasBlocks }: { classId: string; hasBlock
             <Download className="h-3.5 w-3.5" /> Download Finished MP4
           </a>
           <p className="text-[10px] text-muted-foreground">
-            Link expires in 24h. Download it, then upload it to Mux.
+            Download it, then upload it as the final class video if needed.
           </p>
         </div>
       )}
