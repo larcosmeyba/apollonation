@@ -278,38 +278,67 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
   const playbackId = currentClass?.mux_playback_id || "";
   const publicShareLink = playbackId ? publicUrl(playbackId) : "";
   const downloadLink = playbackId ? mp4Url(playbackId) : "";
-  const streamLink = playbackId ? playbackUrl(playbackId) : "";
-
+  const streamLink = playbackId ? publicUrl(playbackId) : "";
 
   const busyWithMux = uploading || creatingFromClips;
   const processing = (!playbackId && currentClass?.mux_status === "processing") || (busyWithMux && progress >= 96 && !playbackId);
   const errored = currentClass?.mux_status === "errored";
   const hasVideo = !!playbackId;
 
+  const statusLabel = errored
+    ? "MP4 Download Not Available"
+    : hasVideo
+      ? "Ready to Download MP4"
+      : processing
+        ? "Processing in MUX"
+        : currentClass?.mux_asset_id
+          ? "Ready to Stream"
+          : "No MUX Asset";
+
+  const statusTone = errored
+    ? "text-destructive"
+    : hasVideo
+      ? "text-primary"
+      : processing
+        ? "text-amber-500"
+        : "text-muted-foreground";
+
   return (
     <div className="border-t border-border pt-3 space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div className="text-xs uppercase tracking-widest text-muted-foreground">
-          Mux On-Demand Video
+          Finished Class MP4 (Mux)
         </div>
-        {hasVideo ? (
-          <span className="inline-flex items-center gap-1 text-[10px] text-primary">
-            <CheckCircle2 className="h-3 w-3" /> Ready in Mux
-          </span>
-        ) : processing ? (
-          <span className="inline-flex items-center gap-1 text-[10px] text-amber-500">
-            <Loader2 className="h-3 w-3 animate-spin" /> Processing on Mux
-          </span>
-        ) : errored ? (
-          <span className="inline-flex items-center gap-1 text-[10px] text-destructive">
-            <AlertCircle className="h-3 w-3" /> Mux error
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-            <AlertCircle className="h-3 w-3" /> No final video
-          </span>
-        )}
+        <span className={`inline-flex items-center gap-1 text-[10px] ${statusTone}`}>
+          {hasVideo ? <CheckCircle2 className="h-3 w-3" /> : processing ? <Loader2 className="h-3 w-3 animate-spin" /> : <AlertCircle className="h-3 w-3" />}
+          {statusLabel}
+        </span>
       </div>
+
+      {hasVideo ? (
+        <Button
+          type="button"
+          variant="apollo"
+          className="w-full"
+          disabled={downloading}
+          onClick={() => downloadMp4(downloadLink, currentClass?.title || "apollo-class")}
+        >
+          {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          {downloading ? "Downloading finished class…" : "Download Finished Class MP4"}
+        </Button>
+      ) : (
+        <div className="rounded-lg border border-dashed border-border bg-card/40 p-3 space-y-2">
+          <p className="text-xs text-foreground">
+            This class must be rendered to MUX before it can be downloaded as a finished MP4.
+          </p>
+          <p className="text-[10px] text-muted-foreground">
+            {processing
+              ? "Mux is currently stitching this class. The download will unlock automatically when it’s ready (usually under a minute)."
+              : "Use “Create MUX Asset from Class Clips” below to stitch every exercise clip into one Mux-hosted MP4, or upload a final edit directly."}
+          </p>
+        </div>
+      )}
+
 
       <Input
         ref={fileRef}
@@ -386,7 +415,7 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
         </p>
       )}
 
-      {hasVideo ? (
+      {hasVideo && (
         <div className="rounded-lg border border-border p-3 bg-card/50 space-y-3">
           {currentClass?.thumbnail_url && (
             <img
@@ -429,33 +458,15 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
             </div>
           </div>
 
-
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button
-              type="button"
-              variant="default"
-              size="sm"
-              className="flex-1"
-              disabled={downloading}
-              onClick={() => downloadMp4(downloadLink, currentClass?.title || "apollo-class")}
-            >
-              {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-              {downloading ? "Downloading…" : "Download MP4"}
-            </Button>
-            <Button type="button" variant="outline" size="sm" className="flex-1" onClick={() => copyLink(downloadLink, "MP4 link")}>
-              <Clipboard className="h-3.5 w-3.5" /> Copy MP4 Link
-            </Button>
-          </div>
+          <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => copyLink(downloadLink, "MP4 link")}>
+            <Clipboard className="h-3.5 w-3.5" /> Copy MP4 Link
+          </Button>
 
           <p className="text-[10px] text-muted-foreground">
             If the download fails with a 404, Mux is still rendering the MP4 file (usually under a minute after the class becomes Ready). Try again shortly.
           </p>
 
         </div>
-      ) : (
-        <p className="text-[10px] text-muted-foreground">
-          The builder preview uses exercise clips, but the client-facing on-demand class should use a final MP4/MOV uploaded here so storage stays in Mux.
-        </p>
       )}
     </div>
   );

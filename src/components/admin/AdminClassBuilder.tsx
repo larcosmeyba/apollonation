@@ -1071,7 +1071,7 @@ const AdminClassBuilder = () => {
 
           <div className="border-t border-border pt-3 space-y-2">
             <div className="text-xs uppercase tracking-widest text-muted-foreground">
-              Manual Clip Download Fallback
+              Individual Clips Fallback
             </div>
             <Button
               type="button"
@@ -1081,7 +1081,7 @@ const AdminClassBuilder = () => {
               variant="outline"
             >
               {downloadingClips ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              {downloadingClips ? `Packaging clips ${clipProgress}%` : "Download On-Demand Class (ZIP of clips)"}
+              {downloadingClips ? `Packaging clips ${clipProgress}%` : "Download Individual Clips ZIP"}
             </Button>
             {downloadingClips && (
               <div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -1089,7 +1089,7 @@ const AdminClassBuilder = () => {
               </div>
             )}
             <p className="text-[10px] text-muted-foreground">
-              Use this only when the source exercises have downloadable MP4 renditions. Otherwise use “Create Mux Asset from Class Clips” below to send this class to Mux without a local download.
+              This downloads each exercise clip as a separate file in a ZIP — NOT the finished class. To download the full stitched workout as one MP4, use “Download Finished Class MP4” below.
             </p>
           </div>
 
