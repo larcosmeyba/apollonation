@@ -17,7 +17,25 @@ Deno.serve(async (req) => {
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: authHeader } } });
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
     if (userErr || !user) return json({ error: "Unauthorized" }, 401);
-    const { class_id } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    if (body?.action === "status") {
+      const jobId = typeof body.job_id === "string" ? body.job_id : "";
+      if (!jobId) return json({ error: "job_id required" }, 400);
+      if (!MUX_TOKEN_ID || !MUX_TOKEN_SECRET) return json({ error: "Mux credentials are not configured" }, 500);
+      const { data: existing, error: readErr } = await supabase.from("render_jobs").select("id,mux_asset_id").eq("id", jobId).maybeSingle();
+      if (readErr || !existing?.mux_asset_id) return json({ error: readErr?.message || "Render job not found" }, readErr ? 500 : 404);
+      const assetRes = await fetch(`https://api.mux.com/video/v1/assets/${existing.mux_asset_id}`, { headers: { Authorization: MUX_AUTH } });
+      const assetPayload = await assetRes.json().catch(async () => ({ raw: await assetRes.text() }));
+      if (!assetRes.ok) return json({ error: assetPayload?.error?.message || assetPayload?.raw || "Mux status check failed" }, 502);
+      const asset = assetPayload.data || {};
+      const playbackId = asset.playback_ids?.[0]?.id || null;
+      const rendition = asset.static_renditions?.files?.find((f: any) => f?.status === "ready" && f?.ext === "mp4");
+      const mp4Url = playbackId && rendition?.name ? `https://stream.mux.com/${playbackId}/${rendition.name}` : null;
+      const patch: Record<string, unknown> = { status: mp4Url ? "ready" : asset.status === "errored" ? "failed" : "rendering", mux_playback_id: playbackId, mp4_url: mp4Url, duration_seconds: asset.duration || null, error: asset.errors ? JSON.stringify(asset.errors) : null };
+      await supabase.from("render_jobs").update(patch).eq("id", jobId);
+      return json({ job_id: jobId, ...patch });
+    }
+    const { class_id } = body;
     if (!class_id || typeof class_id !== "string") return json({ error: "class_id required" }, 400);
     const { data: cls, error: clsErr } = await supabase.from("admin_classes").select("*").eq("id", class_id).maybeSingle();
     if (clsErr || !cls) return json({ error: "Class not found or forbidden" }, 403);
