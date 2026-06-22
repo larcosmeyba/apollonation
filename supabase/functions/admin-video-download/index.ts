@@ -76,7 +76,10 @@ const firstReachableMuxMp4 = async (playbackId: string, downloadName: string) =>
   for (const fileName of legacyFiles) {
     const url = muxPlaybackUrl(playbackId, fileName, downloadName);
     const response = await fetch(url, { headers: { Range: "bytes=0-1" } }).catch(() => null);
-    if (response?.ok || response?.status === 206) return url;
+    if (response?.ok || response?.status === 206) {
+      await response.body?.cancel().catch(() => null);
+      return url;
+    }
     await response?.body?.cancel().catch(() => null);
   }
   return null;
