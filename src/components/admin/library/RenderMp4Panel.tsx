@@ -525,6 +525,16 @@ const FfmpegRenderSection = ({ classId, hasBlocks }: { classId: string; hasBlock
     },
   });
 
+  useEffect(() => {
+    if (!job || (job.status !== "queued" && job.status !== "rendering")) return;
+    const timer = window.setInterval(() => {
+      void supabase.functions.invoke("enqueue-class-render", {
+        body: { action: "status", job_id: job.id },
+      }).finally(() => void refetch());
+    }, 8000);
+    return () => window.clearInterval(timer);
+  }, [job?.id, job?.status, refetch]);
+
   const start = async () => {
     setSubmitting(true);
     const { data, error } = await supabase.functions.invoke("enqueue-class-render", {
