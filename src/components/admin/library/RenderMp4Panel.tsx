@@ -415,7 +415,7 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
         </p>
       )}
 
-      {hasVideo ? (
+      {hasVideo && (
         <div className="rounded-lg border border-border p-3 bg-card/50 space-y-3">
           {currentClass?.thumbnail_url && (
             <img
