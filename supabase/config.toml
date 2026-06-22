@@ -118,3 +118,9 @@ verify_jwt = false
 
 [functions.get-mux-config]
 verify_jwt = false
+
+[functions.enqueue-class-render]
+verify_jwt = true
+
+[functions.render-callback]
+verify_jwt = false

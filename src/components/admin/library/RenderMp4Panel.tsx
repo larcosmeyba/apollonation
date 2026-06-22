@@ -394,6 +394,10 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
         </Button>
       )}
 
+      {classId && (
+        <FfmpegRenderSection classId={classId} hasBlocks={hasBlocks} />
+      )}
+
       <div className="space-y-1 rounded-lg border border-border p-3 bg-card/40">
         <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Manual Mux playback URL</Label>
         <div className="flex gap-2">
@@ -483,6 +487,106 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
           </p>
 
         </div>
+      )}
+    </div>
+  );
+};
+
+type FfmpegJob = {
+  id: string;
+  status: string;
+  mp4_url: string | null;
+  error: string | null;
+  expires_at: string | null;
+  created_at: string;
+};
+
+const FfmpegRenderSection = ({ classId, hasBlocks }: { classId: string; hasBlocks: boolean }) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const { data: job, refetch } = useQuery({
+    queryKey: ["ffmpeg-render-job", classId],
+    enabled: !!classId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("render_jobs")
+        .select("id,status,mp4_url,error,expires_at,created_at")
+        .eq("class_id", classId)
+        .eq("render_engine", "ffmpeg")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as FfmpegJob | null) ?? null;
+    },
+    refetchInterval: (query) => {
+      const s = (query.state.data as FfmpegJob | null)?.status;
+      return s === "queued" || s === "rendering" ? 4000 : false;
+    },
+  });
+
+  const start = async () => {
+    setSubmitting(true);
+    const { data, error } = await supabase.functions.invoke("enqueue-class-render", {
+      body: { class_id: classId },
+    });
+    setSubmitting(false);
+    if (error || (data as any)?.error) {
+      toast.error((data as any)?.error || error?.message || "Could not start render");
+      return;
+    }
+    toast.success("Stitching started — this can take a few minutes");
+    await refetch();
+  };
+
+  const status = job?.status;
+  const inProgress = status === "queued" || status === "rendering";
+  const ready = status === "ready" && job?.mp4_url;
+  const failed = status === "failed";
+
+  return (
+    <div className="rounded-lg border border-border p-3 bg-card/40 space-y-2">
+      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+        FFmpeg stitched MP4 (no Mux required)
+      </div>
+      <Button
+        type="button"
+        onClick={start}
+        disabled={!hasBlocks || submitting || inProgress}
+        className="w-full"
+        variant="outline"
+      >
+        {submitting || inProgress ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+        {inProgress
+          ? "Stitching your MP4…"
+          : submitting
+            ? "Starting…"
+            : "Download Finished MP4 (stitched)"}
+      </Button>
+      {inProgress && (
+        <p className="text-[10px] text-muted-foreground">
+          Stitching your MP4… this can take a few minutes. The download link will appear here automatically.
+        </p>
+      )}
+      {ready && (
+        <div className="space-y-1">
+          <a
+            href={job!.mp4_url!}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-primary underline"
+          >
+            <Download className="h-3.5 w-3.5" /> Download Finished MP4
+          </a>
+          <p className="text-[10px] text-muted-foreground">
+            Link expires in 24h. Download it, then upload it to Mux.
+          </p>
+        </div>
+      )}
+      {failed && (
+        <p className="text-[10px] text-destructive">
+          Render failed: {job?.error || "unknown error"}
+        </p>
       )}
     </div>
   );
