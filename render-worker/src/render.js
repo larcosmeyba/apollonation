@@ -8,14 +8,18 @@ import { join } from "node:path";
 
 // Canonical output format. Every segment is normalized to these params so the
 // final concat can stream-copy (fast, no quality loss on the join).
-const W = Number(process.env.RENDER_WIDTH || 1920);
-const H = Number(process.env.RENDER_HEIGHT || 1080);
+// Default to 720p + ultrafast to fit small Railway instances. The encoder, not
+// the network, is the memory hog — 1080p veryfast can OOM-kill ffmpeg (exit
+// signal SIGKILL). All overridable via env if the instance has more headroom.
+const W = Number(process.env.RENDER_WIDTH || 1280);
+const H = Number(process.env.RENDER_HEIGHT || 720);
 const FPS = Number(process.env.RENDER_FPS || 30);
 
 const VIDEO_ARGS = [
-  "-c:v", "libx264", "-preset", process.env.FFMPEG_PRESET || "veryfast",
-  "-crf", process.env.FFMPEG_CRF || "20", "-pix_fmt", "yuv420p",
+  "-c:v", "libx264", "-preset", process.env.FFMPEG_PRESET || "ultrafast",
+  "-crf", process.env.FFMPEG_CRF || "23", "-pix_fmt", "yuv420p",
   "-r", String(FPS), "-g", String(FPS * 2), "-video_track_timescale", "90000",
+  "-threads", process.env.FFMPEG_THREADS || "2",
 ];
 const AUDIO_ARGS = ["-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2"];
 // Let FFmpeg read sources over the network — direct files (mp4/mov) AND HLS
@@ -123,8 +127,10 @@ function run(cmd, args) {
     let stderr = "";
     p.stderr.on("data", (d) => (stderr += d.toString()));
     p.on("error", reject);
-    p.on("close", (code) =>
-      code === 0 ? resolve() : reject(new Error(`${cmd} exited ${code}: ${stderr.slice(-800)}`)),
+    p.on("close", (code, signal) =>
+      code === 0
+        ? resolve()
+        : reject(new Error(`${cmd} exited code=${code} signal=${signal || "none"}${signal === "SIGKILL" ? " (out of memory — bump the worker instance memory)" : ""}: ${stderr.slice(-700)}`)),
     );
   });
 }
