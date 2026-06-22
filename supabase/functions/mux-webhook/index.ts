@@ -409,7 +409,7 @@ Deno.serve(async (req) => {
     } else if (type === "video.asset.static_rendition.ready") {
       const { data: jobRow } = await supabase
         .from("render_jobs")
-        .select("mux_playback_id")
+        .select("mux_playback_id,class_id")
         .match(matchById)
         .maybeSingle();
       const playbackId = (jobRow as any)?.mux_playback_id;
@@ -422,6 +422,17 @@ Deno.serve(async (req) => {
           error: null,
         })
         .match(matchById);
+      if (playbackId && (jobRow as any)?.class_id) {
+        await supabase
+          .from("admin_classes")
+          .update({
+            mux_playback_id: playbackId,
+            mux_asset_id: assetId,
+            video_url: `https://stream.mux.com/${playbackId}.m3u8`,
+            thumbnail_url: `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`,
+          })
+          .eq("id", (jobRow as any).class_id);
+      }
     } else if (type === "video.asset.created") {
       await supabase
         .from("render_jobs")
