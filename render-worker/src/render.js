@@ -88,8 +88,12 @@ async function buildExerciseSegment(dir, idx, seg, outPath) {
   }
 
   // 2) Loop the unit to fill the work duration (sets * work_seconds).
+  //    Re-encode here (NOT -c copy) so the cut is frame-accurate. Stream-copy can
+  //    only cut on a keyframe boundary, which makes each segment run ~0.1s long and
+  //    accumulates into seconds of drift across a full class. Verified: re-encoding
+  //    yields exact durations.
   const fill = Math.max(1, Number(seg.fillSeconds) || 0);
-  await ffmpeg(["-stream_loop", "-1", "-i", unit, "-t", String(fill), "-c", "copy", "-movflags", "+faststart", outPath]);
+  await ffmpeg(["-stream_loop", "-1", "-i", unit, "-t", String(fill), ...VIDEO_ARGS, ...AUDIO_ARGS, "-movflags", "+faststart", outPath]);
 }
 
 async function buildRestSegment(outPath, seconds) {
