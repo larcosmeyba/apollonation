@@ -11,7 +11,7 @@ const muxMp4 = (id: string) => `https://stream.mux.com/${id}.m3u8`;
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
-    if (!RENDER_WORKER_URL || !RENDER_WORKER_SECRET) return json({ error: "Render worker is not configured" }, 500);
+    if ((!MUX_TOKEN_ID || !MUX_TOKEN_SECRET) && (!RENDER_WORKER_URL || !RENDER_WORKER_SECRET)) return json({ error: "Render pipeline is not configured" }, 500);
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: authHeader } } });
@@ -69,6 +69,10 @@ Deno.serve(async (req) => {
     }
     const { data: job, error: jobErr } = await supabase.from("render_jobs").insert({ class_id, status: "queued", render_engine: "ffmpeg", inputs_json: { title: cls.title, segments }, created_by: user.id }).select().single();
     if (jobErr || !job) return json({ error: jobErr?.message || "job insert failed" }, 500);
+    if (!RENDER_WORKER_URL || !RENDER_WORKER_SECRET) {
+      await supabase.from("render_jobs").update({ status: "failed", error: "Render worker is not configured for non-Mux clips" }).eq("id", job.id);
+      return json({ error: "Render worker is not configured for non-Mux clips" }, 500);
+    }
     const callbackUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/render-callback`;
     let workerResp: Response;
     try {
