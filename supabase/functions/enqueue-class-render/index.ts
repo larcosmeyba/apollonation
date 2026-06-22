@@ -25,10 +25,12 @@ Deno.serve(async (req) => {
     if (blocksErr) return json({ error: blocksErr.message }, 500);
     if (!blocks || blocks.length === 0) return json({ error: "Class has no blocks" }, 400);
     const exerciseIds = Array.from(new Set(blocks.map((b: Block) => b.exercise_id).filter(Boolean) as string[]));
-    const { data: exRows } = await supabase.from("admin_exercises").select("id, mux_playback_id, source_video_url, loop_in_seconds, loop_out_seconds").in("id", exerciseIds);
+    const { data: exRows } = await supabase.from("admin_exercises").select("id, mux_playback_id, mux_asset_id, source_video_url, loop_in_seconds, loop_out_seconds").in("id", exerciseIds);
     const exMap = new Map<string, Exercise>((exRows || []).map((e: Exercise) => [e.id, e]));
     type Segment = { kind: "exercise"; url: string; isMux: boolean; in: number; out: number; fillSeconds: number } | { kind: "rest"; seconds: number };
     const segments: Segment[] = [];
+    const muxInputs: Array<Record<string, unknown>> = [];
+    let canUseMuxStitching = !!MUX_TOKEN_ID && !!MUX_TOKEN_SECRET;
     for (const b of blocks as Block[]) {
       if (!b.exercise_id) continue;
       const ex = exMap.get(b.exercise_id); if (!ex) continue;
@@ -37,6 +39,17 @@ Deno.serve(async (req) => {
       const loopIn = ex.loop_in_seconds ?? 0; const loopOut = ex.loop_out_seconds ?? loopIn + 4;
       const fillSeconds = Math.max(1, (b.sets || 1) * (b.work_seconds || loopOut - loopIn));
       segments.push({ kind: "exercise", url, isMux, in: loopIn, out: loopOut, fillSeconds });
+      if (ex.mux_asset_id) {
+        const copies = Math.max(1, Math.ceil(fillSeconds / Math.max(1, loopOut - loopIn)));
+        for (let i = 0; i < copies; i += 1) {
+          const input: Record<string, unknown> = { url: `mux://assets/${ex.mux_asset_id}` };
+          if (loopIn > 0) input.start_time = loopIn;
+          if (loopOut > loopIn) input.end_time = loopOut;
+          muxInputs.push(input);
+        }
+      } else {
+        canUseMuxStitching = false;
+      }
       if (b.rest_seconds && b.rest_seconds > 0) segments.push({ kind: "rest", seconds: b.rest_seconds });
     }
     if (segments.length === 0) return json({ error: "No usable clips in this class" }, 400);
