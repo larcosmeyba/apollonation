@@ -547,7 +547,7 @@ const FfmpegRenderSection = ({ classId, hasBlocks }: { classId: string; hasBlock
   return (
     <div className="rounded-lg border border-border p-3 bg-card/40 space-y-2">
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-        FFmpeg stitched MP4 (no Mux required)
+        Stitched class MP4
       </div>
       <Button
         type="button"
