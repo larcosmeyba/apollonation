@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     const callbackUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/render-callback`;
     let workerResp: Response;
     try {
-      workerResp = await fetch(`${RENDER_WORKER_URL}/render`, { method: "POST", headers: { "Content-Type": "application/json", "x-worker-secret": RENDER_WORKER_SECRET }, body: JSON.stringify({ jobId: job.id, title: cls.title, segments, callbackUrl }) });
+      workerResp = await fetch(`${RENDER_WORKER_URL}/render`, { method: "POST", headers: { "Content-Type": "application/json", "x-worker-secret": RENDER_WORKER_SECRET, "Authorization": `Bearer ${RENDER_WORKER_SECRET}` }, body: JSON.stringify({ jobId: job.id, title: cls.title, segments, callbackUrl }) });
     } catch (e) {
       await supabase.from("render_jobs").update({ status: "failed", error: `Worker unreachable: ${(e as Error).message}` }).eq("id", job.id);
       return json({ error: "Render worker unreachable" }, 502);
