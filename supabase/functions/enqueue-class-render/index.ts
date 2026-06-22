@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
       const fillSeconds = Math.max(1, (b.sets || 1) * (b.work_seconds || loopOut - loopIn));
       segments.push({ kind: "exercise", url, isMux, in: loopIn, out: loopOut, fillSeconds });
       if (ex.mux_asset_id) {
-        const copies = Math.max(1, Math.ceil(fillSeconds / Math.max(1, loopOut - loopIn)));
+        const copies = Math.max(1, Number(b.sets) || 1);
         for (let i = 0; i < copies; i += 1) {
           const input: Record<string, unknown> = { url: `mux://assets/${ex.mux_asset_id}` };
           if (loopIn > 0) input.start_time = loopIn;
