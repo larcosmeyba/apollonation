@@ -10,7 +10,7 @@ const WORKER_SECRET = process.env.RENDER_WORKER_SECRET;
 const URL_TTL_SECONDS = Number(process.env.DOWNLOAD_URL_TTL_SECONDS || 24 * 60 * 60);
 
 // Bump this on every worker change so /health reveals which build is live.
-const VERSION = "v3-storage-trim-whitelist";
+const VERSION = "v4-direct-url-hls";
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));

@@ -18,6 +18,10 @@ const VIDEO_ARGS = [
   "-r", String(FPS), "-g", String(FPS * 2), "-video_track_timescale", "90000",
 ];
 const AUDIO_ARGS = ["-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2"];
+// Let FFmpeg read sources over the network — direct files (mp4/mov) AND HLS
+// playlists (m3u8), whose segment fetches are otherwise blocked by the default
+// 'file,crypto,data' whitelist.
+const PW = ["-protocol_whitelist", "file,crypto,data,http,https,tcp,tls"];
 const NORMALIZE_VF =
   `scale=${W}:${H}:force_original_aspect_ratio=decrease,` +
   `pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=${FPS},format=yuv420p`;
@@ -66,24 +70,22 @@ export async function renderClass({ jobId, segments }) {
 // --- segment builders -------------------------------------------------------
 
 async function buildExerciseSegment(dir, idx, seg, outPath) {
-  const src = join(dir, `src_${idx}${extFromUrl(seg.url)}`);
-  await download(seg.url, src);
-
-  // 1) Trim to the loop window + normalize into a "unit" clip.
+  // Read the source directly with a protocol whitelist. This handles BOTH direct
+  // files (mp4/mov over https, e.g. Supabase storage) and HLS playlists (m3u8,
+  // e.g. Mux). Pre-downloading broke on HLS because fetch() saved the playlist
+  // text, not the video, so FFmpeg couldn't fetch the https segments.
   const unit = join(dir, `unit_${idx}.mp4`);
   const trim = [];
-  // Trim the loop window for ANY source. The worker runs FFmpeg itself, so this
-  // works on the original files from Supabase storage (no Mux involved).
   if (Number.isFinite(seg.in) && Number.isFinite(seg.out) && seg.out > seg.in) {
     trim.push("-ss", String(seg.in), "-t", String(seg.out - seg.in));
   }
-  const hasAudio = await ffprobeHasAudio(src);
+  const hasAudio = await ffprobeHasAudio(seg.url);
   if (hasAudio) {
-    await ffmpeg([...trim, "-i", src, "-vf", NORMALIZE_VF, ...VIDEO_ARGS, ...AUDIO_ARGS, "-shortest", unit]);
+    await ffmpeg([...PW, ...trim, "-i", seg.url, "-vf", NORMALIZE_VF, ...VIDEO_ARGS, ...AUDIO_ARGS, "-shortest", unit]);
   } else {
     // No audio track → add a silent stereo track so every segment matches.
     await ffmpeg([
-      ...trim, "-i", src,
+      ...PW, ...trim, "-i", seg.url,
       "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000",
       "-vf", NORMALIZE_VF, ...VIDEO_ARGS, ...AUDIO_ARGS,
       "-map", "0:v:0", "-map", "1:a:0", "-shortest", unit,
@@ -140,11 +142,12 @@ function ffprobeDuration(file) {
   });
 }
 
-function ffprobeHasAudio(file) {
+function ffprobeHasAudio(input) {
   return new Promise((resolve) => {
     const p = spawn("ffprobe", [
+      ...PW,
       "-v", "error", "-select_streams", "a", "-show_entries", "stream=index",
-      "-of", "csv=p=0", file,
+      "-of", "csv=p=0", input,
     ]);
     let out = "";
     p.stdout.on("data", (d) => (out += d.toString()));
