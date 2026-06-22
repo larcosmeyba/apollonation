@@ -288,7 +288,7 @@ Deno.serve(async (req) => {
   const type = payload.type as string;
   const data = payload.data || {};
   const passthrough = data.passthrough as string | undefined;
-  const assetId = data.id as string | undefined;
+  const assetId = (type.startsWith("video.asset.static_rendition.") ? data.asset_id : data.id) as string | undefined;
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -350,14 +350,15 @@ Deno.serve(async (req) => {
     if (type === "video.asset.ready") {
       const playbackId = data.playback_ids?.[0]?.id || null;
       const duration = data.duration || null;
-      const mp4Url = playbackId
-        ? `https://stream.mux.com/${playbackId}/high.mp4`
+      const readyRendition = data.static_renditions?.files?.find((f: any) => f?.status === "ready" && f?.ext === "mp4");
+      const mp4Url = playbackId && readyRendition?.name
+        ? `https://stream.mux.com/${playbackId}/${readyRendition.name}`
         : null;
 
       await supabase
         .from("render_jobs")
         .update({
-          status: "ready",
+          status: mp4Url ? "ready" : "rendering",
           mux_playback_id: playbackId,
           mp4_url: mp4Url,
           duration_seconds: duration,
@@ -403,6 +404,22 @@ Deno.serve(async (req) => {
         .update({
           status: "failed",
           error: JSON.stringify(data.errors || data),
+        })
+        .match(matchById);
+    } else if (type === "video.asset.static_rendition.ready") {
+      const { data: jobRow } = await supabase
+        .from("render_jobs")
+        .select("mux_playback_id")
+        .match(matchById)
+        .maybeSingle();
+      const playbackId = (jobRow as any)?.mux_playback_id;
+      const name = data.name || "highest.mp4";
+      await supabase
+        .from("render_jobs")
+        .update({
+          status: playbackId ? "ready" : "rendering",
+          mp4_url: playbackId ? `https://stream.mux.com/${playbackId}/${name}` : null,
+          error: null,
         })
         .match(matchById);
     } else if (type === "video.asset.created") {
