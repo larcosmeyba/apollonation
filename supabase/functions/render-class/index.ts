@@ -145,8 +145,8 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         inputs,
-        playback_policy: ["public"],
-        mp4_support: "capped-1080p",
+        playback_policies: ["public"],
+        static_renditions: [{ resolution: "highest", passthrough: job.id }],
         passthrough: job.id,
         max_resolution_tier: "1080p",
       }),
