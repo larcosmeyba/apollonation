@@ -19,6 +19,16 @@ const mp4Url = (playbackId: string) => `https://stream.mux.com/${playbackId}/cap
 const playbackUrl = (playbackId: string) => `https://stream.mux.com/${playbackId}.m3u8`;
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
+const functionErrorMessage = async (error: unknown, data: any, fallback: string) => {
+  if (data?.error) return data.error as string;
+  const maybeResponse = (error as { context?: unknown } | null)?.context;
+  if (maybeResponse instanceof Response) {
+    const payload = await maybeResponse.clone().json().catch(async () => ({ error: await maybeResponse.clone().text() }));
+    if (payload?.error) return payload.error as string;
+  }
+  return (error as Error | null)?.message || fallback;
+};
+
 type MuxVideoRecord = {
   id: string;
   title: string | null;
@@ -104,7 +114,7 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
     if (error || data?.error || !data?.upload_url) {
       setUploading(false);
       setProgress(0);
-      return toast.error(data?.error || error?.message || "Could not create Mux upload");
+      return toast.error(await functionErrorMessage(error, data, "Could not create Mux upload"));
     }
 
     const uploaded = await new Promise<void>((resolve, reject) => {
@@ -176,7 +186,7 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
     if (error || data?.error || !data?.asset_id) {
       setCreatingFromClips(false);
       setProgress(0);
-      return toast.error(data?.error || error?.message || "Mux could not create this class from clips");
+      return toast.error(await functionErrorMessage(error, data, "Mux could not create this class from clips"));
     }
     toast.success(`Mux asset created from ${data.input_count || "class"} clip${data.input_count === 1 ? "" : "s"}`);
     setProgress(96);
