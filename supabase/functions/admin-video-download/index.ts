@@ -15,6 +15,9 @@ const json = (body: unknown, status = 200) =>
 const safeFileName = (name: string, fallback = "apollo-clip") =>
   (name || fallback).replace(/[^a-z0-9-_]+/gi, "_").replace(/^_+|_+$/g, "") || fallback;
 
+const muxPlaybackUrl = (playbackId: string, fileName: string, downloadName: string) =>
+  `https://stream.mux.com/${playbackId}/${fileName}?download=${encodeURIComponent(downloadName)}`;
+
 const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID") || "";
 const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET") || "";
 const MUX_AUTH = "Basic " + btoa(`${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}`);
@@ -40,6 +43,41 @@ const extractExerciseStoragePath = (rawUrl: string | null): string | null => {
     }
   } catch (_) {
     return null;
+  }
+  return null;
+};
+
+const fetchMuxAsset = async (assetId: string) => {
+  const assetRes = await fetch(`https://api.mux.com/video/v1/assets/${assetId}`, {
+    headers: { Authorization: MUX_AUTH },
+  });
+  const assetData = await assetRes.json().catch(() => null);
+  return { assetRes, assetData };
+};
+
+const pickReadyStaticMp4 = (assetData: any) => {
+  const files = assetData?.data?.static_renditions?.files;
+  if (!Array.isArray(files)) return null;
+  return files.find((file: any) => file?.status === "ready" && typeof file?.name === "string" && file.name.endsWith(".mp4")) || null;
+};
+
+const createStaticMp4IfMissing = async (assetId: string) => {
+  const res = await fetch(`https://api.mux.com/video/v1/assets/${assetId}/static-renditions`, {
+    method: "POST",
+    headers: { Authorization: MUX_AUTH, "Content-Type": "application/json" },
+    body: JSON.stringify({ resolution: "highest", passthrough: "apollo-admin-download" }),
+  });
+  await res.text().catch(() => "");
+  return res.status;
+};
+
+const firstReachableMuxMp4 = async (playbackId: string, downloadName: string) => {
+  const legacyFiles = ["capped-1080p.mp4", "high.mp4", "medium.mp4"];
+  for (const fileName of legacyFiles) {
+    const url = muxPlaybackUrl(playbackId, fileName, downloadName);
+    const response = await fetch(url, { headers: { Range: "bytes=0-1" } }).catch(() => null);
+    if (response?.ok || response?.status === 206) return url;
+    await response?.body?.cancel().catch(() => null);
   }
   return null;
 };
