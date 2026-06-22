@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
       if (b.rest_seconds && b.rest_seconds > 0) segments.push({ kind: "rest", seconds: b.rest_seconds });
     }
     if (segments.length === 0) return json({ error: "No usable clips in this class" }, 400);
-    if (canUseMuxStitching && muxInputs.length > 0 && muxInputs.length <= 100) {
+    if (canUseMuxStitching && muxInputs.length > 0) {
       const { data: job, error: jobErr } = await supabase.from("render_jobs").insert({ class_id, status: "queued", render_engine: "mux", inputs_json: { title: cls.title, inputs: muxInputs }, created_by: user.id }).select().single();
       if (jobErr || !job) return json({ error: jobErr?.message || "job insert failed" }, 500);
       const muxRes = await fetch("https://api.mux.com/video/v1/assets", { method: "POST", headers: { Authorization: MUX_AUTH, "Content-Type": "application/json" }, body: JSON.stringify({ inputs: muxInputs, playback_policies: ["public"], static_renditions: [{ resolution: "highest", passthrough: job.id }], max_resolution_tier: "1080p", passthrough: job.id, meta: { title: cls.title || "Apollo On-Demand Class", external_id: class_id } }) });
