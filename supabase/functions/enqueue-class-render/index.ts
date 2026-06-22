@@ -2,8 +2,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type" };
 const RENDER_WORKER_URL = Deno.env.get("RENDER_WORKER_URL")?.trim().replace(/\/+$/, "");
 const RENDER_WORKER_SECRET = Deno.env.get("RENDER_WORKER_SECRET")?.trim();
+const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID") || "";
+const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET") || "";
+const MUX_AUTH = "Basic " + btoa(`${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}`);
 interface Block { exercise_id: string | null; work_seconds: number; rest_seconds: number; sets: number; set_rest_seconds: number; sort_order: number; }
-interface Exercise { id: string; mux_playback_id: string | null; source_video_url: string | null; loop_in_seconds: number | null; loop_out_seconds: number | null; }
+interface Exercise { id: string; mux_playback_id: string | null; mux_asset_id: string | null; source_video_url: string | null; loop_in_seconds: number | null; loop_out_seconds: number | null; }
 const muxMp4 = (id: string) => `https://stream.mux.com/${id}.m3u8`;
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -22,21 +25,48 @@ Deno.serve(async (req) => {
     if (blocksErr) return json({ error: blocksErr.message }, 500);
     if (!blocks || blocks.length === 0) return json({ error: "Class has no blocks" }, 400);
     const exerciseIds = Array.from(new Set(blocks.map((b: Block) => b.exercise_id).filter(Boolean) as string[]));
-    const { data: exRows } = await supabase.from("admin_exercises").select("id, mux_playback_id, source_video_url, loop_in_seconds, loop_out_seconds").in("id", exerciseIds);
+    const { data: exRows } = await supabase.from("admin_exercises").select("id, mux_playback_id, mux_asset_id, source_video_url, loop_in_seconds, loop_out_seconds").in("id", exerciseIds);
     const exMap = new Map<string, Exercise>((exRows || []).map((e: Exercise) => [e.id, e]));
     type Segment = { kind: "exercise"; url: string; isMux: boolean; in: number; out: number; fillSeconds: number } | { kind: "rest"; seconds: number };
     const segments: Segment[] = [];
+    const muxInputs: Array<Record<string, unknown>> = [];
+    let canUseMuxStitching = !!MUX_TOKEN_ID && !!MUX_TOKEN_SECRET;
     for (const b of blocks as Block[]) {
       if (!b.exercise_id) continue;
       const ex = exMap.get(b.exercise_id); if (!ex) continue;
       const isMux = !!ex.mux_playback_id;
       const url = isMux ? muxMp4(ex.mux_playback_id!) : ex.source_video_url; if (!url) continue;
       const loopIn = ex.loop_in_seconds ?? 0; const loopOut = ex.loop_out_seconds ?? loopIn + 4;
+      const explicitLoopOut = ex.loop_out_seconds !== null && ex.loop_out_seconds !== undefined;
       const fillSeconds = Math.max(1, (b.sets || 1) * (b.work_seconds || loopOut - loopIn));
       segments.push({ kind: "exercise", url, isMux, in: loopIn, out: loopOut, fillSeconds });
+      if (ex.mux_asset_id) {
+        const copies = Math.max(1, Number(b.sets) || 1);
+        for (let i = 0; i < copies; i += 1) {
+          const input: Record<string, unknown> = { url: `mux://assets/${ex.mux_asset_id}` };
+          if (loopIn > 0) input.start_time = loopIn;
+          if (explicitLoopOut && loopOut > loopIn) input.end_time = loopOut;
+          muxInputs.push(input);
+        }
+      } else {
+        canUseMuxStitching = false;
+      }
       if (b.rest_seconds && b.rest_seconds > 0) segments.push({ kind: "rest", seconds: b.rest_seconds });
     }
     if (segments.length === 0) return json({ error: "No usable clips in this class" }, 400);
+    if (canUseMuxStitching && muxInputs.length > 0) {
+      const { data: job, error: jobErr } = await supabase.from("render_jobs").insert({ class_id, status: "queued", render_engine: "mux", inputs_json: { title: cls.title, inputs: muxInputs }, created_by: user.id }).select().single();
+      if (jobErr || !job) return json({ error: jobErr?.message || "job insert failed" }, 500);
+      const muxRes = await fetch("https://api.mux.com/video/v1/assets", { method: "POST", headers: { Authorization: MUX_AUTH, "Content-Type": "application/json" }, body: JSON.stringify({ inputs: muxInputs, playback_policies: ["public"], static_renditions: [{ resolution: "highest", passthrough: job.id }], max_resolution_tier: "1080p", passthrough: job.id, meta: { title: cls.title || "Apollo On-Demand Class", external_id: class_id } }) });
+      const muxData = await muxRes.json().catch(async () => ({ raw: await muxRes.text() }));
+      if (!muxRes.ok) {
+        const msg = muxData?.error?.messages?.join(" ") || muxData?.error?.message || muxData?.raw || "Mux rejected stitched render";
+        await supabase.from("render_jobs").update({ status: "failed", error: `Mux ${muxRes.status}: ${String(msg).slice(0, 900)}` }).eq("id", job.id);
+        return json({ error: `Mux rejected render: ${msg}` }, 502);
+      }
+      await supabase.from("render_jobs").update({ status: "rendering", mux_asset_id: muxData.data?.id || null }).eq("id", job.id);
+      return json({ job_id: job.id, status: "rendering", engine: "mux" });
+    }
     const { data: job, error: jobErr } = await supabase.from("render_jobs").insert({ class_id, status: "queued", render_engine: "ffmpeg", inputs_json: { title: cls.title, segments }, created_by: user.id }).select().single();
     if (jobErr || !job) return json({ error: jobErr?.message || "job insert failed" }, 500);
     const callbackUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/render-callback`;

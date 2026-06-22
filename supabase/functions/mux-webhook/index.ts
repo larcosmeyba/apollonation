@@ -21,6 +21,9 @@ const corsHeaders = {
 };
 
 const WEBHOOK_SECRET = Deno.env.get("MUX_WEBHOOK_SECRET") || "";
+const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID") || "";
+const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET") || "";
+const MUX_AUTH = "Basic " + btoa(`${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}`);
 
 // Mux signs webhooks with `Mux-Signature: t=<ts>,v1=<hex hmac sha256>`.
 async function verifyMuxSignature(rawBody: string, header: string | null) {
@@ -288,7 +291,7 @@ Deno.serve(async (req) => {
   const type = payload.type as string;
   const data = payload.data || {};
   const passthrough = data.passthrough as string | undefined;
-  const assetId = data.id as string | undefined;
+  const assetId = (type.startsWith("video.asset.static_rendition.") ? data.asset_id : data.id) as string | undefined;
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -350,14 +353,15 @@ Deno.serve(async (req) => {
     if (type === "video.asset.ready") {
       const playbackId = data.playback_ids?.[0]?.id || null;
       const duration = data.duration || null;
-      const mp4Url = playbackId
-        ? `https://stream.mux.com/${playbackId}/high.mp4`
+      const readyRendition = data.static_renditions?.files?.find((f: any) => f?.status === "ready" && f?.ext === "mp4");
+      const mp4Url = playbackId && readyRendition?.name
+        ? `https://stream.mux.com/${playbackId}/${readyRendition.name}`
         : null;
 
       await supabase
         .from("render_jobs")
         .update({
-          status: "ready",
+          status: mp4Url ? "ready" : "rendering",
           mux_playback_id: playbackId,
           mp4_url: mp4Url,
           duration_seconds: duration,
@@ -382,6 +386,8 @@ Deno.serve(async (req) => {
             .update({
               mux_playback_id: playbackId,
               mux_asset_id: assetId,
+              video_url: playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : null,
+              mux_status: playbackId ? "ready" : "processing",
               thumbnail_url: thumb,
               duration_seconds: duration,
               duration_minutes: duration
@@ -405,6 +411,39 @@ Deno.serve(async (req) => {
           error: JSON.stringify(data.errors || data),
         })
         .match(matchById);
+    } else if (type === "video.asset.static_rendition.ready") {
+      const { data: jobRow } = await supabase
+        .from("render_jobs")
+        .select("mux_playback_id,class_id")
+        .match(matchById)
+        .maybeSingle();
+      let playbackId = (jobRow as any)?.mux_playback_id;
+      if (!playbackId && assetId && MUX_TOKEN_ID && MUX_TOKEN_SECRET) {
+        const assetRes = await fetch(`https://api.mux.com/video/v1/assets/${assetId}`, { headers: { Authorization: MUX_AUTH } });
+        const asset = await assetRes.json().catch(() => null);
+        playbackId = asset?.data?.playback_ids?.[0]?.id || null;
+      }
+      const name = data.name || "highest.mp4";
+      await supabase
+        .from("render_jobs")
+        .update({
+          status: playbackId ? "ready" : "rendering",
+          mux_playback_id: playbackId || null,
+          mp4_url: playbackId ? `https://stream.mux.com/${playbackId}/${name}` : null,
+          error: null,
+        })
+        .match(matchById);
+      if (playbackId && (jobRow as any)?.class_id) {
+        await supabase
+          .from("admin_classes")
+          .update({
+            mux_playback_id: playbackId,
+            mux_asset_id: assetId,
+            video_url: `https://stream.mux.com/${playbackId}.m3u8`,
+            thumbnail_url: `https://image.mux.com/${playbackId}/thumbnail.jpg?width=640&fit_mode=smartcrop`,
+          })
+          .eq("id", (jobRow as any).class_id);
+      }
     } else if (type === "video.asset.created") {
       await supabase
         .from("render_jobs")
