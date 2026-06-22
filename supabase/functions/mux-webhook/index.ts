@@ -383,6 +383,8 @@ Deno.serve(async (req) => {
             .update({
               mux_playback_id: playbackId,
               mux_asset_id: assetId,
+          video_url: playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : null,
+          mux_status: playbackId ? "ready" : "processing",
               thumbnail_url: thumb,
               duration_seconds: duration,
               duration_minutes: duration
