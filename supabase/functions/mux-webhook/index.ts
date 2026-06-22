@@ -417,12 +417,18 @@ Deno.serve(async (req) => {
         .select("mux_playback_id,class_id")
         .match(matchById)
         .maybeSingle();
-      const playbackId = (jobRow as any)?.mux_playback_id;
+      let playbackId = (jobRow as any)?.mux_playback_id;
+      if (!playbackId && assetId && MUX_TOKEN_ID && MUX_TOKEN_SECRET) {
+        const assetRes = await fetch(`https://api.mux.com/video/v1/assets/${assetId}`, { headers: { Authorization: MUX_AUTH } });
+        const asset = await assetRes.json().catch(() => null);
+        playbackId = asset?.data?.playback_ids?.[0]?.id || null;
+      }
       const name = data.name || "highest.mp4";
       await supabase
         .from("render_jobs")
         .update({
           status: playbackId ? "ready" : "rendering",
+          mux_playback_id: playbackId || null,
           mp4_url: playbackId ? `https://stream.mux.com/${playbackId}/${name}` : null,
           error: null,
         })
