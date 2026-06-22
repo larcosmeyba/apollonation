@@ -43,7 +43,9 @@ export async function renderClass({ jobId, segments }) {
     await writeFile(listPath, segFiles.map((f) => `file '${f.replace(/'/g, "'\\''")}'`).join("\n"));
     const finalPath = join(dir, "class.mp4");
     await ffmpeg([
-      "-f", "concat", "-safe", "0", "-i", listPath,
+      "-f", "concat", "-safe", "0",
+      "-protocol_whitelist", "file,crypto,data,http,https,tcp,tls",
+      "-i", listPath,
       "-c", "copy", "-movflags", "+faststart", finalPath,
     ]);
 

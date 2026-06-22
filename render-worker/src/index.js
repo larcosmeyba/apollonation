@@ -9,10 +9,13 @@ const WORKER_SECRET = process.env.RENDER_WORKER_SECRET;
 // How long the R2 download link stays valid. Matches the bucket lifecycle.
 const URL_TTL_SECONDS = Number(process.env.DOWNLOAD_URL_TTL_SECONDS || 24 * 60 * 60);
 
+// Bump this on every worker change so /health reveals which build is live.
+const VERSION = "v3-storage-trim-whitelist";
+
 const app = express();
 app.use(express.json({ limit: "2mb" }));
 
-app.get("/health", (_req, res) => res.json({ ok: true }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: VERSION }));
 
 app.post("/render", (req, res) => {
   if (!WORKER_SECRET || req.get("x-worker-secret") !== WORKER_SECRET) {
