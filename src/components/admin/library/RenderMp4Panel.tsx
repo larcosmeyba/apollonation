@@ -245,28 +245,34 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
   };
 
   const [downloading, setDownloading] = useState(false);
-  const downloadMp4 = async (url: string, title: string) => {
+  const downloadMp4 = async (title: string) => {
     try {
+      if (!classId) throw new Error("Open and save an On-Demand class before downloading the finished MP4.");
       setDownloading(true);
-      toast.info("Preparing download…");
-      const fallbacks = playbackId
-        ? [url, `https://stream.mux.com/${playbackId}/high.mp4`, `https://stream.mux.com/${playbackId}/medium.mp4`]
-        : [url];
-      let res: Response | null = null;
-      for (const candidate of fallbacks) {
-        const attempt = await fetch(candidate);
-        if (attempt.ok) { res = attempt; break; }
+      toast.info("Preparing finished class MP4…");
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("Sign in again before downloading the finished class MP4.");
+
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-video-download`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "finished_class", class_id: classId }),
+      });
+      const payload = await res.json().catch(async () => ({ error: await res.text() }));
+      if (!res.ok || !payload?.url) {
+        throw new Error(payload?.error || `Download failed (${res.status})`);
       }
-      if (!res?.ok) throw new Error("Mux has not finished creating a downloadable MP4 rendition yet.");
-      const blob = await res.blob();
-      const objectUrl = URL.createObjectURL(blob);
+
       const a = document.createElement("a");
-      a.href = objectUrl;
-      a.download = `${(title || "apollo-class").replace(/[^a-z0-9-_]+/gi, "_")}.mp4`;
+      a.href = payload.url;
+      a.download = payload.filename || `${(title || "apollo-class").replace(/[^a-z0-9-_]+/gi, "_")}.mp4`;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(objectUrl);
       toast.success("Download started");
     } catch (e) {
       toast.error((e as Error).message || "Could not download MP4");
@@ -321,7 +327,7 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
           variant="apollo"
           className="w-full"
           disabled={downloading}
-          onClick={() => downloadMp4(downloadLink, currentClass?.title || "apollo-class")}
+          onClick={() => downloadMp4(currentClass?.title || "apollo-class")}
         >
           {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
           {downloading ? "Downloading finished class…" : "Download Finished Class MP4"}
