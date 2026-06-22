@@ -2,8 +2,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type" };
 const RENDER_WORKER_URL = Deno.env.get("RENDER_WORKER_URL")?.trim().replace(/\/+$/, "");
 const RENDER_WORKER_SECRET = Deno.env.get("RENDER_WORKER_SECRET")?.trim();
+const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID") || "";
+const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET") || "";
+const MUX_AUTH = "Basic " + btoa(`${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}`);
 interface Block { exercise_id: string | null; work_seconds: number; rest_seconds: number; sets: number; set_rest_seconds: number; sort_order: number; }
-interface Exercise { id: string; mux_playback_id: string | null; source_video_url: string | null; loop_in_seconds: number | null; loop_out_seconds: number | null; }
+interface Exercise { id: string; mux_playback_id: string | null; mux_asset_id: string | null; source_video_url: string | null; loop_in_seconds: number | null; loop_out_seconds: number | null; }
 const muxMp4 = (id: string) => `https://stream.mux.com/${id}.m3u8`;
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
