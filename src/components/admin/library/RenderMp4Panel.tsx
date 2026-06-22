@@ -394,6 +394,10 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
         </Button>
       )}
 
+      {classId && (
+        <FfmpegRenderSection classId={classId} hasBlocks={hasBlocks} />
+      )}
+
       <div className="space-y-1 rounded-lg border border-border p-3 bg-card/40">
         <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Manual Mux playback URL</Label>
         <div className="flex gap-2">
