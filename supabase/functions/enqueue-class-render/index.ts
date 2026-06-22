@@ -37,14 +37,15 @@ Deno.serve(async (req) => {
       const isMux = !!ex.mux_playback_id;
       const url = isMux ? muxMp4(ex.mux_playback_id!) : ex.source_video_url; if (!url) continue;
       const loopIn = ex.loop_in_seconds ?? 0; const loopOut = ex.loop_out_seconds ?? loopIn + 4;
+      const explicitLoopOut = ex.loop_out_seconds !== null && ex.loop_out_seconds !== undefined;
       const fillSeconds = Math.max(1, (b.sets || 1) * (b.work_seconds || loopOut - loopIn));
       segments.push({ kind: "exercise", url, isMux, in: loopIn, out: loopOut, fillSeconds });
       if (ex.mux_asset_id) {
-        const copies = Math.max(1, Math.ceil(fillSeconds / Math.max(1, loopOut - loopIn)));
+        const copies = Math.max(1, Number(b.sets) || 1);
         for (let i = 0; i < copies; i += 1) {
           const input: Record<string, unknown> = { url: `mux://assets/${ex.mux_asset_id}` };
           if (loopIn > 0) input.start_time = loopIn;
-          if (loopOut > loopIn) input.end_time = loopOut;
+          if (explicitLoopOut && loopOut > loopIn) input.end_time = loopOut;
           muxInputs.push(input);
         }
       } else {
