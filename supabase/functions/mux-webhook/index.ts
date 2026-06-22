@@ -21,6 +21,9 @@ const corsHeaders = {
 };
 
 const WEBHOOK_SECRET = Deno.env.get("MUX_WEBHOOK_SECRET") || "";
+const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID") || "";
+const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET") || "";
+const MUX_AUTH = "Basic " + btoa(`${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}`);
 
 // Mux signs webhooks with `Mux-Signature: t=<ts>,v1=<hex hmac sha256>`.
 async function verifyMuxSignature(rawBody: string, header: string | null) {
@@ -383,8 +386,8 @@ Deno.serve(async (req) => {
             .update({
               mux_playback_id: playbackId,
               mux_asset_id: assetId,
-          video_url: playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : null,
-          mux_status: playbackId ? "ready" : "processing",
+              video_url: playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : null,
+              mux_status: playbackId ? "ready" : "processing",
               thumbnail_url: thumb,
               duration_seconds: duration,
               duration_minutes: duration
