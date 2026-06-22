@@ -3258,11 +3258,13 @@ export type Database = {
           created_by: string | null
           duration_seconds: number | null
           error: string | null
+          expires_at: string | null
           id: string
           inputs_json: Json | null
           mp4_url: string | null
           mux_asset_id: string | null
           mux_playback_id: string | null
+          render_engine: string
           status: string
           updated_at: string
         }
@@ -3272,11 +3274,13 @@ export type Database = {
           created_by?: string | null
           duration_seconds?: number | null
           error?: string | null
+          expires_at?: string | null
           id?: string
           inputs_json?: Json | null
           mp4_url?: string | null
           mux_asset_id?: string | null
           mux_playback_id?: string | null
+          render_engine?: string
           status?: string
           updated_at?: string
         }
@@ -3286,11 +3290,13 @@ export type Database = {
           created_by?: string | null
           duration_seconds?: number | null
           error?: string | null
+          expires_at?: string | null
           id?: string
           inputs_json?: Json | null
           mp4_url?: string | null
           mux_asset_id?: string | null
           mux_playback_id?: string | null
+          render_engine?: string
           status?: string
           updated_at?: string
         }
