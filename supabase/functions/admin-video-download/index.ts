@@ -163,6 +163,11 @@ Deno.serve(async (req) => {
         }
       }
 
+      if (klass.mux_playback_id) {
+        const legacyUrl = await firstReachableMuxMp4(klass.mux_playback_id, downloadName);
+        if (legacyUrl) return json({ url: legacyUrl, filename: downloadName });
+      }
+
       return json({ error: "This class has a MUX playback ID but no downloadable MP4 rendition yet. Re-create the Mux asset from class clips, then try again after it is ready." }, 409);
     }
 
