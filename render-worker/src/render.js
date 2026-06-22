@@ -70,8 +70,9 @@ async function buildExerciseSegment(dir, idx, seg, outPath) {
   // 1) Trim to the loop window + normalize into a "unit" clip.
   const unit = join(dir, `unit_${idx}.mp4`);
   const trim = [];
-  // Only trust in/out trimming for Mux sources (consistent), like render-class.
-  if (seg.isMux && Number.isFinite(seg.in) && Number.isFinite(seg.out) && seg.out > seg.in) {
+  // Trim the loop window for ANY source. The worker runs FFmpeg itself, so this
+  // works on the original files from Supabase storage (no Mux involved).
+  if (Number.isFinite(seg.in) && Number.isFinite(seg.out) && seg.out > seg.in) {
     trim.push("-ss", String(seg.in), "-t", String(seg.out - seg.in));
   }
   const hasAudio = await ffprobeHasAudio(src);
