@@ -80,6 +80,7 @@ async function mintToken(playbackId: string, aud: "v" | "t" | "g" | "s"): Promis
 Deno.serve(async (req) => {
   const corsHeaders = buildCorsHeaders(req);
   const pre = handlePreflight(req); if (pre) return pre;
+  const json = makeJson(corsHeaders);
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
