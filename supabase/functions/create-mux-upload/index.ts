@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
         headers: { Authorization: MUX_AUTH, "Content-Type": "application/json" },
         body: JSON.stringify({
           inputs,
-          playback_policies: ["public"],
+          playback_policies: ["signed"],
           static_renditions: [{ resolution: "highest", passthrough: `admin_class:${classId}` }],
           max_resolution_tier: "1080p",
           passthrough: `admin_class:${classId}`,
@@ -161,7 +161,7 @@ Deno.serve(async (req) => {
       const assetId = assetData.data?.id;
       await service
         .from("admin_classes")
-        .update({ mux_status: "processing", mux_asset_id: assetId || null, mux_playback_id: null, video_url: null })
+        .update({ mux_status: "processing", mux_asset_id: assetId || null, mux_playback_id: null, video_url: null, mux_playback_signed: true })
         .eq("id", classId);
       return json({ status: assetData.data?.status || "processing", asset_id: assetId, input_count: inputs.length });
     }
