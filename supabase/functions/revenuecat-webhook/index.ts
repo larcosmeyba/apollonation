@@ -33,6 +33,7 @@ type RcEventType =
   | "NON_RENEWING_PURCHASE";
 
 interface RcEvent {
+  id?: string;
   type: RcEventType;
   app_user_id: string;
   original_app_user_id?: string;
