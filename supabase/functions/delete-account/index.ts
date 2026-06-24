@@ -47,6 +47,17 @@ Deno.serve(async (req) => {
     const password = (body.password || "").trim();
     if (!password) return json({ error: "Password required" }, 400);
 
+    // Rate-limit per user AND per IP to make password brute-force impractical.
+    const ip =
+      req.headers.get("cf-connecting-ip") ||
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      "unknown";
+    const [userOk, ipOk] = await Promise.all([
+      checkRateLimit(`delete-account:user:${user.id}`, "delete-account", 5, 15),
+      checkRateLimit(`delete-account:ip:${ip}`, "delete-account", 10, 15),
+    ]);
+    if (!userOk || !ipOk) return rateLimitResponse(corsHeaders);
+
     // Re-verify password using a fresh anon client (does not affect existing session)
     const verifyClient = createClient(SUPABASE_URL, ANON_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
