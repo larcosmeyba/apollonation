@@ -17,11 +17,12 @@ const KEY_ID = Deno.env.get("MUX_SIGNING_KEY_ID") || "";
 const KEY_PRIVATE = Deno.env.get("MUX_SIGNING_KEY_PRIVATE") || "";
 const TOKEN_TTL_SECONDS = 60 * 30; // 30 minutes — long enough for a full class
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+function makeJson(corsHeaders: Record<string, string>) {
+  return (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
 }
 
 // Mux signing keys are RSA PKCS1, base64-encoded in the dashboard download.
