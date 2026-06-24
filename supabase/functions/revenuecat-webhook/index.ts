@@ -229,8 +229,16 @@ serve(async (req) => {
 
     const update: Record<string, unknown> = { is_subscribed: isSubscribed };
     update.entitlement = isSubscribed ? (isElite ? "apollo_elite" : "apollo_premium") : null;
-    // Trial flag — true only while subscription is active AND on trial pricing.
-    update.is_trial = isSubscribed && (event.period_type ?? "").toUpperCase() === "TRIAL";
+    // Trial flag — true only while subscription is active AND on trial pricing
+    // AND this user has not already consumed their one allowed trial.
+    const reportedTrial =
+      isSubscribed && (event.period_type ?? "").toUpperCase() === "TRIAL";
+    const alreadyConsumed = !!(profile as any).trial_consumed;
+    update.is_trial = reportedTrial && !alreadyConsumed;
+    if (reportedTrial && !alreadyConsumed) {
+      update.trial_consumed = true;
+      update.trial_started_at = new Date().toISOString();
+    }
     if (plan) update.subscription_plan = plan;
     if (store) update.subscription_store = store;
     if (expiresAt) update.subscription_expires_at = expiresAt;
