@@ -34,6 +34,10 @@ serve(async (req) => {
     if (userError || !userData?.user) return json({ error: "Invalid token" }, 401);
     const userId = userData.user.id;
 
+    // Entitlement gate: meal plan generation is a premium feature.
+    const denied = await requirePremium(userId, corsHeaders);
+    if (denied) return denied;
+
     // Rate limit: 5 generations / user / day. Plenty for retries; blocks abuse.
     const allowed = await checkRateLimit(userId, "client-generate-meal-plan", 5, 1440);
     if (!allowed) return rateLimitResponse(corsHeaders);
