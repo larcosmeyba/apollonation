@@ -74,11 +74,6 @@ Deno.serve(async (req) => {
     if (segments.length === 0) return json({ error: "No usable clips in this class" }, 400);
     // Always use the external worker. It renders to one MP4 → render-callback ingests into Mux.
     // (Mux multi-input stitching is disabled — Mux rejects it for our inputs.)
-    void canUseMuxStitching; void muxInputs;
-    if (false) {
-      const job = null as any;
-      return json({ job_id: job.id, status: "rendering", engine: "mux" });
-    }
     const { data: job, error: jobErr } = await supabase.from("render_jobs").insert({ class_id, status: "queued", render_engine: "ffmpeg", inputs_json: { title: cls.title, segments }, created_by: user.id }).select().single();
     if (jobErr || !job) return json({ error: jobErr?.message || "job insert failed" }, 500);
     if (!RENDER_WORKER_URL || !RENDER_WORKER_SECRET) {
