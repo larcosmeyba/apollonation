@@ -145,7 +145,7 @@ const BlogPost = () => {
               [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_li]:text-white/80
               [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-5 [&_blockquote]:italic [&_blockquote]:text-white/70 [&_blockquote]:my-8
               [&_a]:text-white [&_a]:underline"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: safeContent }}
           />
 
           <div className="mt-16 bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
