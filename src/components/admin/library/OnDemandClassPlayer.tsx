@@ -418,6 +418,21 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
               {remaining}
             </div>
 
+            {block.rest_notes && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 w-full max-w-2xl rounded-2xl border-2 border-emerald-400/70 bg-emerald-400/10 backdrop-blur-md px-5 py-4 shadow-[0_0_30px_rgba(52,211,153,0.35)] ring-2 ring-emerald-400/30"
+              >
+                <div className="text-[10px] uppercase tracking-[0.4em] text-emerald-300 mb-1.5 text-center font-semibold">
+                  Coach Note
+                </div>
+                <p className="text-white text-base md:text-lg text-center leading-relaxed">
+                  {block.rest_notes}
+                </p>
+              </motion.div>
+            )}
+
             {showBigPreview ? (
               <div className="mt-10 w-full max-w-3xl">
                 <div className="text-xs uppercase tracking-[0.3em] text-white/50 mb-3 text-center">
