@@ -615,11 +615,24 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                       📈 Set {setNum}/{block.sets} · {block.progression_cue}
                     </div>
                   )}
-                  {(block.cue_overrides || block.exercise?.coaching_notes) && (
+                  {block.cue_overrides ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="relative rounded-xl border-2 border-yellow-300 bg-yellow-300/15 backdrop-blur-md px-4 py-3 shadow-[0_0_30px_rgba(253,224,71,0.45)] ring-2 ring-yellow-300/40"
+                    >
+                      <div className="absolute -top-2 left-3 px-2 py-0.5 rounded-full bg-yellow-300 text-black text-[10px] font-bold uppercase tracking-[0.25em]">
+                        Coach Note
+                      </div>
+                      <p className="text-base md:text-lg font-semibold text-yellow-50 leading-snug">
+                        {block.cue_overrides}
+                      </p>
+                    </motion.div>
+                  ) : block.exercise?.coaching_notes ? (
                     <p className="text-base md:text-lg text-white/80 leading-snug">
-                      {block.cue_overrides || block.exercise?.coaching_notes}
+                      {block.exercise.coaching_notes}
                     </p>
-                  )}
+                  ) : null}
                 </div>
 
                 {/* "Coming Next" preview — only on the LAST set of the current exercise */}
