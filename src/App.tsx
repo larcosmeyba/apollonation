@@ -188,8 +188,11 @@ const App = () => {
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/questionnaire" element={<Questionnaire />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/terms-of-service" element={<Navigate to="/terms" replace />} />
               <Route path="/system" element={<ApolloSystem />} />
+              <Route path="/apollo-system" element={<Navigate to="/system" replace />} />
               <Route path="/about" element={<About />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/contact" element={<ContactPortal />} />
