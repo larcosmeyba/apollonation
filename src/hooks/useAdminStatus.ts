@@ -54,14 +54,14 @@ export const useAdminStatus = () => {
     void checkAdminStatus();
   }, [checkAdminStatus]);
 
-  // 5-minute TTL refresh on interval
+  // 30-second TTL refresh on interval — keeps revoked admins from lingering.
   useEffect(() => {
     if (!user) return;
     const interval = setInterval(() => {
       if (Date.now() - lastFetchedRef.current >= TTL_MS) {
         void checkAdminStatus();
       }
-    }, 60 * 1000); // poll every minute, refetch if TTL expired
+    }, 15 * 1000); // poll every 15s
     return () => clearInterval(interval);
   }, [user, checkAdminStatus]);
 
