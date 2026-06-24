@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
               headers: { Authorization: MUX_AUTH, "Content-Type": "application/json" },
               body: JSON.stringify({
                 input: mp4_url,
-                playback_policy: ["public"],
+                playback_policy: ["signed"],
                 mp4_support: "capped-1080p",
                 passthrough: `admin_class:${classId}`,
               }),
@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
                 await admin.from("render_jobs").update({ mux_asset_id: assetId }).eq("id", jobId);
                 await admin
                   .from("admin_classes")
-                  .update({ mux_asset_id: assetId, mux_status: "processing" })
+                  .update({ mux_asset_id: assetId, mux_status: "processing", mux_playback_signed: true })
                   .eq("id", classId);
               }
             }
