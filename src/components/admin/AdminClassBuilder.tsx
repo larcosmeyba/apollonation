@@ -329,6 +329,7 @@ const AdminClassBuilder = () => {
         cue_overrides: b.cue_overrides || null,
         weight_prompt: b.weight_prompt || null,
         tempo_prompt: b.tempo_prompt || null,
+        rest_notes: b.rest_notes || null,
         drop_set: b.drop_set,
         target_reps_min: b.target_reps_min,
         target_reps_max: b.target_reps_max,
