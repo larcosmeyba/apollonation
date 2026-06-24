@@ -158,14 +158,14 @@ serve(async (req) => {
 
     let { data: profile } = await supabase
       .from("profiles")
-      .select("user_id, manual_subscription, is_subscribed, subscription_expires_at")
+      .select("user_id, manual_subscription, is_subscribed, subscription_expires_at, trial_consumed")
       .in("revenuecat_app_user_id", candidateIds)
       .maybeSingle();
 
     if (!profile) {
       const { data: byUserId } = await supabase
         .from("profiles")
-        .select("user_id, manual_subscription, is_subscribed, subscription_expires_at")
+        .select("user_id, manual_subscription, is_subscribed, subscription_expires_at, trial_consumed")
         .in("user_id", candidateIds)
         .maybeSingle();
       profile = byUserId ?? null;
