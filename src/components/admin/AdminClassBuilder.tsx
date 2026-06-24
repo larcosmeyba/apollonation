@@ -823,6 +823,9 @@ const AdminClassBuilder = () => {
                           <Input placeholder="Cue override" value={b.cue_overrides}
                             onChange={(e) => updateBlock(b.id, { cue_overrides: e.target.value })}
                             className="h-8 mt-2 text-xs" />
+                          <Input placeholder="Rest notes (shown during rest)" value={b.rest_notes}
+                            onChange={(e) => updateBlock(b.id, { rest_notes: e.target.value })}
+                            className="h-8 mt-2 text-xs border-emerald-500/40 focus-visible:ring-emerald-500/60" />
                           <div className="flex items-center gap-3 mt-2 text-xs">
                             <label className="flex items-center gap-1.5">
                               <input type="checkbox" checked={b.drop_set}
