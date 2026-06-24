@@ -234,6 +234,7 @@ const AdminClassBuilder = () => {
     weight_prompt: b.weight_prompt,
     tempo_prompt: b.tempo_prompt,
     drop_set: b.drop_set,
+    rest_notes: b.rest_notes,
     section: b.section,
     target_reps_min: b.target_reps_min,
     target_reps_max: b.target_reps_max,
