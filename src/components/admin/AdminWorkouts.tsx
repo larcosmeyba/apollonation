@@ -32,6 +32,7 @@ interface Workout {
   admin_class_id?: string | null;
   mux_asset_id?: string | null;
   mux_playback_id?: string | null;
+  mux_playback_signed?: boolean | null;
   mux_status?: string | null;
   created_at?: string;
 }
@@ -610,6 +611,7 @@ const AdminWorkouts = () => {
                 <div className="relative aspect-video w-full bg-black">
                   <MuxVideo
                     playbackId={previewWorkout.mux_playback_id}
+                    signed={Boolean(previewWorkout.mux_playback_signed)}
                     title={previewWorkout.title}
                     videoId={previewWorkout.id}
                     category={previewWorkout.category}

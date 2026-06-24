@@ -163,6 +163,7 @@ const ExerciseEditorSheet = ({ open, onOpenChange, exercise, allExercises, onSav
                 <MuxVideo
                   ref={videoRef}
                   playbackId={form.mux_playback_id}
+                  signed={Boolean((form as any).mux_playback_signed)}
                   title={form.name || "Preview"}
                   category="admin-preview"
                   controls
