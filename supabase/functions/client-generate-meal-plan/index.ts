@@ -10,6 +10,7 @@ import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { resolveUserMacroTargets } from "../_shared/macro-scaler.ts";
 import { runV2ForUser } from "../_shared/v2-meal-plan-runner.ts";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { requirePremium } from "../_shared/entitlement.ts";
 
 serve(async (req) => {
   const corsHeaders = buildCorsHeaders(req);
