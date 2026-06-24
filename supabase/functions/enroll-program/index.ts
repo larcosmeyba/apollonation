@@ -36,6 +36,11 @@ serve(async (req) => {
     }
 
     const userId = userData.user.id;
+
+    // Entitlement gate: program generation is a premium feature.
+    const denied = await requirePremium(userId, corsHeaders);
+    if (denied) return denied;
+
     const { questionnaireId, programName, programGoal, durationWeeks } = await req.json();
 
     // Rate limit: 5 enrollments per day
