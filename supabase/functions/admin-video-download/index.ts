@@ -1,12 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-
 const safeFileName = (name: string, fallback = "apollo-clip") =>
   (name || fallback).replace(/[^a-z0-9-_]+/gi, "_").replace(/^_+|_+$/g, "") || fallback;
 
@@ -83,6 +77,11 @@ const firstReachableMuxMp4 = async (playbackId: string, downloadName: string) =>
 Deno.serve(async (req) => {
   const corsHeaders = buildCorsHeaders(req);
   const pre = handlePreflight(req); if (pre) return pre;
+  const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {

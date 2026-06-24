@@ -11,15 +11,14 @@ import { resolveUserMacroTargets } from "../_shared/macro-scaler.ts";
 import { runV2ForUser } from "../_shared/v2-meal-plan-runner.ts";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
-const json = (body: unknown, status = 200) =>
+serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
+  const pre = handlePreflight(req); if (pre) return pre;
+  const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-
-serve(async (req) => {
-  const corsHeaders = buildCorsHeaders(req);
-  const pre = handlePreflight(req); if (pre) return pre;
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
