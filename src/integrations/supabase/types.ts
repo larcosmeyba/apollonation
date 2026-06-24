@@ -2836,6 +2836,8 @@ export type Database = {
           subscription_plan: string | null
           subscription_store: string | null
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
+          trial_consumed: boolean
+          trial_started_at: string | null
           updated_at: string
           user_id: string
           welcome_seen: boolean
@@ -2868,6 +2870,8 @@ export type Database = {
           subscription_plan?: string | null
           subscription_store?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
+          trial_consumed?: boolean
+          trial_started_at?: string | null
           updated_at?: string
           user_id: string
           welcome_seen?: boolean
@@ -2900,6 +2904,8 @@ export type Database = {
           subscription_plan?: string | null
           subscription_store?: string | null
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
+          trial_consumed?: boolean
+          trial_started_at?: string | null
           updated_at?: string
           user_id?: string
           welcome_seen?: boolean

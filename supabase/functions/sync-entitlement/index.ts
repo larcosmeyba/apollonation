@@ -77,7 +77,7 @@ serve(async (req) => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("user_id, manual_subscription, revenuecat_app_user_id, is_subscribed, subscription_plan, subscription_store, subscription_expires_at")
+      .select("user_id, manual_subscription, revenuecat_app_user_id, is_subscribed, subscription_plan, subscription_store, subscription_expires_at, trial_consumed")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -150,10 +150,17 @@ serve(async (req) => {
 
     const update: Record<string, unknown> = { is_subscribed: isSubscribed };
     update.entitlement = entitlementValue;
-    // Trial flag — true only while subscription is active AND on trial pricing.
+    // Trial flag — true only while subscription is active AND on trial pricing
+    // AND this user has not already consumed their one allowed trial.
     const tierSub = tierEnt?.product_identifier ? subscriptions[tierEnt.product_identifier] : null;
-    update.is_trial =
+    const reportedTrial =
       isSubscribed && (tierSub?.period_type ?? "").toString().toLowerCase() === "trial";
+    const alreadyConsumed = !!(profile as any).trial_consumed;
+    update.is_trial = reportedTrial && !alreadyConsumed;
+    if (reportedTrial && !alreadyConsumed) {
+      update.trial_consumed = true;
+      update.trial_started_at = new Date().toISOString();
+    }
     if (plan) update.subscription_plan = plan;
     if (store) update.subscription_store = store;
     if (expiresAt) update.subscription_expires_at = expiresAt;
