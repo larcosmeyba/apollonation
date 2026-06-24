@@ -65,11 +65,43 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     className,
     style,
     streamType = "on-demand",
+    signed = false,
     onTimeUpdate,
     onLoadedMetadata,
   },
   ref,
 ) {
+  const envKey = useMuxEnvKey();
+  const [viewerId, setViewerId] = useState<string | undefined>(undefined);
+  const [playbackToken, setPlaybackToken] = useState<string | null>(null);
+  const [thumbnailToken, setThumbnailToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!signed || !playbackId) {
+      setPlaybackToken(null);
+      setThumbnailToken(null);
+      return;
+    }
+    let active = true;
+    supabase.functions
+      .invoke("mux-playback-token", {
+        body: { playback_id: playbackId, include_thumbnail: true },
+      })
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.error("[MuxVideo] token fetch failed", error);
+          return;
+        }
+        const payload = data as { token?: string; thumbnail_token?: string } | null;
+        setPlaybackToken(payload?.token ?? null);
+        setThumbnailToken(payload?.thumbnail_token ?? null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [signed, playbackId]);
   const envKey = useMuxEnvKey();
   const [viewerId, setViewerId] = useState<string | undefined>(undefined);
 
