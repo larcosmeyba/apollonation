@@ -186,6 +186,7 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     <MuxPlayer
       ref={ref}
       playbackId={playbackId}
+      {...(signed && playbackToken ? { tokens: { playback: playbackToken, thumbnail: thumbnailToken || playbackToken } } : {})}
       streamType={streamType}
       // Force the highest available rendition so small containers don't
       // pin playback to 360p/480p (which looks grainy when scaled up or
