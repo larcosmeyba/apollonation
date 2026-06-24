@@ -132,10 +132,21 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     [envKey, videoId, playbackId, title, category, classId, classTitle, viewerId],
   );
 
-  // iOS WKWebView: render a native <video> using Mux's HLS URL. AVPlayer plays
-  // it natively without the mux-player web component's HLS pipeline.
+  // Signed-policy playback requires a JWT — wait for the token before
+  // rendering anything; otherwise Mux returns a 403 we'd surface as an error.
+  if (signed && !playbackToken) {
+    return (
+      <div
+        className={className}
+        style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", backgroundColor: "#000", ...style }}
+      />
+    );
+  }
+
+  const tokenQuery = signed && playbackToken ? `?token=${playbackToken}` : "";
+
   if (IS_NATIVE_IOS) {
-    const src = `https://stream.mux.com/${playbackId}.m3u8`;
+    const src = `https://stream.mux.com/${playbackId}.m3u8${tokenQuery}`;
     return (
       <video
         ref={ref as unknown as React.Ref<HTMLVideoElement>}
