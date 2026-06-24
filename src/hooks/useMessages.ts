@@ -187,10 +187,26 @@ export const useMessages = (
 
       const trimmed = content.trim();
       if (!trimmed) throw new Error("Message is empty");
+      if (trimmed.length > 4000) throw new Error("Message too long");
 
-      // Admin replying as Coach Marcos: insert directly with sender = coach
-      // (admin RLS allows this). Otherwise fall back to client paths.
+      // Defense-in-depth: explicit client-side membership pre-check for
+      // coach DMs so non-members get a clean error instead of an RLS rejection.
+      // The authoritative gate is still server-side (send_coach_message RPC).
       const isCoachThread = recipientId === DEFAULT_COACH_ID;
+      if (isCoachThread && !asCoachAdmin) {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("is_subscribed")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        const allowed = !!prof?.is_subscribed || isAdmin;
+        if (!allowed) {
+          const e: any = new Error("membership_required");
+          e.code = "membership_required";
+          throw e;
+        }
+      }
+
       const { data, error } = asCoachAdmin
         ? await supabase
             .from("messages")
