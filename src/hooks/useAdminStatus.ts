@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { App } from "@capacitor/app";
 import { withTimeout } from "@/lib/timeout";
 
-const TTL_MS = 5 * 60 * 1000; // 5 minutes
+const TTL_MS = 30 * 1000; // 30 seconds — revoked admins lose powers quickly
 
 export const useAdminStatus = () => {
   const { user } = useAuth();
