@@ -70,6 +70,7 @@ const newBlock = (section: SectionId, exercise_id: string | null, alt_id: string
   cue_overrides: "",
   weight_prompt: "",
   tempo_prompt: "",
+  rest_notes: "",
   drop_set: false,
   target_reps_min: section === "warmup" || section === "cooldown" ? null : 8,
   target_reps_max: section === "warmup" || section === "cooldown" ? null : 12,
