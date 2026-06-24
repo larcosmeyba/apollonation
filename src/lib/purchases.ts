@@ -8,9 +8,14 @@ import {
 } from "@revenuecat/purchases-capacitor";
 import { withTimeout } from "@/lib/timeout";
 
-// RevenueCat public SDK keys are safe to ship in the client.
-// Set these in src/lib/purchases.ts after creating your RevenueCat project.
-const REVENUECAT_IOS_API_KEY = "appl_TWrKBqTDHnLgHAtRygxDhTxsfXv";
+// RevenueCat public SDK keys are safe to ship in the client, but reading from
+// env vars makes rotation possible without a code change.
+const REVENUECAT_IOS_API_KEY =
+  (import.meta.env.VITE_REVENUECAT_IOS_API_KEY as string | undefined) ||
+  "appl_TWrKBqTDHnLgHAtRygxDhTxsfXv";
+const REVENUECAT_ANDROID_API_KEY =
+  (import.meta.env.VITE_REVENUECAT_ANDROID_API_KEY as string | undefined) ||
+  "goog_ClaHieSZkphwjXBEmSJiaFEQhYK";
 const REVENUECAT_ANDROID_API_KEY = "goog_ClaHieSZkphwjXBEmSJiaFEQhYK";
 
 let configured = false;
