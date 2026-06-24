@@ -364,37 +364,6 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
       )}
 
 
-      {classId && (
-        <Button
-          type="button"
-          onClick={createMuxAssetFromClassClips}
-          disabled={!hasBlocks || busyWithMux}
-          className="w-full"
-          variant="outline"
-        >
-          {creatingFromClips ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
-          {creatingFromClips ? "Creating in Mux…" : "Create Mux Asset from Class Clips"}
-        </Button>
-      )}
-
-      {classId && (
-        <FfmpegRenderSection classId={classId} hasBlocks={hasBlocks} />
-      )}
-
-      <div className="space-y-1 rounded-lg border border-border p-3 bg-card/40">
-        <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Manual Mux playback URL</Label>
-        <div className="flex gap-2">
-          <Input
-            value={manualUrl}
-            onChange={(e) => setManualUrl(e.target.value)}
-            placeholder="https://stream.mux.com/playback-id.m3u8"
-            className="h-9 text-xs"
-          />
-          <Button type="button" size="sm" onClick={saveManualMuxUrl} disabled={!targetId || savingManualUrl}>
-            {savingManualUrl ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save"}
-          </Button>
-        </div>
-      </div>
 
       {!targetId && (
         <p className="text-[10px] text-muted-foreground">Save the class first, then upload the final MP4/MOV.</p>
