@@ -264,6 +264,8 @@ const ExerciseRow = ({
   // (set by the v2 generator). Fall back to the lookup result.
   const resolvedPlaybackId: string | null =
     (exercise.mux_playback_id as string | null) || (exerciseData?.mux_playback_id ?? null);
+  const resolvedPlaybackSigned: boolean =
+    Boolean((exercise as any).mux_playback_signed ?? exerciseData?.mux_playback_signed);
   const resolvedVideoUrl: string | null =
     (exercise.video_url as string | null) || (exerciseData?.video_url ?? null);
 
@@ -545,6 +547,7 @@ const ExerciseRow = ({
             {hasMux && videoOpen ? (
               <MuxVideo
                 playbackId={resolvedPlaybackId!}
+                signed={resolvedPlaybackSigned}
                 title={exerciseData?.title || exercise.exercise_name}
                 videoId={exercise.id}
                 autoPlay
