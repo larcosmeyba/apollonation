@@ -101,6 +101,12 @@ Deno.serve(async (req) => {
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
     if (userErr || !user) return json({ error: "Unauthorized" }, 401);
 
+    // Entitlement gate: only active premium subscribers can mint playback
+    // tokens. Cancelled subscribers and free-tier users are blocked even if
+    // they previously cached a playback_id.
+    const denied = await requirePremium(user.id, corsHeaders);
+    if (denied) return denied;
+
     const body = await req.json().catch(() => ({}));
     const playbackId = typeof body.playback_id === "string" ? body.playback_id.trim() : "";
     const includeThumbnail = body.include_thumbnail === true;
