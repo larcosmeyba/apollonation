@@ -321,17 +321,7 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
 
   return (
     <div className="border-t border-border pt-3 space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground">
-          Finished Class MP4 (Mux)
-        </div>
-        <span className={`inline-flex items-center gap-1 text-[10px] ${statusTone}`}>
-          {hasVideo ? <CheckCircle2 className="h-3 w-3" /> : processing ? <Loader2 className="h-3 w-3 animate-spin" /> : <AlertCircle className="h-3 w-3" />}
-          {statusLabel}
-        </span>
-      </div>
-
-      {hasVideo ? (
+      {hasVideo && (
         <Button
           type="button"
           variant="apollo"
@@ -342,18 +332,8 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
           {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
           {downloading ? "Downloading finished class…" : "Download Finished Class MP4"}
         </Button>
-      ) : (
-        <div className="rounded-lg border border-dashed border-border bg-card/40 p-3 space-y-2">
-          <p className="text-xs text-foreground">
-            This class must be rendered to MUX before it can be downloaded as a finished MP4.
-          </p>
-          <p className="text-[10px] text-muted-foreground">
-            {processing
-              ? "Mux is currently stitching this class. The download will unlock automatically when it’s ready (usually under a minute)."
-              : "Use “Create MUX Asset from Class Clips” below to stitch every exercise clip into one Mux-hosted MP4, or upload a final edit directly."}
-          </p>
-        </div>
       )}
+
 
 
       <Input
