@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import DOMPurify from "dompurify";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -62,6 +63,17 @@ const BlogPost = () => {
       </div>
     );
   }
+
+  const safeContent = useMemo(
+    () =>
+      DOMPurify.sanitize(post.content, {
+        USE_PROFILES: { html: true },
+        FORBID_TAGS: ["script", "style", "iframe", "object", "embed", "form"],
+        FORBID_ATTR: ["onerror", "onload", "onclick", "onmouseover", "onfocus", "onblur", "formaction"],
+      }),
+    [post.content]
+  );
+
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -133,7 +145,7 @@ const BlogPost = () => {
               [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_li]:text-white/80
               [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-5 [&_blockquote]:italic [&_blockquote]:text-white/70 [&_blockquote]:my-8
               [&_a]:text-white [&_a]:underline"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: safeContent }}
           />
 
           <div className="mt-16 bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
