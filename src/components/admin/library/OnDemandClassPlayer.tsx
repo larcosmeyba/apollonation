@@ -19,6 +19,7 @@ export interface PlayerBlock {
   cue_overrides?: string | null;
   weight_prompt?: string | null;
   tempo_prompt?: string | null;
+  rest_notes?: string | null;
   drop_set?: boolean;
   section?: "warmup" | "workout_a" | "workout_b" | "workout_c" | "cooldown";
   target_reps_min?: number | null;
