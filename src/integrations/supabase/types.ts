@@ -4694,6 +4694,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_stale_push_tokens: { Args: never; Returns: undefined }
       complete_program_workout: {
         Args: {
           p_calories?: number
