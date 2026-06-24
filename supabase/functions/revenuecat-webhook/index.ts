@@ -33,6 +33,7 @@ type RcEventType =
   | "NON_RENEWING_PURCHASE";
 
 interface RcEvent {
+  id?: string;
   type: RcEventType;
   app_user_id: string;
   original_app_user_id?: string;
@@ -131,6 +132,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
+
+    // Idempotency: reject duplicate webhook deliveries.
+    const eventId = event.id ?? `${event.app_user_id}:${event.type}:${event.event_timestamp_ms ?? ""}`;
+    const { error: dedupErr } = await supabase
+      .from("processed_webhook_events")
+      .insert({ event_id: eventId, source: "revenuecat" });
+    if (dedupErr) {
+      if ((dedupErr as any).code === "23505") {
+        log("Duplicate event ignored", { eventId });
+        return new Response(JSON.stringify({ ok: true, duplicate: true }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      log("Dedup insert failed", dedupErr);
+    }
 
     // Resolve target profile.
     // Primary: revenuecat_app_user_id; fallback: profile.user_id (RevenueCat is configured

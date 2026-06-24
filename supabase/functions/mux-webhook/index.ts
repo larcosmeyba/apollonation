@@ -298,6 +298,19 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  // Idempotency: Mux retries events. Reject duplicates by payload.id.
+  const muxEventId = (payload.id as string | undefined) ?? `${type}:${assetId ?? ""}:${payload.created_at ?? ""}`;
+  const { error: dedupErr } = await supabase
+    .from("processed_webhook_events")
+    .insert({ event_id: muxEventId, source: "mux" });
+  if (dedupErr && (dedupErr as any).code === "23505") {
+    console.log("[mux-webhook] duplicate event ignored:", muxEventId);
+    return new Response(JSON.stringify({ ok: true, duplicate: true }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const adminClassUpload = passthrough?.match(/^admin_class:([0-9a-f-]{36})$/i);
   if (adminClassUpload) {
     if (type === "video.asset.ready") {

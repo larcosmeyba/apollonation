@@ -17,6 +17,10 @@ Deno.serve(async (req) => {
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: authHeader } } });
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
     if (userErr || !user) return json({ error: "Unauthorized" }, 401);
+    // Admin-only: rendering burns paid Mux/worker compute. Never expose to non-admins.
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: isAdmin, error: roleErr } = await admin.rpc("has_role", { _user_id: user.id, _role: "admin" });
+    if (roleErr || isAdmin !== true) return json({ error: "Forbidden" }, 403);
     const body = await req.json().catch(() => ({}));
     if (body?.action === "status") {
       const jobId = typeof body.job_id === "string" ? body.job_id : "";
