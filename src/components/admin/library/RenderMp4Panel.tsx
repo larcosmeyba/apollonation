@@ -365,9 +365,6 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
 
 
 
-      {!targetId && (
-        <p className="text-[10px] text-muted-foreground">Save the class first, then upload the final MP4/MOV.</p>
-      )}
 
       {busyWithMux && (
         <div className="h-1.5 overflow-hidden rounded-full bg-muted">
