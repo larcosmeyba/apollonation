@@ -72,19 +72,8 @@ Deno.serve(async (req) => {
       if (b.rest_seconds && b.rest_seconds > 0) segments.push({ kind: "rest", seconds: b.rest_seconds });
     }
     if (segments.length === 0) return json({ error: "No usable clips in this class" }, 400);
-    if (canUseMuxStitching && muxInputs.length > 0) {
-      const { data: job, error: jobErr } = await supabase.from("render_jobs").insert({ class_id, status: "queued", render_engine: "mux", inputs_json: { title: cls.title, inputs: muxInputs }, created_by: user.id }).select().single();
-      if (jobErr || !job) return json({ error: jobErr?.message || "job insert failed" }, 500);
-      const muxRes = await fetch("https://api.mux.com/video/v1/assets", { method: "POST", headers: { Authorization: MUX_AUTH, "Content-Type": "application/json" }, body: JSON.stringify({ inputs: muxInputs, playback_policies: ["public"], static_renditions: [{ resolution: "highest", passthrough: job.id }], max_resolution_tier: "1080p", passthrough: job.id, meta: { title: cls.title || "Apollo On-Demand Class", external_id: class_id } }) });
-      const muxData = await muxRes.json().catch(async () => ({ raw: await muxRes.text() }));
-      if (!muxRes.ok) {
-        const msg = muxData?.error?.messages?.join(" ") || muxData?.error?.message || muxData?.raw || "Mux rejected stitched render";
-        await supabase.from("render_jobs").update({ status: "failed", error: `Mux ${muxRes.status}: ${String(msg).slice(0, 900)}` }).eq("id", job.id);
-        return json({ error: `Mux rejected render: ${msg}` }, 502);
-      }
-      await supabase.from("render_jobs").update({ status: "rendering", mux_asset_id: muxData.data?.id || null }).eq("id", job.id);
-      return json({ job_id: job.id, status: "rendering", engine: "mux" });
-    }
+    // Always use the external worker. It renders to one MP4 → render-callback ingests into Mux.
+    // (Mux multi-input stitching is disabled — Mux rejects it for our inputs.)
     const { data: job, error: jobErr } = await supabase.from("render_jobs").insert({ class_id, status: "queued", render_engine: "ffmpeg", inputs_json: { title: cls.title, segments }, created_by: user.id }).select().single();
     if (jobErr || !job) return json({ error: jobErr?.message || "job insert failed" }, 500);
     if (!RENDER_WORKER_URL || !RENDER_WORKER_SECRET) {
