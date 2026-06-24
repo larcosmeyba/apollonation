@@ -65,6 +65,7 @@ const AdminClassPlayerLauncher = ({
     sets: b.sets,
     set_rest_seconds: b.set_rest_seconds,
     cue_overrides: b.cue_overrides,
+    rest_notes: b.rest_notes,
     weight_prompt: b.weight_prompt,
     tempo_prompt: b.tempo_prompt,
     drop_set: b.drop_set,

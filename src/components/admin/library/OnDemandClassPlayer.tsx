@@ -19,6 +19,7 @@ export interface PlayerBlock {
   cue_overrides?: string | null;
   weight_prompt?: string | null;
   tempo_prompt?: string | null;
+  rest_notes?: string | null;
   drop_set?: boolean;
   section?: "warmup" | "workout_a" | "workout_b" | "workout_c" | "cooldown";
   target_reps_min?: number | null;
@@ -416,6 +417,21 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
             <div className="font-heading text-[18vw] md:text-[12vw] leading-none tabular-nums text-white">
               {remaining}
             </div>
+
+            {block.rest_notes && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 w-full max-w-2xl rounded-2xl border-2 border-emerald-400/70 bg-emerald-400/10 backdrop-blur-md px-5 py-4 shadow-[0_0_30px_rgba(52,211,153,0.35)] ring-2 ring-emerald-400/30"
+              >
+                <div className="text-[10px] uppercase tracking-[0.4em] text-emerald-300 mb-1.5 text-center font-semibold">
+                  Coach Note
+                </div>
+                <p className="text-white text-base md:text-lg text-center leading-relaxed">
+                  {block.rest_notes}
+                </p>
+              </motion.div>
+            )}
 
             {showBigPreview ? (
               <div className="mt-10 w-full max-w-3xl">

@@ -1,0 +1,1 @@
+ALTER TABLE public.admin_class_blocks ADD COLUMN IF NOT EXISTS rest_notes text;

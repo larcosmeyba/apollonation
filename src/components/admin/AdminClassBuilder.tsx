@@ -37,6 +37,7 @@ interface Block {
   cue_overrides: string;
   weight_prompt: string;
   tempo_prompt: string;
+  rest_notes: string;
   drop_set: boolean;
   target_reps_min: number | null;
   target_reps_max: number | null;
@@ -69,6 +70,7 @@ const newBlock = (section: SectionId, exercise_id: string | null, alt_id: string
   cue_overrides: "",
   weight_prompt: "",
   tempo_prompt: "",
+  rest_notes: "",
   drop_set: false,
   target_reps_min: section === "warmup" || section === "cooldown" ? null : 8,
   target_reps_max: section === "warmup" || section === "cooldown" ? null : 12,
@@ -232,6 +234,7 @@ const AdminClassBuilder = () => {
     weight_prompt: b.weight_prompt,
     tempo_prompt: b.tempo_prompt,
     drop_set: b.drop_set,
+    rest_notes: b.rest_notes,
     section: b.section,
     target_reps_min: b.target_reps_min,
     target_reps_max: b.target_reps_max,
@@ -270,6 +273,7 @@ const AdminClassBuilder = () => {
         cue_overrides: b.cue_overrides || "",
         weight_prompt: b.weight_prompt || "",
         tempo_prompt: b.tempo_prompt || "",
+        rest_notes: (b as any).rest_notes || "",
         drop_set: b.drop_set,
         target_reps_min: b.target_reps_min ?? null,
         target_reps_max: b.target_reps_max ?? null,
@@ -325,6 +329,7 @@ const AdminClassBuilder = () => {
         cue_overrides: b.cue_overrides || null,
         weight_prompt: b.weight_prompt || null,
         tempo_prompt: b.tempo_prompt || null,
+        rest_notes: b.rest_notes || null,
         drop_set: b.drop_set,
         target_reps_min: b.target_reps_min,
         target_reps_max: b.target_reps_max,
@@ -818,6 +823,9 @@ const AdminClassBuilder = () => {
                           <Input placeholder="Cue override" value={b.cue_overrides}
                             onChange={(e) => updateBlock(b.id, { cue_overrides: e.target.value })}
                             className="h-8 mt-2 text-xs" />
+                          <Input placeholder="Rest notes (shown during rest)" value={b.rest_notes}
+                            onChange={(e) => updateBlock(b.id, { rest_notes: e.target.value })}
+                            className="h-8 mt-2 text-xs border-emerald-500/40 focus-visible:ring-emerald-500/60" />
                           <div className="flex items-center gap-3 mt-2 text-xs">
                             <label className="flex items-center gap-1.5">
                               <input type="checkbox" checked={b.drop_set}

@@ -52,6 +52,7 @@ export type Database = {
           id: string
           kind: string
           progression_cue: string | null
+          rest_notes: string | null
           rest_seconds: number
           section: string
           set_rest_seconds: number
@@ -73,6 +74,7 @@ export type Database = {
           id?: string
           kind?: string
           progression_cue?: string | null
+          rest_notes?: string | null
           rest_seconds?: number
           section?: string
           set_rest_seconds?: number
@@ -94,6 +96,7 @@ export type Database = {
           id?: string
           kind?: string
           progression_cue?: string | null
+          rest_notes?: string | null
           rest_seconds?: number
           section?: string
           set_rest_seconds?: number
