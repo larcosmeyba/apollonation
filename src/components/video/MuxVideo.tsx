@@ -102,8 +102,6 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
       active = false;
     };
   }, [signed, playbackId]);
-  const envKey = useMuxEnvKey();
-  const [viewerId, setViewerId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let active = true;
