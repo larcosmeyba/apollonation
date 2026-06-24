@@ -77,7 +77,7 @@ serve(async (req) => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("user_id, manual_subscription, revenuecat_app_user_id, is_subscribed, subscription_plan, subscription_store, subscription_expires_at")
+      .select("user_id, manual_subscription, revenuecat_app_user_id, is_subscribed, subscription_plan, subscription_store, subscription_expires_at, trial_consumed")
       .eq("user_id", userId)
       .maybeSingle();
 
