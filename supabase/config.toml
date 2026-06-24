@@ -124,3 +124,6 @@ verify_jwt = true
 
 [functions.render-callback]
 verify_jwt = false
+
+[functions.mux-playback-token]
+verify_jwt = true

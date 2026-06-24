@@ -36,6 +36,8 @@ export interface MuxVideoProps {
   style?: React.CSSProperties;
   /** Player streamType — "on-demand" is default. */
   streamType?: "on-demand" | "live";
+  /** When true, fetch a signed JWT before playback (asset uses signed policy). */
+  signed?: boolean;
   onTimeUpdate?: React.ReactEventHandler<HTMLVideoElement>;
   onLoadedMetadata?: React.ReactEventHandler<HTMLVideoElement>;
 }
@@ -63,6 +65,7 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     className,
     style,
     streamType = "on-demand",
+    signed = false,
     onTimeUpdate,
     onLoadedMetadata,
   },
@@ -70,6 +73,35 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
 ) {
   const envKey = useMuxEnvKey();
   const [viewerId, setViewerId] = useState<string | undefined>(undefined);
+  const [playbackToken, setPlaybackToken] = useState<string | null>(null);
+  const [thumbnailToken, setThumbnailToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!signed || !playbackId) {
+      setPlaybackToken(null);
+      setThumbnailToken(null);
+      return;
+    }
+    let active = true;
+    supabase.functions
+      .invoke("mux-playback-token", {
+        body: { playback_id: playbackId, include_thumbnail: true },
+      })
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.error("[MuxVideo] token fetch failed", error);
+          return;
+        }
+        const payload = data as { token?: string; thumbnail_token?: string } | null;
+        setPlaybackToken(payload?.token ?? null);
+        setThumbnailToken(payload?.thumbnail_token ?? null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [signed, playbackId]);
 
   useEffect(() => {
     let active = true;
@@ -100,10 +132,21 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     [envKey, videoId, playbackId, title, category, classId, classTitle, viewerId],
   );
 
-  // iOS WKWebView: render a native <video> using Mux's HLS URL. AVPlayer plays
-  // it natively without the mux-player web component's HLS pipeline.
+  // Signed-policy playback requires a JWT — wait for the token before
+  // rendering anything; otherwise Mux returns a 403 we'd surface as an error.
+  if (signed && !playbackToken) {
+    return (
+      <div
+        className={className}
+        style={{ aspectRatio: "16 / 9", width: "100%", height: "100%", backgroundColor: "#000", ...style }}
+      />
+    );
+  }
+
+  const tokenQuery = signed && playbackToken ? `?token=${playbackToken}` : "";
+
   if (IS_NATIVE_IOS) {
-    const src = `https://stream.mux.com/${playbackId}.m3u8`;
+    const src = `https://stream.mux.com/${playbackId}.m3u8${tokenQuery}`;
     return (
       <video
         ref={ref as unknown as React.Ref<HTMLVideoElement>}
@@ -143,6 +186,7 @@ const MuxVideo = forwardRef<MuxPlayerElement, MuxVideoProps>(function MuxVideo(
     <MuxPlayer
       ref={ref}
       playbackId={playbackId}
+      {...(signed && playbackToken ? { tokens: { playback: playbackToken, thumbnail: thumbnailToken || playbackToken } } : {})}
       streamType={streamType}
       // Force the highest available rendition so small containers don't
       // pin playback to 360p/480p (which looks grainy when scaled up or
