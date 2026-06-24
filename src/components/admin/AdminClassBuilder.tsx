@@ -960,15 +960,6 @@ const AdminClassBuilder = () => {
             </div>
           </div>
 
-          <div className="border-t border-border pt-3">
-            <Button onClick={aiGenerate} disabled={aiLoading} className="w-full" variant="apollo">
-              {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              AI Generate Class
-            </Button>
-            <p className="text-[10px] text-muted-foreground mt-2">
-              Builds Warm Up, Workout A/B/C, and Cool Down using your library — filtered by category, muscle group, difficulty, and equipment.
-            </p>
-          </div>
 
           <RenderMp4Panel classId={classId} hasBlocks={blocks.length > 0} />
         </Card>
