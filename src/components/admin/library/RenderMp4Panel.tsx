@@ -348,18 +348,21 @@ const RenderMp4Panel = ({ classId, workoutId, hasBlocks, onMuxReady }: RenderMp4
         }}
       />
 
-      <Button
-        type="button"
-        onClick={() => fileRef.current?.click()}
-        disabled={!targetId || busyWithMux}
-        className="w-full"
-        variant={hasVideo ? "secondary" : "outline"}
-      >
-        {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
-        {uploading
-          ? processing ? "Waiting for Mux…" : `Uploading ${progress}%`
-          : hasVideo ? "Replace Video" : "Upload Final Class Video to Mux"}
-      </Button>
+      {hasVideo && (
+        <Button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={!targetId || busyWithMux}
+          className="w-full"
+          variant="secondary"
+        >
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
+          {uploading
+            ? processing ? "Waiting for Mux…" : `Uploading ${progress}%`
+            : "Replace Video"}
+        </Button>
+      )}
+
 
       {classId && (
         <Button
