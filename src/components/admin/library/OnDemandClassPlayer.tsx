@@ -355,6 +355,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                   <MuxVideo
                     ref={startPreviewRef}
                     playbackId={blocks[0].exercise.mux_playback_id}
+                    signed={Boolean((blocks[0].exercise as any).mux_playback_signed)}
                     title={`Preview: ${blocks[0].exercise.name}`}
                     videoId={blocks[0].exercise.id}
                     category={blocks[0].exercise.category}
@@ -443,6 +444,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     <MuxVideo
                       ref={restPreviewRef}
                       playbackId={block.exercise.mux_playback_id}
+                      signed={Boolean((block.exercise as any).mux_playback_signed)}
                       title={`Preview: ${block.exercise.name}`}
                       videoId={block.exercise.id}
                       category={block.exercise.category}
@@ -513,6 +515,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                   <MuxVideo
                     ref={videoRef}
                     playbackId={block.exercise.mux_playback_id}
+                    signed={Boolean((block.exercise as any).mux_playback_signed)}
                     title={block.exercise.name}
                     videoId={block.exercise.id}
                     category={block.exercise.category}
@@ -538,6 +541,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                   <MuxVideo
                     ref={altVideoRef}
                     playbackId={block.alt.mux_playback_id}
+                    signed={Boolean((block.alt as any).mux_playback_signed)}
                     title={`${block.alt.name} (alt)`}
                     videoId={block.alt.id}
                     category={block.alt.category}

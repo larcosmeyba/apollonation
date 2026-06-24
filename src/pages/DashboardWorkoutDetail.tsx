@@ -208,7 +208,7 @@ const ExerciseRow = ({
       if (exercise.exercise_id) {
         const { data } = await supabase
           .from("admin_exercises")
-          .select("name, coaching_notes, thumbnail_url, mux_playback_id")
+          .select("name, coaching_notes, thumbnail_url, mux_playback_id, mux_playback_signed")
           .eq("id", exercise.exercise_id)
           .maybeSingle();
         if (data) {
@@ -217,14 +217,14 @@ const ExerciseRow = ({
             video_url: null as string | null,
             description: data.coaching_notes,
             thumbnail_url: data.thumbnail_url,
-            mux_playback_id: data.mux_playback_id,
+            mux_playback_id: data.mux_playback_id, mux_playback_signed: data.mux_playback_signed,
           };
         }
       }
       // Exact name match first
       const { data: adminByName } = await supabase
         .from("admin_exercises")
-        .select("name, coaching_notes, thumbnail_url, mux_playback_id")
+        .select("name, coaching_notes, thumbnail_url, mux_playback_id, mux_playback_signed")
         .ilike("name", exercise.exercise_name)
         .maybeSingle();
       if (adminByName) {
@@ -233,7 +233,7 @@ const ExerciseRow = ({
           video_url: null as string | null,
           description: adminByName.coaching_notes,
           thumbnail_url: adminByName.thumbnail_url,
-          mux_playback_id: adminByName.mux_playback_id,
+          mux_playback_id: adminByName.mux_playback_id, mux_playback_signed: adminByName.mux_playback_signed,
         };
       }
       // Fuzzy fallback — strip equipment prefixes and match partial names
@@ -243,7 +243,7 @@ const ExerciseRow = ({
       const fuzzyName = norm(exercise.exercise_name);
       const { data: fuzzyMatch } = await supabase
         .from("admin_exercises")
-        .select("name, coaching_notes, thumbnail_url, mux_playback_id")
+        .select("name, coaching_notes, thumbnail_url, mux_playback_id, mux_playback_signed")
         .ilike("name", `%${fuzzyName}%`)
         .maybeSingle();
       if (fuzzyMatch) {
@@ -252,7 +252,7 @@ const ExerciseRow = ({
           video_url: null as string | null,
           description: fuzzyMatch.coaching_notes,
           thumbnail_url: fuzzyMatch.thumbnail_url,
-          mux_playback_id: fuzzyMatch.mux_playback_id,
+          mux_playback_id: fuzzyMatch.mux_playback_id, mux_playback_signed: fuzzyMatch.mux_playback_signed,
         };
       }
       return null;
@@ -264,6 +264,8 @@ const ExerciseRow = ({
   // (set by the v2 generator). Fall back to the lookup result.
   const resolvedPlaybackId: string | null =
     (exercise.mux_playback_id as string | null) || (exerciseData?.mux_playback_id ?? null);
+  const resolvedPlaybackSigned: boolean =
+    Boolean((exercise as any).mux_playback_signed ?? exerciseData?.mux_playback_signed);
   const resolvedVideoUrl: string | null =
     (exercise.video_url as string | null) || (exerciseData?.video_url ?? null);
 
@@ -545,6 +547,7 @@ const ExerciseRow = ({
             {hasMux && videoOpen ? (
               <MuxVideo
                 playbackId={resolvedPlaybackId!}
+                signed={resolvedPlaybackSigned}
                 title={exerciseData?.title || exercise.exercise_name}
                 videoId={exercise.id}
                 autoPlay

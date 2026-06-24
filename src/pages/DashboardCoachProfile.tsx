@@ -168,6 +168,7 @@ const DashboardCoachProfile = () => {
                 <div className="aspect-video w-full bg-black">
                   <MuxVideo
                     playbackId={(selectedWorkout as any).mux_playback_id}
+                    signed={Boolean((selectedWorkout as any).mux_playback_signed)}
                     title={selectedWorkout.title}
                     videoId={selectedWorkout.id}
                     category={selectedWorkout.category}

@@ -459,6 +459,7 @@ const DashboardWorkouts = () => {
                 <div className="relative aspect-video w-full bg-black">
                   <MuxVideo
                     playbackId={(selectedWorkout as any).mux_playback_id}
+                    signed={Boolean((selectedWorkout as any).mux_playback_signed)}
                     title={selectedWorkout.title}
                     videoId={selectedWorkout.id}
                     category={selectedWorkout.category}
