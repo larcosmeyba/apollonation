@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type" };
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 const RENDER_WORKER_URL = Deno.env.get("RENDER_WORKER_URL")?.trim().replace(/\/+$/, "");
 const RENDER_WORKER_SECRET = Deno.env.get("RENDER_WORKER_SECRET")?.trim();
 const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID") || "";
@@ -9,7 +9,8 @@ interface Block { exercise_id: string | null; work_seconds: number; rest_seconds
 interface Exercise { id: string; mux_playback_id: string | null; mux_asset_id: string | null; source_video_url: string | null; loop_in_seconds: number | null; loop_out_seconds: number | null; }
 const muxMp4 = (id: string) => `https://stream.mux.com/${id}/capped-1080p.mp4`;
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const corsHeaders = buildCorsHeaders(req);
+  const pre = handlePreflight(req); if (pre) return pre;
   try {
     if ((!MUX_TOKEN_ID || !MUX_TOKEN_SECRET) && (!RENDER_WORKER_URL || !RENDER_WORKER_SECRET)) return json({ error: "Render pipeline is not configured" }, 500);
     const authHeader = req.headers.get("Authorization");

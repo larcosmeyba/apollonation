@@ -17,12 +17,7 @@
 //  - Returns the optimized total and any over-budget delta
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
 // ── Mirror of the static price table from src/lib/groceryPricing.ts ──
 // Kept in lockstep manually (estimated-only pricing per current product scope).
@@ -225,8 +220,8 @@ function optimize(items: Item[], budget: number) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-
+  const corsHeaders = buildCorsHeaders(req);
+  const pre = handlePreflight(req); if (pre) return pre;
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;

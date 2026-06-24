@@ -11,21 +11,18 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { create as createJwt, getNumericDate } from "https://deno.land/x/djwt@v3.0.2/mod.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
 const KEY_ID = Deno.env.get("MUX_SIGNING_KEY_ID") || "";
 const KEY_PRIVATE = Deno.env.get("MUX_SIGNING_KEY_PRIVATE") || "";
 const TOKEN_TTL_SECONDS = 60 * 30; // 30 minutes — long enough for a full class
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+function makeJson(corsHeaders: Record<string, string>) {
+  return (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
 }
 
 // Mux signing keys are RSA PKCS1, base64-encoded in the dashboard download.
@@ -81,7 +78,9 @@ async function mintToken(playbackId: string, aud: "v" | "t" | "g" | "s"): Promis
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const corsHeaders = buildCorsHeaders(req);
+  const pre = handlePreflight(req); if (pre) return pre;
+  const json = makeJson(corsHeaders);
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {

@@ -1,9 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
 const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID") || "";
 const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET") || "";
@@ -50,7 +46,8 @@ async function syncAssetStatus(
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const corsHeaders = buildCorsHeaders(req);
+  const pre = handlePreflight(req); if (pre) return pre;
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
@@ -184,7 +181,21 @@ Deno.serve(async (req) => {
     const title = content.title || "Apollo On-Demand Class";
     const category = ("class_type" in content ? content.class_type : content.category) || "strength";
 
-    const origin = req.headers.get("origin") || "*";
+    // Allowlist of origins Mux may grant CORS for direct browser uploads.
+    // NEVER echo the request Origin — an attacker site could trick an admin
+    // browser into requesting an upload URL scoped to attacker.com.
+    const MUX_ALLOWED_UPLOAD_ORIGINS = [
+      "https://apolloreborn.com",
+      "https://www.apolloreborn.com",
+      "https://www-apollo.com",
+      "https://apollonation.lovable.app",
+    ];
+    const reqOrigin = req.headers.get("origin") || "";
+    const isLovablePreview = /^https:\/\/[a-z0-9-]+\.lovable\.app$/i.test(reqOrigin)
+      || /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/i.test(reqOrigin);
+    const origin = MUX_ALLOWED_UPLOAD_ORIGINS.includes(reqOrigin) || isLovablePreview
+      ? reqOrigin
+      : MUX_ALLOWED_UPLOAD_ORIGINS[0];
     const muxRes = await fetch("https://api.mux.com/video/v1/uploads", {
       method: "POST",
       headers: {

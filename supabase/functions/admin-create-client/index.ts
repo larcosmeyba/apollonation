@@ -45,8 +45,8 @@ serve(async (req) => {
     if (!email || !password || !display_name) {
       return jsonResponse(req, { error: "Email, password, and display name are required" }, 400);
     }
-    if (password.length < 6) {
-      return jsonResponse(req, { error: "Password must be at least 6 characters" }, 400);
+    if (password.length < 12) {
+      return jsonResponse(req, { error: "Password must be at least 12 characters" }, 400);
     }
     // Basic email format check
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255) {

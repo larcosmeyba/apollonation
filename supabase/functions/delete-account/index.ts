@@ -1,22 +1,17 @@
 // Edge function: delete-account
 // Re-verifies the caller's password, then permanently deletes their data and auth user.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
-
-const json = (body: unknown, status = 200) =>
+Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
+  const pre = handlePreflight(req); if (pre) return pre;
+  const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -45,6 +40,17 @@ Deno.serve(async (req) => {
     }
     const password = (body.password || "").trim();
     if (!password) return json({ error: "Password required" }, 400);
+
+    // Rate-limit per user AND per IP to make password brute-force impractical.
+    const ip =
+      req.headers.get("cf-connecting-ip") ||
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      "unknown";
+    const [userOk, ipOk] = await Promise.all([
+      checkRateLimit(`delete-account:user:${user.id}`, "delete-account", 5, 15),
+      checkRateLimit(`delete-account:ip:${ip}`, "delete-account", 10, 15),
+    ]);
+    if (!userOk || !ipOk) return rateLimitResponse(corsHeaders);
 
     // Re-verify password using a fresh anon client (does not affect existing session)
     const verifyClient = createClient(SUPABASE_URL, ANON_KEY, {

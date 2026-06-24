@@ -81,6 +81,34 @@ const queryClient = new QueryClient({
   },
 });
 
+// Allowlist of route prefixes that deep links / push notifications may navigate to.
+// Anything outside this list is dropped to prevent open-redirect via custom URL scheme.
+const ALLOWED_DEEP_LINK_PREFIXES = [
+  "/dashboard",
+  "/auth",
+  "/reset-password",
+  "/account-deletion",
+  "/questionnaire",
+  "/subscribe",
+  "/plan-ready",
+  "/personalize",
+  "/blog",
+  "/admin",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/faq",
+  "/about",
+];
+
+const isAllowedDeepLinkPath = (path: string): boolean => {
+  if (!path || !path.startsWith("/")) return false;
+  if (path === "/") return true;
+  return ALLOWED_DEEP_LINK_PREFIXES.some(
+    (prefix) => path === prefix || path.startsWith(prefix + "/") || path.startsWith(prefix + "?") || path.startsWith(prefix + "#"),
+  );
+};
+
 const NativeDeepLinks = () => {
   const navigate = useNavigate();
   useEffect(() => {
@@ -90,7 +118,11 @@ const NativeDeepLinks = () => {
       try {
         const parsed = new URL(url);
         const path = parsed.pathname + parsed.search + parsed.hash;
-        if (path) navigate(path);
+        if (path && isAllowedDeepLinkPath(parsed.pathname)) {
+          navigate(path);
+        } else {
+          console.warn("[DeepLink] Blocked navigation to", parsed.pathname);
+        }
       } catch (e) {
         console.warn("Bad deep link", url, e);
       }
@@ -103,8 +135,24 @@ const NativeDeepLinks = () => {
         pushActionSub = PushNotifications.addListener(
           "pushNotificationActionPerformed",
           (event: any) => {
-            const url = event?.notification?.data?.url;
-            if (url) navigate(url);
+            const rawUrl = event?.notification?.data?.url;
+            if (typeof rawUrl !== "string" || !rawUrl) return;
+            // Push payloads are pathname-only or full URLs; normalize and allowlist.
+            let path = rawUrl;
+            try {
+              if (rawUrl.includes("://")) {
+                const parsed = new URL(rawUrl);
+                path = parsed.pathname + parsed.search + parsed.hash;
+              }
+            } catch {
+              return;
+            }
+            const pathname = path.split(/[?#]/)[0];
+            if (isAllowedDeepLinkPath(pathname)) {
+              navigate(path);
+            } else {
+              console.warn("[Push] Blocked navigation to", pathname);
+            }
           }
         );
       } catch (e) {

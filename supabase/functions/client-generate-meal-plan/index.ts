@@ -9,21 +9,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { resolveUserMacroTargets } from "../_shared/macro-scaler.ts";
 import { runV2ForUser } from "../_shared/v2-meal-plan-runner.ts";
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
-
-const json = (body: unknown, status = 200) =>
+serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
+  const pre = handlePreflight(req); if (pre) return pre;
+  const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
