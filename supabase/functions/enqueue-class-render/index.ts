@@ -7,7 +7,7 @@ const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET") || "";
 const MUX_AUTH = "Basic " + btoa(`${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}`);
 interface Block { exercise_id: string | null; work_seconds: number; rest_seconds: number; sets: number; set_rest_seconds: number; sort_order: number; }
 interface Exercise { id: string; mux_playback_id: string | null; mux_asset_id: string | null; source_video_url: string | null; loop_in_seconds: number | null; loop_out_seconds: number | null; }
-const muxMp4 = (id: string) => `https://stream.mux.com/${id}.m3u8`;
+const muxMp4 = (id: string) => `https://stream.mux.com/${id}/capped-1080p.mp4`;
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
