@@ -17,7 +17,6 @@ import {
 import OnDemandClassPlayer, { PlayerBlock } from "./library/OnDemandClassPlayer";
 import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import RenderMp4Panel from "./library/RenderMp4Panel";
-import JSZip from "jszip";
 
 import {
   Plus, Play, Save, Trash2, GripVertical, Sparkles, Loader2, ChevronUp, ChevronDown, FolderOpen,
@@ -85,9 +84,6 @@ const fmtMMSS = (s: number) => {
   const sec = Math.round(s % 60);
   return `${m}:${String(sec).padStart(2, "0")}`;
 };
-
-const safeFileName = (name: string, fallback = "apollo-clip") =>
-  (name || fallback).replace(/[^a-z0-9-_]+/gi, "_").replace(/^_+|_+$/g, "") || fallback;
 
 const CLASS_TYPES = ["strength", "sculpt", "stretch", "cardio"] as const;
 
