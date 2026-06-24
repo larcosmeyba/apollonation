@@ -12,6 +12,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { create as createJwt, getNumericDate } from "https://deno.land/x/djwt@v3.0.2/mod.ts";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { requirePremium } from "../_shared/entitlement.ts";
 
 const KEY_ID = Deno.env.get("MUX_SIGNING_KEY_ID") || "";
 const KEY_PRIVATE = Deno.env.get("MUX_SIGNING_KEY_PRIVATE") || "";
@@ -99,6 +100,12 @@ Deno.serve(async (req) => {
 
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
     if (userErr || !user) return json({ error: "Unauthorized" }, 401);
+
+    // Entitlement gate: only active premium subscribers can mint playback
+    // tokens. Cancelled subscribers and free-tier users are blocked even if
+    // they previously cached a playback_id.
+    const denied = await requirePremium(user.id, corsHeaders);
+    if (denied) return denied;
 
     const body = await req.json().catch(() => ({}));
     const playbackId = typeof body.playback_id === "string" ? body.playback_id.trim() : "";

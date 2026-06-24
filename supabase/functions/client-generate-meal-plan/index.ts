@@ -10,6 +10,7 @@ import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { resolveUserMacroTargets } from "../_shared/macro-scaler.ts";
 import { runV2ForUser } from "../_shared/v2-meal-plan-runner.ts";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { requirePremium } from "../_shared/entitlement.ts";
 
 serve(async (req) => {
   const corsHeaders = buildCorsHeaders(req);
@@ -32,6 +33,10 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
     if (userError || !userData?.user) return json({ error: "Invalid token" }, 401);
     const userId = userData.user.id;
+
+    // Entitlement gate: meal plan generation is a premium feature.
+    const denied = await requirePremium(userId, corsHeaders);
+    if (denied) return denied;
 
     // Rate limit: 5 generations / user / day. Plenty for retries; blocks abuse.
     const allowed = await checkRateLimit(userId, "client-generate-meal-plan", 5, 1440);
