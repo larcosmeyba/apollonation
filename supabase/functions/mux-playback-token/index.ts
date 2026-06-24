@@ -12,6 +12,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { create as createJwt, getNumericDate } from "https://deno.land/x/djwt@v3.0.2/mod.ts";
 import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { requirePremium } from "../_shared/entitlement.ts";
 
 const KEY_ID = Deno.env.get("MUX_SIGNING_KEY_ID") || "";
 const KEY_PRIVATE = Deno.env.get("MUX_SIGNING_KEY_PRIVATE") || "";
