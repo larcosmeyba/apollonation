@@ -194,7 +194,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         cors_origin: origin,
         new_asset_settings: {
-          playback_policies: ["public"],
+          playback_policies: ["signed"],
           static_renditions: [{ resolution: "highest", passthrough }],
           max_resolution_tier: "1080p",
           passthrough,
@@ -218,6 +218,7 @@ Deno.serve(async (req) => {
         mux_asset_id: null,
         mux_playback_id: null,
         video_url: null,
+        mux_playback_signed: true,
       })
       .eq("id", classId || workoutId);
 
