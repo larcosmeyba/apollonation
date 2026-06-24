@@ -36,6 +36,8 @@ export interface MuxVideoProps {
   style?: React.CSSProperties;
   /** Player streamType — "on-demand" is default. */
   streamType?: "on-demand" | "live";
+  /** When true, fetch a signed JWT before playback (asset uses signed policy). */
+  signed?: boolean;
   onTimeUpdate?: React.ReactEventHandler<HTMLVideoElement>;
   onLoadedMetadata?: React.ReactEventHandler<HTMLVideoElement>;
 }
