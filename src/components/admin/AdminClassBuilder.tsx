@@ -37,6 +37,7 @@ interface Block {
   cue_overrides: string;
   weight_prompt: string;
   tempo_prompt: string;
+  rest_notes: string;
   drop_set: boolean;
   target_reps_min: number | null;
   target_reps_max: number | null;
