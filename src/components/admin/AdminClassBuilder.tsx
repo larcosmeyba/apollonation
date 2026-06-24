@@ -970,30 +970,6 @@ const AdminClassBuilder = () => {
             </p>
           </div>
 
-          <div className="border-t border-border pt-3 space-y-2">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">
-              Individual Clips Fallback
-            </div>
-            <Button
-              type="button"
-              onClick={downloadAllClips}
-              disabled={downloadingClips || blocks.length === 0}
-              className="w-full"
-              variant="outline"
-            >
-              {downloadingClips ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              {downloadingClips ? `Packaging clips ${clipProgress}%` : "Download Individual Clips ZIP"}
-            </Button>
-            {downloadingClips && (
-              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                <div className="h-full bg-primary transition-all" style={{ width: `${clipProgress}%` }} />
-              </div>
-            )}
-            <p className="text-[10px] text-muted-foreground">
-              This downloads each exercise clip as a separate file in a ZIP — NOT the finished class. To download the full stitched workout as one MP4, use “Download Finished Class MP4” below.
-            </p>
-          </div>
-
           <RenderMp4Panel classId={classId} hasBlocks={blocks.length > 0} />
         </Card>
       </div>
