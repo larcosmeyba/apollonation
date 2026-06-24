@@ -16,7 +16,7 @@ const REVENUECAT_IOS_API_KEY =
 const REVENUECAT_ANDROID_API_KEY =
   (import.meta.env.VITE_REVENUECAT_ANDROID_API_KEY as string | undefined) ||
   "goog_ClaHieSZkphwjXBEmSJiaFEQhYK";
-const REVENUECAT_ANDROID_API_KEY = "goog_ClaHieSZkphwjXBEmSJiaFEQhYK";
+
 
 let configured = false;
 let configuringFor: string | null = null;
