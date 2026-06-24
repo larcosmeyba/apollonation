@@ -168,23 +168,16 @@ export function useAccessControl(): AccessControl {
 
   const recordProgramUsage = useCallback(async () => {
     if (hasPremiumAccess || !userId) return;
-    const nextCount = freeProgramsUsed + 1;
-    const { error } = await (supabase as any)
-      .from("free_usage")
-      .upsert(
-        {
-          user_id: userId,
-          free_programs_used_count: nextCount,
-          last_updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" }
-      );
+    const { error } = await (supabase as any).rpc("increment_free_programs_used", {
+      p_user_id: userId,
+    });
     if (error) {
+      // 'free_limit_reached' is raised server-side when the cap is hit.
       console.error("[useAccessControl] recordProgramUsage failed", error.message);
       return;
     }
     queryClient.invalidateQueries({ queryKey: ["free_usage", userId] });
-  }, [hasPremiumAccess, userId, freeProgramsUsed, queryClient]);
+  }, [hasPremiumAccess, userId, queryClient]);
 
   return {
     hasPremiumAccess,
