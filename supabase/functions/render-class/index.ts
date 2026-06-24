@@ -3,12 +3,7 @@
 // mux-webhook function flips the row to "ready" when Mux finishes.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
 const MUX_TOKEN_ID = Deno.env.get("MUX_TOKEN_ID")!;
 const MUX_TOKEN_SECRET = Deno.env.get("MUX_TOKEN_SECRET")!;
@@ -36,8 +31,8 @@ interface Exercise {
 const muxMp4 = (id: string) => `https://stream.mux.com/${id}/medium.mp4`;
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-
+  const corsHeaders = buildCorsHeaders(req);
+  const pre = handlePreflight(req); if (pre) return pre;
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {

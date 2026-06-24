@@ -5,11 +5,7 @@
 // Auth: requires an admin user JWT. Idempotent (onConflict mux_asset_id).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
 const CLASS_CATEGORIES = new Set([
   "strength","sculpt","stretch","cardio","hiit","cycling","recovery","beginner",
@@ -66,8 +62,8 @@ function orientation(aspect: string | null | undefined, fallback: "vertical" | "
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-
+  const corsHeaders = buildCorsHeaders(req);
+  const pre = handlePreflight(req); if (pre) return pre;
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
