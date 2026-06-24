@@ -506,17 +506,34 @@ const AdminWorkouts = () => {
                   {workout.is_featured && (
                     <span className="absolute top-2 left-2 text-[10px] font-medium bg-primary/90 text-primary-foreground px-1.5 py-0.5 rounded">⭐ Featured</span>
                   )}
-                  {workout.is_published === false && (
-                    <span className="absolute top-2 right-2 text-[10px] font-medium bg-muted/90 text-muted-foreground px-1.5 py-0.5 rounded">Draft</span>
-                  )}
-                  {workout.mux_playback_id ? (
-                    <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 text-[10px] font-medium bg-emerald-500/90 text-white px-1.5 py-0.5 rounded">
-                      <CheckCircle2 className="w-3 h-3" /> Mux Ready
-                    </span>
+                  {workout.is_published !== false ? (
+                    <button
+                      type="button"
+                      title="Live on client app — click to unpublish"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await supabase.from("workouts").update({ is_published: false } as any).eq("id", workout.id);
+                        queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
+                        toast({ title: "Unpublished", description: `${workout.title} is no longer visible to clients.` });
+                      }}
+                      className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] font-medium bg-emerald-500/90 hover:bg-emerald-600 text-white px-1.5 py-0.5 rounded transition-colors"
+                    >
+                      <CheckCircle2 className="w-3 h-3" /> Published
+                    </button>
                   ) : (
-                    <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 text-[10px] font-medium bg-amber-500/90 text-white px-1.5 py-0.5 rounded">
-                      <AlertCircle className="w-3 h-3" /> No Mux
-                    </span>
+                    <button
+                      type="button"
+                      title="Draft — click to publish to client app"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await supabase.from("workouts").update({ is_published: true } as any).eq("id", workout.id);
+                        queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
+                        toast({ title: "Published", description: `${workout.title} is now live on the client app.` });
+                      }}
+                      className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] font-medium bg-muted/90 hover:bg-muted text-muted-foreground px-1.5 py-0.5 rounded transition-colors"
+                    >
+                      Draft
+                    </button>
                   )}
                   <span className="absolute bottom-2 right-2 text-[10px] bg-background/80 px-1.5 py-0.5 rounded">{workout.duration_minutes} min</span>
                 </div>
