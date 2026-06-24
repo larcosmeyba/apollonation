@@ -125,6 +125,99 @@ Deno.serve(async (req) => {
   // Create Supabase client with service role (bypasses RLS)
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+  // ─── Caller-identity gate (anti-relay) ────────────────────────────────
+  // verify_jwt=true means the gateway accepts the public anon key as valid.
+  // Without an additional check, anyone could invoke this function with an
+  // arbitrary recipientEmail and turn it into an open mail relay.
+  //
+  // Policy:
+  //   • service_role callers (server-side / edge-function -> edge-function): allowed.
+  //   • Anonymous (no session): only templates with a hard-coded `template.to`
+  //     (e.g. site-owner notifications from public forms) are permitted —
+  //     the caller cannot influence the recipient.
+  //   • Authenticated users: recipient must equal their own auth email, OR
+  //     the template has a fixed `template.to`.
+  const authHeader = req.headers.get('Authorization') || ''
+  const bearer = authHeader.replace(/^Bearer\s+/i, '')
+  let callerRole: 'service_role' | 'authenticated' | 'anon' = 'anon'
+  let callerEmail: string | null = null
+  let callerUserId: string | null = null
+  if (bearer) {
+    try {
+      const payloadB64 = bearer.split('.')[1] || ''
+      const padded = payloadB64 + '='.repeat((4 - (payloadB64.length % 4)) % 4)
+      const claims = JSON.parse(
+        atob(padded.replace(/-/g, '+').replace(/_/g, '/'))
+      )
+      if (claims?.role === 'service_role') {
+        callerRole = 'service_role'
+      } else if (claims?.sub) {
+        const { data: userResp } = await supabase.auth.getUser(bearer)
+        if (userResp?.user) {
+          callerRole = 'authenticated'
+          callerEmail = userResp.user.email?.toLowerCase() ?? null
+          callerUserId = userResp.user.id
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to decode caller JWT', { error: String(e) })
+    }
+  }
+
+  const templateHasFixedRecipient = typeof template.to === 'string' && template.to.length > 0
+
+  if (callerRole !== 'service_role') {
+    if (callerRole === 'anon') {
+      if (!templateHasFixedRecipient) {
+        console.warn('Anon caller blocked from arbitrary-recipient template', {
+          templateName,
+        })
+        return new Response(
+          JSON.stringify({ error: 'Authentication required for this template' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    } else {
+      // Authenticated: caller may only target themselves unless the template
+      // pins a fixed recipient.
+      if (
+        !templateHasFixedRecipient &&
+        (!callerEmail || callerEmail !== (recipientEmail || '').toLowerCase())
+      ) {
+        console.warn('Authenticated caller tried to send to another address', {
+          templateName,
+          callerUserId,
+        })
+        return new Response(
+          JSON.stringify({
+            error: 'recipientEmail must match the authenticated user',
+          }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
+    // Per-caller rate limit to prevent abuse (10 sends / 10 min).
+    const rlIdentifier = callerUserId
+      ? `user:${callerUserId}`
+      : `ip:${req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || 'unknown'}`
+    const { data: rlOk, error: rlErr } = await supabase.rpc('check_rate_limit', {
+      p_identifier: rlIdentifier,
+      p_action: 'send-transactional-email',
+      p_max_requests: 10,
+      p_window_minutes: 10,
+    })
+    if (rlErr) {
+      console.error('Rate limit check failed', { error: rlErr })
+    } else if (rlOk === false) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+  }
+
+
   // 2. Check suppression list (fail-closed: if we can't verify, don't send)
   const { data: suppressed, error: suppressionError } = await supabase
     .from('suppressed_emails')
