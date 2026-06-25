@@ -335,7 +335,8 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
     <div className="fixed inset-0 z-[100] bg-black text-white flex flex-col">
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center backdrop-blur"
+        className="absolute z-50 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center backdrop-blur"
+        style={{ top: "max(0.75rem, env(safe-area-inset-top))", right: "max(0.75rem, env(safe-area-inset-right))" }}
       >
         <X className="w-5 h-5" />
       </button>
