@@ -103,6 +103,7 @@ const Dashboard = () => {
           supabase
             .from("workouts")
             .select("*")
+            .eq("is_published", true)
             .gte("created_at", weekStart)
             .order("created_at", { ascending: false })
             .limit(10),
