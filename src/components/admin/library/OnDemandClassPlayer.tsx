@@ -381,7 +381,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
             <div className="text-[11px] uppercase tracking-[0.5em] text-white/50 mb-3">
               Starting Workout in
             </div>
-            <div className="font-heading text-[18vw] md:text-[12vw] leading-none tabular-nums text-white" style={{ fontSize: `clamp(64px, ${18 * uiScale.clock}vw, ${24 * uiScale.clock}vw)` }}>
+            <div className="font-heading leading-none tabular-nums text-white" style={{ fontSize: `calc(clamp(48px, 14vw, 110px) * ${uiScale.clock})` }}>
               {remaining}
             </div>
 
