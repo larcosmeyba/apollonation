@@ -11,6 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import MuxVideo from "@/components/video/MuxVideo";
+import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Tables } from "@/integrations/supabase/types";
 
