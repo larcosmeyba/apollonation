@@ -750,25 +750,6 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
 
                 </div>
 
-                {/* "Coming Next" preview — always visible when there is a next exercise */}
-                {next?.exercise && (
-                  <div className="flex items-center gap-2.5 bg-white/5 backdrop-blur rounded-xl p-2 border border-white/10">
-                    {next.exercise.mux_playback_id && (
-                      <img
-                        src={muxThumb(next.exercise.mux_playback_id)}
-                        alt=""
-                        className="w-12 h-9 object-cover rounded"
-                      />
-                    )}
-                    <div>
-                      <div className="uppercase tracking-widest text-white/50" style={{ fontSize: "clamp(7px, 1.2vw, 9px)" }}>Next</div>
-                      <div className="font-medium leading-tight" style={{ fontSize: "clamp(10px, 1.7vw, 12px)" }}>{next.exercise.name}</div>
-                      <div className="uppercase tracking-widest text-white/50 mt-0.5" style={{ fontSize: "clamp(7px, 1.2vw, 9px)" }}>
-                        {next.sets} {next.sets === 1 ? "set" : "sets"}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="mt-6 flex items-center justify-center gap-3">
