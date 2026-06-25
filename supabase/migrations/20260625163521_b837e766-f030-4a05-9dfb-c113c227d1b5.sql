@@ -1,0 +1,2 @@
+ALTER TABLE public.workouts ADD COLUMN IF NOT EXISTS is_free_pick boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS workouts_is_free_pick_idx ON public.workouts (is_free_pick) WHERE is_free_pick = true;
