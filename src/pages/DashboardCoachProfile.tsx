@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -11,6 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import MuxVideo from "@/components/video/MuxVideo";
+import PreWorkoutMusicPrompt from "@/components/dashboard/PreWorkoutMusicPrompt";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -28,6 +29,9 @@ const DashboardCoachProfile = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"bio" | "ondemand">("bio");
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [musicAck, setMusicAck] = useState(false);
+  useEffect(() => { setMusicAck(false); }, [selectedWorkout?.id]);
+  const selectedHasVideo = !!(selectedWorkout && ((selectedWorkout as any).mux_playback_id || selectedWorkout.video_url));
 
   const { data: workouts = [] } = useQuery({
     queryKey: ["coach-workouts"],
@@ -164,7 +168,9 @@ const DashboardCoachProfile = () => {
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
           {selectedWorkout && (
             <>
-              {(selectedWorkout as any).mux_playback_id ? (
+              {!musicAck && selectedHasVideo ? (
+                <div className="aspect-video w-full bg-black" />
+              ) : (selectedWorkout as any).mux_playback_id ? (
                 <div className="aspect-video w-full bg-black">
                   <MuxVideo
                     playbackId={(selectedWorkout as any).mux_playback_id}
@@ -210,6 +216,12 @@ const DashboardCoachProfile = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <PreWorkoutMusicPrompt
+        open={!!selectedWorkout && selectedHasVideo && !musicAck}
+        onCancel={() => setSelectedWorkout(null)}
+        onReady={() => setMusicAck(true)}
+      />
     </DashboardLayout>
   );
 };

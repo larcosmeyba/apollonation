@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -81,6 +81,9 @@ const Dashboard = () => {
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
   const [pendingWorkout, setPendingWorkout] = useState<any | null>(null);
   const [playingClass, setPlayingClass] = useState<{ classId: string; title: string } | null>(null);
+  const [musicAck, setMusicAck] = useState(false);
+  useEffect(() => { setMusicAck(false); }, [selectedWorkout?.id]);
+  const selectedHasVideo = !!(selectedWorkout && selectedWorkout.video_url);
 
 
   const greeting = useMemo(() => {
@@ -496,7 +499,8 @@ const Dashboard = () => {
           {selectedWorkout && (
             <>
               {selectedWorkout.video_url ? (
-                renderVideoPlayer(selectedWorkout)
+                musicAck ? renderVideoPlayer(selectedWorkout) : <div className="relative aspect-video w-full bg-black" />
+              
               ) : getThumb(selectedWorkout, 0) ? (
                 <div className="relative aspect-video w-full overflow-hidden">
                   <img src={getThumb(selectedWorkout, 0)} alt={selectedWorkout.title} className="w-full h-full object-cover" />
@@ -576,6 +580,12 @@ const Dashboard = () => {
             setPlayingClass({ classId: w.admin_class_id, title: w.title });
           }
         }}
+      />
+
+      <PreWorkoutMusicPrompt
+        open={!!selectedWorkout && selectedHasVideo && !musicAck}
+        onCancel={() => setSelectedWorkout(null)}
+        onReady={() => setMusicAck(true)}
       />
 
       {playingClass && (
