@@ -599,24 +599,14 @@ const AdminWorkouts = () => {
                       size="icon"
                       variant="ghost"
                       className={`h-7 w-7 ${workout.is_free_pick ? "text-emerald-500" : ""}`}
-                      title={workout.is_free_pick ? "Remove from Free On-Demand Picks" : "Add to Free On-Demand Picks (max 10)"}
+                      title={workout.is_free_pick ? "Remove from Free On-Demand Picks" : "Add to Free On-Demand Picks"}
                       onClick={async () => {
                         const next = !workout.is_free_pick;
-                        if (next) {
-                          const current = (workouts || []).filter((w: any) => w.is_free_pick).length;
-                          if (current >= 10) {
-                            toast({
-                              title: "Free pick limit reached",
-                              description: "You can only feature 10 free on-demand workouts. Remove one first.",
-                              variant: "destructive",
-                            });
-                            return;
-                          }
-                        }
                         await supabase.from("workouts").update({ is_free_pick: next } as any).eq("id", workout.id);
                         queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
                         toast({ title: next ? "Added to free picks" : "Removed from free picks" });
                       }}
+
                     >
                       {workout.is_free_pick ? <Gift className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
                     </Button>
