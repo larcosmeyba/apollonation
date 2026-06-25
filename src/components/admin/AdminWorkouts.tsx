@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff, Play, CheckCircle2, AlertCircle, Link as LinkIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, ListChecks, Upload, Image, Loader2, Search, Copy, EyeOff, Play, CheckCircle2, AlertCircle, Link as LinkIcon, Gift, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,7 @@ interface Workout {
   mux_playback_id?: string | null;
   mux_playback_signed?: boolean | null;
   mux_status?: string | null;
+  is_free_pick?: boolean;
   created_at?: string;
 }
 
@@ -439,6 +440,23 @@ const AdminWorkouts = () => {
         </Dialog>
       </div>
 
+      {/* Free On-Demand Picks summary */}
+      {(() => {
+        const FREE_PICK_LIMIT = 10;
+        const freeCount = (workouts || []).filter((w: any) => w.is_free_pick).length;
+        return (
+          <div className="rounded-lg border border-dashed border-emerald-500/40 bg-emerald-500/5 p-3 flex items-center gap-3">
+            <Gift className="w-4 h-4 text-emerald-500 shrink-0" />
+            <div className="flex-1 text-sm">
+              <span className="font-medium">Free On-Demand Picks: {freeCount} / {FREE_PICK_LIMIT}</span>
+              <span className="text-muted-foreground ml-2">
+                These are the on-demand workouts free users can play. Toggle the gift icon on any card to add or remove.
+              </span>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Library Management Bar */}
       <div className="flex flex-wrap gap-2 items-center">
         <div className="relative flex-1 min-w-[200px]">
@@ -576,6 +594,31 @@ const AdminWorkouts = () => {
                       }}
                     >
                       <EyeOff className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className={`h-7 w-7 ${workout.is_free_pick ? "text-emerald-500" : ""}`}
+                      title={workout.is_free_pick ? "Remove from Free On-Demand Picks" : "Add to Free On-Demand Picks (max 10)"}
+                      onClick={async () => {
+                        const next = !workout.is_free_pick;
+                        if (next) {
+                          const current = (workouts || []).filter((w: any) => w.is_free_pick).length;
+                          if (current >= 10) {
+                            toast({
+                              title: "Free pick limit reached",
+                              description: "You can only feature 10 free on-demand workouts. Remove one first.",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                        }
+                        await supabase.from("workouts").update({ is_free_pick: next } as any).eq("id", workout.id);
+                        queryClient.invalidateQueries({ queryKey: ["admin-workouts"] });
+                        toast({ title: next ? "Added to free picks" : "Removed from free picks" });
+                      }}
+                    >
+                      {workout.is_free_pick ? <Gift className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
                     </Button>
                     <Button
                       size="icon"

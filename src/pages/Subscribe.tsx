@@ -50,9 +50,9 @@ function isElitePackage(pkg: any): boolean {
 }
 
 const REASON_BANNERS: Record<string, string> = {
-  workouts: "You've used your 10 free workouts. Unlock unlimited training.",
-  recipes: "You've used your 10 free recipes. Upgrade for full nutrition access.",
-  programs: "You've enrolled in your 2 free programs. Upgrade for the full library.",
+  workouts: "You've reached the limit of your 10 free on-demand workouts. Unlock the full library.",
+  recipes: "Unlock the full recipe library and meal planning with Apollo Reborn.",
+  programs: "Your 2 free weeks of a program are complete. Upgrade for the full library.",
   nutrition: "Meal plans, grocery lists, and macro tracking are part of Apollo Reborn.",
   ai: "Your workout, built for today. Unlock AI training with Apollo Reborn.",
   elite: "Apollo Elite includes 1:1 async coaching with Marcos.",
@@ -276,7 +276,7 @@ const Subscribe = () => {
               <PlanCard
                 name="Apollo Reborn"
                 eyebrow="Full Access"
-                features={["Unlimited workouts", "All programs & recipes", "Meal plan & macro tracker", "AI daily workouts"]}
+                features={["Unlimited on-demand workouts", "All training programs", "Meal plan & macro tracker", "AI daily workouts"]}
                 pkg={rebornPkg}
                 native={native}
                 purchasing={purchasing}

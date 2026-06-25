@@ -75,7 +75,7 @@ const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
 const Dashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { hasPremiumAccess, freeWorkoutsRemaining, freeRecipesRemaining, freeProgramsRemaining } = useAccessControl();
+  const { hasPremiumAccess } = useAccessControl();
   const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
@@ -350,7 +350,7 @@ const Dashboard = () => {
           <div className="rounded-xl bg-muted p-4">
             <p className="text-sm font-medium">Welcome to Apollo Reborn</p>
             <p className="text-xs text-muted-foreground mt-1">
-              You have {freeWorkoutsRemaining} free workouts, {freeProgramsRemaining} programs, and {freeRecipesRemaining} recipes included.
+              Includes 10 free on-demand workouts and 2 free weeks of a program.
             </p>
             <Button size="sm" variant="apollo" className="mt-3" onClick={() => navigate("/subscribe")}>
               See membership

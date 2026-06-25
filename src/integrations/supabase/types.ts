@@ -4625,6 +4625,7 @@ export type Database = {
           duration_minutes: number
           id: string
           is_featured: boolean | null
+          is_free_pick: boolean
           is_published: boolean
           mux_asset_id: string | null
           mux_playback_id: string | null
@@ -4643,6 +4644,7 @@ export type Database = {
           duration_minutes: number
           id?: string
           is_featured?: boolean | null
+          is_free_pick?: boolean
           is_published?: boolean
           mux_asset_id?: string | null
           mux_playback_id?: string | null
@@ -4661,6 +4663,7 @@ export type Database = {
           duration_minutes?: number
           id?: string
           is_featured?: boolean | null
+          is_free_pick?: boolean
           is_published?: boolean
           mux_asset_id?: string | null
           mux_playback_id?: string | null
