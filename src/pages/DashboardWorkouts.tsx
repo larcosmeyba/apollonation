@@ -459,33 +459,45 @@ const DashboardWorkouts = () => {
           {selectedWorkout && (
             <>
               {(selectedWorkout as any).mux_playback_id ? (
-                <div className="relative aspect-video w-full bg-black">
-                  <MuxVideo
-                    playbackId={(selectedWorkout as any).mux_playback_id}
-                    signed={Boolean((selectedWorkout as any).mux_playback_signed)}
-                    title={selectedWorkout.title}
-                    videoId={selectedWorkout.id}
-                    category={selectedWorkout.category}
-                    autoPlay
-                    controls
-                  />
-                </div>
-              ) : selectedWorkout.video_url ? (
-                selectedWorkout.video_url.startsWith("storage:") ? (
+                musicAck ? (
                   <div className="relative aspect-video w-full bg-black">
-                    <StorageVideoPlayer storagePath={selectedWorkout.video_url.replace("storage:", "")} title={selectedWorkout.title} />
-                  </div>
-                ) : (
-                  <div className="relative aspect-video w-full bg-black">
-                    <iframe
-                      src={getYouTubeEmbedUrl(selectedWorkout.video_url)}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      referrerPolicy="no-referrer"
+                    <MuxVideo
+                      playbackId={(selectedWorkout as any).mux_playback_id}
+                      signed={Boolean((selectedWorkout as any).mux_playback_signed)}
                       title={selectedWorkout.title}
+                      videoId={selectedWorkout.id}
+                      category={selectedWorkout.category}
+                      autoPlay
+                      controls
                     />
                   </div>
+                ) : (
+                  <div className="relative aspect-video w-full bg-black" />
+                )
+              ) : selectedWorkout.video_url ? (
+                selectedWorkout.video_url.startsWith("storage:") ? (
+                  musicAck ? (
+                    <div className="relative aspect-video w-full bg-black">
+                      <StorageVideoPlayer storagePath={selectedWorkout.video_url.replace("storage:", "")} title={selectedWorkout.title} />
+                    </div>
+                  ) : (
+                    <div className="relative aspect-video w-full bg-black" />
+                  )
+                ) : (
+                  musicAck ? (
+                    <div className="relative aspect-video w-full bg-black">
+                      <iframe
+                        src={getYouTubeEmbedUrl(selectedWorkout.video_url)}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        referrerPolicy="no-referrer"
+                        title={selectedWorkout.title}
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative aspect-video w-full bg-black" />
+                  )
                 )
               ) : getWorkoutThumbnail(selectedWorkout) ? (
                 <div className="relative aspect-video w-full overflow-hidden">
