@@ -499,7 +499,8 @@ const Dashboard = () => {
           {selectedWorkout && (
             <>
               {selectedWorkout.video_url ? (
-                renderVideoPlayer(selectedWorkout)
+                musicAck ? renderVideoPlayer(selectedWorkout) : <div className="relative aspect-video w-full bg-black" />
+              
               ) : getThumb(selectedWorkout, 0) ? (
                 <div className="relative aspect-video w-full overflow-hidden">
                   <img src={getThumb(selectedWorkout, 0)} alt={selectedWorkout.title} className="w-full h-full object-cover" />
