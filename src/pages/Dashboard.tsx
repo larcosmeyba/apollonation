@@ -224,6 +224,7 @@ const Dashboard = () => {
           const { count } = await supabase
             .from("workouts")
             .select("id", { count: "exact", head: true })
+            .eq("is_published", true)
             .ilike("category", cat);
           counts[cat] = count ?? 0;
         })
