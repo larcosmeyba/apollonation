@@ -58,6 +58,7 @@ const calcMacros = (
 const GENDERS = [
   { id: "male", label: "Male" },
   { id: "female", label: "Female" },
+  { id: "unspecified", label: "Prefer not to say" },
 ];
 const ACTIVITY = [
   { id: "sedentary", label: "Sedentary", desc: "Desk job, little movement" },
@@ -518,7 +519,7 @@ const DashboardNutritionSetup = () => {
           weight_lbs: parseFloat(form.current_weight_lbs) || null,
           goal_weight_lbs: form.goal_weight_lbs ? parseFloat(form.goal_weight_lbs) : null,
           age: parseInt(form.age) || null,
-          sex: (form.gender || null) as "male" | "female" | null,
+          sex: (form.gender === "male" || form.gender === "female" ? form.gender : null) as "male" | "female" | null,
           activity_level: form.activity_level || null,
           primary_goal: form.main_goal || null,
           training_days_per_week: form.training_days_per_week ? parseInt(form.training_days_per_week) : null,
@@ -630,7 +631,7 @@ const DashboardNutritionSetup = () => {
                 <Input type="number" value={form.age} onChange={(e) => set("age", e.target.value)} placeholder="" />
               </Field>
               <Field label="Gender">
-                <PillRow options={GENDERS} value={form.gender} onChange={(v) => set("gender", v)} cols={2} />
+                <PillRow options={GENDERS} value={form.gender} onChange={(v) => set("gender", v)} cols={3} />
               </Field>
               <Field label="Activity level">
                 <CardChoice options={ACTIVITY} value={form.activity_level} onChange={(v) => set("activity_level", v)} />
