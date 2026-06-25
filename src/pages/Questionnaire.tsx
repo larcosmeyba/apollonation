@@ -103,7 +103,10 @@ const Questionnaire = () => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleArrayField = (field: "preferred_training_days", value: string) => {
+  const toggleArrayField = (
+    field: "preferred_training_days" | "goals" | "preferred_training_styles",
+    value: string
+  ) => {
     setForm((prev) => {
       const arr = prev[field];
       return {
@@ -122,13 +125,12 @@ const Questionnaire = () => {
       return form.height_feet && form.weight_lbs;
     }
     if (step === 2) {
-      return form.fitness_experience && form.goal;
+      return form.fitness_experience && form.goals.length > 0;
     }
     if (step === 3) {
-      return form.preferred_training_style && form.preferred_training_days.length > 0 && form.workout_environment;
+      return form.preferred_training_styles.length > 0 && form.preferred_training_days.length > 0 && form.workout_environment;
     }
-    if (step === 4) return true; // health is optional
-    if (step === 5) return form.waiver_accepted;
+    if (step === 4) return form.waiver_accepted;
     return true;
   };
 
