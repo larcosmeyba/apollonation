@@ -577,43 +577,44 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                       : block.section === "workout_c" ? "Workout Block C"
                       : `Set ${setNum} of ${block.sets}`}
                   </div>
-                  <h2 className="font-heading text-3xl md:text-5xl mt-1 tracking-wider">
+                  <h2 className="font-heading text-xl md:text-3xl mt-1 tracking-wider leading-tight">
                     {block.exercise?.name || "—"}
                   </h2>
                   {(block.section === "workout_a" || block.section === "workout_b" || block.section === "workout_c") && (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                       {block.exercise?.body_part && (
-                        <div className="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur text-xs uppercase tracking-wider text-white/80">
+                        <div className="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur text-[9px] uppercase tracking-wider text-white/70">
                           Target: {block.exercise.body_part}
                         </div>
                       )}
                       {block.exercise?.muscle_group && block.exercise.muscle_group !== block.exercise.body_part && (
-                        <div className="px-2.5 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary text-xs uppercase tracking-wider">
+                        <div className="px-2 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[9px] uppercase tracking-wider">
                           Feel it: {block.exercise.muscle_group}
                         </div>
                       )}
                     </div>
                   )}
                   {block.drop_set && (
-                    <div className="mt-2 inline-block px-2.5 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-xs uppercase tracking-wider">
+                    <div className="mt-2 inline-block px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-[9px] uppercase tracking-wider">
                       Drop Set
                     </div>
                   )}
                 </div>
                 <div className="text-right">
-                  <div className="font-heading text-6xl md:text-8xl tabular-nums">{remaining}</div>
-                  <div className="text-[10px] uppercase tracking-[0.3em] text-white/60 mt-1">
+                  <div className="font-heading text-4xl md:text-6xl tabular-nums leading-none">{remaining}</div>
+                  <div className="text-[9px] uppercase tracking-[0.3em] text-white/60 mt-1">
                     {block.section === "cooldown" ? "Hold" : "Work"}
                   </div>
                 </div>
               </div>
 
+
               <div className="mt-auto flex items-end justify-between gap-6 flex-wrap">
                 <div className="space-y-2 max-w-md">
                   {(block.target_reps_min || block.target_reps_max) && block.section !== "warmup" && block.section !== "cooldown" && (
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/20 border border-primary/40">
-                      <span className="text-[10px] uppercase tracking-[0.25em] text-primary/80">Target</span>
-                      <span className="text-base font-bold text-primary tabular-nums">
+                    <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-primary/20 border border-primary/40">
+                      <span className="text-[9px] uppercase tracking-[0.25em] text-primary/80">Target</span>
+                      <span className="text-xs font-bold text-primary tabular-nums">
                         {block.target_reps_min && block.target_reps_max && block.target_reps_min !== block.target_reps_max
                           ? `${block.target_reps_min}–${block.target_reps_max} reps`
                           : `${block.target_reps_max || block.target_reps_min} reps`}
@@ -621,17 +622,17 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     </div>
                   )}
                   {block.weight_prompt && (
-                    <div className="text-sm uppercase tracking-wider text-amber-300">
+                    <div className="text-xs uppercase tracking-wider text-amber-300">
                       💪 {block.weight_prompt}
                     </div>
                   )}
                   {block.tempo_prompt && (
-                    <div className="text-sm uppercase tracking-wider text-cyan-300">
+                    <div className="text-xs uppercase tracking-wider text-cyan-300">
                       ⏱ {block.tempo_prompt}
                     </div>
                   )}
                   {block.progression_cue && block.sets > 1 && (
-                    <div className="text-sm uppercase tracking-wider text-emerald-300">
+                    <div className="text-xs uppercase tracking-wider text-emerald-300">
                       📈 Set {setNum}/{block.sets} · {block.progression_cue}
                     </div>
                   )}
@@ -639,20 +640,21 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     <motion.div
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="relative rounded-xl border-2 border-yellow-300 bg-yellow-300/15 backdrop-blur-md px-4 py-3 shadow-[0_0_30px_rgba(253,224,71,0.45)] ring-2 ring-yellow-300/40"
+                      className="relative rounded-lg border border-yellow-300/70 bg-yellow-300/10 backdrop-blur-md px-3 py-2 shadow-[0_0_18px_rgba(253,224,71,0.25)]"
                     >
-                      <div className="absolute -top-2 left-3 px-2 py-0.5 rounded-full bg-yellow-300 text-black text-[10px] font-bold uppercase tracking-[0.25em]">
+                      <div className="absolute -top-1.5 left-2 px-1.5 py-0.5 rounded-full bg-yellow-300 text-black text-[8px] font-bold uppercase tracking-[0.2em]">
                         Coach Note
                       </div>
-                      <p className="text-base md:text-lg font-semibold text-yellow-50 leading-snug">
+                      <p className="text-xs md:text-sm font-medium text-yellow-50 leading-snug pt-0.5">
                         {block.cue_overrides}
                       </p>
                     </motion.div>
                   ) : block.exercise?.coaching_notes ? (
-                    <p className="text-base md:text-lg text-white/80 leading-snug">
+                    <p className="text-xs md:text-sm text-white/75 leading-snug">
                       {block.exercise.coaching_notes}
                     </p>
                   ) : null}
+
                 </div>
 
                 {/* "Coming Next" preview — only on the LAST set of the current exercise */}
