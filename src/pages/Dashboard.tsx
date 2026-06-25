@@ -75,7 +75,7 @@ const StorageVideoPlayer = ({ storagePath }: { storagePath: string }) => {
 const Dashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { hasPremiumAccess, freeWorkoutsRemaining, freeRecipesRemaining, freeProgramsRemaining } = useAccessControl();
+  const { hasPremiumAccess } = useAccessControl();
   const { signedUrl: avatarSignedUrl } = useSignedUrl("avatars", profile?.avatar_url);
   const queryClient = useQueryClient();
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
