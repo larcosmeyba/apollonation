@@ -287,7 +287,7 @@ const Subscribe = () => {
                 <PlanCard
                   name="Apollo Elite"
                   eyebrow="By Invitation · 1:1 Coaching"
-                  features={["Everything in Reborn", "1:1 coach messaging", "Weekly check-ins", "Guidance from Marcos"]}
+                  features={["Everything in Reborn", "Weekly coach messaging", "Guidance from Apollo's coaches"]}
                   pkg={elitePkg}
                   native={native}
                   purchasing={purchasing}
