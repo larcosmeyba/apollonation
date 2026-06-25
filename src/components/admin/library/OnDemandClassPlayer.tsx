@@ -466,7 +466,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                 <div className="text-[10px] uppercase tracking-[0.4em] text-emerald-300 mb-1.5 text-center font-semibold">
                   Coach Note
                 </div>
-                <p className="text-white text-base md:text-lg text-center leading-relaxed">
+                <p className="text-white text-center leading-relaxed" style={{ fontSize: `${16 * uiScale.note}px` }}>
                   {block.rest_notes}
                 </p>
               </motion.div>
