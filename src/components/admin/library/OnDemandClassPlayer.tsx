@@ -109,9 +109,9 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
     return () => clearTimeout(t);
   }, [phase]);
 
-  // Starting countdown — 10s preview before first exercise begins
+  // Starting countdown — 20s black screen before first exercise begins
   useEffect(() => {
-    if (phase === "starting") setRemaining(10);
+    if (phase === "starting") setRemaining(20);
   }, [phase]);
 
   // Initialize remaining when entering a WORK phase.
