@@ -325,7 +325,7 @@ const Dashboard = () => {
           <div>
             <p className="text-sm font-bold text-foreground">{greeting}</p>
             <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              {profile?.display_name || "Warrior"}
+              {(profile?.display_name || "Warrior").split(" ")[0]}
             </h1>
             <Link
               to="/dashboard/profile"
