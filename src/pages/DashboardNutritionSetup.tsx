@@ -631,7 +631,7 @@ const DashboardNutritionSetup = () => {
                 <Input type="number" value={form.age} onChange={(e) => set("age", e.target.value)} placeholder="" />
               </Field>
               <Field label="Gender">
-                <PillRow options={GENDERS} value={form.gender} onChange={(v) => set("gender", v)} cols={2} />
+                <PillRow options={GENDERS} value={form.gender} onChange={(v) => set("gender", v)} cols={3} />
               </Field>
               <Field label="Activity level">
                 <CardChoice options={ACTIVITY} value={form.activity_level} onChange={(v) => set("activity_level", v)} />
