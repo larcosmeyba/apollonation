@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, SkipForward, Pause, Play, Repeat, Crop, Check } from "lucide-react";
+import { X, SkipForward, Pause, Play, Repeat, Crop, Check, Type } from "lucide-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import { AdminExercise, muxThumb } from "./exerciseTypes";
 import introVideoAsset from "@/assets/intro-video.mov.asset.json";
@@ -47,6 +47,21 @@ type FrameOverrides = {
 };
 
 const FRAME_LS_KEY = "apollo:exercise-frame-overrides";
+const UI_SCALE_LS_KEY = "apollo:player-ui-scale";
+
+type UiScale = { title: number; clock: number; note: number };
+const DEFAULT_UI_SCALE: UiScale = { title: 1, clock: 1, note: 1 };
+
+const loadUiScale = (): UiScale => {
+  try {
+    const v = JSON.parse(localStorage.getItem(UI_SCALE_LS_KEY) || "null");
+    if (v && typeof v === "object") return { ...DEFAULT_UI_SCALE, ...v };
+  } catch { /* noop */ }
+  return DEFAULT_UI_SCALE;
+};
+const saveUiScale = (s: UiScale) => {
+  try { localStorage.setItem(UI_SCALE_LS_KEY, JSON.stringify(s)); } catch { /* noop */ }
+};
 
 const loadFrameOverrides = (): Record<string, FrameOverrides> => {
   try {
@@ -246,6 +261,29 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
   const [overrides, setOverrides] = useState<Record<string, FrameOverrides>>(() => loadFrameOverrides());
   const [savingFrame, setSavingFrame] = useState(false);
   const [showFramePanel, setShowFramePanel] = useState(false);
+  const [showSizePanel, setShowSizePanel] = useState(false);
+  const [uiScale, setUiScale] = useState<UiScale>(() => loadUiScale());
+  const updateUiScale = (patch: Partial<UiScale>) => {
+    setUiScale((prev) => {
+      const next = { ...prev, ...patch };
+      saveUiScale(next);
+      return next;
+    });
+  };
+
+  // Lock to landscape orientation while the player is open (best-effort, mobile only).
+  useEffect(() => {
+    const so: any = (window.screen as any)?.orientation;
+    let locked = false;
+    try {
+      if (so?.lock) {
+        so.lock("landscape").then(() => { locked = true; }).catch(() => {});
+      }
+    } catch { /* noop */ }
+    return () => {
+      try { if (locked && so?.unlock) so.unlock(); } catch { /* noop */ }
+    };
+  }, []);
 
   const getFrame = (ex: AdminExercise | null): FrameOverrides => {
     if (!ex) return { position: "center center", fit: "cover", scale: 1 };
@@ -342,7 +380,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
             <div className="text-[11px] uppercase tracking-[0.5em] text-white/50 mb-3">
               Starting Workout in
             </div>
-            <div className="font-heading text-[18vw] md:text-[12vw] leading-none tabular-nums text-white">
+            <div className="font-heading text-[18vw] md:text-[12vw] leading-none tabular-nums text-white" style={{ fontSize: `clamp(64px, ${18 * uiScale.clock}vw, ${24 * uiScale.clock}vw)` }}>
               {remaining}
             </div>
 
@@ -415,7 +453,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
             className="flex-1 flex flex-col items-center justify-center bg-black px-6"
           >
             <div className="text-[11px] uppercase tracking-[0.5em] text-white/50 mb-4">Rest</div>
-            <div className="font-heading text-[18vw] md:text-[12vw] leading-none tabular-nums text-white">
+            <div className="font-heading text-[18vw] md:text-[12vw] leading-none tabular-nums text-white" style={{ fontSize: `clamp(64px, ${18 * uiScale.clock}vw, ${24 * uiScale.clock}vw)` }}>
               {remaining}
             </div>
 
@@ -428,7 +466,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                 <div className="text-[10px] uppercase tracking-[0.4em] text-emerald-300 mb-1.5 text-center font-semibold">
                   Coach Note
                 </div>
-                <p className="text-white text-base md:text-lg text-center leading-relaxed">
+                <p className="text-white text-center leading-relaxed" style={{ fontSize: `${16 * uiScale.note}px` }}>
                   {block.rest_notes}
                 </p>
               </motion.div>
@@ -577,7 +615,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                       : block.section === "workout_c" ? "Workout Block C"
                       : `Set ${setNum} of ${block.sets}`}
                   </div>
-                  <h2 className="font-heading text-xl md:text-3xl mt-1 tracking-wider leading-tight">
+                  <h2 className="font-heading mt-1 tracking-wider leading-tight" style={{ fontSize: `${20 * uiScale.title}px` }}>
                     {block.exercise?.name || "—"}
                   </h2>
                   {(block.section === "workout_a" || block.section === "workout_b" || block.section === "workout_c") && (
@@ -601,7 +639,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                   )}
                 </div>
                 <div className="text-right">
-                  <div className="font-heading text-4xl md:text-6xl tabular-nums leading-none">{remaining}</div>
+                  <div className="font-heading tabular-nums leading-none" style={{ fontSize: `${36 * uiScale.clock}px` }}>{remaining}</div>
                   <div className="text-[9px] uppercase tracking-[0.3em] text-white/60 mt-1">
                     {block.section === "cooldown" ? "Hold" : "Work"}
                   </div>
@@ -645,7 +683,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                       <div className="absolute -top-1.5 left-2 px-1.5 py-0.5 rounded-full bg-yellow-300 text-black text-[8px] font-bold uppercase tracking-[0.2em]">
                         Coach Note
                       </div>
-                      <p className="text-xs md:text-sm font-medium text-yellow-50 leading-snug pt-0.5">
+                      <p className="font-medium text-yellow-50 leading-snug pt-0.5" style={{ fontSize: `${13 * uiScale.note}px` }}>
                         {block.cue_overrides}
                       </p>
                     </motion.div>
@@ -714,7 +752,59 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     <Crop className="w-4 h-4" /> Reframe
                   </button>
                 )}
+                {adminEditable && (
+                  <button
+                    onClick={() => setShowSizePanel((s) => !s)}
+                    className={`px-4 h-12 rounded-full backdrop-blur flex items-center gap-2 text-sm ${
+                      showSizePanel ? "bg-primary text-primary-foreground" : "bg-white/10 hover:bg-white/20"
+                    }`}
+                    title="Adjust HUD text sizes"
+                  >
+                    <Type className="w-4 h-4" /> Size
+                  </button>
+                )}
               </div>
+
+              {adminEditable && showSizePanel && (
+                <div className="absolute left-6 bottom-24 z-20 w-[280px] rounded-2xl border border-white/15 bg-black/80 backdrop-blur-xl p-4 space-y-4 shadow-2xl">
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-white/60">HUD Text Size</div>
+                    <button onClick={() => setShowSizePanel(false)} className="text-white/60 hover:text-white">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {([
+                    ["title", "Exercise Title", 0.5, 2.5],
+                    ["clock", "Timer / Clock", 0.4, 2],
+                    ["note", "Coach Notes", 0.6, 2.5],
+                  ] as const).map(([key, label, min, max]) => (
+                    <div key={key}>
+                      <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-white/50 mb-1.5">
+                        <span>{label}</span>
+                        <span className="tabular-nums text-white/80">{uiScale[key].toFixed(2)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={min}
+                        max={max}
+                        step={0.05}
+                        value={uiScale[key]}
+                        onChange={(e) => updateUiScale({ [key]: Number(e.target.value) } as Partial<UiScale>)}
+                        className="w-full accent-primary"
+                      />
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => { setUiScale(DEFAULT_UI_SCALE); saveUiScale(DEFAULT_UI_SCALE); }}
+                    className="w-full h-9 rounded-md bg-white/5 hover:bg-white/10 border border-white/15 text-xs"
+                  >
+                    Reset to defaults
+                  </button>
+                  <p className="text-[10px] text-white/50 leading-snug">
+                    Saved on this device. Applies to every on-demand class you play.
+                  </p>
+                </div>
+              )}
 
               {adminEditable && showFramePanel && block.exercise && (() => {
                 const ex = block.exercise;
