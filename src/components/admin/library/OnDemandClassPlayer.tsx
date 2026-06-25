@@ -47,6 +47,21 @@ type FrameOverrides = {
 };
 
 const FRAME_LS_KEY = "apollo:exercise-frame-overrides";
+const UI_SCALE_LS_KEY = "apollo:player-ui-scale";
+
+type UiScale = { title: number; clock: number; note: number };
+const DEFAULT_UI_SCALE: UiScale = { title: 1, clock: 1, note: 1 };
+
+const loadUiScale = (): UiScale => {
+  try {
+    const v = JSON.parse(localStorage.getItem(UI_SCALE_LS_KEY) || "null");
+    if (v && typeof v === "object") return { ...DEFAULT_UI_SCALE, ...v };
+  } catch { /* noop */ }
+  return DEFAULT_UI_SCALE;
+};
+const saveUiScale = (s: UiScale) => {
+  try { localStorage.setItem(UI_SCALE_LS_KEY, JSON.stringify(s)); } catch { /* noop */ }
+};
 
 const loadFrameOverrides = (): Record<string, FrameOverrides> => {
   try {
