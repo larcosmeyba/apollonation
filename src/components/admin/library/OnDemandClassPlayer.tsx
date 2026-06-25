@@ -752,7 +752,59 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     <Crop className="w-4 h-4" /> Reframe
                   </button>
                 )}
+                {adminEditable && (
+                  <button
+                    onClick={() => setShowSizePanel((s) => !s)}
+                    className={`px-4 h-12 rounded-full backdrop-blur flex items-center gap-2 text-sm ${
+                      showSizePanel ? "bg-primary text-primary-foreground" : "bg-white/10 hover:bg-white/20"
+                    }`}
+                    title="Adjust HUD text sizes"
+                  >
+                    <Type className="w-4 h-4" /> Size
+                  </button>
+                )}
               </div>
+
+              {adminEditable && showSizePanel && (
+                <div className="absolute left-6 bottom-24 z-20 w-[280px] rounded-2xl border border-white/15 bg-black/80 backdrop-blur-xl p-4 space-y-4 shadow-2xl">
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-white/60">HUD Text Size</div>
+                    <button onClick={() => setShowSizePanel(false)} className="text-white/60 hover:text-white">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {([
+                    ["title", "Exercise Title", 0.5, 2.5],
+                    ["clock", "Timer / Clock", 0.4, 2],
+                    ["note", "Coach Notes", 0.6, 2.5],
+                  ] as const).map(([key, label, min, max]) => (
+                    <div key={key}>
+                      <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-white/50 mb-1.5">
+                        <span>{label}</span>
+                        <span className="tabular-nums text-white/80">{uiScale[key].toFixed(2)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={min}
+                        max={max}
+                        step={0.05}
+                        value={uiScale[key]}
+                        onChange={(e) => updateUiScale({ [key]: Number(e.target.value) } as Partial<UiScale>)}
+                        className="w-full accent-primary"
+                      />
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => { setUiScale(DEFAULT_UI_SCALE); saveUiScale(DEFAULT_UI_SCALE); }}
+                    className="w-full h-9 rounded-md bg-white/5 hover:bg-white/10 border border-white/15 text-xs"
+                  >
+                    Reset to defaults
+                  </button>
+                  <p className="text-[10px] text-white/50 leading-snug">
+                    Saved on this device. Applies to every on-demand class you play.
+                  </p>
+                </div>
+              )}
 
               {adminEditable && showFramePanel && block.exercise && (() => {
                 const ex = block.exercise;
