@@ -64,6 +64,7 @@ const EQUIPMENT = [
 const GENDERS = [
   { id: "male", label: "Male" },
   { id: "female", label: "Female" },
+  { id: "unspecified", label: "Prefer not to say" },
 ];
 const DIETARY = [
   { id: "none", label: "None" },
