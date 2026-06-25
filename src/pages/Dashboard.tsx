@@ -126,6 +126,7 @@ const Dashboard = () => {
           supabase
             .from("workouts")
             .select("*")
+            .eq("is_published", true)
             .order("created_at", { ascending: false })
             .limit(12),
           10_000,
