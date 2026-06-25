@@ -278,7 +278,7 @@ const DashboardPersonalize = () => {
       // 1) Master profile (trigger mirrors to legacy tables)
       await saveFitnessProfile({
         age: parseInt(f.age) || null,
-        sex: (f.gender || null) as "male" | "female" | null,
+        sex: (f.gender === "male" || f.gender === "female" ? f.gender : null) as "male" | "female" | null,
         height_inches: heightInches || null,
         weight_lbs: parseFloat(f.weight_lbs) || null,
         primary_goal: f.primary_goal,
