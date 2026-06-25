@@ -376,20 +376,27 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="flex-1 flex flex-col items-center justify-center bg-black px-6"
+            className="flex-1 flex flex-col items-center bg-black px-4 landscape:px-6 pt-3 landscape:pt-2 pb-4 landscape:pb-3"
           >
-            <div className="text-[11px] uppercase tracking-[0.5em] text-white/50 mb-3">
-              Starting Workout in
-            </div>
-            <div className="font-heading leading-none tabular-nums text-white" style={{ fontSize: `calc(clamp(48px, 14vw, 110px) * ${uiScale.clock})` }}>
-              {remaining}
-            </div>
-
-            <div className="mt-8 w-full max-w-3xl">
-              <div className="text-xs uppercase tracking-[0.3em] text-white/50 mb-3 text-center">
+            {/* Compact countdown header */}
+            <div className="flex items-baseline gap-3 landscape:gap-4 mb-2 landscape:mb-1">
+              <div className="text-[8px] landscape:text-[7px] md:text-[9px] uppercase tracking-[0.35em] text-white/55">
+                Starting in
+              </div>
+              <div
+                className="font-heading leading-none tabular-nums text-white"
+                style={{ fontSize: `calc(clamp(34px, 7vh, 64px) * ${uiScale.clock})` }}
+              >
+                {remaining}
+              </div>
+              <div className="text-[8px] landscape:text-[7px] md:text-[9px] uppercase tracking-[0.35em] text-white/55">
                 First move
               </div>
-              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/15 bg-zinc-950 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]">
+            </div>
+
+            {/* Video — fills remaining vertical space */}
+            <div className="flex-1 w-full max-w-5xl min-h-0 flex items-center justify-center">
+              <div className="relative h-full max-h-full aspect-video rounded-xl landscape:rounded-lg overflow-hidden border border-white/10 bg-zinc-950 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]">
                 {blocks[0].exercise?.mux_playback_id ? (
                   <MuxVideo
                     ref={startPreviewRef}
@@ -415,34 +422,37 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     No video
                   </div>
                 )}
-                <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/85 to-transparent">
-                  <div className="font-heading text-2xl md:text-3xl tracking-wider">
+                <div className="absolute inset-x-0 bottom-0 p-2.5 landscape:p-2 md:p-3 bg-gradient-to-t from-black/85 to-transparent">
+                  <div className="font-heading text-base landscape:text-sm md:text-xl tracking-wider leading-tight">
                     {blocks[0].exercise?.name || "—"}
                   </div>
-                  {blocks[0].exercise?.body_part && (
-                    <div className="text-[11px] uppercase tracking-widest text-white/60 mt-1">
-                      {blocks[0].exercise.body_part}
-                    </div>
-                  )}
-                  <div className="text-[11px] uppercase tracking-widest text-primary mt-1">
-                    {blocks[0].sets} {blocks[0].sets === 1 ? "set" : "sets"} · {blocks[0].work_seconds}s work
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {blocks[0].exercise?.body_part && (
+                      <span className="text-[9px] landscape:text-[8px] uppercase tracking-widest text-white/60">
+                        {blocks[0].exercise.body_part}
+                      </span>
+                    )}
+                    <span className="text-[9px] landscape:text-[8px] uppercase tracking-widest text-primary">
+                      {blocks[0].sets} {blocks[0].sets === 1 ? "set" : "sets"} · {blocks[0].work_seconds}s
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 flex items-center gap-3">
-              <button onClick={() => setPaused((p) => !p)} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
-                {paused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
+            <div className="mt-2 landscape:mt-1.5 flex items-center gap-2">
+              <button onClick={() => setPaused((p) => !p)} className="w-9 h-9 landscape:w-8 landscape:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                {paused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
               </button>
               {allowSkip && (
-                <button onClick={skip} className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
-                  <SkipForward className="w-5 h-5" />
+                <button onClick={skip} className="w-9 h-9 landscape:w-8 landscape:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                  <SkipForward className="w-4 h-4" />
                 </button>
               )}
             </div>
           </motion.div>
         )}
+
 
         {phase === "rest" && block && (
           <motion.div
