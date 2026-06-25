@@ -576,30 +576,6 @@ const Questionnaire = () => {
 
           {step === 4 && (
             <>
-              <Field label="Injuries or limitations" optional>
-                <Textarea
-                  value={form.injuries_limitations}
-                  onChange={(e) => updateField("injuries_limitations", e.target.value)}
-                  placeholder="e.g. lower back stiffness, prior knee surgery..."
-                  className="min-h-[90px] rounded-2xl"
-                />
-              </Field>
-              <Field label="Current medications" optional>
-                <Textarea
-                  value={form.current_medications}
-                  onChange={(e) => updateField("current_medications", e.target.value)}
-                  placeholder="Anything that may affect training (blood pressure, beta blockers, etc.)"
-                  className="min-h-[90px] rounded-2xl"
-                />
-                <p className="text-[11px] text-muted-foreground mt-2">
-                  Shared only with your coach. Leave blank if none.
-                </p>
-              </Field>
-            </>
-          )}
-
-          {step === 5 && (
-            <>
               <Field label="Anything else for your coach?" optional>
                 <Textarea
                   value={form.additional_notes}
