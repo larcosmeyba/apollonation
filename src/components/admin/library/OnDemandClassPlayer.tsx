@@ -528,8 +528,8 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                       if (videoRef.current && block.exercise?.loop_in_seconds)
                         videoRef.current.currentTime = block.exercise.loop_in_seconds;
                     }}
-                    className="w-full h-full object-cover"
-                    style={videoStyle(block.exercise)}
+                    className="w-full h-full object-contain"
+                    style={{ ...videoStyle(block.exercise), objectFit: "contain" }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/40">No video</div>
