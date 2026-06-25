@@ -546,7 +546,7 @@ const DashboardPersonalize = () => {
                   />
                 </Q>
                 <Q label="Gender">
-                  <Pills value={f.gender} onChange={(v) => set("gender", v)} options={GENDERS} cols={2} />
+                  <Pills value={f.gender} onChange={(v) => set("gender", v)} options={GENDERS} cols={3} />
                 </Q>
                 <Q label="Height">
                   <div className="grid grid-cols-2 gap-3">
