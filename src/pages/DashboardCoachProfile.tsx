@@ -167,7 +167,9 @@ const DashboardCoachProfile = () => {
         <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-background border-border">
           {selectedWorkout && (
             <>
-              {(selectedWorkout as any).mux_playback_id ? (
+              {!musicAck && selectedHasVideo ? (
+                <div className="aspect-video w-full bg-black" />
+              ) : (selectedWorkout as any).mux_playback_id ? (
                 <div className="aspect-video w-full bg-black">
                   <MuxVideo
                     playbackId={(selectedWorkout as any).mux_playback_id}
