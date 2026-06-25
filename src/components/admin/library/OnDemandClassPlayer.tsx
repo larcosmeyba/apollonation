@@ -109,9 +109,9 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
     return () => clearTimeout(t);
   }, [phase]);
 
-  // Starting countdown — 10s preview before first exercise begins
+  // Starting countdown — 20s black screen before first exercise begins
   useEffect(() => {
-    if (phase === "starting") setRemaining(10);
+    if (phase === "starting") setRemaining(20);
   }, [phase]);
 
   // Initialize remaining when entering a WORK phase.
@@ -369,89 +369,71 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
           </motion.div>
         )}
 
-        {phase === "starting" && blocks[0] && (
-          <motion.div
-            key="starting"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex-1 flex flex-col items-center bg-black px-4 landscape:px-6 pt-3 landscape:pt-2 pb-4 landscape:pb-3"
-          >
-            {/* Compact countdown header */}
-            <div className="flex items-baseline gap-3 landscape:gap-4 mb-2 landscape:mb-1">
-              <div className="text-[8px] landscape:text-[7px] md:text-[9px] uppercase tracking-[0.35em] text-white/55">
-                Starting in
+        {phase === "starting" && blocks[0] && (() => {
+          const equipmentSet = new Set<string>();
+          blocks.forEach((b) => {
+            (b.exercise?.equipment || []).forEach((e) => e && equipmentSet.add(e));
+            (b.alt?.equipment || []).forEach((e) => e && equipmentSet.add(e));
+          });
+          const equipment = Array.from(equipmentSet);
+          return (
+            <motion.div
+              key="starting"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex-1 flex flex-col items-center justify-center bg-black px-6 text-center"
+            >
+              <div className="uppercase tracking-[0.5em] text-white/55 mb-6" style={{ fontSize: "clamp(10px, 1.6vw, 13px)" }}>
+                Your workout will begin in
               </div>
               <div
                 className="font-heading leading-none tabular-nums text-white"
-                style={{ fontSize: `calc(clamp(34px, 7vh, 64px) * ${uiScale.clock})` }}
+                style={{ fontSize: `calc(clamp(96px, 22vw, 200px) * ${uiScale.clock})` }}
               >
                 {remaining}
               </div>
-              <div className="text-[8px] landscape:text-[7px] md:text-[9px] uppercase tracking-[0.35em] text-white/55">
-                First move
+              <div className="uppercase tracking-[0.4em] text-white/55 mt-3" style={{ fontSize: "clamp(9px, 1.4vw, 11px)" }}>
+                seconds
               </div>
-            </div>
 
-            {/* Video — fills remaining vertical space */}
-            <div className="flex-1 w-full max-w-5xl min-h-0 flex items-center justify-center">
-              <div className="relative h-full max-h-full aspect-video rounded-xl landscape:rounded-lg overflow-hidden border border-white/10 bg-zinc-950 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]">
-                {blocks[0].exercise?.mux_playback_id ? (
-                  <MuxVideo
-                    ref={startPreviewRef}
-                    playbackId={blocks[0].exercise.mux_playback_id}
-                    signed={Boolean((blocks[0].exercise as any).mux_playback_signed)}
-                    title={`Preview: ${blocks[0].exercise.name}`}
-                    videoId={blocks[0].exercise.id}
-                    category={blocks[0].exercise.category}
-                    classTitle={title}
-                    autoPlay
-                    muted
-                    controls={false}
-                    onTimeUpdate={handleTimeUpdate(startPreviewRef, blocks[0].exercise) as never}
-                    onLoadedMetadata={() => {
-                      if (startPreviewRef.current && blocks[0].exercise?.loop_in_seconds)
-                        startPreviewRef.current.currentTime = blocks[0].exercise.loop_in_seconds;
-                    }}
-                    className="w-full h-full object-contain"
-                    style={videoStyle(blocks[0].exercise)}
-                  />
+              <div className="mt-10 w-[min(92%,560px)]">
+                <div className="uppercase tracking-[0.4em] text-white/50 mb-3" style={{ fontSize: "clamp(9px, 1.3vw, 11px)" }}>
+                  What you'll need
+                </div>
+                {equipment.length > 0 ? (
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {equipment.map((e) => (
+                      <span
+                        key={e}
+                        className="px-3 py-1.5 rounded-full bg-white/8 border border-white/15 text-white/90 uppercase tracking-wider"
+                        style={{ fontSize: "clamp(10px, 1.5vw, 12px)" }}
+                      >
+                        {e}
+                      </span>
+                    ))}
+                  </div>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white/30">
-                    No video
+                  <div className="text-white/60" style={{ fontSize: "clamp(11px, 1.6vw, 13px)" }}>
+                    No equipment required
                   </div>
                 )}
-                <div className="absolute inset-x-0 bottom-0 p-2.5 landscape:p-2 md:p-3 bg-gradient-to-t from-black/85 to-transparent">
-                  <div className="font-heading text-base landscape:text-sm md:text-xl tracking-wider leading-tight">
-                    {blocks[0].exercise?.name || "—"}
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    {blocks[0].exercise?.body_part && (
-                      <span className="text-[9px] landscape:text-[8px] uppercase tracking-widest text-white/60">
-                        {blocks[0].exercise.body_part}
-                      </span>
-                    )}
-                    <span className="text-[9px] landscape:text-[8px] uppercase tracking-widest text-primary">
-                      {blocks[0].sets} {blocks[0].sets === 1 ? "set" : "sets"} · {blocks[0].work_seconds}s
-                    </span>
-                  </div>
-                </div>
               </div>
-            </div>
 
-            <div className="mt-2 landscape:mt-1.5 flex items-center gap-2">
-              <button onClick={() => setPaused((p) => !p)} className="w-9 h-9 landscape:w-8 landscape:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
-                {paused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
-              </button>
-              {allowSkip && (
-                <button onClick={skip} className="w-9 h-9 landscape:w-8 landscape:h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
-                  <SkipForward className="w-4 h-4" />
+              <div className="mt-10 flex items-center gap-3">
+                <button onClick={() => setPaused((p) => !p)} className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                  {paused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
                 </button>
-              )}
-            </div>
-          </motion.div>
-        )}
+                {allowSkip && (
+                  <button onClick={skip} className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                    <SkipForward className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          );
+        })()}
 
 
         {phase === "rest" && block && (
@@ -672,7 +654,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                   )}
                 </div>
                 {/* Clock with circular progress arc */}
-                <div className="relative shrink-0 flex items-center justify-center" style={{ width: `calc(clamp(72px, 13vw, 120px) * ${uiScale.clock})`, height: `calc(clamp(72px, 13vw, 120px) * ${uiScale.clock})` }}>
+                <div className="relative shrink-0 flex items-center justify-center" style={{ width: `calc(clamp(50px, 9vw, 84px) * ${uiScale.clock})`, height: `calc(clamp(50px, 9vw, 84px) * ${uiScale.clock})` }}>
                   {(() => {
                     const total = block.work_seconds;
                     const pct = total > 0 ? Math.max(0, Math.min(1, remaining / total)) : 0;
@@ -695,7 +677,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     );
                   })()}
                   <div className="relative flex flex-col items-center leading-none">
-                    <div className="font-heading tabular-nums" style={{ fontSize: `calc(clamp(22px, 5vw, 42px) * ${uiScale.clock})` }}>{remaining}</div>
+                    <div className="font-heading tabular-nums" style={{ fontSize: `calc(clamp(15px, 3.5vw, 30px) * ${uiScale.clock})` }}>{remaining}</div>
                     <div className="uppercase tracking-[0.3em] text-white/55 mt-1" style={{ fontSize: "clamp(7px, 1.2vw, 9px)" }}>SEC</div>
                   </div>
                 </div>
@@ -768,25 +750,6 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
 
                 </div>
 
-                {/* "Coming Next" preview — always visible when there is a next exercise */}
-                {next?.exercise && (
-                  <div className="flex items-center gap-2.5 bg-white/5 backdrop-blur rounded-xl p-2 border border-white/10">
-                    {next.exercise.mux_playback_id && (
-                      <img
-                        src={muxThumb(next.exercise.mux_playback_id)}
-                        alt=""
-                        className="w-12 h-9 object-cover rounded"
-                      />
-                    )}
-                    <div>
-                      <div className="uppercase tracking-widest text-white/50" style={{ fontSize: "clamp(7px, 1.2vw, 9px)" }}>Next</div>
-                      <div className="font-medium leading-tight" style={{ fontSize: "clamp(10px, 1.7vw, 12px)" }}>{next.exercise.name}</div>
-                      <div className="uppercase tracking-widest text-white/50 mt-0.5" style={{ fontSize: "clamp(7px, 1.2vw, 9px)" }}>
-                        {next.sets} {next.sets === 1 ? "set" : "sets"}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="mt-6 flex items-center justify-center gap-3">
