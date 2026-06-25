@@ -60,4 +60,25 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
+
+    <!--
+      Health Connect: Apollo Reborn does NOT use Health Connect on Android.
+      The capacitor-health plugin's manifest declares several READ_* permissions
+      that get merged into our APK. Google Play rejected the app for excessive
+      Health Connect access, so we explicitly REMOVE the permissions we don't
+      use (Heart Rate, Steps, Steps Cadence, Distance, Active Calories, Exercise
+      Route). We keep only Exercise (completed workouts) and Total Calories
+      Burned, which are the minimum needed for current features.
+      iOS Apple HealthKit is unaffected — these tools:node directives only
+      apply to the Android manifest merger.
+    -->
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.READ_STEPS" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.READ_STEPS_CADENCE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.READ_DISTANCE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.READ_EXERCISE_ROUTE" tools:node="remove" />
+    <!-- Retained (minimum required): -->
+    <!-- android.permission.health.READ_EXERCISE -->
+    <!-- android.permission.health.READ_TOTAL_CALORIES_BURNED -->
 </manifest>
