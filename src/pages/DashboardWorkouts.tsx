@@ -159,14 +159,13 @@ const DashboardWorkouts = () => {
     return matchesSearch && matchesCategory;
   }), [workouts, searchQuery, selectedCategory]);
 
-  // Free users: first N of whatever the user is currently viewing are unlocked,
-  // remaining are locked. Computing from the filtered list ensures category
-  // filters never hide every unlocked workout.
+  // Free users: only workouts that an admin has flagged as `is_free_pick`
+  // are unlocked. Everything else is visible but shows a lock badge and
+  // routes the user to the subscribe page on tap.
   const lockedWorkoutIds = useMemo(() => {
     if (hasPremiumAccess) return new Set<string>();
-    const unlocked = Math.max(0, freeWorkoutsRemaining);
-    return new Set<string>(filteredWorkouts.slice(unlocked).map((w: any) => w.id));
-  }, [hasPremiumAccess, freeWorkoutsRemaining, filteredWorkouts]);
+    return new Set<string>(workouts.filter((w: any) => !w.is_free_pick).map((w: any) => w.id));
+  }, [hasPremiumAccess, workouts]);
 
   const recentlyAdded = workouts.filter((w) => w.created_at >= weekStart);
   const savedWorkouts = workouts.filter((w) => favorites.includes(w.id));
