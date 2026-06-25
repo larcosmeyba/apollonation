@@ -462,12 +462,20 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-6 w-full max-w-2xl rounded-2xl border-2 border-emerald-400/70 bg-emerald-400/10 backdrop-blur-md px-5 py-4 shadow-[0_0_30px_rgba(52,211,153,0.35)] ring-2 ring-emerald-400/30"
+                className="mt-5 w-[min(92%,520px)] rounded-xl border border-emerald-400/60 bg-emerald-400/10 backdrop-blur-md px-4 py-3 shadow-[0_0_20px_rgba(52,211,153,0.25)]"
               >
-                <div className="text-[10px] uppercase tracking-[0.4em] text-emerald-300 mb-1.5 text-center font-semibold">
+                <div className="uppercase tracking-[0.4em] text-emerald-300 mb-1 text-center font-semibold" style={{ fontSize: "clamp(8px, 1.4vw, 10px)" }}>
                   Coach Note
                 </div>
-                <p className="text-white text-center leading-relaxed" style={{ fontSize: `${16 * uiScale.note}px` }}>
+                <p
+                  className="text-white text-center leading-snug overflow-hidden"
+                  style={{
+                    fontSize: `calc(clamp(12px, 2.2vw, 15px) * ${uiScale.note})`,
+                    display: "-webkit-box",
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
                   {block.rest_notes}
                 </p>
               </motion.div>
