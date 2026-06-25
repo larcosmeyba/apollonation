@@ -97,9 +97,14 @@ const TrainingProgramCards = () => {
         .eq("user_id", user.id)
         .eq("status", "active");
 
+      // Day 1 of the program always begins today (enrollment day) unless
+      // an admin has explicitly scheduled a different start date.
       await (supabase as any)
         .from("client_questionnaires")
-        .update({ goal_next_4_weeks: selected.name })
+        .update({
+          goal_next_4_weeks: selected.name,
+          cycle_start_date: new Date().toISOString().slice(0, 10),
+        })
         .eq("id", questionnaire.id);
 
       const { error } = await supabase.functions.invoke("enroll-program", {
