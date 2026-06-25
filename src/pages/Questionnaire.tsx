@@ -227,7 +227,7 @@ const Questionnaire = () => {
         .upsert(
           {
             user_id: user.id,
-            sex: form.sex,
+            sex: form.sex === "male" || form.sex === "female" ? form.sex : null,
             age,
             height_inches: totalInches,
             weight_lbs: weightLbs,
