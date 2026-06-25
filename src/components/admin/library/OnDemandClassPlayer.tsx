@@ -577,36 +577,37 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                       : block.section === "workout_c" ? "Workout Block C"
                       : `Set ${setNum} of ${block.sets}`}
                   </div>
-                  <h2 className="font-heading text-3xl md:text-5xl mt-1 tracking-wider">
+                  <h2 className="font-heading text-xl md:text-3xl mt-1 tracking-wider leading-tight">
                     {block.exercise?.name || "—"}
                   </h2>
                   {(block.section === "workout_a" || block.section === "workout_b" || block.section === "workout_c") && (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                       {block.exercise?.body_part && (
-                        <div className="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur text-xs uppercase tracking-wider text-white/80">
+                        <div className="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur text-[9px] uppercase tracking-wider text-white/70">
                           Target: {block.exercise.body_part}
                         </div>
                       )}
                       {block.exercise?.muscle_group && block.exercise.muscle_group !== block.exercise.body_part && (
-                        <div className="px-2.5 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary text-xs uppercase tracking-wider">
+                        <div className="px-2 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[9px] uppercase tracking-wider">
                           Feel it: {block.exercise.muscle_group}
                         </div>
                       )}
                     </div>
                   )}
                   {block.drop_set && (
-                    <div className="mt-2 inline-block px-2.5 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-xs uppercase tracking-wider">
+                    <div className="mt-2 inline-block px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-[9px] uppercase tracking-wider">
                       Drop Set
                     </div>
                   )}
                 </div>
                 <div className="text-right">
-                  <div className="font-heading text-6xl md:text-8xl tabular-nums">{remaining}</div>
-                  <div className="text-[10px] uppercase tracking-[0.3em] text-white/60 mt-1">
+                  <div className="font-heading text-4xl md:text-6xl tabular-nums leading-none">{remaining}</div>
+                  <div className="text-[9px] uppercase tracking-[0.3em] text-white/60 mt-1">
                     {block.section === "cooldown" ? "Hold" : "Work"}
                   </div>
                 </div>
               </div>
+
 
               <div className="mt-auto flex items-end justify-between gap-6 flex-wrap">
                 <div className="space-y-2 max-w-md">
