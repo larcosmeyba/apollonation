@@ -103,6 +103,7 @@ const Dashboard = () => {
           supabase
             .from("workouts")
             .select("*")
+            .eq("is_published", true)
             .gte("created_at", weekStart)
             .order("created_at", { ascending: false })
             .limit(10),
@@ -125,6 +126,7 @@ const Dashboard = () => {
           supabase
             .from("workouts")
             .select("*")
+            .eq("is_published", true)
             .order("created_at", { ascending: false })
             .limit(12),
           10_000,
@@ -222,6 +224,7 @@ const Dashboard = () => {
           const { count } = await supabase
             .from("workouts")
             .select("id", { count: "exact", head: true })
+            .eq("is_published", true)
             .ilike("category", cat);
           counts[cat] = count ?? 0;
         })
