@@ -276,7 +276,7 @@ const Subscribe = () => {
               <PlanCard
                 name="Apollo Reborn"
                 eyebrow="Full Access"
-                features={["Unlimited workouts", "All programs & recipes", "Meal plan & macro tracker", "AI daily workouts"]}
+                features={["Unlimited on-demand workouts", "All training programs", "Meal plan & macro tracker", "AI daily workouts"]}
                 pkg={rebornPkg}
                 native={native}
                 purchasing={purchasing}
