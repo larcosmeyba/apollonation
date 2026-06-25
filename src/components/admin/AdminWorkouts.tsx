@@ -619,6 +619,7 @@ const AdminWorkouts = () => {
                       }}
                     >
                       {workout.is_free_pick ? <Gift className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                    </Button>
                     <Button
                       size="icon"
                       variant="ghost"
