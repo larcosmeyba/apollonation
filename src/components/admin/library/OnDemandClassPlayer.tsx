@@ -605,55 +605,71 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
             </div>
 
             {/* HUD */}
-            <div className="relative z-10 h-full flex flex-col p-6 md:p-10">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-[11px] uppercase tracking-[0.3em] text-white/60">
+            <div
+              className="relative z-10 h-full flex flex-col"
+              style={{
+                paddingTop: "max(1rem, env(safe-area-inset-top))",
+                paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+                paddingLeft: "max(1.25rem, env(safe-area-inset-left))",
+                paddingRight: "max(1.25rem, env(safe-area-inset-right))",
+              }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1 max-w-[68%]">
+                  <div className="uppercase tracking-[0.32em] text-white/55" style={{ fontSize: "clamp(8px, 1.6vw, 10px)" }}>
                     {block.section === "warmup" ? "Warm Up"
                       : block.section === "cooldown" ? "Cool Down"
-                      : block.section === "workout_a" ? "Workout Block A"
-                      : block.section === "workout_b" ? "Workout Block B"
-                      : block.section === "workout_c" ? "Workout Block C"
+                      : block.section === "workout_a" ? "Block A"
+                      : block.section === "workout_b" ? "Block B"
+                      : block.section === "workout_c" ? "Block C"
                       : `Set ${setNum} of ${block.sets}`}
                   </div>
-                  <h2 className="font-heading mt-1 tracking-wider leading-tight" style={{ fontSize: `${20 * uiScale.title}px` }}>
+                  <h2
+                    className="font-heading mt-1.5 tracking-tight leading-[1.05] overflow-hidden"
+                    style={{
+                      fontSize: `calc(clamp(18px, 5.2vw, 36px) * ${uiScale.title})`,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
                     {block.exercise?.name || "—"}
                   </h2>
                   {(block.section === "workout_a" || block.section === "workout_b" || block.section === "workout_c") && (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
+                    <div className="mt-2 flex flex-wrap gap-1">
                       {block.exercise?.body_part && (
-                        <div className="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur text-[9px] uppercase tracking-wider text-white/70">
-                          Target: {block.exercise.body_part}
+                        <div className="px-1.5 py-[2px] rounded-full bg-white/10 backdrop-blur uppercase tracking-wider text-white/70" style={{ fontSize: "clamp(7px, 1.4vw, 9px)" }}>
+                          {block.exercise.body_part}
                         </div>
                       )}
                       {block.exercise?.muscle_group && block.exercise.muscle_group !== block.exercise.body_part && (
-                        <div className="px-2 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[9px] uppercase tracking-wider">
-                          Feel it: {block.exercise.muscle_group}
+                        <div className="px-1.5 py-[2px] rounded-full bg-primary/20 border border-primary/40 text-primary uppercase tracking-wider" style={{ fontSize: "clamp(7px, 1.4vw, 9px)" }}>
+                          Feel: {block.exercise.muscle_group}
                         </div>
                       )}
                     </div>
                   )}
                   {block.drop_set && (
-                    <div className="mt-2 inline-block px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-[9px] uppercase tracking-wider">
+                    <div className="mt-1.5 inline-block px-1.5 py-[2px] rounded-full bg-red-500/20 border border-red-500/40 text-red-300 uppercase tracking-wider" style={{ fontSize: "clamp(7px, 1.4vw, 9px)" }}>
                       Drop Set
                     </div>
                   )}
                 </div>
-                <div className="text-right">
-                  <div className="font-heading tabular-nums leading-none" style={{ fontSize: `${36 * uiScale.clock}px` }}>{remaining}</div>
-                  <div className="text-[9px] uppercase tracking-[0.3em] text-white/60 mt-1">
+                <div className="text-right shrink-0">
+                  <div className="font-heading tabular-nums leading-none" style={{ fontSize: `calc(clamp(28px, 7vw, 56px) * ${uiScale.clock})` }}>{remaining}</div>
+                  <div className="uppercase tracking-[0.3em] text-white/55 mt-1" style={{ fontSize: "clamp(7px, 1.4vw, 9px)" }}>
                     {block.section === "cooldown" ? "Hold" : "Work"}
                   </div>
                 </div>
               </div>
 
 
-              <div className="mt-auto flex items-end justify-between gap-6 flex-wrap">
-                <div className="space-y-2 max-w-md">
+              <div className="mt-auto flex items-end justify-between gap-4 flex-wrap">
+                <div className="space-y-1.5 max-w-[75%]">
                   {(block.target_reps_min || block.target_reps_max) && block.section !== "warmup" && block.section !== "cooldown" && (
-                    <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-primary/20 border border-primary/40">
-                      <span className="text-[9px] uppercase tracking-[0.25em] text-primary/80">Target</span>
-                      <span className="text-xs font-bold text-primary tabular-nums">
+                    <div className="inline-flex items-center gap-1 px-1.5 py-[3px] rounded-full bg-primary/20 border border-primary/40">
+                      <span className="uppercase tracking-[0.25em] text-primary/80" style={{ fontSize: "clamp(7px, 1.3vw, 8px)" }}>Target</span>
+                      <span className="font-bold text-primary tabular-nums" style={{ fontSize: "clamp(9px, 1.8vw, 11px)" }}>
                         {block.target_reps_min && block.target_reps_max && block.target_reps_min !== block.target_reps_max
                           ? `${block.target_reps_min}–${block.target_reps_max} reps`
                           : `${block.target_reps_max || block.target_reps_min} reps`}
@@ -661,17 +677,17 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     </div>
                   )}
                   {block.weight_prompt && (
-                    <div className="text-xs uppercase tracking-wider text-amber-300">
+                    <div className="uppercase tracking-wider text-amber-300" style={{ fontSize: "clamp(9px, 1.6vw, 11px)" }}>
                       💪 {block.weight_prompt}
                     </div>
                   )}
                   {block.tempo_prompt && (
-                    <div className="text-xs uppercase tracking-wider text-cyan-300">
+                    <div className="uppercase tracking-wider text-cyan-300" style={{ fontSize: "clamp(9px, 1.6vw, 11px)" }}>
                       ⏱ {block.tempo_prompt}
                     </div>
                   )}
                   {block.progression_cue && block.sets > 1 && (
-                    <div className="text-xs uppercase tracking-wider text-emerald-300">
+                    <div className="uppercase tracking-wider text-emerald-300" style={{ fontSize: "clamp(9px, 1.6vw, 11px)" }}>
                       📈 Set {setNum}/{block.sets} · {block.progression_cue}
                     </div>
                   )}
@@ -679,17 +695,33 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     <motion.div
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="relative rounded-lg border border-yellow-300/70 bg-yellow-300/10 backdrop-blur-md px-3 py-2 shadow-[0_0_18px_rgba(253,224,71,0.25)]"
+                      className="relative rounded-md border border-yellow-300/60 bg-yellow-300/10 backdrop-blur-md px-2.5 py-1.5 shadow-[0_0_12px_rgba(253,224,71,0.18)]"
                     >
-                      <div className="absolute -top-1.5 left-2 px-1.5 py-0.5 rounded-full bg-yellow-300 text-black text-[8px] font-bold uppercase tracking-[0.2em]">
-                        Coach Note
+                      <div className="absolute -top-1.5 left-1.5 px-1 py-[1px] rounded-full bg-yellow-300 text-black font-bold uppercase tracking-[0.2em]" style={{ fontSize: "clamp(6px, 1.1vw, 7px)" }}>
+                        Coach
                       </div>
-                      <p className="font-medium text-yellow-50 leading-snug pt-0.5" style={{ fontSize: `${13 * uiScale.note}px` }}>
+                      <p
+                        className="font-medium text-yellow-50 leading-snug pt-1 overflow-hidden"
+                        style={{
+                          fontSize: `calc(clamp(10px, 1.9vw, 12px) * ${uiScale.note})`,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
                         {block.cue_overrides}
                       </p>
                     </motion.div>
                   ) : block.exercise?.coaching_notes ? (
-                    <p className="text-xs md:text-sm text-white/75 leading-snug">
+                    <p
+                      className="text-white/75 leading-snug overflow-hidden"
+                      style={{
+                        fontSize: `calc(clamp(10px, 1.8vw, 12px) * ${uiScale.note})`,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
                       {block.exercise.coaching_notes}
                     </p>
                   ) : null}
