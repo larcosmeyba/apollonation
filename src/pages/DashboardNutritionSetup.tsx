@@ -58,6 +58,7 @@ const calcMacros = (
 const GENDERS = [
   { id: "male", label: "Male" },
   { id: "female", label: "Female" },
+  { id: "unspecified", label: "Prefer not to say" },
 ];
 const ACTIVITY = [
   { id: "sedentary", label: "Sedentary", desc: "Desk job, little movement" },
