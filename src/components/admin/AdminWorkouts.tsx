@@ -34,6 +34,7 @@ interface Workout {
   mux_playback_id?: string | null;
   mux_playback_signed?: boolean | null;
   mux_status?: string | null;
+  is_free_pick?: boolean;
   created_at?: string;
 }
 
