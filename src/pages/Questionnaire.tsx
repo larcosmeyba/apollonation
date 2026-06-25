@@ -392,6 +392,7 @@ const Questionnaire = () => {
                     <SelectContent>
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="unspecified">Prefer not to say</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
