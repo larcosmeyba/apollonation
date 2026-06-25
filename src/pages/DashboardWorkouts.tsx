@@ -263,6 +263,16 @@ const DashboardWorkouts = () => {
           </button>
         </div>
 
+        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wider text-primary">Heads up</p>
+          <p className="text-sm text-foreground/85 leading-relaxed">
+            We're actively upgrading the quality of our on-demand workouts — expect sharper visuals and improved coaching cues rolling out continuously.
+          </p>
+          <p className="text-sm text-foreground/85 leading-relaxed">
+            These classes don't include built-in music. Open Spotify, Apple Music, or your favorite playlist before pressing play.
+          </p>
+        </div>
+
         {showSearch && (
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
