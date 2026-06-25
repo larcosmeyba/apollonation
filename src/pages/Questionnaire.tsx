@@ -54,7 +54,7 @@ const ENVIRONMENTS = [
   { id: "bodyweight", label: "Bodyweight Only" },
 ];
 
-const STEPS = ["You", "Body", "Goals", "Training", "Health", "Finish"];
+const STEPS = ["You", "Body", "Goals", "Training", "Finish"];
 
 const Questionnaire = () => {
   const { user, loading } = useAuth();
@@ -78,14 +78,11 @@ const Questionnaire = () => {
     // Goals
     fitness_experience: "",
     activity_level: "moderate",
-    goal: "",
+    goals: [] as string[],
     // Training
-    preferred_training_style: "",
+    preferred_training_styles: [] as string[],
     preferred_training_days: [] as string[],
     workout_environment: "",
-    // Health
-    injuries_limitations: "",
-    current_medications: "",
     // Finish
     additional_notes: "",
     waiver_accepted: false,
@@ -106,7 +103,10 @@ const Questionnaire = () => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleArrayField = (field: "preferred_training_days", value: string) => {
+  const toggleArrayField = (
+    field: "preferred_training_days" | "goals" | "preferred_training_styles",
+    value: string
+  ) => {
     setForm((prev) => {
       const arr = prev[field];
       return {
@@ -125,13 +125,12 @@ const Questionnaire = () => {
       return form.height_feet && form.weight_lbs;
     }
     if (step === 2) {
-      return form.fitness_experience && form.goal;
+      return form.fitness_experience && form.goals.length > 0;
     }
     if (step === 3) {
-      return form.preferred_training_style && form.preferred_training_days.length > 0 && form.workout_environment;
+      return form.preferred_training_styles.length > 0 && form.preferred_training_days.length > 0 && form.workout_environment;
     }
-    if (step === 4) return true; // health is optional
-    if (step === 5) return form.waiver_accepted;
+    if (step === 4) return form.waiver_accepted;
     return true;
   };
 
@@ -178,13 +177,13 @@ const Questionnaire = () => {
         activity_level: form.activity_level,
         fitness_experience: form.fitness_experience,
         workout_days_per_week: form.preferred_training_days.length,
-        training_methods: form.preferred_training_style ? [form.preferred_training_style] : [],
-        preferred_training_style: form.preferred_training_style,
+        training_methods: form.preferred_training_styles,
+        preferred_training_style: form.preferred_training_styles[0] || null,
         preferred_training_days: form.preferred_training_days,
         workout_environment: form.workout_environment,
-        goal_next_4_weeks: form.goal,
-        injuries_limitations: form.injuries_limitations.trim() || null,
-        current_medications: form.current_medications.trim() || null,
+        goal_next_4_weeks: form.goals.join(", "),
+        injuries_limitations: null,
+        current_medications: null,
         additional_notes: form.additional_notes.trim() || null,
         waiver_accepted: true,
         waiver_accepted_at: new Date().toISOString(),
@@ -232,12 +231,12 @@ const Questionnaire = () => {
             height_inches: totalInches,
             weight_lbs: weightLbs,
             activity_level: form.activity_level,
-            primary_goal: form.goal,
+            primary_goal: form.goals[0] || null,
             training_experience: form.fitness_experience,
             training_days_per_week: form.preferred_training_days.length,
             preferred_training_days: form.preferred_training_days,
             workout_environment: form.workout_environment,
-            injuries: form.injuries_limitations.trim() || null,
+            injuries: null,
             onboarding_completed: true,
             updated_at: new Date().toISOString(),
 
@@ -269,7 +268,7 @@ const Questionnaire = () => {
         height_inches: totalInches,
         weight_lbs: weightLbs,
         activity_level: form.activity_level,
-        goals: form.goal,
+        goals: form.goals.join(", "),
         dietary_preferences: [form.sex],
         food_restrictions: [] as string[],
       };
@@ -336,16 +335,14 @@ const Questionnaire = () => {
             {step === 1 && <>Your <span className="text-primary">measurements</span>.</>}
             {step === 2 && <>What are you <span className="text-primary">working toward?</span></>}
             {step === 3 && <>How you like to <span className="text-primary">train</span>.</>}
-            {step === 4 && <>A quick <span className="text-primary">health check</span>.</>}
-            {step === 5 && <>Almost <span className="text-primary">there</span>.</>}
+            {step === 4 && <>Almost <span className="text-primary">there</span>.</>}
           </h1>
           <p className="text-sm text-muted-foreground font-light mt-3">
             {step === 0 && "Just the basics so your coach can reach you."}
             {step === 1 && "We use these to dial in your nutrition and training."}
-            {step === 2 && "Pick the goal that matters most right now."}
+            {step === 2 && "Pick the goals that matter most right now."}
             {step === 3 && "Your style, your schedule, your space."}
-            {step === 4 && "Optional, but helpful for keeping you safe."}
-            {step === 5 && "Anything else you want your coach to know?"}
+            {step === 4 && "Anything else you want your coach to know?"}
           </p>
         </div>
 
@@ -486,21 +483,25 @@ const Questionnaire = () => {
               </Field>
               <Field label="Main goal">
                 <div className="grid grid-cols-2 gap-2">
-                  {GOALS.map((g) => (
-                    <button
-                      key={g.id}
-                      type="button"
-                      onClick={() => updateField("goal", g.id)}
-                      className={`p-4 text-sm rounded-2xl border transition-all ${
-                        form.goal === g.id
-                          ? "border-primary bg-primary/5 text-primary font-medium"
-                          : "border-border/30 text-muted-foreground hover:border-border/60"
-                      }`}
-                    >
-                      {g.label}
-                    </button>
-                  ))}
+                  {GOALS.map((g) => {
+                    const active = form.goals.includes(g.id);
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() => toggleArrayField("goals", g.id)}
+                        className={`p-4 text-sm rounded-2xl border transition-all ${
+                          active
+                            ? "border-primary bg-primary/5 text-primary font-medium"
+                            : "border-border/30 text-muted-foreground hover:border-border/60"
+                        }`}
+                      >
+                        {g.label}
+                      </button>
+                    );
+                  })}
                 </div>
+                <p className="text-[11px] text-muted-foreground mt-2">Select all that apply.</p>
               </Field>
             </>
           )}
@@ -509,21 +510,25 @@ const Questionnaire = () => {
             <>
               <Field label="Preferred training style">
                 <div className="flex flex-wrap gap-2">
-                  {TRAINING_STYLES.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => updateField("preferred_training_style", s)}
-                      className={`px-4 py-2 text-xs rounded-full border transition-all ${
-                        form.preferred_training_style === s
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border/30 text-muted-foreground hover:border-border/60"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                  {TRAINING_STYLES.map((s) => {
+                    const active = form.preferred_training_styles.includes(s);
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => toggleArrayField("preferred_training_styles", s)}
+                        className={`px-4 py-2 text-xs rounded-full border transition-all ${
+                          active
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border/30 text-muted-foreground hover:border-border/60"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
                 </div>
+                <p className="text-[11px] text-muted-foreground mt-2">Select all that apply.</p>
               </Field>
               <Field label="Days per week">
                 <div className="grid grid-cols-7 gap-1.5">
@@ -570,30 +575,6 @@ const Questionnaire = () => {
           )}
 
           {step === 4 && (
-            <>
-              <Field label="Injuries or limitations" optional>
-                <Textarea
-                  value={form.injuries_limitations}
-                  onChange={(e) => updateField("injuries_limitations", e.target.value)}
-                  placeholder="e.g. lower back stiffness, prior knee surgery..."
-                  className="min-h-[90px] rounded-2xl"
-                />
-              </Field>
-              <Field label="Current medications" optional>
-                <Textarea
-                  value={form.current_medications}
-                  onChange={(e) => updateField("current_medications", e.target.value)}
-                  placeholder="Anything that may affect training (blood pressure, beta blockers, etc.)"
-                  className="min-h-[90px] rounded-2xl"
-                />
-                <p className="text-[11px] text-muted-foreground mt-2">
-                  Shared only with your coach. Leave blank if none.
-                </p>
-              </Field>
-            </>
-          )}
-
-          {step === 5 && (
             <>
               <Field label="Anything else for your coach?" optional>
                 <Textarea
