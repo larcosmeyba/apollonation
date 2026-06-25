@@ -615,7 +615,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                       : block.section === "workout_c" ? "Workout Block C"
                       : `Set ${setNum} of ${block.sets}`}
                   </div>
-                  <h2 className="font-heading text-xl md:text-3xl mt-1 tracking-wider leading-tight">
+                  <h2 className="font-heading mt-1 tracking-wider leading-tight" style={{ fontSize: `${20 * uiScale.title}px` }}>
                     {block.exercise?.name || "—"}
                   </h2>
                   {(block.section === "workout_a" || block.section === "workout_b" || block.section === "workout_c") && (
