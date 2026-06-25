@@ -335,16 +335,14 @@ const Questionnaire = () => {
             {step === 1 && <>Your <span className="text-primary">measurements</span>.</>}
             {step === 2 && <>What are you <span className="text-primary">working toward?</span></>}
             {step === 3 && <>How you like to <span className="text-primary">train</span>.</>}
-            {step === 4 && <>A quick <span className="text-primary">health check</span>.</>}
-            {step === 5 && <>Almost <span className="text-primary">there</span>.</>}
+            {step === 4 && <>Almost <span className="text-primary">there</span>.</>}
           </h1>
           <p className="text-sm text-muted-foreground font-light mt-3">
             {step === 0 && "Just the basics so your coach can reach you."}
             {step === 1 && "We use these to dial in your nutrition and training."}
-            {step === 2 && "Pick the goal that matters most right now."}
+            {step === 2 && "Pick the goals that matter most right now."}
             {step === 3 && "Your style, your schedule, your space."}
-            {step === 4 && "Optional, but helpful for keeping you safe."}
-            {step === 5 && "Anything else you want your coach to know?"}
+            {step === 4 && "Anything else you want your coach to know?"}
           </p>
         </div>
 
