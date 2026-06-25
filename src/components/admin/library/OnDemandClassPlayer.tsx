@@ -677,7 +677,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                     );
                   })()}
                   <div className="relative flex flex-col items-center leading-none">
-                    <div className="font-heading tabular-nums" style={{ fontSize: `calc(clamp(22px, 5vw, 42px) * ${uiScale.clock})` }}>{remaining}</div>
+                    <div className="font-heading tabular-nums" style={{ fontSize: `calc(clamp(15px, 3.5vw, 30px) * ${uiScale.clock})` }}>{remaining}</div>
                     <div className="uppercase tracking-[0.3em] text-white/55 mt-1" style={{ fontSize: "clamp(7px, 1.2vw, 9px)" }}>SEC</div>
                   </div>
                 </div>
