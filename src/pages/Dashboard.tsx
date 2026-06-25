@@ -81,6 +81,9 @@ const Dashboard = () => {
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
   const [pendingWorkout, setPendingWorkout] = useState<any | null>(null);
   const [playingClass, setPlayingClass] = useState<{ classId: string; title: string } | null>(null);
+  const [musicAck, setMusicAck] = useState(false);
+  useEffect(() => { setMusicAck(false); }, [selectedWorkout?.id]);
+  const selectedHasVideo = !!(selectedWorkout && selectedWorkout.video_url);
 
 
   const greeting = useMemo(() => {
