@@ -483,21 +483,25 @@ const Questionnaire = () => {
               </Field>
               <Field label="Main goal">
                 <div className="grid grid-cols-2 gap-2">
-                  {GOALS.map((g) => (
-                    <button
-                      key={g.id}
-                      type="button"
-                      onClick={() => updateField("goal", g.id)}
-                      className={`p-4 text-sm rounded-2xl border transition-all ${
-                        form.goal === g.id
-                          ? "border-primary bg-primary/5 text-primary font-medium"
-                          : "border-border/30 text-muted-foreground hover:border-border/60"
-                      }`}
-                    >
-                      {g.label}
-                    </button>
-                  ))}
+                  {GOALS.map((g) => {
+                    const active = form.goals.includes(g.id);
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() => toggleArrayField("goals", g.id)}
+                        className={`p-4 text-sm rounded-2xl border transition-all ${
+                          active
+                            ? "border-primary bg-primary/5 text-primary font-medium"
+                            : "border-border/30 text-muted-foreground hover:border-border/60"
+                        }`}
+                      >
+                        {g.label}
+                      </button>
+                    );
+                  })}
                 </div>
+                <p className="text-[11px] text-muted-foreground mt-2">Select all that apply.</p>
               </Field>
             </>
           )}
@@ -506,21 +510,25 @@ const Questionnaire = () => {
             <>
               <Field label="Preferred training style">
                 <div className="flex flex-wrap gap-2">
-                  {TRAINING_STYLES.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => updateField("preferred_training_style", s)}
-                      className={`px-4 py-2 text-xs rounded-full border transition-all ${
-                        form.preferred_training_style === s
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border/30 text-muted-foreground hover:border-border/60"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                  {TRAINING_STYLES.map((s) => {
+                    const active = form.preferred_training_styles.includes(s);
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => toggleArrayField("preferred_training_styles", s)}
+                        className={`px-4 py-2 text-xs rounded-full border transition-all ${
+                          active
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border/30 text-muted-foreground hover:border-border/60"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
                 </div>
+                <p className="text-[11px] text-muted-foreground mt-2">Select all that apply.</p>
               </Field>
               <Field label="Days per week">
                 <div className="grid grid-cols-7 gap-1.5">
