@@ -683,7 +683,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                       <div className="absolute -top-1.5 left-2 px-1.5 py-0.5 rounded-full bg-yellow-300 text-black text-[8px] font-bold uppercase tracking-[0.2em]">
                         Coach Note
                       </div>
-                      <p className="text-xs md:text-sm font-medium text-yellow-50 leading-snug pt-0.5">
+                      <p className="font-medium text-yellow-50 leading-snug pt-0.5" style={{ fontSize: `${13 * uiScale.note}px` }}>
                         {block.cue_overrides}
                       </p>
                     </motion.div>
