@@ -77,7 +77,7 @@ const TYPES = ["Strength", "HIIT", "Sculpt", "Cardio", "Core", "Stretch"];
 const DashboardWorkouts = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { hasPremiumAccess, freeWorkoutsRemaining } = useAccessControl();
+  const { hasPremiumAccess } = useAccessControl();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<"explore" | "collections">(
