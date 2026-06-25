@@ -268,7 +268,7 @@ const Questionnaire = () => {
         height_inches: totalInches,
         weight_lbs: weightLbs,
         activity_level: form.activity_level,
-        goals: form.goal,
+        goals: form.goals.join(", "),
         dietary_preferences: [form.sex],
         food_restrictions: [] as string[],
       };
