@@ -54,7 +54,7 @@ const ENVIRONMENTS = [
   { id: "bodyweight", label: "Bodyweight Only" },
 ];
 
-const STEPS = ["You", "Body", "Goals", "Training", "Health", "Finish"];
+const STEPS = ["You", "Body", "Goals", "Training", "Finish"];
 
 const Questionnaire = () => {
   const { user, loading } = useAuth();
@@ -78,14 +78,11 @@ const Questionnaire = () => {
     // Goals
     fitness_experience: "",
     activity_level: "moderate",
-    goal: "",
+    goals: [] as string[],
     // Training
-    preferred_training_style: "",
+    preferred_training_styles: [] as string[],
     preferred_training_days: [] as string[],
     workout_environment: "",
-    // Health
-    injuries_limitations: "",
-    current_medications: "",
     // Finish
     additional_notes: "",
     waiver_accepted: false,
