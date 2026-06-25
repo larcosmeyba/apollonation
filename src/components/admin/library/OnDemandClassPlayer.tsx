@@ -261,6 +261,29 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
   const [overrides, setOverrides] = useState<Record<string, FrameOverrides>>(() => loadFrameOverrides());
   const [savingFrame, setSavingFrame] = useState(false);
   const [showFramePanel, setShowFramePanel] = useState(false);
+  const [showSizePanel, setShowSizePanel] = useState(false);
+  const [uiScale, setUiScale] = useState<UiScale>(() => loadUiScale());
+  const updateUiScale = (patch: Partial<UiScale>) => {
+    setUiScale((prev) => {
+      const next = { ...prev, ...patch };
+      saveUiScale(next);
+      return next;
+    });
+  };
+
+  // Lock to landscape orientation while the player is open (best-effort, mobile only).
+  useEffect(() => {
+    const so: any = (window.screen as any)?.orientation;
+    let locked = false;
+    try {
+      if (so?.lock) {
+        so.lock("landscape").then(() => { locked = true; }).catch(() => {});
+      }
+    } catch { /* noop */ }
+    return () => {
+      try { if (locked && so?.unlock) so.unlock(); } catch { /* noop */ }
+    };
+  }, []);
 
   const getFrame = (ex: AdminExercise | null): FrameOverrides => {
     if (!ex) return { position: "center center", fit: "cover", scale: 1 };
