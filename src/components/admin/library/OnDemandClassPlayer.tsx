@@ -639,7 +639,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                   )}
                 </div>
                 <div className="text-right">
-                  <div className="font-heading text-4xl md:text-6xl tabular-nums leading-none">{remaining}</div>
+                  <div className="font-heading tabular-nums leading-none" style={{ fontSize: `${36 * uiScale.clock}px` }}>{remaining}</div>
                   <div className="text-[9px] uppercase tracking-[0.3em] text-white/60 mt-1">
                     {block.section === "cooldown" ? "Hold" : "Work"}
                   </div>
