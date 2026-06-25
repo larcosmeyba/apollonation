@@ -519,7 +519,7 @@ const DashboardNutritionSetup = () => {
           weight_lbs: parseFloat(form.current_weight_lbs) || null,
           goal_weight_lbs: form.goal_weight_lbs ? parseFloat(form.goal_weight_lbs) : null,
           age: parseInt(form.age) || null,
-          sex: (form.gender || null) as "male" | "female" | null,
+          sex: (form.gender === "male" || form.gender === "female" ? form.gender : null) as "male" | "female" | null,
           activity_level: form.activity_level || null,
           primary_goal: form.main_goal || null,
           training_days_per_week: form.training_days_per_week ? parseInt(form.training_days_per_week) : null,
