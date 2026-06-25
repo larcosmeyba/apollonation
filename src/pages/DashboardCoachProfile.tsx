@@ -215,6 +215,12 @@ const DashboardCoachProfile = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <PreWorkoutMusicPrompt
+        open={!!selectedWorkout && selectedHasVideo && !musicAck}
+        onCancel={() => setSelectedWorkout(null)}
+        onReady={() => setMusicAck(true)}
+      />
     </DashboardLayout>
   );
 };
