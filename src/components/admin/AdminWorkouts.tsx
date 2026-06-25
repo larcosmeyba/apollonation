@@ -442,20 +442,20 @@ const AdminWorkouts = () => {
 
       {/* Free On-Demand Picks summary */}
       {(() => {
-        const FREE_PICK_LIMIT = 10;
         const freeCount = (workouts || []).filter((w: any) => w.is_free_pick).length;
         return (
           <div className="rounded-lg border border-dashed border-emerald-500/40 bg-emerald-500/5 p-3 flex items-center gap-3">
             <Gift className="w-4 h-4 text-emerald-500 shrink-0" />
             <div className="flex-1 text-sm">
-              <span className="font-medium">Free On-Demand Picks: {freeCount} / {FREE_PICK_LIMIT}</span>
+              <span className="font-medium">Free On-Demand Picks: {freeCount}</span>
               <span className="text-muted-foreground ml-2">
-                These are the on-demand workouts free users can play. Toggle the gift icon on any card to add or remove.
+                These on-demand workouts are unlocked for free users. Toggle the gift icon on any card to add or remove — no limit.
               </span>
             </div>
           </div>
         );
       })()}
+
 
       {/* Library Management Bar */}
       <div className="flex flex-wrap gap-2 items-center">
