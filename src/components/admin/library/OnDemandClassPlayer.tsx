@@ -368,7 +368,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                       if (startPreviewRef.current && blocks[0].exercise?.loop_in_seconds)
                         startPreviewRef.current.currentTime = blocks[0].exercise.loop_in_seconds;
                     }}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     style={videoStyle(blocks[0].exercise)}
                   />
                 ) : (
