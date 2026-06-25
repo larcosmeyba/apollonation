@@ -193,7 +193,7 @@ const Auth = () => {
           } catch {
             // Non-fatal — the column has a sensible default of NULL.
           }
-          toast({ title: "Check your email", description: "We've sent you a confirmation link to verify your account." });
+          toast({ title: "Account created", description: "You're all set — welcome to Apollo Reborn." });
         }
       }
     } finally {
