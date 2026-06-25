@@ -520,7 +520,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                 </div>
               </div>
             ) : (
-              <div className="mt-8 text-xs uppercase tracking-[0.3em] text-white/40">
+              <div className="mt-8 text-[11px] uppercase tracking-[0.3em] text-white font-medium text-center px-6">
                 Set {setNum} of {block.sets} · {block.exercise?.name || ""}
               </div>
             )}
