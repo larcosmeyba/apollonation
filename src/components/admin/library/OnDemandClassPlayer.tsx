@@ -654,7 +654,7 @@ const OnDemandClassPlayer = ({ title, blocks, onClose, introEnabled = true, admi
                   )}
                 </div>
                 {/* Clock with circular progress arc */}
-                <div className="relative shrink-0 flex items-center justify-center" style={{ width: `calc(clamp(72px, 13vw, 120px) * ${uiScale.clock})`, height: `calc(clamp(72px, 13vw, 120px) * ${uiScale.clock})` }}>
+                <div className="relative shrink-0 flex items-center justify-center" style={{ width: `calc(clamp(50px, 9vw, 84px) * ${uiScale.clock})`, height: `calc(clamp(50px, 9vw, 84px) * ${uiScale.clock})` }}>
                   {(() => {
                     const total = block.work_seconds;
                     const pct = total > 0 ? Math.max(0, Math.min(1, remaining / total)) : 0;
