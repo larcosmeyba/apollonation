@@ -445,6 +445,12 @@ const DashboardWorkouts = () => {
         }}
       />
 
+      <PreWorkoutMusicPrompt
+        open={!!selectedWorkout && selectedHasVideo && !musicAck}
+        onCancel={() => setSelectedWorkout(null)}
+        onReady={() => setMusicAck(true)}
+      />
+
       {playingClass && (
         <AdminClassPlayerLauncher
           classId={playingClass.classId}
