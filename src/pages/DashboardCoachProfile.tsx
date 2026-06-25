@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -28,6 +28,9 @@ const DashboardCoachProfile = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"bio" | "ondemand">("bio");
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [musicAck, setMusicAck] = useState(false);
+  useEffect(() => { setMusicAck(false); }, [selectedWorkout?.id]);
+  const selectedHasVideo = !!(selectedWorkout && ((selectedWorkout as any).mux_playback_id || selectedWorkout.video_url));
 
   const { data: workouts = [] } = useQuery({
     queryKey: ["coach-workouts"],
